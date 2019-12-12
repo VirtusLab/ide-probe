@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: test ${{ matrix.type }}
+
+    strategy:
+      matrix:
+        type: [probe, scala]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: build image
+        run: docker build --tag testimage .
+      - name: test
+        run: sh ci/run_docker sh ci/test-${{ matrix.type }}
+      - uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.name }} output
+          path: /tmp/ideprobe/output/

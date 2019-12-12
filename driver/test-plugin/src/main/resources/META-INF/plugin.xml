@@ -1,0 +1,32 @@
+<idea-plugin>
+    <id>virtuslab.ideprobe.driver.test</id>
+    <name>Virtuslab IdeProbe Driver Test</name>
+    <vendor email="info@virtuslab.com" url="http://www.virtuslab.com">VirtusLab</vendor>
+
+    <depends>com.intellij.modules.lang</depends>
+    <depends>com.intellij.modules.java</depends>
+    <idea-version since-build="191.*" until-build="202.*"/>
+
+    <actions>
+        <action id="com.virtuslab.ideprobe.test.ThrowingAction"
+                class="com.virtuslab.ideprobe.test.ThrowingAction"
+                text="Throwing Action" description="Action that throws">
+            <add-to-group group-id="ToolsMenu" anchor="first"/>
+        </action>
+        <action id="com.virtuslab.ideprobe.test.BackgroundTaskAction15s"
+                class="com.virtuslab.ideprobe.test.BackgroundTaskAction15s"
+                text="Background Task Action" description="Action that starts infinite background task">
+            <add-to-group group-id="ToolsMenu" anchor="first"/>
+        </action>
+        <action id="com.virtuslab.ideprobe.test.FreezingAction"
+                class="com.virtuslab.ideprobe.test.FreezingAction"
+                text="UI Freeze Action" description="Action blocks ui thread for 10s">
+            <add-to-group group-id="ToolsMenu" anchor="first"/>
+        </action>
+        <action id="com.virtuslab.ideprobe.test.OpenWindowAction"
+                class="com.virtuslab.ideprobe.test.OpenWindowAction"
+                text="Open Dialog" description="Opens a dialog">
+            <add-to-group group-id="ToolsMenu" anchor="first"/>
+        </action>
+    </actions>
+</idea-plugin>
