@@ -1,0 +1,27 @@
+<idea-plugin>
+    <id>org.virtuslab.ideprobe</id>
+    <name>Virtuslab IdeProbe</name>
+    <vendor email="info@virtuslab.com" url="http://www.virtuslab.com">VirtusLab</vendor>
+
+    <depends>com.intellij.modules.lang</depends>
+    <depends>com.intellij.modules.java</depends>
+    <depends>JUnit</depends>
+    <idea-version since-build="191.*" until-build="202.*"/>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <appStarter implementation="org.virtuslab.HeadlessStarter"/>
+        <applicationService serviceImplementation="org.virtuslab.IdeProbeService"/>
+        <applicationInitializedListener implementation="org.virtuslab.IdeProbeLauncher"/>
+    </extensions>
+
+    <extensionPoints>
+        <extensionPoint
+                name="probeHandlerContributor"
+                interface="org.virtuslab.ProbeHandlerContributor"/>
+    </extensionPoints>
+
+    <extensions defaultExtensionNs="org.virtuslab.ideprobe">
+        <probeHandlerContributor implementation="org.virtuslab.BaseProbeHandlerContributor"/>
+    </extensions>
+
+</idea-plugin>

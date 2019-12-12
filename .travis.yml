@@ -1,0 +1,28 @@
+before_install:
+  - git fetch --tags
+  - sbt ci/generateScripts
+  - docker build --tag testimage .
+
+stages:
+  - name: Test
+  - name: Release
+    if: ((branch = master AND type = push) OR (tag IS present)) AND NOT fork
+
+
+services:
+  - docker
+
+os: linux
+language: scala
+jdk: openjdk8
+scala:
+  - 2.13.1
+
+jobs:
+  include:
+    - name: test-probe
+      script: sh ci/run_docker sh ci/test-probe
+    - name: test-scala
+      script: sh ci/run_docker sh ci/test-scala
+    - stage: Release
+      script: sbt ci-release
