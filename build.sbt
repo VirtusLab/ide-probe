@@ -4,6 +4,7 @@ organization.in(ThisBuild) := "com.virtuslab"
 version.in(ThisBuild) := "0.1"
 scalaVersion.in(ThisBuild) := "2.13.1"
 intellijBuild.in(ThisBuild) := "202.5792.28-EAP-SNAPSHOT"
+licenses.in(ThisBuild) := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0"))
 skip in publish := true
 
 import IdeaPluginAdapter._
@@ -96,7 +97,8 @@ lazy val junitDriver = project
   .dependsOn(driver, api % "compile->compile;test->test")
   .settings(
     name := "junit-driver",
-    libraryDependencies ++= Dependencies.junit
+    libraryDependencies ++= Dependencies.junit,
+    skip in publish := false
   )
 
 lazy val probePlugin = ideaPlugin("probePlugin")

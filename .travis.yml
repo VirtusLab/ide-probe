@@ -1,0 +1,20 @@
+before_install:
+  - git fetch --tags
+
+stages:
+  - name: test
+  - name: release
+    if: ((branch = master AND type = push) OR (tag IS present)) AND NOT fork
+
+
+language: scala
+jdk: openjdk8
+scala:
+  - 2.13.1
+
+jobs:
+  include:
+    - name: test
+      script: sbt test
+    - stage: release
+      script: sbt ci-release
