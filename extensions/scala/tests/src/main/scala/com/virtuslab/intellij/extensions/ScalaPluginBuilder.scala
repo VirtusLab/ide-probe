@@ -34,7 +34,7 @@ object ScalaPluginBuilder extends DependencyBuilder(Id("scala")) {
     if (result.exitCode != 0) throw new Exception(s"Couldn't build scala plugin. STDERR:\n${result.err}")
     println("Built scala plugin")
 
-    localRepo.resolve("target/Scala-0.1-SNAPSHOT.zip").inputStream
+    localRepo.resolve("target/Scala-0.1.0-SNAPSHOT.zip").inputStream
   }
 
   private def clone(repository: Git) = {
