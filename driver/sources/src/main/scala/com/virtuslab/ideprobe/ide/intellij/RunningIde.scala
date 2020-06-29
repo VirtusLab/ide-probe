@@ -24,13 +24,23 @@ final class RunningIde(val launcher: NuProcess, idePID: Long, val probe: ProbeDr
       val launcherPID = launcher.getPID
 
       launcher.destroy(true)
-      launcher.waitFor(15, TimeUnit.SECONDS) // destroy might not work immediately
+      val exitCode = launcher.waitFor(30, TimeUnit.SECONDS) // destroy might not work immediately
+      if (exitCode == Integer.MIN_VALUE) {
+        println("Could't terminate the IDE within the usual timeout. Using system command to terminate.")
+      }
 
       if (launcherPID != idePID) {
         // TODO replace with ProcessHandler when java 9 is supported
-        OS.Current match {
-          case OS.Unix | OS.Mac => Shell.run("kill", "-9", idePID.toString)
-          case OS.Windows       => Shell.run("taskkill", "/F", "/pid", idePID.toString)
+        val command = OS.Current match {
+          case OS.Unix | OS.Mac => Array("kill", "-9", idePID.toString)
+          case OS.Windows       => Array("taskkill", "/F", "/pid", idePID.toString)
+        }
+
+        val result = Shell.run(command: _*)
+        if (result.exitCode == 0) {
+          println("IDE terminated")
+        } else if (!result.err.contains("No such process")) {
+          println("Couldn't terminate the IDE due to: " + result.err)
         }
       }
     }
