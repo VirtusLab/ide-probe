@@ -40,7 +40,9 @@ final class RunningIde(val launcher: NuProcess, idePID: Long, val probe: ProbeDr
         if (result.exitCode == 0) {
           println("IDE terminated")
         } else if (!result.err.contains("No such process")) {
-          println("Couldn't terminate the IDE due to: " + result.err)
+          Console.err.println(s"Couldn't terminate the IDE: ${result.exitCode}")
+          Console.err.println(s"STDOUT: [${result.out}]")
+          Console.err.println(s"STDERR: [${result.err}]")
         }
       }
     }

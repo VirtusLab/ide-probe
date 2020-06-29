@@ -19,13 +19,9 @@ final class InstalledIntelliJ(val root: Path, config: DriverConfig) {
   val paths: IntelliJPaths = new IntelliJPaths(root, config.headless)
 
   private val vmoptions: Path = {
-    val baseVMOptions = Seq(
-      s"-Djava.awt.headless=${config.headless}",
-      DebugMode.vmOption
-    )
+    val baseVMOptions = Seq(s"-Djava.awt.headless=${config.headless}")
 
-    val vmOptions = baseVMOptions ++ config.vmOptions
-
+    val vmOptions = baseVMOptions ++ DebugMode.vmOption ++ config.vmOptions
     val content = vmOptions.mkString("\n")
 
     root.resolve("bin/ideprobe.vmoptions").write(content)
@@ -87,7 +83,8 @@ final class InstalledIntelliJ(val root: Path, config: DriverConfig) {
           )
       }
 
-      val overrideDisplay = if (Display.Mode == Display.Xvfb) Map("DISPLAY" -> s":${Display.XvfbDisplayId}") else Map.empty
+      val overrideDisplay =
+        if (Display.Mode == Display.Xvfb) Map("DISPLAY" -> s":${Display.XvfbDisplayId}") else Map.empty
       testCaseEnv ++ Map(
         "IDEA_VM_OPTIONS" -> vmoptions.toString,
         "IDEA_PROPERTIES" -> ideaProperties.toString,
