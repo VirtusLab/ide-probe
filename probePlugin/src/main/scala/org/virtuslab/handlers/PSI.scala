@@ -12,7 +12,7 @@ object PSI extends IntelliJApi {
   def resolve(ref: FileRef): PsiFile = {
     val project = Projects.resolve(ref.project)
     val file = VFS.resolve(ref)
-    PsiManager.getInstance(project).findFile(file)
+    read { PsiManager.getInstance(project).findFile(file) }
   }
 
   def references(file: FileRef): Seq[Reference] = {
@@ -24,10 +24,10 @@ object PSI extends IntelliJApi {
     val elements = mutable.Stack[PsiElement](root)
     while (elements.nonEmpty) {
       val element = elements.pop()
-      elements.pushAll(element.getChildren)
+      elements.pushAll(read { element.getChildren })
       element.getReferences.foreach { reference =>
-        val text = reference.getCanonicalText
-        Option(read(reference.resolve()))
+        val text = read { reference.getCanonicalText }
+        Option(read { reference.resolve() })
           .flatMap(toTarget)
           .map(Reference(text, _))
           .foreach(references.append)

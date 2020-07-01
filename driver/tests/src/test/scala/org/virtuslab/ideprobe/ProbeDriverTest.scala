@@ -86,7 +86,8 @@ final class ProbeDriverTest extends IntegrationTestSuite with Assertions {
         }
       }
 
-  private val buildTestFixture = fixture.withDisplay
+  private val buildTestFixture = fixture
+    .withDisplay
     .copy(workspaceTemplate = WorkspaceTemplate.FromResource("BuildTest"))
 
   @Ignore

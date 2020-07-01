@@ -13,12 +13,22 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 
 final case class IntelliJFixture(
-    workspaceTemplate: WorkspaceTemplate,
-    factory: IntelliJFactory,
-    version: IntelliJVersion,
-    plugins: Seq[Plugin],
-    config: Config
+  workspaceTemplate: WorkspaceTemplate,
+  factory: IntelliJFactory,
+  version: IntelliJVersion,
+  plugins: Seq[Plugin],
+  config: Config,
+  afterWorkspaceSetup: Seq[(IntelliJFixture, Path) => Unit]
 )(implicit ec: ExecutionContext) {
+
+  def withConfig(entries: (String, String)*): IntelliJFixture = {
+    val newConfig = Config.fromMap(entries.toMap).withFallback(config)
+    copy(config = newConfig)
+  }
+
+  def withAfterWorkspaceSetup(action: (IntelliJFixture, Path) => Unit): IntelliJFixture = {
+    copy(afterWorkspaceSetup = afterWorkspaceSetup :+ action)
+  }
 
   def withDisplay: IntelliJFixture = {
     copy(factory = factory.withConfig(factory.config.copy(headless = false)))
@@ -32,6 +42,7 @@ final case class IntelliJFixture(
     val workspaceBase = Files.createTempDirectory("ideprobe-workspace")
     val workspace = workspaceBase.createDirectory("ws")
     workspaceTemplate.setupIn(workspace)
+    afterWorkspaceSetup.foreach(_.apply(this, workspace))
     workspace
   }
 
@@ -78,26 +89,25 @@ object IntelliJFixture {
   private val ConfigRoot = "probe"
 
   def apply(
-      workspaceTemplate: WorkspaceTemplate = WorkspaceTemplate.Empty,
-      version: IntelliJVersion = IntelliJVersion.Latest,
-      intelliJFactory: IntelliJFactory = IntelliJFactory.Default,
-      plugins: Seq[Plugin] = Seq.empty,
-      environment: Config = Config.Empty
+    workspaceTemplate: WorkspaceTemplate = WorkspaceTemplate.Empty,
+    version: IntelliJVersion = IntelliJVersion.Latest,
+    intelliJFactory: IntelliJFactory = IntelliJFactory.Default,
+    plugins: Seq[Plugin] = Seq.empty,
+    environment: Config = Config.Empty
   )(implicit ec: ExecutionContext): IntelliJFixture = {
-    new IntelliJFixture(workspaceTemplate, intelliJFactory, version, plugins, environment)
+    new IntelliJFixture(workspaceTemplate, intelliJFactory, version, plugins, environment, afterWorkspaceSetup = Nil)
   }
 
   def fromConfig(config: Config, path: String = ConfigRoot)(implicit ec: ExecutionContext): IntelliJFixture = {
-    import pureconfig.generic.auto._
     val probeConfig = config[IdeProbeConfig](path)
-    val factory = IntelliJFactory.from(probeConfig.resolvers, probeConfig.driver)
 
     new IntelliJFixture(
       workspaceTemplate = probeConfig.workspace.map(WorkspaceTemplate.from).getOrElse(WorkspaceTemplate.Empty),
-      factory = factory,
+      factory = IntelliJFactory.from(probeConfig.resolvers, probeConfig.driver),
       version = probeConfig.intellij.version,
       plugins = probeConfig.intellij.plugins,
-      config = config
+      config = config,
+      afterWorkspaceSetup = Nil
     )
   }
 }
