@@ -6,7 +6,6 @@ import java.nio.file.Paths
 import java.util.concurrent.atomic.AtomicInteger
 
 object Screenshot {
-  println("screen")
   private val id = new AtomicInteger(0)
 
   private val probeDisplay = sys.env.get("DISPLAY")

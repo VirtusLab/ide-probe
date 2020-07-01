@@ -15,9 +15,15 @@ trait IntegrationTestSuite {
     s"${getClass.getSimpleName}/$name.conf"
   }
 
-  def fixtureFromConfig(name: String = "ideprobe"): IntelliJFixture = {
-    IntelliJFixture.fromConfig(Config.fromClasspath(resourcePath(name)))
+  final def fixtureFromConfig(name: String = "ideprobe"): IntelliJFixture = {
+    fixtureFromConfig(Config.fromClasspath(resourcePath(name)))
   }
+
+  final def fixtureFromConfig(config: Config): IntelliJFixture = {
+    transformFixture(IntelliJFixture.fromConfig(config))
+  }
+
+  protected def transformFixture(fixture: IntelliJFixture): IntelliJFixture = fixture
 
   def within(limit: FiniteDuration, interval: FiniteDuration = 100.millis)(block: => Unit): Unit = {
     lazy val start = System.nanoTime()
