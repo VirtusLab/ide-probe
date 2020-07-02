@@ -2,7 +2,7 @@ package org.virtuslab.handlers
 
 import com.intellij.ide.plugins.PluginManagerCore
 import org.virtuslab.ideprobe.protocol.InstalledPlugin
-import scala.jdk.CollectionConverters._
+import org.virtuslab.ideprobe.Extensions._
 
 object Plugins {
   def list: Seq[InstalledPlugin] = {

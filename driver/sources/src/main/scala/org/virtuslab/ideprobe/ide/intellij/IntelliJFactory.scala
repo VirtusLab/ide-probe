@@ -12,7 +12,6 @@ import org.virtuslab.ideprobe.dependencies.Plugin
 import org.virtuslab.ideprobe.dependencies.PluginResolver
 import org.virtuslab.ideprobe.dependencies.Resource
 import org.virtuslab.ideprobe.dependencies.ResourceProvider
-import scala.collection.parallel.CollectionConverters._
 
 final class IntelliJFactory(dependencies: DependencyProvider, val config: DriverConfig) {
   def withConfig(config: DriverConfig): IntelliJFactory = new IntelliJFactory(dependencies, config)
@@ -36,7 +35,7 @@ final class IntelliJFactory(dependencies: DependencyProvider, val config: Driver
 
   private def installPlugins(plugins: Seq[Plugin], root: Path): Unit = {
     val targetDir = root.resolve("plugins")
-    plugins.par.foreach { plugin =>
+    plugins.asJava.stream().parallel().forEach { plugin =>
       val file = dependencies.fetch(plugin)
       unpackTo(file, targetDir)
       println(s"Installed $plugin")

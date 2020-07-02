@@ -65,7 +65,7 @@ trait IntelliJApi {
 
   implicit class ReflectionOps[A](obj: A) {
     import java.lang.reflect._
-    def invoke[B: ClassTag](name: String)(args: Any*): B = {
+    def invoke[B: ClassTag](name: String)(args: Object*): B = {
       val params = args.map(_.getClass)
       val method = getMethod(obj.getClass, name, params: _*)
 

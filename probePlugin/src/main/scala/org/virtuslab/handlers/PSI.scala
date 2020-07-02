@@ -30,7 +30,7 @@ object PSI extends IntelliJApi {
         Option(read { reference.resolve() })
           .flatMap(toTarget)
           .map(Reference(text, _))
-          .foreach(references.append)
+          .foreach(references += _)
       }
     }
 

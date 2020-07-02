@@ -12,7 +12,7 @@ import com.intellij.projectImport.ProjectImportProvider
 import org.virtuslab.ideprobe.protocol
 import org.virtuslab.ideprobe.protocol.ProjectRef
 import scala.annotation.tailrec
-import scala.jdk.CollectionConverters._
+import org.virtuslab.ideprobe.Extensions._
 
 object Projects extends IntelliJApi {
 
