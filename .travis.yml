@@ -3,15 +3,11 @@ before_install:
   - sbt ci/generateScripts
   - docker build --tag testimage .
 
-branches:
-  only:
-    - master
-
+if: type = push
 stages:
   - name: Test
   - name: Release
-    if: ((branch = master AND type = push) OR (tag IS present)) AND NOT fork
-
+    if: ((branch = master) OR (tag IS present)) AND NOT fork
 
 services:
   - docker
