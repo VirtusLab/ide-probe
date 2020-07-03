@@ -39,14 +39,19 @@ trait ConfigFormat {
     (cur: ConfigCursor) => {
       val read = readers.map(_.from(cur)).asInstanceOf[Seq[Result[Base]]]
 
-      read.reduceLeft(_.orElse(_)).left.map { _ =>
-        def errors[A](res: Result[A]): List[ConfigReaderFailures] = {
-          res.left.toSeq.toList
+      read
+        .reduceLeft { (acc, that) =>
+          if (acc.isRight) acc else that
         }
-        val cls = ct.runtimeClass.getName
-        val header = ConvertFailure(CannotConvert("", cls, "None of the below alternatives matched"), cur)
-        read.flatMap(errors).foldLeft(ConfigReaderFailures(header))(_ ++ _)
-      }
+        .left
+        .map { _ =>
+          def errors[A](res: Result[A]): List[ConfigReaderFailures] = {
+            res.left.toSeq.toList
+          }
+          val cls = ct.runtimeClass.getName
+          val header = ConvertFailure(CannotConvert("", cls, "None of the below alternatives matched"), cur)
+          read.flatMap(errors).foldLeft(ConfigReaderFailures(header))(_ ++ _)
+        }
     }
 
   implicit def hint[T]: ProductHint[T] =

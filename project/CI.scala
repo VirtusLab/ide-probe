@@ -22,15 +22,15 @@ object CI {
       .mapValues(_.map(_._1))
   }
 
-  def generateTestScript(group: String, projects: Seq[ProjectRef]): sbt.File = {
-    val script = file(s"ci/test-$group")
+  def generateTestScript(group: String, projects: Seq[ProjectRef], scalaVersion: String): sbt.File = {
+    val script = file(s"ci/$scalaVersion/test-$group")
     val arguments = projects.map(ref => s"; ${ref.project} / test").mkString
     val content = s"""|#!/bin/sh
                       |
                       |export IDEPROBE_DISPLAY=xvfb
                       |export JAVA_HOME=/usr/lib/jvm/java-11-openjdk
                       |
-                      |sbt "$arguments"
+                      |sbt "; clean; ++$scalaVersion $arguments"
                       |""".stripMargin
     IO.write(script, content)
     script

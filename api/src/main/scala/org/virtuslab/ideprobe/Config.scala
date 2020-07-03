@@ -5,8 +5,7 @@ import java.nio.file.Path
 import com.typesafe.config.ConfigFactory
 import pureconfig._
 import pureconfig.error.ConfigReaderException
-
-import scala.jdk.CollectionConverters._
+import org.virtuslab.ideprobe.Extensions._
 import scala.reflect.ClassTag
 
 final case class Config(source: ConfigSource, fallback: Option[Config] = None) {
@@ -16,7 +15,7 @@ final case class Config(source: ConfigSource, fallback: Option[Config] = None) {
   def apply[A: ClassTag](path: String)(implicit reader: Derivation[ConfigReader[A]]): A = {
     getEither[A](path) match {
       case Right(value) => value
-      case Left(value) => throw new ConfigReaderException[A](value)
+      case Left(value)  => throw new ConfigReaderException[A](value)
     }
   }
 
@@ -24,11 +23,13 @@ final case class Config(source: ConfigSource, fallback: Option[Config] = None) {
     getEither[A](path).toOption
   }
 
-  private def getEither[A: ClassTag](path: String)(implicit reader: Derivation[ConfigReader[A]]): ConfigReader.Result[A] = {
+  private def getEither[A: ClassTag](
+      path: String
+  )(implicit reader: Derivation[ConfigReader[A]]): ConfigReader.Result[A] = {
     source.at(path).load[A].left.flatMap { errors =>
       fallback match {
         case Some(fallback) => fallback.getEither[A](path)
-        case None => Left(errors)
+        case None           => Left(errors)
       }
     }
   }

@@ -29,7 +29,7 @@ import org.virtuslab.ideprobe.protocol.TestStatus
 import org.virtuslab.ideprobe.protocol.TestSuite
 import org.virtuslab.ideprobe.protocol.TestsRunResult
 import scala.concurrent.ExecutionContext
-import scala.jdk.CollectionConverters._
+import org.virtuslab.ideprobe.Extensions._
 
 object RunConfigurations extends IntelliJApi {
   def execute(runConfiguration: JUnitRunConfiguration)(implicit ec: ExecutionContext): TestsRunResult = {

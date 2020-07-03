@@ -1,6 +1,7 @@
 package org.virtuslab.ideprobe.log
 
 import scala.annotation.tailrec
+import scala.util.matching.Regex
 
 object IdeaLogParser {
 
@@ -38,10 +39,14 @@ object IdeaLogParser {
   }
 
   private def isNonErrorLogLine(line: String) = {
-    !errorLineRegex.matches(line) && anyLogLineRegex.matches(line)
+    !matches(errorLineRegex, line) && matches(anyLogLineRegex, line)
   }
 
   private def isNotErrorLine(string: String): Boolean = {
-    !errorLineRegex.matches(string)
+    !matches(errorLineRegex, string)
+  }
+
+  private def matches(regex: Regex, string: String): Boolean = {
+    regex.pattern.matcher(string).matches()
   }
 }

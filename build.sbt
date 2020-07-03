@@ -1,10 +1,15 @@
 name := "ideprobe"
 
+val scala212 = "2.12.10"
+val scala213 = "2.13.1"
+
 organization.in(ThisBuild) := "org.virtuslab.ideprobe"
-scalaVersion.in(ThisBuild) := "2.13.1"
+scalaVersion.in(ThisBuild) := scala213
 intellijBuild.in(ThisBuild) := "202.5792.28-EAP-SNAPSHOT"
 licenses.in(ThisBuild) := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0"))
 skip in publish.in(ThisBuild) := true
+
+crossScalaVersions := Nil
 
 import IdeaPluginAdapter._
 
@@ -18,9 +23,10 @@ disableIdeaPluginDevelopment()
 lazy val ci = project("ci", "ci", publish = false)
   .settings(
     CI.generateScripts := {
-      CI.groupedProjects().value.toList.map {
-        case (group, projects) => CI.generateTestScript(group, projects)
-      }
+      for {
+        (group, projects) <- CI.groupedProjects().value.toList
+        version <- crossScalaVersions.value
+      } yield CI.generateTestScript(group, projects, version)
     }
   )
 
@@ -42,10 +48,7 @@ lazy val driver = module("driver", "driver/sources")
   .enablePlugins(BuildInfoPlugin)
   .usesIdeaPlugin(probePlugin)
   .settings(
-    libraryDependencies ++= Seq(
-      Dependencies.scalaParallelCollections,
-      Dependencies.nuProcess
-    ),
+    libraryDependencies += Dependencies.nuProcess,
     buildInfoKeys := Seq[BuildInfoKey](version),
     buildInfoPackage := "org.virtuslab.ideprobe"
   )
@@ -88,6 +91,7 @@ def project(id: String, path: String, publish: Boolean): Project = {
     .settings(
       skip in Keys.publish := !publish,
       libraryDependencies ++= Dependencies.junit,
+      crossScalaVersions := List(scala213, scala212),
       test in assembly := {},
       assemblyExcludedJars in assembly := {
         val cp = (fullClasspath in assembly).value

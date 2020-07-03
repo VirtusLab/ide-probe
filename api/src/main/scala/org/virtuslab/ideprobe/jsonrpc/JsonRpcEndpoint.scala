@@ -48,7 +48,7 @@ trait JsonRpcEndpoint extends AutoCloseable {
     connection.onRequest { request =>
       handler(request.method, request.params)
         .map(connection.sendResponse(request, _))
-        .recover(connection.sendError(request, _))
+        .recover { case cause => connection.sendError(request, cause) }
     }
 
   def close(): Unit = {

@@ -7,8 +7,6 @@ object Dependencies {
     ("com.novocode" % "junit-interface" % "0.11" % Test).exclude("junit", "junit-dep")
   )
 
-  val scalaParallelCollections = "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0"
-
   val nuProcess = "com.zaxxer" % "nuprocess" % "1.2.6"
 
   val gson = "com.google.code.gson" % "gson" % "2.8.6"

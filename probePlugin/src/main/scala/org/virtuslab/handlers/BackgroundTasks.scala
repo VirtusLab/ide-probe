@@ -5,7 +5,7 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import scala.annotation.tailrec
 import scala.concurrent.duration._
-import scala.jdk.CollectionConverters._
+import org.virtuslab.ideprobe.Extensions._
 
 object BackgroundTasks extends IntelliJApi {
   def withAwaitNone[A](block: => A): A = {

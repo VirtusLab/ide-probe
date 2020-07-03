@@ -17,6 +17,6 @@ object Probe {
     val connection = JsonRpcConnection.from(socket)
     val probe = new Probe(connection)
 
-    Future(probe.listen).andThen(_ => Close(probe, socket))
+    Future(probe.listen).andThen { case _ => Close(probe, socket) }
   }
 }

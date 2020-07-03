@@ -12,11 +12,9 @@ import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
 import java.util.Comparator
 import java.util.zip.ZipInputStream
-import scala.collection.convert.AsJavaExtensions
-import scala.collection.convert.AsScalaExtensions
 import scala.util.Try
 
-object Extensions extends AsJavaExtensions with AsScalaExtensions {
+trait ProbeExtensions {
   implicit final class MapExtension[A, B](map: Map[A, B]) {
     def require(key: A): Try[B] = Try(map(key))
   }
