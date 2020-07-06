@@ -105,7 +105,7 @@ object IntelliJFixture {
       workspaceTemplate = probeConfig.workspace.map(WorkspaceTemplate.from).getOrElse(WorkspaceTemplate.Empty),
       factory = IntelliJFactory.from(probeConfig.resolvers, probeConfig.driver),
       version = probeConfig.intellij.version,
-      plugins = probeConfig.intellij.plugins,
+      plugins = probeConfig.intellij.plugins.filterNot(_.isInstanceOf[Plugin.Empty]),
       config = config,
       afterWorkspaceSetup = Nil
     )

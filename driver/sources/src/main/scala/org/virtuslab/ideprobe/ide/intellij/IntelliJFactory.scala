@@ -2,6 +2,9 @@ package org.virtuslab.ideprobe.ide.intellij
 
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.stream.Collectors
+import java.util.stream.{Stream => JStream}
+
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.dependencies.BundledDependencies
 import org.virtuslab.ideprobe.dependencies.DependenciesConfig
@@ -28,27 +31,47 @@ final class IntelliJFactory(dependencies: DependencyProvider, val config: Driver
   private def installIntelliJ(version: IntelliJVersion, root: Path): Unit = {
     println(s"Installing $version")
     val file = dependencies.fetch(version)
-    unpackTo(file, root)
+    toArchive(file).extractTo(root)
     root.resolve("bin/linux/fsnotifier64").makeExecutable()
     println(s"Installed $version")
   }
 
+  // This method differentiates plugins by their root entries in zip
+  // assuming that plugins with same root entries are the same plugin
+  // and only installs last occurrance of such plugin in the list
+  // in case of duplicates.
   private def installPlugins(plugins: Seq[Plugin], root: Path): Unit = {
+    case class PluginArchive(plugin: Plugin, archive: Resource.Archive) {
+      val rootEntries: Set[String] = archive.rootEntries.toSet
+    }
+
     val targetDir = root.resolve("plugins")
-    plugins.asJava.stream().parallel().forEach { plugin =>
+    val archives = withParallel[Plugin, PluginArchive](plugins)(_.map { plugin =>
       val file = dependencies.fetch(plugin)
-      unpackTo(file, targetDir)
-      println(s"Installed $plugin")
+      PluginArchive(plugin, toArchive(file))
+    })
+
+    val distinctPlugins = archives.reverse.distinctBy(_.rootEntries).reverse
+
+    parallel(distinctPlugins).forEach { pluginArchive =>
+      pluginArchive.archive.extractTo(targetDir)
+      println(s"Installed ${pluginArchive.plugin}")
     }
   }
 
-  private def unpackTo(resource: Resource, targetDir: Path): Unit = {
+  private def toArchive(resource: Resource): Resource.Archive = {
     resource match {
-      case Resource.Archive(archive) =>
-        archive.extractTo(targetDir)
-      case _ =>
-        throw new IllegalStateException(s"Not an archive: $resource")
+      case Resource.Archive(archive) => archive
+      case _ => throw new IllegalStateException(s"Not an archive: $resource")
     }
+  }
+
+  private def withParallel[A, B](s: Seq[A])(f: JStream[A] => JStream[B]): Seq[B] = {
+    f(parallel(s)).collect(Collectors.toList[B]).asScala.toList
+  }
+
+  private def parallel[A](s: Seq[A]) = {
+    s.asJava.parallelStream
   }
 }
 

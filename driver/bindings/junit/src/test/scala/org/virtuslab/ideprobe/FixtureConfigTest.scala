@@ -97,4 +97,11 @@ final class FixtureConfigTest extends WorkspaceFixture {
       assertEquals(HEAD, commit)
     }
   }
+
+  @Test
+  def ignoresEmptyPlugin(): Unit = {
+    val config = Config.fromString("""probe.intellij.plugins = [ { uri = ${?NO_SUCH_ENV} } ]""")
+    val plugins = IntelliJFixture.fromConfig(config).plugins
+    assertEquals(Nil, plugins)
+  }
 }

@@ -13,6 +13,7 @@ object Plugin extends ConfigFormat {
   case class Versioned(id: String, version: String, channel: Option[String]) extends Plugin
   case class Direct(uri: URI) extends Plugin
   case class FromSources(id: Id, repository: SourceRepository) extends Plugin
+  private[ideprobe] case class Empty() extends Plugin
 
   def apply(id: String, version: String, channel: Option[String] = None): Versioned = {
     Versioned(id, version, channel)
@@ -23,7 +24,8 @@ object Plugin extends ConfigFormat {
       deriveReader[Versioned],
       deriveReader[Direct],
       deriveReader[Bundled],
-      deriveReader[FromSources]
+      deriveReader[FromSources],
+      deriveReader[Empty]
     )
   }
 }
