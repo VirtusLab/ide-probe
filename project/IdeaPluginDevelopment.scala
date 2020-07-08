@@ -5,6 +5,7 @@ import org.jetbrains.sbtidea.packaging.PackagingKeys.packageArtifact
 import org.jetbrains.sbtidea.packaging.PackagingKeys.packageArtifactZip
 import org.jetbrains.sbtidea.packaging.PackagingKeys.packageArtifactZipFile
 import org.jetbrains.sbtidea.packaging.PackagingKeys.packageLibraryMappings
+import org.jetbrains.sbtidea.packaging.PackagingKeys.packageOutputDir
 import org.jetbrains.sbtidea.packaging.artifact.ZipPackager
 import sbt.Keys._
 import sbt._
@@ -27,6 +28,8 @@ object IdeaPluginDevelopment extends AbstractSbtIdeaPlugin {
       .filterNot(m => m.configurations.contains("test"))
       .map(id => (id, Some(s"lib/${id.name}.jar"))),
     packageArtifactZipFilter := ((_: File) => true),
+    packageOutputDir := crossTarget.value / "dist",
+    packageArtifactZipFile := crossTarget.value / s"${intellijPluginName.value}-${version.value}.zip",
     packageArtifactZip := Def.task {
       implicit val stream: TaskStreams = streams.value
       val distDir = packageArtifact.value
