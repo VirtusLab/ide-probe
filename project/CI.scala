@@ -30,9 +30,10 @@ object CI {
                       |export IDEPROBE_DISPLAY=xvfb
                       |export JAVA_HOME=/usr/lib/jvm/java-11-openjdk
                       |
-                      |sbt "; clean; ++$scalaVersion $arguments"
+                      |sbt "; clean; ++$scalaVersion! $arguments"
                       |""".stripMargin
     IO.write(script, content)
+    println(s"Generated $script")
     script
   }
 }

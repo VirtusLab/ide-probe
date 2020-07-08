@@ -3,13 +3,35 @@ name := "ideprobe"
 val scala212 = "2.12.10"
 val scala213 = "2.13.1"
 
-organization.in(ThisBuild) := "org.virtuslab.ideprobe"
+skip in publish := true
+
 scalaVersion.in(ThisBuild) := scala213
 intellijBuild.in(ThisBuild) := "202.5792.28-EAP-SNAPSHOT"
 licenses.in(ThisBuild) := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0"))
-skip in publish.in(ThisBuild) := true
+organization.in(ThisBuild) := "org.virtuslab.ideprobe"
+homepage.in(ThisBuild) := Some(url("https://github.com/VirtusLab/ide-probe"))
+developers.in(ThisBuild) := List(
+  Developer(
+    "lwawrzyk",
+    "Łukasz Wawrzyk",
+    "lwawrzyk@virtuslab.com",
+    url("https://github.com/lukaszwawrzyk")
+  ),
+  Developer(
+    "marek1840",
+    "Marek Żarnowski",
+    "mzarnowski@virtuslab.com",
+    url("https://github.com/marek1840")
+  ),
+  Developer(
+    "tpasternak",
+    "Tomasz Pasternak",
+    "tpasternak@virtuslab.com",
+    url("https://github.com/tpasternak")
+  )
+)
 
-crossScalaVersions := Nil
+sonatypeProfileName := "org.virtuslab"
 
 import IdeaPluginAdapter._
 
@@ -25,7 +47,7 @@ lazy val ci = project("ci", "ci", publish = false)
     CI.generateScripts := {
       for {
         (group, projects) <- CI.groupedProjects().value.toList
-        version <- crossScalaVersions.value
+        version <- List(scala213, scala212)
       } yield CI.generateTestScript(group, projects, version)
     }
   )
@@ -91,7 +113,6 @@ def project(id: String, path: String, publish: Boolean): Project = {
     .settings(
       skip in Keys.publish := !publish,
       libraryDependencies ++= Dependencies.junit,
-      crossScalaVersions := List(scala213, scala212),
       test in assembly := {},
       assemblyExcludedJars in assembly := {
         val cp = (fullClasspath in assembly).value
