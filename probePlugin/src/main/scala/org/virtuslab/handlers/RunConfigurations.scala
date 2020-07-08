@@ -125,7 +125,7 @@ object RunConfigurations extends IntelliJApi {
       val psiClass = {
         val scope = GlobalSearchScope.moduleWithDependenciesScope(module)
         DumbService.getInstance(project).waitForSmartMode()
-        JavaPsiFacade.getInstance(project).findClass(mainClass.mainClass, scope)
+        read { JavaPsiFacade.getInstance(project).findClass(mainClass.mainClass, scope) }
       }
 
       val name = UUID.randomUUID()
