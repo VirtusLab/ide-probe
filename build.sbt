@@ -6,7 +6,7 @@ val scala213 = "2.13.1"
 skip in publish := true
 
 scalaVersion.in(ThisBuild) := scala213
-intellijBuild.in(ThisBuild) := "202.5792.28-EAP-SNAPSHOT"
+intellijBuild.in(ThisBuild) := "202.6250.13-EAP-SNAPSHOT"
 licenses.in(ThisBuild) := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0"))
 organization.in(ThisBuild) := "org.virtuslab.ideprobe"
 homepage.in(ThisBuild) := Some(url("https://github.com/VirtusLab/ide-probe"))
@@ -60,10 +60,7 @@ lazy val ci = project("ci", "ci", publish = false)
 lazy val api = project("api", "api", publish = true)
   .settings(
     libraryDependencies ++= Dependencies.pureConfig,
-    libraryDependencies ++= Seq(
-      Dependencies.gson,
-      Dependencies.ammonite
-    )
+    libraryDependencies += Dependencies.gson
   )
 
 lazy val driver = module("driver", "driver/sources")
@@ -72,7 +69,7 @@ lazy val driver = module("driver", "driver/sources")
   .usesIdeaPlugin(probePlugin)
   .settings(
     libraryDependencies += Dependencies.nuProcess,
-    buildInfoKeys := Seq[BuildInfoKey](version),
+    buildInfoKeys := Seq[BuildInfoKey](version, intellijBuild),
     buildInfoPackage := "org.virtuslab.ideprobe"
   )
 

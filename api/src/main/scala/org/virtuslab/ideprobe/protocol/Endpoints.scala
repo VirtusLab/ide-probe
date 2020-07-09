@@ -30,4 +30,5 @@ object Endpoints {
   val SyncFiles = Request[Unit, Unit]("fs/sync")
   val Find = Request[NavigationQuery, List[NavigationTarget]]("find")
   val TakeScreenshot = Request[String, Unit]("screenshot")
+  val VcsRoots = Request[ProjectRef, Seq[VcsRoot]]("project/vcsRoots")
 }

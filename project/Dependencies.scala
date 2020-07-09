@@ -11,8 +11,6 @@ object Dependencies {
 
   val gson = "com.google.code.gson" % "gson" % "2.8.6"
 
-  val ammonite = "com.lihaoyi" %% "ammonite-ops" % "2.0.4"
-
   // because idea plugin packager would only take the root jar which has no classes
   // somehow it fails to see the transitive dependencies (even though the code says it should)
   // so here are all the dependencies explicitly

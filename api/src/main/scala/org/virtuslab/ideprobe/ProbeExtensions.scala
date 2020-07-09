@@ -15,16 +15,6 @@ import java.util.zip.ZipInputStream
 import scala.util.Try
 
 trait ProbeExtensions {
-  implicit final class MapExtension[A, B](map: Map[A, B]) {
-    def require(key: A): Try[B] = Try(map(key))
-  }
-
-  implicit final class URLExtension(url: URL) {
-    def inputStream: InputStream = {
-      val input = url.openStream()
-      new BufferedInputStream(input)
-    }
-  }
 
   implicit final class URIExtension(uri: URI) {
     def resolveChild(name: String): URI = {

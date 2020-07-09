@@ -6,14 +6,14 @@ object DebugMode {
   private val port: Int = env("IDEPROBE_DEBUG_PORT", "5005").toInt
 
   def vmOption: Seq[String] = {
-    val suspendOpt = if (suspend) "suspend=y" else "suspend=n"
-    val addressOpt = s"address=$port"
     if (enabled) {
+      val suspendOpt = if (suspend) "suspend=y" else "suspend=n"
+      val addressOpt = s"address=$port"
       s"-agentlib:jdwp=transport=dt_socket,server=y,$suspendOpt,$addressOpt" :: Nil
     } else {
       Nil
     }
   }
 
-  private def env(name: String, default: String) = System.getenv().getOrDefault(name, default)
+  private def env(name: String, default: String) = System.getenv.getOrDefault(name, default)
 }
