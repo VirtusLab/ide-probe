@@ -5,7 +5,6 @@ import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.util.Collections
 import java.util.zip.ZipInputStream
 
 import org.virtuslab.ideprobe.ConfigFormat
@@ -53,7 +52,6 @@ object Resource extends ConfigFormat {
     }
 
     def rootEntries: List[String] = {
-      import scala.jdk.CollectionConverters._
       val fs = FileSystems.newFileSystem(path, this.getClass.getClassLoader)
       Files.list(fs.getPath("/")).iterator.asScala.map(_.toString).toList
     }

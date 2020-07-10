@@ -13,19 +13,19 @@ final class RunningIntelliJFixture(
 )
 
 final class RunnableIntelliJFixture(
-    val workspace: Path,
+    val path: Path,
     installedIntelliJ: InstalledIntelliJ,
     fixture: IntelliJFixture
 ) {
-  def runShell(args: Seq[String]): CommandResult = Shell.run(workspace, args: _*)
+  def runShell(args: Seq[String]): CommandResult = Shell.run(path, args: _*)
 
   def config: Config = fixture.config
 
   def intelliJPaths: IntelliJPaths = installedIntelliJ.paths
 
-  def run[A](action: RunningIntelliJFixture => A): A = {
-    val running = fixture.startIntelliJ(workspace, installedIntelliJ)
-    val data = new RunningIntelliJFixture(workspace, running.probe, config, intelliJPaths)
+  def runIntellij[A](action: RunningIntelliJFixture => A): A = {
+    val running = fixture.startIntelliJ(path, installedIntelliJ)
+    val data = new RunningIntelliJFixture(path, running.probe, config, intelliJPaths)
 
     try {
       try action(data)

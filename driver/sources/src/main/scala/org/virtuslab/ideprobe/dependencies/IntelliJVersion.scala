@@ -1,7 +1,9 @@
 package org.virtuslab.ideprobe.dependencies
 
+import org.virtuslab.ideprobe.BuildInfo
+
 final case class IntelliJVersion(build: String) extends AnyVal
 
 object IntelliJVersion {
-  val Latest = IntelliJVersion("202.5792.28-EAP-SNAPSHOT")
+  val Latest = IntelliJVersion(BuildInfo.intellijBuild)
 }

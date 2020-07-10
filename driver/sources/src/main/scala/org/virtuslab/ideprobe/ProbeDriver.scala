@@ -1,6 +1,7 @@
 package org.virtuslab.ideprobe
 
 import java.nio.file.Path
+
 import org.virtuslab.ideprobe.jsonrpc.JsonRpc.Handler
 import org.virtuslab.ideprobe.jsonrpc.JsonRpc.Method
 import org.virtuslab.ideprobe.jsonrpc.JsonRpcConnection
@@ -24,6 +25,8 @@ import org.virtuslab.ideprobe.protocol.Project
 import org.virtuslab.ideprobe.protocol.ProjectRef
 import org.virtuslab.ideprobe.protocol.Reference
 import org.virtuslab.ideprobe.protocol.TestsRunResult
+import org.virtuslab.ideprobe.protocol.VcsRoot
+
 import scala.annotation.tailrec
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext
@@ -148,6 +151,8 @@ final class ProbeDriver(protected val connection: JsonRpcConnection)(implicit pr
   def moduleSdk(module: ModuleRef): Option[String] = send(Endpoints.ModuleSdk, module)
 
   def screenshot(nameSuffix: String = ""): Unit = send(Endpoints.TakeScreenshot, nameSuffix)
+
+  def vcsRoots(project: ProjectRef = ProjectRef.Default): Seq[VcsRoot] = send(Endpoints.VcsRoots, project)
 
   def as[A](extensionPluginId: String, convert: ProbeDriver => A): A = {
     val isLoaded = plugins.exists(_.id == extensionPluginId)

@@ -11,7 +11,7 @@ final class RunningIde(val launcher: NuProcess, idePID: Long, val probe: ProbeDr
 
   private val shutdownDone: AtomicBoolean = new AtomicBoolean(false)
 
-  private def runOnce(fn: => Unit) = {
+  private def runOnce(fn: => Unit): Unit = {
     if (shutdownDone.compareAndSet(false, true)) {
       fn
     }

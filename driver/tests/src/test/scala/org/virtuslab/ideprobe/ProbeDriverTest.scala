@@ -16,13 +16,15 @@ import org.virtuslab.ideprobe.protocol.ModuleRef
 import org.virtuslab.ideprobe.protocol.ProjectRef
 import org.virtuslab.ideprobe.protocol.TestStatus
 import org.virtuslab.ideprobe.protocol.TestStatus.Passed
+import org.virtuslab.ideprobe.protocol.VcsRoot
+
 import scala.concurrent.duration._
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
 
 final class ProbeDriverTest extends IntegrationTestSuite with Assertions {
-  private val scalaPlugin = Plugin("org.intellij.scala", "2020.2.7")
+  private val scalaPlugin = Plugin("org.intellij.scala", "2020.2.584", Some("nightly"))
   private val probeTestPlugin = ProbeTestPlugin.bundled
 
   private val fixture = IntelliJFixture(
@@ -89,6 +91,19 @@ final class ProbeDriverTest extends IntegrationTestSuite with Assertions {
   private val buildTestFixture = fixture
     .withDisplay
     .copy(workspaceTemplate = WorkspaceTemplate.FromResource("BuildTest"))
+
+  @Test
+  def vcsDetection(): Unit = {
+    buildTestFixture.withWorkspace { workspace =>
+      val projectDir = workspace.path.resolve("simple-sbt-project")
+      Shell.run(in = projectDir, "git", "init")
+      workspace.runIntellij { intelliJ =>
+        intelliJ.probe.openProject(projectDir)
+        val vcsRoots = intelliJ.probe.vcsRoots()
+        assertEquals(Seq(VcsRoot("Git", projectDir)), vcsRoots)
+      }
+    }
+  }
 
   @Ignore
   @Test
