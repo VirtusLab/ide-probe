@@ -4,14 +4,17 @@ User can use workspace to predefine any data required by a single test case.
      
 It can be defined as one of:
 
-1. Directory on the classpath
+1. Directory on the filesystem
+`probe.workspace.path = "file://home/foo/bar"`
 
-`probe.workspace.path = "classpath://foo/bar"`
-2. Directory within a jar
+2. Directory on the classpath
+
+`probe.workspace.path = "classpath:/foo/bar"`
+3. Directory within a jar
  
-`probe.workspace.path = "jar://foo.jar!/bar/baz"`
+`probe.workspace.path = "jar:file://foo.jar!/bar/baz"`
 
-3. Github repository
+4. Github repository
 
 `probe.workspace.path = "https://github.com/foo/bar"`
 
