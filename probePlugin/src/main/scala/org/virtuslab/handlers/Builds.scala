@@ -75,7 +75,7 @@ object Builds extends IntelliJApi {
     connection
   }
 
-  // We might get more than one build result form one build. buildResult is called after
+  // We might get more than one build result from one build. buildResult is called after
   // there are no background tasks, so all results should already be collected. As we don't
   // know how many builds were started and background task check might be flaky, there is a
   // count down latch that will ensure we collect at least one result in such case.
