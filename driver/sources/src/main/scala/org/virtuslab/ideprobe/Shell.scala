@@ -13,7 +13,11 @@ import scala.concurrent.Promise
 import scala.concurrent.duration.Duration
 
 object Shell {
-  case class CommandResult(out: String, err: String, exitCode: Int)
+  case class CommandResult(outSafe: String, err: String, exitCode: Int) {
+    def out: String = {
+      if (exitCode != 0) throw new RuntimeException(s"Command failed with exit code $exitCode") else outSafe
+    }
+  }
 
   class ProcessOutputLogger extends NuAbstractProcessHandler {
     private val outputChannel = Channels.newChannel(System.out)

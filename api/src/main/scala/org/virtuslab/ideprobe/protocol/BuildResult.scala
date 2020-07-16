@@ -4,12 +4,30 @@ import java.nio.file.Path
 
 case class BuildMessage(file: Option[String], content: String)
 
-case class BuildResult(
-    isAborted: Boolean,
-    errors: Seq[BuildMessage],
-    warnings: Seq[BuildMessage],
-    infos: Seq[BuildMessage],
-    stats: Seq[BuildMessage]
+case class BuildResult(results: Seq[BuildStepResult]) {
+  def hasErrors: Boolean = errors.nonEmpty
+
+  def isAborted: Boolean = merge(_.isAborted)(_ || _)
+
+  def errors: Seq[BuildMessage] = merge(_.errors)(_ ++ _)
+
+  def warnings: Seq[BuildMessage] = merge(_.warnings)(_ ++ _)
+
+  def infos: Seq[BuildMessage] = merge(_.infos)(_ ++ _)
+
+  def stats: Seq[BuildMessage] = merge(_.stats)(_ ++ _)
+
+  private def merge[A](get: BuildStepResult => A)(merge: (A, A) => A): A = {
+    results.map(get).reduce(merge)
+  }
+}
+
+case class BuildStepResult(
+  isAborted: Boolean,
+  errors: Seq[BuildMessage],
+  warnings: Seq[BuildMessage],
+  infos: Seq[BuildMessage],
+  stats: Seq[BuildMessage]
 ) {
   def hasErrors: Boolean = errors.nonEmpty
 }

@@ -1,7 +1,9 @@
 package org.virtuslab.handlers
 
 import java.nio.file.Paths
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+
 import com.intellij.openapi.compiler.CompilationStatusListener
 import com.intellij.openapi.compiler.CompileContext
 import com.intellij.openapi.compiler.CompilerMessageCategory
@@ -13,10 +15,7 @@ import com.intellij.util.messages.MessageBusConnection
 import org.virtuslab.ideprobe.protocol.BuildMessage
 import org.virtuslab.ideprobe.protocol.BuildParams
 import org.virtuslab.ideprobe.protocol.BuildResult
-import scala.concurrent.Await
-import scala.concurrent.Future
-import scala.concurrent.Promise
-import scala.concurrent.duration.FiniteDuration
+import org.virtuslab.ideprobe.protocol.BuildStepResult
 
 object Builds extends IntelliJApi {
   def build(params: BuildParams): BuildResult = {
@@ -35,8 +34,8 @@ object Builds extends IntelliJApi {
           buildProject(params, taskManager)
         }
         promise.blockingGet(4, TimeUnit.HOURS)
-        Await.result(collector.buildResult, FiniteDuration(4, TimeUnit.HOURS))
       }
+      collector.buildResult
     } finally {
       connection.disconnect()
     }
@@ -76,11 +75,17 @@ object Builds extends IntelliJApi {
     connection
   }
 
+  // We might get more than one build result from one build. buildResult is called after
+  // there are no background tasks, so all results should already be collected. As we don't
+  // know how many builds were started and background task check might be flaky, there is a
+  // count down latch that will ensure we collect at least one result in such case.
   class BuildResultCollector extends CompilationStatusListener {
-    private val promise = Promise[BuildResult]()
+    private var results: Seq[BuildStepResult] = Nil
+    private val latch = new CountDownLatch(1)
 
-    def buildResult: Future[BuildResult] = {
-      promise.future
+    def buildResult: BuildResult = {
+      latch.await(10, TimeUnit.MINUTES)
+      BuildResult(results)
     }
 
     override def compilationFinished(
@@ -95,7 +100,7 @@ object Builds extends IntelliJApi {
         }
       }
 
-      val buildResult = BuildResult(
+      val buildResult = BuildStepResult(
         aborted,
         messages(CompilerMessageCategory.ERROR),
         messages(CompilerMessageCategory.WARNING),
@@ -103,7 +108,8 @@ object Builds extends IntelliJApi {
         messages(CompilerMessageCategory.STATISTICS)
       )
 
-      promise.success(buildResult)
+      results :+= buildResult
+      latch.countDown()
     }
   }
 }
