@@ -10,6 +10,7 @@ It can be defined as one of:
 2. Directory on the classpath
 
 `probe.workspace.path = "classpath:/foo/bar"`
+
 3. Directory within a jar
  
 `probe.workspace.path = "jar:file://foo.jar!/bar/baz"`
