@@ -1,12 +1,15 @@
 package org.virtuslab.ideprobe
 
+import java.nio.Buffer
 import java.nio.ByteBuffer
 import java.nio.channels.Channels
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
+
 import com.zaxxer.nuprocess.NuAbstractProcessHandler
 import com.zaxxer.nuprocess.NuProcess
 import com.zaxxer.nuprocess.NuProcessHandler
+
 import scala.concurrent.Await
 import scala.concurrent.Future
 import scala.concurrent.Promise
@@ -51,13 +54,13 @@ object Shell {
   class CompositeOutputHandler(handlers: Seq[NuProcessHandler]) extends NuAbstractProcessHandler {
     override def onStdout(buffer: ByteBuffer, closed: Boolean): Unit = {
       handlers.foreach { handler =>
-        buffer.rewind()
+        buffer.asInstanceOf[Buffer].rewind()
         handler.onStdout(buffer, closed)
       }
     }
     override def onStderr(buffer: ByteBuffer, closed: Boolean): Unit = {
       handlers.foreach { handler =>
-        buffer.rewind()
+        buffer.asInstanceOf[Buffer].rewind()
         handler.onStderr(buffer, closed)
       }
     }
