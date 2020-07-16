@@ -1,3 +1,5 @@
 package org.virtuslab.ideprobe.protocol
 
-case class FileRef(project: ProjectRef, path: String)
+import java.nio.file.Path
+
+case class FileRef(project: ProjectRef, path: Path)

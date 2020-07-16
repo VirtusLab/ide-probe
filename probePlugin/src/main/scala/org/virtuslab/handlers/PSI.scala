@@ -41,7 +41,7 @@ object PSI extends IntelliJApi {
     Option(element.getProject).map(_.getName).map(ProjectRef(_)).flatMap { project =>
       element match {
         case file: PsiFile =>
-          val path = file.getVirtualFile.getPath
+          val path = VFS.toPath(file.getVirtualFile)
           val ref = Reference.Target.File(FileRef(project, path))
           Some(ref)
         case _ =>

@@ -16,7 +16,7 @@ import scala.util.Try
 object VFS extends IntelliJApi {
 
   def resolve(ref: FileRef): VirtualFile = {
-    toVirtualFile(Paths.get(ref.path))
+    toVirtualFile(ref.path)
   }
 
   def syncAll(): Unit = BackgroundTasks.withAwaitNone {

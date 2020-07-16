@@ -112,8 +112,12 @@ final class ProbeDriver(protected val connection: JsonRpcConnection)(implicit pr
 
   def invokeAction(id: String): Unit = send(Endpoints.InvokeAction, id)
 
-  def fileReferences(project: ProjectRef = ProjectRef.Default, path: String): Seq[Reference] = {
+  def fileReferences(project: ProjectRef = ProjectRef.Default, path: Path): Seq[Reference] = {
     send(Endpoints.FileReferences, FileRef(project, path))
+  }
+
+  def fileReferences(fileRef: FileRef): Seq[Reference] = {
+    send(Endpoints.FileReferences, fileRef)
   }
 
   def find(query: NavigationQuery): List[NavigationTarget] = {

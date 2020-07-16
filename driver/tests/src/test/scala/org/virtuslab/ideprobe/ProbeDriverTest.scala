@@ -76,7 +76,6 @@ final class ProbeDriverTest extends IntegrationTestSuite with Assertions {
   @Test
   def freezeInspector(): Unit =
     fixture
-      .copy(factory = fixture.factory.withConfig(DriverConfig(check = CheckConfig.Disabled)))
       .withDisplay
       .run { intelliJ =>
         intelliJ.probe.invokeAction("org.virtuslab.ideprobe.test.FreezingAction")
