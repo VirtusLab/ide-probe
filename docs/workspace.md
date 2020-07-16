@@ -5,6 +5,7 @@ User can use workspace to predefine any data required by a single test case.
 It can be defined as one of:
 
 1. Directory on the filesystem
+
 `probe.workspace.path = "file://home/foo/bar"`
 
 2. Directory on the classpath
