@@ -22,9 +22,9 @@ By default, the driver doesn't fail the test upon detecting any errors or freeze
   
 
 #### Headless mode
-`driver.headless = true`
+`driver.headless = false`
 
-By default, the driver launches the IDE in the headless mode. Note, that the behavior of the IDE can differ between headless and non-headless modes.  
+By default, the driver launches the IDE in the non-headless mode. Note, that the behavior of the IDE can differ between headless and non-headless modes.  
 
 #### Virtual Machine options
 `driver.vmOptions = ["-Xmx4096m"]`

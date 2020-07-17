@@ -74,22 +74,17 @@ final class ProbeDriverTest extends IntegrationTestSuite with Assertions {
   }
 
   @Test
-  def freezeInspector(): Unit =
-    fixture
-      .withDisplay
-      .run { intelliJ =>
-        intelliJ.probe.invokeAction("org.virtuslab.ideprobe.test.FreezingAction")
-        val freezes = intelliJ.probe.freezes
-        assertExists(freezes) { freeze =>
-          freeze.duration.exists(_ >= 10.seconds) &&
-          freeze.edtStackTrace.exists(frame => frame.contains("Thread.sleep")) &&
-          freeze.edtStackTrace.exists(frame => frame.contains("FreezingAction.actionPerformed"))
-        }
-      }
+  def freezeInspector(): Unit = fixture.run { intelliJ =>
+    intelliJ.probe.invokeAction("org.virtuslab.ideprobe.test.FreezingAction")
+    val freezes = intelliJ.probe.freezes
+    assertExists(freezes) { freeze =>
+      freeze.duration.exists(_ >= 10.seconds) &&
+      freeze.edtStackTrace.exists(frame => frame.contains("Thread.sleep")) &&
+      freeze.edtStackTrace.exists(frame => frame.contains("FreezingAction.actionPerformed"))
+    }
+  }
 
-  private val buildTestFixture = fixture
-    .withDisplay
-    .copy(workspaceTemplate = WorkspaceTemplate.FromResource("BuildTest"))
+  private val buildTestFixture = fixture.copy(workspaceTemplate = WorkspaceTemplate.FromResource("BuildTest"))
 
   @Test
   def vcsDetection(): Unit = {
@@ -197,7 +192,7 @@ final class ProbeDriverTest extends IntegrationTestSuite with Assertions {
 
   @Ignore
   @Test
-  def failsOnUnexpectedWindow(): Unit = fixture.withDisplay.run { intellij =>
+  def failsOnUnexpectedWindow(): Unit = fixture.run { intellij =>
     val action = "org.virtuslab.ideprobe.test.OpenWindowAction"
     Try(intellij.probe.invokeAction(action)) match {
       case Failure(e: RemoteException) if e.getMessage.contains("Unexpectedly opened window") => ()
