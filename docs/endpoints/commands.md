@@ -1,5 +1,7 @@
 #### Probe commands
 
+- Await Notification - waits until the IDE issues a notification with a specified title
+- Await Idle - waits until there is no more background tasks running
 - Build - builds the specified file, module or project
 - Close Project - closes the specified project
 - Invoke Action Async - invokes the specified actions without waiting for it to finish

@@ -1,7 +1,5 @@
 #### Probe queries
 
-- Await Notification - waits until the IDE issues a notification with a specified title
-- Await Idle - waits until there is no more background tasks running
 - File References - returns all the files referenced by the specified file
 - Find - returns all navigable elements matching the specified pattern in the specified project
 - Freezes - returns the list of all freezes detected by the IDE
