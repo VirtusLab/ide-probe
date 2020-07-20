@@ -14,16 +14,19 @@ A single test case consists of a configuration and workflow specification.
 Configuration can either be:
 
 A) loaded from file,
- ```scala
+```scala
 private val config = Config.fromClasspath("path/to/file")
 
-@Test def test = IntelliJFixture.fromConfig(config).run {intelliJ => ???}
+@Test def test = IntelliJFixture.fromConfig(config).run {intelliJ => 
+    // workflow steps
+}
 ```
 B) provided as a string, or
 ```scala
 private val config = Config.fromString("""probe { workspace.path = /foo/bar } """)
-@Test def test = IntelliJFixture.fromConfig(config).run {intelliJ => ???}
-
+@Test def test = IntelliJFixture.fromConfig(config).run {intelliJ => 
+    // workflow steps
+}
 ```
 C) specified programmatically.
 ```scala
@@ -33,7 +36,9 @@ private val fixture = IntelliJFixture(
   plugins = List(Plugin("org.intellij.scala", "2020.2.7"))
 )
 
-@Test def test = fixture.run {intelliJ => ???} 
+@Test def test = fixture.run {intelliJ => 
+    // workflow steps
+} 
 ```
 
 Workflow can only be defined programmatically, since it comprises sequence of intertwined:
@@ -45,7 +50,7 @@ Workflow can only be defined programmatically, since it comprises sequence of in
 ```scala
 @Test def test = fixture.run { intelliJ =>
   val buildSbt = intelliJ.workspace.resolve("build.sbt")
-  Files.write(buildSbt, ???)  
+  Files.write(buildSbt, """name := "foo" """)
 
   val projectRef = intelliJ.probe.openProject(buildSbt)
   val structure = intelliJ.probe.projectModel(projectRef)
