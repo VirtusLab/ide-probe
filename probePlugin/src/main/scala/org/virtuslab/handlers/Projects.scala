@@ -1,6 +1,7 @@
 package org.virtuslab.handlers
 
-import java.nio.file.Path
+import java.nio.file.{Path, Paths}
+
 import com.intellij.ide.actions.ImportModuleAction
 import com.intellij.ide.impl.ProjectUtil
 import com.intellij.openapi.module.ModuleManager
@@ -9,10 +10,17 @@ import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.projectImport.ProjectImportProvider
+import org.jetbrains.jps.model.module.JpsModuleSourceRootType
+import org.virtuslab.handlers.Modules.resolve
 import org.virtuslab.ideprobe.protocol
-import org.virtuslab.ideprobe.protocol.ProjectRef
+import org.virtuslab.ideprobe.protocol.{ContentRoot, ModuleRef, ProjectRef}
+
 import scala.annotation.tailrec
 import org.virtuslab.ideprobe.Extensions._
+import org.virtuslab.ProbePluginExtensions._
+import org.virtuslab.ideprobe.protocol.ContentRoot._
+
+import scala.collection.mutable
 
 object Projects extends IntelliJApi {
 
@@ -87,8 +95,14 @@ object Projects extends IntelliJApi {
     val project = resolve(ref)
     val modules = ModuleManager.getInstance(project).getSortedModules
     val mappedModules = modules.map { module =>
-      val roots = ModuleRootManager.getInstance(module).getContentRoots.map(_.getPath)
-      protocol.Module(module.getName, roots, Option(module.getModuleTypeName))
+      val roots: Map[ContentRoot, Set[Path]] = ContentRoot.All
+        .map(root => root -> module.contentRoots(root))
+        .filterNot(_._2.isEmpty)
+        .toMap
+
+      val dependencies = module.dependencies.map(_.toRef).toSet
+
+      protocol.Module(module.getName, roots, dependencies, Option(module.getModuleTypeName))
     }
 
     protocol.Project(project.getName, project.getBasePath, mappedModules)

@@ -6,17 +6,18 @@ import org.junit.Test
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.dependencies.IntelliJVersion
 import org.virtuslab.ideprobe.dependencies.Plugin
-import org.virtuslab.ideprobe.ide.intellij.CheckConfig
-import org.virtuslab.ideprobe.ide.intellij.DriverConfig
 import org.virtuslab.ideprobe.jsonrpc.RemoteException
-import org.virtuslab.ideprobe.protocol.BuildScope
-import org.virtuslab.ideprobe.protocol.InstalledPlugin
-import org.virtuslab.ideprobe.protocol.JUnitRunConfiguration
-import org.virtuslab.ideprobe.protocol.ModuleRef
-import org.virtuslab.ideprobe.protocol.ProjectRef
-import org.virtuslab.ideprobe.protocol.TestStatus
+import org.virtuslab.ideprobe.protocol.ContentRoot.{MainResources, MainSources, TestResources, TestSources}
+import org.virtuslab.ideprobe.protocol.{
+  BuildScope,
+  InstalledPlugin,
+  JUnitRunConfiguration,
+  ModuleRef,
+  ProjectRef,
+  TestStatus,
+  VcsRoot
+}
 import org.virtuslab.ideprobe.protocol.TestStatus.Passed
-import org.virtuslab.ideprobe.protocol.VcsRoot
 
 import scala.concurrent.duration._
 import scala.util.Failure
@@ -99,6 +100,36 @@ final class ProbeDriverTest extends IntegrationTestSuite with Assertions {
     }
   }
 
+  @Test
+  def listsAllSourceRoots(): Unit = {
+    fixture.copy(workspaceTemplate = WorkspaceTemplate.FromResource("gradle-project")).run { intelliJ =>
+      val projectDir = intelliJ.workspace.resolve("build.gradle")
+      val src = intelliJ.workspace.resolve("src")
+
+      intelliJ.probe.openProject(projectDir)
+
+      val model = intelliJ.probe.projectModel()
+      val mainModule = model.modules.find(_.name == "foo.main").get
+      val testModule = model.modules.find(_.name == "foo.test").get
+
+      assertEquals(Set(src.resolve("main/java")), mainModule.contentRoots(MainSources))
+      assertEquals(Set(src.resolve("main/resources")), mainModule.contentRoots(MainResources))
+      assertEquals(Set(src.resolve("test/java")), testModule.contentRoots(TestSources))
+      assertEquals(Set(src.resolve("test/resources")), testModule.contentRoots(TestResources))
+    }
+  }
+
+  @Test
+  def listsModuleDependencies(): Unit = {
+    fixture.copy(workspaceTemplate = WorkspaceTemplate.FromResource("gradle-project")).run { intelliJ =>
+      val projectDir = intelliJ.workspace.resolve("build.gradle")
+      val p = intelliJ.probe.openProject(projectDir)
+
+      val testModule = intelliJ.probe.projectModel().modules.find(_.name == "foo.test").get
+      assertEquals(Set(ModuleRef("foo.main", p)), testModule.dependencies)
+    }
+  }
+
   @Ignore
   @Test
   def buildProjectTest(): Unit = {
@@ -109,7 +140,7 @@ final class ProbeDriverTest extends IntegrationTestSuite with Assertions {
         intelliJ.probe.openProject(projectDir)
 
         val successfulResult = intelliJ.probe.build()
-        assertEquals(successfulResult.errors.toSeq, Nil)
+        assertEquals(successfulResult.errors, Nil)
 
         projectDir.resolve("src/main/scala/Main.scala").write("Not valid scala")
         intelliJ.probe.syncFiles()

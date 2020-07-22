@@ -6,7 +6,7 @@ val scala213 = "2.13.1"
 skip in publish := true
 
 scalaVersion.in(ThisBuild) := scala213
-intellijBuild.in(ThisBuild) := "202.6250.13-EAP-SNAPSHOT"
+intellijBuild.in(ThisBuild) := "202.6397.20-EAP-SNAPSHOT"
 licenses.in(ThisBuild) := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0"))
 organization.in(ThisBuild) := "org.virtuslab.ideprobe"
 homepage.in(ThisBuild) := Some(url("https://github.com/VirtusLab/ide-probe"))
