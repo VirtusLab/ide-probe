@@ -6,7 +6,7 @@ import scala.concurrent.duration._
 case class DriverConfig(
     launch: LaunchParameters = LaunchParameters(),
     check: CheckConfig = CheckConfig(),
-    headless: Boolean = true,
+    headless: Boolean = false,
     vmOptions: Seq[String] = Nil
 )
 

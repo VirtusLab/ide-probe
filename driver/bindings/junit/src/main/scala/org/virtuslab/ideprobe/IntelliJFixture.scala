@@ -30,8 +30,8 @@ final case class IntelliJFixture(
     copy(afterWorkspaceSetup = afterWorkspaceSetup :+ action)
   }
 
-  def withDisplay: IntelliJFixture = {
-    copy(factory = factory.withConfig(factory.config.copy(headless = false)))
+  def headless: IntelliJFixture = {
+    copy(factory = factory.withConfig(factory.config.copy(headless = true)))
   }
 
   def run = new SingleRunIntelliJ(this)
