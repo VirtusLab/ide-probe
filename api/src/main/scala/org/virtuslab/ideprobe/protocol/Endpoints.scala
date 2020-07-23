@@ -1,6 +1,7 @@
 package org.virtuslab.ideprobe.protocol
 
 import java.nio.file.Path
+
 import org.virtuslab.ideprobe.jsonrpc.JsonRpc.Method.Notification
 import org.virtuslab.ideprobe.jsonrpc.JsonRpc.Method.Request
 import org.virtuslab.ideprobe.jsonrpc.PayloadJsonFormat._
@@ -9,6 +10,7 @@ import pureconfig.generic.auto._
 object Endpoints {
 
   // commands
+  val PreconfigureJDK = Request[Unit, Unit]("jdk/preconfigure")
   val AwaitIdle = Request[Unit, Unit]("awaitIdle")
   val AwaitNotification = Request[String, IdeNotification]("notification/await")
   val Build = Request[BuildParams, BuildResult]("build")
