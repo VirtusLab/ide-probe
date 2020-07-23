@@ -34,7 +34,10 @@ developers.in(ThisBuild) := List(
 crossScalaVersions := Nil
 sonatypeProfileName := "org.virtuslab"
 
-resolvers.in(ThisBuild) += MavenRepository("jetbrains-3rd", "https://jetbrains.bintray.com/intellij-third-party-dependencies")
+resolvers.in(ThisBuild) += MavenRepository(
+  "jetbrains-3rd",
+  "https://jetbrains.bintray.com/intellij-third-party-dependencies"
+)
 
 import IdeaPluginAdapter._
 
@@ -100,6 +103,8 @@ lazy val junitDriver = module("junit-driver", "driver/bindings/junit")
 
 lazy val scalaTests = testModule("scala-tests", "extensions/scala/tests")
   .dependsOn(junitDriver)
+
+lazy val examples = testModule("examples", "driver/examples").dependsOn(junitDriver)
 
 val commonSettings = Seq(
   libraryDependencies ++= Dependencies.junit,
