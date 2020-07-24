@@ -3,6 +3,7 @@ package org.virtuslab
 import org.virtuslab.ProbeHandlers.ProbeHandler
 import org.virtuslab.handlers._
 import org.virtuslab.ideprobe.protocol.Endpoints
+
 import scala.concurrent.ExecutionContext
 
 class BaseProbeHandlerContributor extends ProbeHandlerContributor {
@@ -10,6 +11,7 @@ class BaseProbeHandlerContributor extends ProbeHandlerContributor {
 
   override def registerHandlers(handler: ProbeHandler): ProbeHandler = {
     handler
+      .on(Endpoints.PreconfigureJDK)(_ => JDK.preconfigure())
       .on(Endpoints.PID)(_ => App.pid)
       .on(Endpoints.Ping)(_ => ())
       .on(Endpoints.Plugins)(_ => Plugins.list)

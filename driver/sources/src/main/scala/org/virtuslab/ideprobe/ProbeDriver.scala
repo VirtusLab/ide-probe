@@ -96,6 +96,8 @@ final class ProbeDriver(protected val connection: JsonRpcConnection)(implicit pr
     }
   }
 
+  def preconfigureJDK(): Unit = send(Endpoints.PreconfigureJDK)
+
   /**
    * Forces the probe to wait until all background tasks are complete before processing next request
    */
