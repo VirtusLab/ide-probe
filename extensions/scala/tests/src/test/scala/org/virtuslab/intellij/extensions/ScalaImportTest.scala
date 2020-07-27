@@ -4,14 +4,12 @@ import org.junit.Assert
 import org.junit.Test
 import org.virtuslab.ideprobe.Config
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.IntegrationTestSuite
 import org.virtuslab.ideprobe.IntelliJFixture
 import org.virtuslab.ideprobe.Shell
-import org.virtuslab.ideprobe.dependencies.DependencyProvider
+
 import scala.util.Try
 
-final class ScalaImportTest extends IntegrationTestSuite {
-  DependencyProvider.registerBuilder(ScalaPluginBuilder)
+final class ScalaImportTest extends ScalaPluginTestSuite {
 
   private val config = Config.fromClasspath("SbtProject/ideprobe.conf")
 
