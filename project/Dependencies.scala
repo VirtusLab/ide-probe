@@ -9,6 +9,10 @@ object Dependencies {
 
   val nuProcess = "com.zaxxer" % "nuprocess" % "1.2.6"
 
+  val remoteRobot = "com.intellij.remoterobot" % "remote-robot" % "0.9.35"
+
+  val remoteRobotFixtures = "com.intellij.remoterobot" % "remote-fixtures" % "1.1.18"
+
   val gson = "com.google.code.gson" % "gson" % "2.8.6"
 
   // because idea plugin packager would only take the root jar which has no classes

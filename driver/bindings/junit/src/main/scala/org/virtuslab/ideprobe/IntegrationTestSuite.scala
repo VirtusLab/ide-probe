@@ -11,7 +11,7 @@ import scala.concurrent.duration._
 import scala.util.Try
 
 @RunWith(classOf[JUnit4])
-trait IntegrationTestSuite {
+trait IntegrationTestSuite extends RobotExtensions {
   protected implicit val ec: ExecutionContext = ExecutionContext.fromExecutorService(Executors.newCachedThreadPool())
 
   def resolveConfig(): Config = {

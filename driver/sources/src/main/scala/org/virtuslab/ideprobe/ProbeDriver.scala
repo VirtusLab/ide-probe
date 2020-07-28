@@ -1,6 +1,11 @@
 package org.virtuslab.ideprobe
 
 import java.nio.file.Path
+
+import com.intellij.remoterobot.RemoteRobot
+import com.intellij.remoterobot.SearchContext
+import com.intellij.remoterobot.fixtures.CommonContainerFixture
+import com.intellij.remoterobot.search.locators.Locators
 import org.virtuslab.ideprobe.jsonrpc.JsonRpc.Handler
 import org.virtuslab.ideprobe.jsonrpc.JsonRpc.Method
 import org.virtuslab.ideprobe.jsonrpc.JsonRpcConnection
@@ -25,6 +30,7 @@ import org.virtuslab.ideprobe.protocol.ProjectRef
 import org.virtuslab.ideprobe.protocol.Reference
 import org.virtuslab.ideprobe.protocol.TestsRunResult
 import org.virtuslab.ideprobe.protocol.VcsRoot
+
 import scala.annotation.tailrec
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext
@@ -32,9 +38,13 @@ import scala.concurrent.duration._
 import scala.language.implicitConversions
 import scala.reflect.ClassTag
 import scala.util.Failure
+import scala.util.Try
+import RobotExtensions._
 
-final class ProbeDriver(protected val connection: JsonRpcConnection)(implicit protected val ec: ExecutionContext)
-    extends JsonRpcEndpoint {
+final class ProbeDriver(
+  protected val connection: JsonRpcConnection,
+  val robot: RemoteRobot
+)(implicit protected val ec: ExecutionContext) extends JsonRpcEndpoint {
   protected val handler: Handler = (_, _) => Failure(new Exception("Receiving requests is not supported"))
 
   def pid(): Long = send(Endpoints.PID)
@@ -131,7 +141,12 @@ final class ProbeDriver(protected val connection: JsonRpcConnection)(implicit pr
   /**
    * Opens specified project
    */
-  def openProject(path: Path): ProjectRef = send(Endpoints.OpenProject, path)
+  def openProject(path: Path): ProjectRef = {
+    val ref = send(Endpoints.OpenProject, path)
+    closeTipOfTheDay()
+    checkBuildPanelErrors()
+    ref
+  }
 
   /**
    * Rebuilds the specified files, modules or project
@@ -230,6 +245,25 @@ final class ProbeDriver(protected val connection: JsonRpcConnection)(implicit pr
    */
   def plugins: Seq[InstalledPlugin] = send(Endpoints.Plugins).toList
 
+  def closeTipOfTheDay(): Unit = {
+    Try(robot.mainWindow.find(query.dialog("Tip of the Day")).button("Close").click())
+  }
+
+
+  def checkBuildPanelErrors(): Unit = {
+    robot.findOpt(query.className("MultipleBuildsPanel")).foreach { buildPanel =>
+      val tree = buildPanel.find(query.className("Tree"))
+      val treeTexts = tree.fullTexts
+      val hasErrors = treeTexts.contains("failed")
+      if (hasErrors) {
+        val message = buildPanel
+          .find(query.div("accessiblename" -> "Editor", "class" -> "EditorComponentImpl"))
+          .fullText
+        throw new RuntimeException(s"Failed to open project. Output: $message")
+      }
+    }
+  }
+
   def ping(): Unit = send(Endpoints.Ping)
 
   def as[A](extensionPluginId: String, convert: ProbeDriver => A): A = {
@@ -250,9 +284,9 @@ final class ProbeDriver(protected val connection: JsonRpcConnection)(implicit pr
 }
 
 object ProbeDriver {
-  def start(connection: JsonRpcConnection)(implicit ec: ExecutionContext): ProbeDriver = {
+  def start(connection: JsonRpcConnection, robot: RemoteRobot)(implicit ec: ExecutionContext): ProbeDriver = {
     import scala.concurrent.Future
-    val driver = new ProbeDriver(connection)
+    val driver = new ProbeDriver(connection, robot)
     Future(driver.listen).onComplete(_ => driver.close())
     driver
   }

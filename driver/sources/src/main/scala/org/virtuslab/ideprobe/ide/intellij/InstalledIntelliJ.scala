@@ -5,6 +5,8 @@ import java.net.ServerSocket
 import java.nio.ByteBuffer
 import java.nio.file.Path
 import java.nio.file.Paths
+
+import com.intellij.remoterobot.RemoteRobot
 import com.zaxxer.nuprocess.NuAbstractProcessHandler
 import com.zaxxer.nuprocess.NuProcessBuilder
 import org.virtuslab.ideprobe.Extensions._
@@ -12,14 +14,20 @@ import org.virtuslab.ideprobe.ProbeDriver
 import org.virtuslab.ideprobe.Shell
 import org.virtuslab.ideprobe.TestCase
 import org.virtuslab.ideprobe.jsonrpc.JsonRpcConnection
+
 import scala.concurrent.ExecutionContext
 import scala.concurrent.blocking
 
 final class InstalledIntelliJ(val root: Path, config: DriverConfig) {
   val paths: IntelliJPaths = new IntelliJPaths(root, config.headless)
 
+  private val robotPort = System.getenv.getOrDefault("IDEPROBE_ROBOT_PORT", "9534")
+
   private val vmoptions: Path = {
-    val baseVMOptions = Seq(s"-Djava.awt.headless=${config.headless}")
+    val baseVMOptions = Seq(
+      s"-Djava.awt.headless=${config.headless}",
+      s"-Drobot-server.port=${robotPort}"
+    )
 
     val vmOptions = baseVMOptions ++ DebugMode.vmOption ++ config.vmOptions
     val content = vmOptions.mkString("\n")
@@ -46,7 +54,9 @@ final class InstalledIntelliJ(val root: Path, config: DriverConfig) {
       server.setSoTimeout(config.launch.timeout.toMillis.toInt)
       val socket = blocking(server.accept()) // will be closed along with the connection by ProbeDriver
       val connection = JsonRpcConnection.from(socket)
-      val driver = ProbeDriver.start(connection)
+
+      val robot = new RemoteRobot(s"http://127.0.0.1:$robotPort")
+      val driver = ProbeDriver.start(connection, robot)
 
       new RunningIde(launcher, driver.pid(), driver)
     } catch {
