@@ -34,6 +34,8 @@ developers.in(ThisBuild) := List(
 crossScalaVersions := Nil
 sonatypeProfileName := "org.virtuslab"
 
+resolvers.in(ThisBuild) += MavenRepository("jetbrains-3rd", "https://jetbrains.bintray.com/intellij-third-party-dependencies")
+
 import IdeaPluginAdapter._
 
 /**
@@ -69,7 +71,9 @@ lazy val driver = module("driver", "driver/sources")
   .usesIdeaPlugin(probePlugin)
   .settings(
     libraryDependencies += Dependencies.nuProcess,
-    buildInfoKeys := Seq[BuildInfoKey](version, intellijBuild),
+    libraryDependencies += Dependencies.remoteRobot,
+    libraryDependencies += Dependencies.remoteRobotFixtures,
+    buildInfoKeys := Seq[BuildInfoKey](version, intellijBuild, "robotVersion" -> Dependencies.remoteRobot.revision),
     buildInfoPackage := "org.virtuslab.ideprobe"
   )
 

@@ -25,7 +25,13 @@ final class DependencyProvider(
         resources.get(uri)
 
       case Sources(id, repository) =>
-        DependencyProvider.builders(id).build(repository, resources)
+        DependencyProvider.builders.get(id) match {
+          case Some(builder) => builder.build(repository, resources)
+          case None =>
+            val message = s"No builder found for id: '$id'. Available builders are ${DependencyProvider.builders.keySet}. " +
+              s"Make sure you registered your builder with org.virtuslab.ideprobe.dependencies.DependencyProvider#registerBuilder"
+            throw new RuntimeException(message)
+        }
 
       case dependency =>
         throw new Exception(s"Couldn't resolve $plugin from $dependency")

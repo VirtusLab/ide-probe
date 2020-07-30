@@ -7,17 +7,18 @@ import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.dependencies.IntelliJVersion
 import org.virtuslab.ideprobe.dependencies.Plugin
 import org.virtuslab.ideprobe.jsonrpc.RemoteException
-import org.virtuslab.ideprobe.protocol.ContentRoot.{MainResources, MainSources, TestResources, TestSources}
-import org.virtuslab.ideprobe.protocol.{
-  BuildScope,
-  InstalledPlugin,
-  JUnitRunConfiguration,
-  ModuleRef,
-  ProjectRef,
-  TestStatus,
-  VcsRoot
-}
+import org.virtuslab.ideprobe.protocol.ContentRoot.MainResources
+import org.virtuslab.ideprobe.protocol.ContentRoot.MainSources
+import org.virtuslab.ideprobe.protocol.ContentRoot.TestResources
+import org.virtuslab.ideprobe.protocol.ContentRoot.TestSources
 import org.virtuslab.ideprobe.protocol.TestStatus.Passed
+import org.virtuslab.ideprobe.protocol.BuildScope
+import org.virtuslab.ideprobe.protocol.InstalledPlugin
+import org.virtuslab.ideprobe.protocol.JUnitRunConfiguration
+import org.virtuslab.ideprobe.protocol.ModuleRef
+import org.virtuslab.ideprobe.protocol.ProjectRef
+import org.virtuslab.ideprobe.protocol.TestStatus
+import org.virtuslab.ideprobe.protocol.VcsRoot
 
 import scala.concurrent.duration._
 import scala.util.Failure
@@ -89,15 +90,17 @@ final class ProbeDriverTest extends IntegrationTestSuite with Assertions {
 
   @Test
   def vcsDetection(): Unit = {
-    buildTestFixture.withWorkspace { workspace =>
-      val projectDir = workspace.path.resolve("simple-sbt-project")
-      Shell.run(in = projectDir, "git", "init")
-      workspace.runIntellij { intelliJ =>
-        intelliJ.probe.openProject(projectDir)
-        val vcsRoots = intelliJ.probe.vcsRoots()
-        assertEquals(Seq(VcsRoot("Git", projectDir)), vcsRoots)
+    fixture
+      .copy(workspaceTemplate = WorkspaceTemplate.FromResource("OpenProjectTest"))
+      .withWorkspace { workspace =>
+        val projectDir = workspace.path.resolve("empty-project")
+        Shell.run(in = projectDir, "git", "init")
+        workspace.runIntellij { intelliJ =>
+          intelliJ.probe.openProject(projectDir)
+          val vcsRoots = intelliJ.probe.vcsRoots()
+          assertEquals(Seq(VcsRoot("Git", projectDir)), vcsRoots)
+        }
       }
-    }
   }
 
   @Test
@@ -148,7 +151,7 @@ final class ProbeDriverTest extends IntegrationTestSuite with Assertions {
         val failedResult = intelliJ.probe.build()
         assertExists(failedResult.errors) { error =>
           error.file.exists(_.endsWith("src/main/scala/Main.scala")) &&
-          error.content.contains("expected class or object definition")
+            error.content.contains("expected class or object definition")
         }
       }
   }
@@ -231,5 +234,20 @@ final class ProbeDriverTest extends IntegrationTestSuite with Assertions {
       case Success(_) => fail("Opened window did not trigger an error")
       case Failure(e) => throw e
     }
+  }
+
+  @Test
+  def robotTest(): Unit = fixture.run { intelliJ =>
+    val version = fixture.version.build.stripSuffix("-SNAPSHOT").stripSuffix("-EAP")
+    val welcomeFrame = intelliJ.probe.robot.find(query.className("FlatWelcomeFrame"))
+    val windowText = welcomeFrame.fullText
+    assertTrue(s"Window content: '$windowText' did not contain '$version'", windowText.contains(version))
+
+    welcomeFrame.actionLink("New Project").click()
+    val newProjectDialog = welcomeFrame.find(query.dialog("New Project"))
+    val dialogContent = newProjectDialog.fullText
+
+    val projectSdk = "Project SDK"
+    assertTrue(s"New Project dialog content: '$dialogContent' did not contain '$projectSdk'", dialogContent.contains(projectSdk))
   }
 }

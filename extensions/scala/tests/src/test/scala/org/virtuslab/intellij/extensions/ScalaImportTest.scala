@@ -4,34 +4,33 @@ import org.junit.Assert
 import org.junit.Test
 import org.virtuslab.ideprobe.Config
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.IntegrationTestSuite
 import org.virtuslab.ideprobe.IntelliJFixture
 import org.virtuslab.ideprobe.Shell
-import org.virtuslab.ideprobe.dependencies.DependencyProvider
+
 import scala.util.Try
 
-final class ScalaImportTest extends IntegrationTestSuite {
-  DependencyProvider.registerBuilder(ScalaPluginBuilder)
+final class ScalaImportTest extends ScalaPluginTestSuite {
 
   private val config = Config.fromClasspath("SbtProject/ideprobe.conf")
 
   @Test
   def importSbtProject(): Unit = {
-    IntelliJFixture.fromConfig(config).run { intellij =>
+    fixtureFromConfig(config).run { intellij =>
+      intellij.probe.preconfigureJDK()
       val projectRef = intellij.probe.openProject(intellij.workspace.resolve("root"))
       val project = intellij.probe.projectModel(projectRef)
       val modules = project.modules.map(_.name).toSet
       val sdk = intellij.probe.projectSdk()
 
-      Assert.assertTrue("SDK was not empty, scala plugin fixed!", sdk.isEmpty) // todo change to isDefined when scala plugin is fixed
-    // Assert.assertEquals(Set("hello-world-build", "hello-world", "foo", "bar"), modules) // todo uncomment when working (fail caused by not selected JDK)
-    // Assert.assertEquals(project.name, "hello-world")
+      Assert.assertTrue("SDK is empty", sdk.nonEmpty)
+      Assert.assertEquals(Set("hello-world-build", "hello-world", "foo", "bar"), modules)
+      Assert.assertEquals(project.name, "hello-world")
     }
   }
 
   @Test
   def importBspProject(): Unit = {
-    IntelliJFixture.fromConfig(config).run { intellij =>
+    fixtureFromConfig(config).run { intellij =>
       // Root directory is necessary, since bsp plugin creates project
       // inside the **parent** of the directory specified
       val root = intellij.workspace.resolve("root")
