@@ -9,6 +9,7 @@ final class RunningIntelliJFixture(
     val workspace: Path,
     val probe: ProbeDriver,
     val config: Config,
+    val test: TestConfig,
     val intelliJPaths: IntelliJPaths
 )
 
@@ -23,9 +24,11 @@ final class RunnableIntelliJFixture(
 
   def intelliJPaths: IntelliJPaths = installedIntelliJ.paths
 
+  def test: TestConfig = fixture.test
+
   def runIntellij[A](action: RunningIntelliJFixture => A): A = {
     val running = fixture.startIntelliJ(path, installedIntelliJ)
-    val data = new RunningIntelliJFixture(path, running.probe, config, intelliJPaths)
+    val data = new RunningIntelliJFixture(path, running.probe, config, test, intelliJPaths)
 
     try {
       try action(data)
@@ -39,7 +42,8 @@ class SingleRunIntelliJ(baseFixture: IntelliJFixture) {
     val workspace = baseFixture.setupWorkspace()
     val installed = baseFixture.installIntelliJ()
     val running = baseFixture.startIntelliJ(workspace, installed)
-    val data = new RunningIntelliJFixture(workspace, running.probe, baseFixture.config, installed.paths)
+    val test = baseFixture.test
+    val data = new RunningIntelliJFixture(workspace, running.probe, baseFixture.config, test, installed.paths)
 
     try {
       try action(data)

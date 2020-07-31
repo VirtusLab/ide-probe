@@ -27,14 +27,17 @@ trait RunningIntellijPerSuite {
     workspace = baseFixture.setupWorkspace()
     installed = baseFixture.installIntelliJ()
     running = baseFixture.startIntelliJ(workspace, installed)
-    runningIntelliJFixture = new RunningIntelliJFixture(workspace, running.probe, baseFixture.config, installed.paths)
+    runningIntelliJFixture =
+      new RunningIntelliJFixture(workspace, running.probe, baseFixture.config, baseFixture.test, installed.paths)
     beforeAll()
   }
 
   @AfterClass
   final def teardown(): Unit = {
-    try AfterTestChecks(baseFixture.factory.config.check, runningIntelliJFixture.probe) finally {
-      try afterAll() finally {
+    try AfterTestChecks(baseFixture.factory.config.check, runningIntelliJFixture.probe)
+    finally {
+      try afterAll()
+      finally {
         baseFixture.closeIntellij(running)
         baseFixture.deleteIntelliJ(installed)
         baseFixture.deleteWorkspace(workspace)
@@ -67,7 +70,8 @@ trait WorkspacePerSuite {
 
   @AfterClass
   final def teardown(): Unit = {
-    try afterAll() finally {
+    try afterAll()
+    finally {
       baseFixture.deleteIntelliJ(installed)
       baseFixture.deleteWorkspace(workspacePath)
     }

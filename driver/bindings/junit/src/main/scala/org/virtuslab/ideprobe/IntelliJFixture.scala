@@ -13,12 +13,13 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 
 final case class IntelliJFixture(
-  workspaceTemplate: WorkspaceTemplate,
-  factory: IntelliJFactory,
-  version: IntelliJVersion,
-  plugins: Seq[Plugin],
-  config: Config,
-  afterWorkspaceSetup: Seq[(IntelliJFixture, Path) => Unit]
+    workspaceTemplate: WorkspaceTemplate,
+    factory: IntelliJFactory,
+    version: IntelliJVersion,
+    plugins: Seq[Plugin],
+    test: TestConfig,
+    config: Config,
+    afterWorkspaceSetup: Seq[(IntelliJFixture, Path) => Unit]
 )(implicit ec: ExecutionContext) {
 
   def withConfig(entries: (String, String)*): IntelliJFixture = {
@@ -89,13 +90,22 @@ object IntelliJFixture {
   private val ConfigRoot = "probe"
 
   def apply(
-    workspaceTemplate: WorkspaceTemplate = WorkspaceTemplate.Empty,
-    version: IntelliJVersion = IntelliJVersion.Latest,
-    intelliJFactory: IntelliJFactory = IntelliJFactory.Default,
-    plugins: Seq[Plugin] = Seq.empty,
-    environment: Config = Config.Empty
+      workspaceTemplate: WorkspaceTemplate = WorkspaceTemplate.Empty,
+      version: IntelliJVersion = IntelliJVersion.Latest,
+      intelliJFactory: IntelliJFactory = IntelliJFactory.Default,
+      plugins: Seq[Plugin] = Seq.empty,
+      test: TestConfig = TestConfig.Empty,
+      environment: Config = Config.Empty
   )(implicit ec: ExecutionContext): IntelliJFixture = {
-    new IntelliJFixture(workspaceTemplate, intelliJFactory, version, plugins, environment, afterWorkspaceSetup = Nil)
+    new IntelliJFixture(
+      workspaceTemplate,
+      intelliJFactory,
+      version,
+      plugins,
+      test,
+      environment,
+      afterWorkspaceSetup = Nil
+    )
   }
 
   def fromConfig(config: Config, path: String = ConfigRoot)(implicit ec: ExecutionContext): IntelliJFixture = {
@@ -106,6 +116,7 @@ object IntelliJFixture {
       factory = IntelliJFactory.from(probeConfig.resolvers, probeConfig.driver),
       version = probeConfig.intellij.version,
       plugins = probeConfig.intellij.plugins.filterNot(_.isInstanceOf[Plugin.Empty]),
+      test = probeConfig.test,
       config = config,
       afterWorkspaceSetup = Nil
     )
