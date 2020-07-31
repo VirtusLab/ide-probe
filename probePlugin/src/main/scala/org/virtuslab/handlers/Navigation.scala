@@ -15,7 +15,7 @@ object Navigation extends IntelliJApi {
 
     ChooseByNameContributor.CLASS_EP_NAME.forEachExtensionSafe { contributor =>
       findItems(query, project, contributor)
-        .map(item => NavigationTarget(item.getName, item.getPresentation.getLocationString))
+        .map(item => read { NavigationTarget(item.getName, item.getPresentation.getLocationString) })
         .foreach(all += _)
     }
 
