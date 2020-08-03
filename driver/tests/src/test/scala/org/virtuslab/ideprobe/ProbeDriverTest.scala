@@ -1,5 +1,6 @@
 package org.virtuslab.ideprobe
 
+import com.intellij.remoterobot.utils.WaitForConditionTimeoutException
 import org.junit.Assert._
 import org.junit.Ignore
 import org.junit.Test
@@ -239,11 +240,26 @@ final class ProbeDriverTest extends IntegrationTestSuite with Assertions {
     val windowText = welcomeFrame.fullText
     assertTrue(s"Window content: '$windowText' did not contain '$version'", windowText.contains(version))
 
-    welcomeFrame.actionLink("New Project").click()
-    val newProjectDialog = welcomeFrame.find(query.dialog("New Project"))
+    val newProjectDialog = retry(3) {
+      welcomeFrame.actionLink("New Project").click()
+      welcomeFrame.find(query.dialog("New Project"))
+    }
     val dialogContent = newProjectDialog.fullText
 
     val projectSdk = "Project SDK"
     assertTrue(s"New Project dialog content: '$dialogContent' did not contain '$projectSdk'", dialogContent.contains(projectSdk))
+  }
+
+  private def retry[A](times: Int)(action: => A): A = {
+    try {
+      action
+    } catch {
+      case e: WaitForConditionTimeoutException =>
+        if (times > 0) {
+          retry(times - 1)(action)
+        } else {
+          throw e
+        }
+    }
   }
 }
