@@ -7,17 +7,13 @@ import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.dependencies.IntelliJVersion
 import org.virtuslab.ideprobe.dependencies.Plugin
 import org.virtuslab.ideprobe.jsonrpc.RemoteException
-import org.virtuslab.ideprobe.protocol.ContentRoot.MainResources
-import org.virtuslab.ideprobe.protocol.ContentRoot.MainSources
-import org.virtuslab.ideprobe.protocol.ContentRoot.TestResources
-import org.virtuslab.ideprobe.protocol.ContentRoot.TestSources
-import org.virtuslab.ideprobe.protocol.TestStatus.Passed
 import org.virtuslab.ideprobe.protocol.BuildScope
 import org.virtuslab.ideprobe.protocol.InstalledPlugin
 import org.virtuslab.ideprobe.protocol.JUnitRunConfiguration
 import org.virtuslab.ideprobe.protocol.ModuleRef
 import org.virtuslab.ideprobe.protocol.ProjectRef
 import org.virtuslab.ideprobe.protocol.TestStatus
+import org.virtuslab.ideprobe.protocol.TestStatus.Passed
 import org.virtuslab.ideprobe.protocol.VcsRoot
 
 import scala.concurrent.duration._
@@ -115,10 +111,10 @@ final class ProbeDriverTest extends IntegrationTestSuite with Assertions {
       val mainModule = model.modules.find(_.name == "foo.main").get
       val testModule = model.modules.find(_.name == "foo.test").get
 
-      assertEquals(Set(src.resolve("main/java")), mainModule.contentRoots(MainSources))
-      assertEquals(Set(src.resolve("main/resources")), mainModule.contentRoots(MainResources))
-      assertEquals(Set(src.resolve("test/java")), testModule.contentRoots(TestSources))
-      assertEquals(Set(src.resolve("test/resources")), testModule.contentRoots(TestResources))
+      assertEquals(Set(src.resolve("main/java")), mainModule.contentRoots.sources)
+      assertEquals(Set(src.resolve("main/resources")), mainModule.contentRoots.resources)
+      assertEquals(Set(src.resolve("test/java")), testModule.contentRoots.testSources)
+      assertEquals(Set(src.resolve("test/resources")), testModule.contentRoots.testResources)
     }
   }
 
