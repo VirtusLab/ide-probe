@@ -1,5 +1,6 @@
 package org.virtuslab.ideprobe
 
+import com.intellij.remoterobot.utils.WaitForConditionTimeoutException
 import org.junit.Assert._
 import org.junit.Ignore
 import org.junit.Test
@@ -7,17 +8,13 @@ import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.dependencies.IntelliJVersion
 import org.virtuslab.ideprobe.dependencies.Plugin
 import org.virtuslab.ideprobe.jsonrpc.RemoteException
-import org.virtuslab.ideprobe.protocol.ContentRoot.MainResources
-import org.virtuslab.ideprobe.protocol.ContentRoot.MainSources
-import org.virtuslab.ideprobe.protocol.ContentRoot.TestResources
-import org.virtuslab.ideprobe.protocol.ContentRoot.TestSources
-import org.virtuslab.ideprobe.protocol.TestStatus.Passed
 import org.virtuslab.ideprobe.protocol.BuildScope
 import org.virtuslab.ideprobe.protocol.InstalledPlugin
 import org.virtuslab.ideprobe.protocol.JUnitRunConfiguration
 import org.virtuslab.ideprobe.protocol.ModuleRef
 import org.virtuslab.ideprobe.protocol.ProjectRef
 import org.virtuslab.ideprobe.protocol.TestStatus
+import org.virtuslab.ideprobe.protocol.TestStatus.Passed
 import org.virtuslab.ideprobe.protocol.VcsRoot
 
 import scala.concurrent.duration._
@@ -115,10 +112,10 @@ final class ProbeDriverTest extends IntegrationTestSuite with Assertions {
       val mainModule = model.modules.find(_.name == "foo.main").get
       val testModule = model.modules.find(_.name == "foo.test").get
 
-      assertEquals(Set(src.resolve("main/java")), mainModule.contentRoots(MainSources))
-      assertEquals(Set(src.resolve("main/resources")), mainModule.contentRoots(MainResources))
-      assertEquals(Set(src.resolve("test/java")), testModule.contentRoots(TestSources))
-      assertEquals(Set(src.resolve("test/resources")), testModule.contentRoots(TestResources))
+      assertEquals(Set(src.resolve("main/java")), mainModule.contentRoots.sources)
+      assertEquals(Set(src.resolve("main/resources")), mainModule.contentRoots.resources)
+      assertEquals(Set(src.resolve("test/java")), testModule.contentRoots.testSources)
+      assertEquals(Set(src.resolve("test/resources")), testModule.contentRoots.testResources)
     }
   }
 
@@ -243,11 +240,26 @@ final class ProbeDriverTest extends IntegrationTestSuite with Assertions {
     val windowText = welcomeFrame.fullText
     assertTrue(s"Window content: '$windowText' did not contain '$version'", windowText.contains(version))
 
-    welcomeFrame.actionLink("New Project").click()
-    val newProjectDialog = welcomeFrame.find(query.dialog("New Project"))
+    val newProjectDialog = retry(3) {
+      welcomeFrame.actionLink("New Project").click()
+      welcomeFrame.find(query.dialog("New Project"))
+    }
     val dialogContent = newProjectDialog.fullText
 
     val projectSdk = "Project SDK"
     assertTrue(s"New Project dialog content: '$dialogContent' did not contain '$projectSdk'", dialogContent.contains(projectSdk))
+  }
+
+  private def retry[A](times: Int)(action: => A): A = {
+    try {
+      action
+    } catch {
+      case e: WaitForConditionTimeoutException =>
+        if (times > 0) {
+          retry(times - 1)(action)
+        } else {
+          throw e
+        }
+    }
   }
 }
