@@ -84,3 +84,17 @@ resolvers.in(ThisBuild) += Resolver.sonatypeRepo("snapshots")
 3. [Workspace](docs/workspace.md)
 4. [Display](docs/display.md)
 5. [Debugging](docs/debug.md)
+
+#### Showcase
+
+Probe is currently being actively used in:
+
+1. [IntelliJ Pants plugin](https://github.com/pantsbuild/intellij-pants-plugin)
+
+It discovered or reproduced following issues:
+
+1. Failing to import SBT projects without any JDK specified [pull request](https://github.com/JetBrains/intellij-scala/pull/562)
+2. Malfunctioning VCS root detection for pants plugin
+3. Missing thrift-related objects in the find window
+4. Failing to import pants project using BSP
+5. Incorrect pants project name generation
