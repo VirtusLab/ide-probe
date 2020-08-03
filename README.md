@@ -64,6 +64,19 @@ To see the full list of probe endpoints see
 
 Note, that any communication with the probe is synchronous.
 
+#### Usage
+
+To include Probe in your sbt project add following lines: 
+```scala
+resolvers.in(ThisBuild) += MavenRepository("jetbrains-3rd", "https://jetbrains.bintray.com/intellij-third-party-dependencies")
+libraryDependencies += "org.virtuslab.ideprobe" %% "junit-driver" % "0.1.3"
+```
+
+To use snapshots versions, add another repository:
+```scala
+resolvers.in(ThisBuild) += Resolver.sonatypeRepo("snapshots")
+```
+
 #### Configuration 
 
 1. [Driver](docs/driver.md)
