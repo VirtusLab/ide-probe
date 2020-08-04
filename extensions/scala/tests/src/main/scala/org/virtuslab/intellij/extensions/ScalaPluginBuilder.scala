@@ -39,19 +39,18 @@ object ScalaPluginBuilder extends DependencyBuilder(Id("scala")) {
 
   private def clone(repository: Git) = {
     val localRepo = Files.createTempDirectory("scala-plugin-repo")
-    val command: Array[String] = repository.branch match {
-      case None         => Array("git", "clone", repository.path.toString, localRepo.toString)
-      case Some(branch) => Array("git", "clone", repository.path.toString, branch, localRepo.toString)
+    val cloned = Shell.run("git", "clone", repository.path.toString, localRepo.toString)
+    if (cloned.exitCode != 0) throw new IllegalStateException(s"Could not clone git $repository")
+    repository.ref.foreach { ref =>
+      val checkout = Shell.run(in = localRepo, "git", "checkout", ref)
+      if (checkout.exitCode != 0) throw new IllegalStateException(s"Could not checkout $ref in $repository")
     }
-    val result = Shell.run(command: _*)
-    if (result.exitCode != 0) throw new Exception(s"Could not clone $repository. STDERR:\n${result.err}")
-
     println(s"Cloned $repository")
     localRepo
   }
 
   private def hash(repository: Git, fallbackRef: String) = {
-    val Ref = repository.branch.getOrElse(fallbackRef)
+    val Ref = repository.ref.getOrElse(fallbackRef)
     val result = Shell.run("git", "ls-remote", repository.path.toString, Ref)
 
     if (result.exitCode != 0)
@@ -59,6 +58,6 @@ object ScalaPluginBuilder extends DependencyBuilder(Id("scala")) {
     val hash = result.out.linesIterator.map(_.split("\\W+")).collectFirst {
       case Array(hash, Ref) => hash
     }
-    hash.getOrElse(throw new Exception(s"Ref $Ref not found"))
+    hash.orElse(repository.ref).getOrElse(throw new Exception(s"Ref $Ref not found"))
   }
 }

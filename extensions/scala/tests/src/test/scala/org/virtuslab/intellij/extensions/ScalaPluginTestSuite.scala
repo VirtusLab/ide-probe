@@ -25,6 +25,7 @@ class ScalaPluginTestSuite extends IntegrationTestSuite {
         if (jvmsToKill.contains(mainClass)) {
           Shell.run("kill", "-9", pid)
         }
+      case _ => ()
     }
   }
 }
