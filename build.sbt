@@ -104,7 +104,9 @@ lazy val junitDriver = module("junit-driver", "driver/bindings/junit")
 lazy val scalaTests = testModule("scala-tests", "extensions/scala/tests")
   .dependsOn(junitDriver)
 
-lazy val examples = testModule("examples", "driver/examples").dependsOn(junitDriver)
+lazy val examples = testModule("examples", "driver/examples")
+  .dependsOn(junitDriver)
+  .settings(libraryDependencies += Dependencies.junitJupiterParams)
 
 val commonSettings = Seq(
   libraryDependencies ++= Dependencies.junit,

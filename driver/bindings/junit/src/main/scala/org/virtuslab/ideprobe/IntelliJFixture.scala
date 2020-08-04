@@ -17,7 +17,6 @@ final case class IntelliJFixture(
     factory: IntelliJFactory,
     version: IntelliJVersion,
     plugins: Seq[Plugin],
-    test: TestConfig,
     config: Config,
     afterWorkspaceSetup: Seq[(IntelliJFixture, Path) => Unit]
 )(implicit ec: ExecutionContext) {
@@ -94,7 +93,6 @@ object IntelliJFixture {
       version: IntelliJVersion = IntelliJVersion.Latest,
       intelliJFactory: IntelliJFactory = IntelliJFactory.Default,
       plugins: Seq[Plugin] = Seq.empty,
-      test: TestConfig = TestConfig.Empty,
       environment: Config = Config.Empty
   )(implicit ec: ExecutionContext): IntelliJFixture = {
     new IntelliJFixture(
@@ -102,7 +100,6 @@ object IntelliJFixture {
       intelliJFactory,
       version,
       plugins,
-      test,
       environment,
       afterWorkspaceSetup = Nil
     )
@@ -116,7 +113,6 @@ object IntelliJFixture {
       factory = IntelliJFactory.from(probeConfig.resolvers, probeConfig.driver),
       version = probeConfig.intellij.version,
       plugins = probeConfig.intellij.plugins.filterNot(_.isInstanceOf[Plugin.Empty]),
-      test = probeConfig.test,
       config = config,
       afterWorkspaceSetup = Nil
     )
