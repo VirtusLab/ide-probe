@@ -7,7 +7,6 @@ import org.junit.Test
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.dependencies.IntelliJVersion
 import org.virtuslab.ideprobe.dependencies.Plugin
-import org.virtuslab.ideprobe.jsonrpc.RemoteException
 import org.virtuslab.ideprobe.protocol.BuildScope
 import org.virtuslab.ideprobe.protocol.InstalledPlugin
 import org.virtuslab.ideprobe.protocol.JUnitRunConfiguration
@@ -18,12 +17,9 @@ import org.virtuslab.ideprobe.protocol.TestStatus.Passed
 import org.virtuslab.ideprobe.protocol.VcsRoot
 
 import scala.concurrent.duration._
-import scala.util.Failure
-import scala.util.Success
-import scala.util.Try
 
 final class ProbeDriverTest extends IntegrationTestSuite with Assertions {
-  private val scalaPlugin = Plugin("org.intellij.scala", "2020.2.584", Some("nightly"))
+  private val scalaPlugin = Plugin("org.intellij.scala", "2020.2.717", Some("nightly"))
   private val probeTestPlugin = ProbeTestPlugin.bundled
 
   private val fixture = IntelliJFixture(
@@ -130,7 +126,6 @@ final class ProbeDriverTest extends IntegrationTestSuite with Assertions {
     }
   }
 
-  @Ignore
   @Test
   def buildProjectTest(): Unit = {
     buildTestFixture
@@ -148,12 +143,11 @@ final class ProbeDriverTest extends IntegrationTestSuite with Assertions {
         val failedResult = intelliJ.probe.build()
         assertExists(failedResult.errors) { error =>
           error.file.exists(_.endsWith("src/main/scala/Main.scala")) &&
-            error.content.contains("expected class or object definition")
+          error.content.contains("expected class or object definition")
         }
       }
   }
 
-  @Ignore
   @Test
   def buildFilesTest(): Unit = {
     buildTestFixture.run { intelliJ =>
@@ -218,18 +212,6 @@ final class ProbeDriverTest extends IntegrationTestSuite with Assertions {
     IntelliJFixture.fromConfig(Config.fromClasspath("CustomCommand/ideprobe.conf")).run { intelliJ =>
       val output = intelliJ.workspace.resolve("output")
       assertTrue(s"Not a file $output", output.isFile)
-    }
-  }
-
-  @Ignore
-  @Test
-  def failsOnUnexpectedWindow(): Unit = fixture.run { intellij =>
-    val action = "org.virtuslab.ideprobe.test.OpenWindowAction"
-    Try(intellij.probe.invokeAction(action)) match {
-      case Failure(e: RemoteException) if e.getMessage.contains("Unexpectedly opened window") => ()
-
-      case Success(_) => fail("Opened window did not trigger an error")
-      case Failure(e) => throw e
     }
   }
 
