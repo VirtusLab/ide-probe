@@ -8,6 +8,21 @@ The framework itself comprises two components:
 - driver - responsible for controlling the workspace and IDE startup
 - probe - used to interact with the IDE  
 
+#### Motivation
+
+Sometimes, unit tests cannot be used to reliably reproduce a failure or test some specific feature. 
+This happens because the testing environment used by IDEs most often differs from the actual, production-like
+environment experienced by the user. Be it a disabled UI, forced single threaded execution, or just different 
+control flow, the unit tests are just not the right tool to use sometimes. 
+
+Using Probe fixes those problems at the non-avoidable cost of slightly longer execution time 
+when compared to unit tests. With it, not only a proper environment is used 
+but one can also guard against new classes of errors, like:
+- UI freezes 
+- background plugin errors
+- unexpected behavior after starting or restarting IDE sessions
+- invalid interactions between multiple IDE sessions running in parallel
+
 #### Overview
 
 A single test case consists of a configuration and workflow specification. 
