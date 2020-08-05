@@ -7,7 +7,7 @@ import pureconfig.generic.semiauto.deriveReader
 
 sealed trait SourceRepository
 object SourceRepository extends ConfigFormat {
-  final case class Git(path: URI, branch: Option[String]) extends SourceRepository
+  final case class Git(path: URI, ref: Option[String]) extends SourceRepository
 
   implicit val pluginReader: ConfigReader[SourceRepository] = possiblyAmbiguousAdtReader[SourceRepository](
     deriveReader[Git]

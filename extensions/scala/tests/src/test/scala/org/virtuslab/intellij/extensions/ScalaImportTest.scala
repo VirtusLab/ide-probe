@@ -16,7 +16,6 @@ final class ScalaImportTest extends ScalaPluginTestSuite {
   @Test
   def importSbtProject(): Unit = {
     fixtureFromConfig(config).run { intellij =>
-      intellij.probe.preconfigureJDK()
       val projectRef = intellij.probe.openProject(intellij.workspace.resolve("root"))
       val project = intellij.probe.projectModel(projectRef)
       val modules = project.modules.map(_.name).toSet
