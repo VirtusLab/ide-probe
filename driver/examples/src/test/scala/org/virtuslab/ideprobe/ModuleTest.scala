@@ -5,11 +5,12 @@ import java.util.concurrent.Executors
 import org.junit.Assert
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
+import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.protocol.{JUnitRunConfiguration, ModuleRef}
 
 import scala.concurrent.ExecutionContext
 
-class ModuleTest {
+class ModuleTest extends RobotExtensions  {
   protected implicit val ec: ExecutionContext = ExecutionContext.fromExecutorService(Executors.newCachedThreadPool())
 
   def fixtureFromConfig(configName: String): IntelliJFixture =
@@ -21,6 +22,7 @@ class ModuleTest {
   )
   def verifyModulesPresent(configName: String): Unit = fixtureFromConfig(configName).run { intelliJ =>
     intelliJ.probe.preconfigureJDK()
+    intelliJ.workspace.resolve(".idea").delete()
     val projectRef = intelliJ.probe.openProject(intelliJ.workspace)
     val project = intelliJ.probe.projectModel(projectRef)
     val projectModules = project.modules.map(_.name)
@@ -31,9 +33,10 @@ class ModuleTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = Array("projects/shapeless/ideprobe.conf", "projects/cats/ideprobe.conf"))
+  @ValueSource(strings = Array("projects/shapeless/ideprobe.conf", "projects/cats/ideprobe.conf", "projects/dokka/ideprobe.conf"))
   def runTestsInModules(configName: String): Unit = fixtureFromConfig(configName).run { intelliJ =>
     intelliJ.probe.preconfigureJDK()
+    intelliJ.workspace.resolve(".idea").delete()
     val projectRef = intelliJ.probe.openProject(intelliJ.workspace)
     val project = intelliJ.probe.projectModel(projectRef)
     val modulesFromConfig = intelliJ.config.get[Seq[String]]("test.modules").get
