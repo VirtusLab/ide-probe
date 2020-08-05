@@ -17,6 +17,7 @@ import org.virtuslab.ideprobe.protocol.TestStatus
 import org.virtuslab.ideprobe.protocol.TestStatus.Passed
 import org.virtuslab.ideprobe.protocol.VcsRoot
 
+import scala.annotation.tailrec
 import scala.concurrent.duration._
 import scala.util.Failure
 import scala.util.Success
@@ -250,12 +251,15 @@ final class ProbeDriverTest extends IntegrationTestSuite with Assertions {
     assertTrue(s"New Project dialog content: '$dialogContent' did not contain '$projectSdk'", dialogContent.contains(projectSdk))
   }
 
+  @tailrec
   private def retry[A](times: Int)(action: => A): A = {
     try {
       action
     } catch {
       case e: WaitForConditionTimeoutException =>
         if (times > 0) {
+          println("Failed to find element, retrying...")
+          e.printStackTrace()
           retry(times - 1)(action)
         } else {
           throw e

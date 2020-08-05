@@ -5,6 +5,8 @@ import java.nio.file.Path
 case class BuildMessage(file: Option[String], content: String)
 
 case class BuildResult(results: Seq[BuildStepResult]) {
+  def assertSuccess(): Unit = if (hasErrors || isAborted) throw new AssertionError(s"Build did not succeed: $this")
+
   def hasErrors: Boolean = errors.nonEmpty
 
   def isAborted: Boolean = merge(_.isAborted)(_ || _)

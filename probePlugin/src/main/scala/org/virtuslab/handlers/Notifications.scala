@@ -4,10 +4,12 @@ import com.intellij.notification.Notification
 import com.intellij.notification.{Notifications => NotificationListener}
 import com.intellij.openapi.application.ApplicationManager
 import org.virtuslab.ideprobe.protocol.IdeNotification
+
 import scala.concurrent.Promise
+import scala.concurrent.duration.Duration
 
 object Notifications extends IntelliJApi {
-  def await(id: String): IdeNotification = {
+  def await(id: String, duration: Duration): IdeNotification = {
     val result = Promise[IdeNotification]()
 
     ApplicationManager.getApplication.getMessageBus
@@ -22,6 +24,6 @@ object Notifications extends IntelliJApi {
           }
         }
       )
-    await(result.future)
+    await(result.future, duration)
   }
 }
