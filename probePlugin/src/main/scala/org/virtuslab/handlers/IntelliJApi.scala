@@ -51,8 +51,8 @@ trait IntelliJApi {
     throw new RuntimeException(message)
   }
 
-  protected def await[A](future: Future[A]): A = {
-    Await.result(future, Duration.Inf)
+  protected def await[A](future: Future[A], duration: Duration = Duration.Inf): A = {
+    Await.result(future, duration)
   }
 
   implicit class UserDataHolderOps(val holder: UserDataHolder) {

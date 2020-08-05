@@ -31,7 +31,7 @@ class BaseProbeHandlerContributor extends ProbeHandlerContributor {
       .on(Endpoints.AwaitIdle)(_ => BackgroundTasks.awaitNone())
       .on(Endpoints.Build)(Builds.build)
       .on(Endpoints.SyncFiles)(_ => VFS.syncAll())
-      .on(Endpoints.AwaitNotification)(Notifications.await)
+      .on(Endpoints.AwaitNotification)((Notifications.await _).tupled)
       .on(Endpoints.Run)(RunConfigurations.execute)
       .on(Endpoints.RunJUnit)(RunConfigurations.execute)
       .on(Endpoints.TakeScreenshot)(Screenshot.take)

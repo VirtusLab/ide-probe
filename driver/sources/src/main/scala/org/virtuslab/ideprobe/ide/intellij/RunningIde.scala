@@ -19,6 +19,7 @@ final class RunningIde(val launcher: NuProcess, idePID: Long, val probe: ProbeDr
 
   def shutdown(): Unit = runOnce {
     try {
+      probe.screenshot("-on-exit")
       probe.shutdown()
     } finally {
       val launcherPID = launcher.getPID

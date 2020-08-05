@@ -7,12 +7,14 @@ import org.virtuslab.ideprobe.jsonrpc.JsonRpc.Method.Request
 import org.virtuslab.ideprobe.jsonrpc.PayloadJsonFormat._
 import pureconfig.generic.auto._
 
+import scala.concurrent.duration.Duration
+
 object Endpoints {
 
   // commands
   val PreconfigureJDK = Request[Unit, Unit]("jdk/preconfigure")
   val AwaitIdle = Request[Unit, Unit]("awaitIdle")
-  val AwaitNotification = Request[String, IdeNotification]("notification/await")
+  val AwaitNotification = Request[(String, Duration), IdeNotification]("notification/await")
   val Build = Request[BuildParams, BuildResult]("build")
   val CloseProject = Request[ProjectRef, Unit]("project/close")
   val Find = Request[NavigationQuery, List[NavigationTarget]]("find")
