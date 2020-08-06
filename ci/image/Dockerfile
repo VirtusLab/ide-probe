@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:experimental
 FROM openjdk:11
 
 RUN echo "deb https://dl.bintray.com/sbt/debian /" | tee -a /etc/apt/sources.list.d/sbt.list \
@@ -7,6 +8,12 @@ RUN echo "deb https://dl.bintray.com/sbt/debian /" | tee -a /etc/apt/sources.lis
         python3-pip sbt libssl-dev pkg-config x11-apps imagemagick \
     && sbt --version
 
-ADD . /tests
-WORKDIR /tests
-RUN ci/setup-consents
+WORKDIR /tmp/prefetch
+
+RUN --mount=type=bind,rw,source=.,target=. set -x \
+ && ci/setup-consents.sh \
+ && ci/prefetch_dependencies.sh \
+ && rm -rf /root/.ideprobePluginIC/ 
+
+WORKDIR /root
+RUN rmdir /tmp/prefetch

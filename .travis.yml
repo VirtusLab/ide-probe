@@ -1,7 +1,7 @@
 before_install:
   - git fetch --tags
   - sbt ci/generateScripts
-  - docker build --tag testimage .
+  - ci/tests/build_image
 
 if: type = push
 stages:
@@ -22,13 +22,13 @@ scala:
 jobs:
   include:
     - name: test-probe @ scala-2.12
-      script: sh ci/run_docker sh ci/2.12.10/test-probe
+      script: ci/tests/run probe 2.12.10
     - name: test-probe @ scala-2.13
-      script: sh ci/run_docker sh ci/2.13.1/test-probe
+      script: ci/tests/run probe 2.13.1
     - name: test-scala @ scala-2.12
-      script: sh ci/run_docker sh ci/2.12.10/test-scala
+      script: ci/tests/run scala 2.12.10
     - name: test-scala @ scala-2.13
-      script: sh ci/run_docker sh ci/2.13.1/test-scala
+      script: ci/tests/run scala 2.13.1
     - stage: Release
       name: Release
       script: sbt ci-release

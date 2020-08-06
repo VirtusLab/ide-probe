@@ -1,0 +1,5 @@
+#!/bin/sh
+
+rm -f Dockerfile || true \
+	&& cp ci/tests/Dockerfile Dockerfile \
+	&& docker build --tag testimage:local .
