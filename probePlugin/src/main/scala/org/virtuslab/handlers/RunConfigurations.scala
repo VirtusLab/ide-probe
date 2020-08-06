@@ -33,7 +33,8 @@ import org.virtuslab.ideprobe.Extensions._
 
 object RunConfigurations extends IntelliJApi {
   def execute(runConfiguration: JUnitRunConfiguration)(implicit ec: ExecutionContext): TestsRunResult = {
-    val (project, module) = Modules.resolve(runConfiguration.module)
+    val module = Modules.resolve(runConfiguration.module)
+    val project = module.getProject
 
     val configuration = new JUnitConfiguration(UUID.randomUUID().toString, project)
     configuration.setModule(module)
@@ -119,7 +120,8 @@ object RunConfigurations extends IntelliJApi {
   private def registerObservableConfiguration(
       mainClass: ApplicationRunConfiguration
   ): RunnerSettingsWithProcessOutput = {
-    val (project, module) = Modules.resolve(mainClass.module)
+    val module = Modules.resolve(mainClass.module)
+    val project = module.getProject
 
     val configuration = {
       val psiClass = {

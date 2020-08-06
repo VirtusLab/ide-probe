@@ -1,6 +1,10 @@
 package org.virtuslab.ideprobe
 
+import java.net.URL
+import java.nio.charset.Charset
+
 import com.intellij.remoterobot.utils.WaitForConditionTimeoutException
+import org.apache.commons.io.IOUtils
 import org.junit.Assert._
 import org.junit.Ignore
 import org.junit.Test
@@ -243,7 +247,7 @@ final class ProbeDriverTest extends IntegrationTestSuite with Assertions {
 
     val newProjectDialog = retry(3) {
       welcomeFrame.actionLink("New Project").click()
-      welcomeFrame.find(query.dialog("New Project"))
+      intelliJ.probe.robot.find(query.dialog("New Project"))
     }
     val dialogContent = newProjectDialog.fullText
 
@@ -251,6 +255,7 @@ final class ProbeDriverTest extends IntegrationTestSuite with Assertions {
     assertTrue(s"New Project dialog content: '$dialogContent' did not contain '$projectSdk'", dialogContent.contains(projectSdk))
   }
 
+  // temporary for debugging
   @tailrec
   private def retry[A](times: Int)(action: => A): A = {
     try {
@@ -260,6 +265,9 @@ final class ProbeDriverTest extends IntegrationTestSuite with Assertions {
         if (times > 0) {
           println("Failed to find element, retrying...")
           e.printStackTrace()
+          try println(IOUtils.toString(new URL("http://localhost:9534/"), Charset.defaultCharset())) catch {
+            case e: Exception => e.printStackTrace()
+          }
           retry(times - 1)(action)
         } else {
           throw e
