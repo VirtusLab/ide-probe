@@ -13,6 +13,7 @@ import org.virtuslab.ProbePluginExtensions._
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.protocol
 import org.virtuslab.ideprobe.protocol.ProjectRef
+import org.virtuslab.ideprobe.protocol.Sdk
 
 import scala.annotation.tailrec
 
@@ -96,10 +97,10 @@ object Projects extends IntelliJApi {
     protocol.Project(project.getName, project.getBasePath, mappedModules)
   }
 
-  def sdk(ref: ProjectRef): Option[String] = read {
+  def sdk(ref: ProjectRef): Option[Sdk] = read {
     val project = resolve(ref)
     val sdk = ProjectRootManager.getInstance(project).getProjectSdk
-    Option(sdk).map(_.getName)
+    Option(sdk).map(Sdks.convert)
   }
 
   private def findProject(name: String): Project = {

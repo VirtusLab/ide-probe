@@ -40,6 +40,7 @@ import scala.reflect.ClassTag
 import scala.util.Failure
 import scala.util.Try
 import RobotExtensions._
+import org.virtuslab.ideprobe.protocol.Sdk
 
 final class ProbeDriver(
   protected val connection: JsonRpcConnection,
@@ -230,12 +231,12 @@ final class ProbeDriver(
   /**
    * Returns the sdk of the specified project
    */
-  def projectSdk(project: ProjectRef = ProjectRef.Default): Option[String] = send(Endpoints.ProjectSdk, project)
+  def projectSdk(project: ProjectRef = ProjectRef.Default): Option[Sdk] = send(Endpoints.ProjectSdk, project)
 
   /**
    * Returns the sdk of the specified module
    */
-  def moduleSdk(module: ModuleRef): Option[String] = send(Endpoints.ModuleSdk, module)
+  def moduleSdk(module: ModuleRef): Option[Sdk] = send(Endpoints.ModuleSdk, module)
 
   /**
    * Returns the list of VCS roots of the specified project

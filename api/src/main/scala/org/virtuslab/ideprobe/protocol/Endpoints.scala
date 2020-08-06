@@ -32,11 +32,11 @@ object Endpoints {
   val Freezes = Request[Unit, Seq[Freeze]]("freezes")
   val ListOpenProjects = Request[Unit, Seq[ProjectRef]]("projects/all")
   val Messages = Request[Unit, Seq[IdeMessage]]("messages")
-  val ModuleSdk = Request[ModuleRef, Option[String]]("module/sdk")
+  val ModuleSdk = Request[ModuleRef, Option[Sdk]]("module/sdk")
   val PID = Request[Unit, Long]("pid")
   val Ping = Request[Unit, Unit]("ping")
   val Plugins = Request[Unit, Seq[InstalledPlugin]]("plugins")
-  val ProjectSdk = Request[ProjectRef, Option[String]]("project/sdk")
+  val ProjectSdk = Request[ProjectRef, Option[Sdk]]("project/sdk")
   val ProjectModel = Request[ProjectRef, Project]("project/model")
   val VcsRoots = Request[ProjectRef, Seq[VcsRoot]]("project/vcsRoots")
 }
