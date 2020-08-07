@@ -18,6 +18,8 @@ import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 import scala.reflect.ClassTag
 
+object IntelliJApi extends IntelliJApi
+
 trait IntelliJApi {
   def runOnUIAsync(block: => Unit): Unit = {
     application.invokeLater(() => block)
