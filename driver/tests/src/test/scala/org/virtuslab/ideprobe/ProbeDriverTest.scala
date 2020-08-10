@@ -117,10 +117,10 @@ final class ProbeDriverTest extends IntegrationTestSuite with Assertions {
       val mainModule = model.modules.find(_.name == "foo.main").get
       val testModule = model.modules.find(_.name == "foo.test").get
 
-      assertEquals(Set(src.resolve("main/java")), mainModule.contentRoots.sources)
-      assertEquals(Set(src.resolve("main/resources")), mainModule.contentRoots.resources)
-      assertEquals(Set(src.resolve("test/java")), testModule.contentRoots.testSources)
-      assertEquals(Set(src.resolve("test/resources")), testModule.contentRoots.testResources)
+      assertEquals(Set(src.resolve("main/java")), mainModule.contentRoots.paths.sources)
+      assertEquals(Set(src.resolve("main/resources")), mainModule.contentRoots.paths.resources)
+      assertEquals(Set(src.resolve("test/java")), testModule.contentRoots.paths.testSources)
+      assertEquals(Set(src.resolve("test/resources")), testModule.contentRoots.paths.testResources)
     }
   }
 

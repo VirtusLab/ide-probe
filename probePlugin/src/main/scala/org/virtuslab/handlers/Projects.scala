@@ -90,8 +90,9 @@ object Projects extends IntelliJApi {
     val project = resolve(ref)
     val modules = ModuleManager.getInstance(project).getSortedModules
     val mappedModules = modules.map { module =>
-      val dependencies = module.dependencies.map(_.toRef).toSet
-      protocol.Module(module.getName, module.contentRoots, dependencies, Option(module.getModuleTypeName))
+      val dependencies = Modules.dependencies(module).map(_.toRef).toSet
+      val contentRoots = Modules.contentRoots(module)
+      protocol.Module(module.getName, contentRoots, dependencies, Option(module.getModuleTypeName))
     }
 
     protocol.Project(project.getName, project.getBasePath, mappedModules)
