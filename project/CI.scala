@@ -5,7 +5,7 @@ import sbt.ProjectRef
 import sbt._
 
 object CI {
-  private val excluded = Set("ide-probe", "ci")
+  private val excluded = Set("ci", "ide-probe", "ideprobe", "probe")
   lazy val generateScripts = taskKey[Seq[File]]("Generate CI scripts")
 
   def groupedProjects(): Def.Initialize[Task[Map[String, Seq[ProjectRef]]]] = Def.task {
@@ -23,7 +23,7 @@ object CI {
   }
 
   def generateTestScript(group: String, projects: Seq[ProjectRef], scalaVersion: String): sbt.File = {
-    val script = file(s"ci/$scalaVersion/test-$group")
+    val script = file(s"ci/tests/$scalaVersion/test-$group")
     val arguments = projects.map(ref => s"; ${ref.project} / test").mkString
     val content = s"""|#!/bin/sh
                       |

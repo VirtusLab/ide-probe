@@ -1,10 +1,15 @@
 #!/bin/sh
-DOCKER_IMAGE=testimage
+
+DOCKER_IMAGE=testimage:local
 DOCKER_DIRECTORY=/tmp/ideprobe/output
 HOST_DIRECTORY=/tmp/ideprobe/output
+
+TEST_SUITE=$1
+SCALA_VERSION=$2
+LAUNCHER="ci/tests/${SCALA_VERSION}/test-$TEST_SUITE"
 
 mkdir -p "${HOST_DIRECTORY}"
 docker run  \
   --mount type=bind,source="${HOST_DIRECTORY}",target="${DOCKER_DIRECTORY}" \
   "${DOCKER_IMAGE}" \
-  "$@"
+  sh "${LAUNCHER}"

@@ -10,3 +10,7 @@ project/plugins/project/
 .lib/
 
 ci/test-*
+
+# Dockerfile is selected based on the action to do: either building parent image or running a test suite
+Dockerfile 
+!ci/**/Dockerfile
