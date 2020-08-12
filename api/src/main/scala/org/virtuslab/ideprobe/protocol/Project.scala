@@ -17,7 +17,9 @@ case class Project(
 case class Module(name: String,
                   contentRoots: ContentRoots,
                   dependencies: Set[ModuleRef],
-                  kind: Option[String])
+                  kind: Option[String]) {
+  def toRef(project: ProjectRef = ProjectRef.Default): ModuleRef = ModuleRef(name, project)
+}
 
 case class ContentEntry(path: Option[Path], sourceRoots: Set[SourceFolder], excluded: Set[Path])
 
