@@ -1,0 +1,15 @@
+<idea-plugin>
+    <id>org.virtuslab.ideprobe.scalaplugin</id>
+    <name>Virtuslab IdeProbe Scala</name>
+    <vendor email="info@virtuslab.com" url="http://www.virtuslab.com">VirtusLab</vendor>
+
+    <depends>com.intellij.modules.lang</depends>
+    <depends>com.intellij.modules.java</depends>
+    <depends>org.virtuslab.ideprobe</depends>
+    <depends>org.intellij.scala</depends>
+    <idea-version since-build="191.*" until-build="201.*"/>
+
+    <extensions defaultExtensionNs="org.virtuslab.ideprobe">
+        <probeHandlerContributor implementation="org.virtuslab.intellij.scala.probe.SbtProbeHandlerContributor"/>
+    </extensions>
+</idea-plugin>

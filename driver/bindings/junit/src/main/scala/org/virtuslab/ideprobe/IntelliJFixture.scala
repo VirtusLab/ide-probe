@@ -18,7 +18,8 @@ final case class IntelliJFixture(
     version: IntelliJVersion,
     plugins: Seq[Plugin],
     config: Config,
-    afterWorkspaceSetup: Seq[(IntelliJFixture, Path) => Unit]
+    afterWorkspaceSetup: Seq[(IntelliJFixture, Path) => Unit],
+    afterIntelliJInstall: Seq[(IntelliJFixture, InstalledIntelliJ) => Unit]
 )(implicit ec: ExecutionContext) {
 
   def withConfig(entries: (String, String)*): IntelliJFixture = {
@@ -28,6 +29,14 @@ final case class IntelliJFixture(
 
   def withAfterWorkspaceSetup(action: (IntelliJFixture, Path) => Unit): IntelliJFixture = {
     copy(afterWorkspaceSetup = afterWorkspaceSetup :+ action)
+  }
+
+  def withAfterIntelliJInstall(action: (IntelliJFixture, InstalledIntelliJ) => Unit): IntelliJFixture = {
+    copy(afterIntelliJInstall = afterIntelliJInstall :+ action)
+  }
+
+  def withPlugin(plugin: Plugin): IntelliJFixture = {
+    copy(plugins = plugin +: plugins)
   }
 
   def headless: IntelliJFixture = {
@@ -51,7 +60,9 @@ final case class IntelliJFixture(
   }
 
   def installIntelliJ(): InstalledIntelliJ = {
-    factory.create(version, plugins)
+    val installedIntelliJ = factory.create(version, plugins)
+    afterIntelliJInstall.foreach(_.apply(this, installedIntelliJ))
+    installedIntelliJ
   }
 
   def deleteIntelliJ(installedIntelliJ: InstalledIntelliJ): Unit = {
@@ -101,7 +112,8 @@ object IntelliJFixture {
       version,
       plugins,
       environment,
-      afterWorkspaceSetup = Nil
+      afterWorkspaceSetup = Nil,
+      afterIntelliJInstall = Nil
     )
   }
 
@@ -114,7 +126,8 @@ object IntelliJFixture {
       version = probeConfig.intellij.version,
       plugins = probeConfig.intellij.plugins.filterNot(_.isInstanceOf[Plugin.Empty]),
       config = config,
-      afterWorkspaceSetup = Nil
+      afterWorkspaceSetup = Nil,
+      afterIntelliJInstall = Nil
     )
   }
 }
