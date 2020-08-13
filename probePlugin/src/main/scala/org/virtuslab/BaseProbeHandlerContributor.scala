@@ -35,6 +35,7 @@ class BaseProbeHandlerContributor extends ProbeHandlerContributor {
       .on(Endpoints.Run)(RunConfigurations.execute)
       .on(Endpoints.RunJUnit)(RunConfigurations.execute)
       .on(Endpoints.TakeScreenshot)(Screenshot.take)
+      .on(Endpoints.RunLocalInspection)(Inspections.runLocal)
       .on(Endpoints.VcsRoots)(VCS.roots)
   }
 }

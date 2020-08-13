@@ -40,6 +40,9 @@ import scala.reflect.ClassTag
 import scala.util.Failure
 import scala.util.Try
 import RobotExtensions._
+import org.virtuslab.ideprobe.protocol.InspectionRunParams
+import org.virtuslab.ideprobe.protocol.InspectionRunResult
+import org.virtuslab.ideprobe.protocol.RunFixesSpec
 import org.virtuslab.ideprobe.protocol.Sdk
 
 final class ProbeDriver(
@@ -170,7 +173,7 @@ final class ProbeDriver(
    * Finds all the files referenced by the specified file
    */
   def fileReferences(project: ProjectRef = ProjectRef.Default, path: Path): Seq[Reference] = {
-    send(Endpoints.FileReferences, FileRef(project, path))
+    send(Endpoints.FileReferences, FileRef(path, project))
   }
 
   /**
@@ -248,10 +251,17 @@ final class ProbeDriver(
    */
   def plugins: Seq[InstalledPlugin] = send(Endpoints.Plugins).toList
 
+  /**
+   * Runs inspection given by fully qualified class name on specified file.
+   * Optionally it can also run some or all of the quick fixes
+   */
+  def runLocalInspection(className: String, targetFile: FileRef, runFixesSpec: RunFixesSpec = RunFixesSpec.None): InspectionRunResult = {
+    send(Endpoints.RunLocalInspection, InspectionRunParams(className, targetFile, runFixesSpec))
+  }
+
   def closeTipOfTheDay(): Unit = {
     Try(robot.mainWindow.find(query.dialog("Tip of the Day")).button("Close").click())
   }
-
 
   def checkBuildPanelErrors(): Unit = {
     robot.findOpt(query.className("MultipleBuildsPanel")).foreach { buildPanel =>

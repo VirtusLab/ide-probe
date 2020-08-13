@@ -42,7 +42,7 @@ object PSI extends IntelliJApi {
       element match {
         case file: PsiFile =>
           val path = VFS.toPath(file.getVirtualFile)
-          val ref = Reference.Target.File(FileRef(project, path))
+          val ref = Reference.Target.File(FileRef(path, project))
           Some(ref)
         case _ =>
           None

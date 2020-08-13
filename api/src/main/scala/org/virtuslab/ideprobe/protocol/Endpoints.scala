@@ -26,6 +26,7 @@ object Endpoints {
   val Shutdown = Notification[Unit]("shutdown")
   val SyncFiles = Request[Unit, Unit]("fs/sync")
   val TakeScreenshot = Request[String, Unit]("screenshot")
+  val RunLocalInspection = Request[InspectionRunParams, InspectionRunResult]("inspections/local/run")
 
   // queries
   val FileReferences = Request[FileRef, Seq[Reference]]("file/references")
