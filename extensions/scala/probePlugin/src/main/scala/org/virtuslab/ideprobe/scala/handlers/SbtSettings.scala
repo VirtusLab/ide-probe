@@ -1,14 +1,12 @@
-package org.virtuslab.intellij.scala.probe.handlers
+package org.virtuslab.ideprobe.scala.handlers
 
-import com.intellij.openapi.externalSystem.model.ProjectSystemId
-import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.project.Project
 import org.jetbrains.sbt.project.settings.{SbtProjectSettings => SbtProjectSettingsFromPlugin}
-import org.virtuslab.handlers.{BackgroundTasks, Projects}
+import org.virtuslab.handlers.{BackgroundTasks, IntelliJApi, Projects}
 import org.virtuslab.ideprobe.protocol.{ProjectRef, Setting}
-import org.virtuslab.intellij.scala.protocol.{SbtProjectSettings, SbtProjectSettingsChangeRequest}
+import org.virtuslab.ideprobe.scala.protocol.{SbtProjectSettings, SbtProjectSettingsChangeRequest}
 
-object SbtSettings {
+object SbtSettings extends IntelliJApi {
   def getProjectSettings(ref: ProjectRef): SbtProjectSettings = {
     val project = Projects.resolve(ref)
     val sbtSettings = getSbtSettings(project)
@@ -34,5 +32,8 @@ object SbtSettings {
       setSetting(toSet.allowSbtVersionOverride)(_.setAllowSbtVersionOverride(_))
     }
 
-  private def getSbtSettings(project: Project) = SbtProjectSettingsFromPlugin.forProject(project).get
+  private def getSbtSettings(project: Project) =
+    SbtProjectSettingsFromPlugin
+      .forProject(project)
+      .getOrElse(error(s"No settings for ${project.getName}, probably not an sbt project."))
 }

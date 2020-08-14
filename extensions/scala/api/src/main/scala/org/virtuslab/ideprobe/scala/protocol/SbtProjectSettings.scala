@@ -1,4 +1,4 @@
-package org.virtuslab.intellij.scala.protocol
+package org.virtuslab.ideprobe.scala.protocol
 
 import org.virtuslab.ideprobe.protocol.Setting
 

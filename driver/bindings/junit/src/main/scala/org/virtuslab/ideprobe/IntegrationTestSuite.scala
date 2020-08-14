@@ -29,6 +29,10 @@ trait IntegrationTestSuite extends RobotExtensions {
     transformFixture(IntelliJFixture.fromConfig(config))
   }
 
+  final def fixtureFromConfig(configPath: String): IntelliJFixture = {
+    transformFixture(IntelliJFixture.fromConfig(Config.fromClasspath(configPath)))
+  }
+
   protected def transformFixture(fixture: IntelliJFixture): IntelliJFixture = fixture
 
   def within(limit: FiniteDuration, interval: FiniteDuration = 100.millis)(block: => Unit): Unit = {

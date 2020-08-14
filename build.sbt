@@ -102,23 +102,16 @@ lazy val junitDriver = module("junit-driver", "driver/bindings/junit")
     libraryDependencies ++= Dependencies.junit
   )
 
-lazy val scalaTests = testModule("scala-tests", "extensions/scala/tests")
-  .dependsOn(junitDriver, scalaProbeDriver)
-  .usesIdeaPlugin(scalaProbePlugin)
-
-
-lazy val examples = testModule("examples", "examples")
-  .dependsOn(junitDriver, scalaProbeDriver)
-  .usesIdeaPlugin(scalaProbePlugin)
-  .settings(libraryDependencies += Dependencies.junitJupiterParams)
-
-lazy val scalaProbeApi = project(id = "scala-probe-api", path = "extensions/scala/api", publish = true).dependsOn(api)
+lazy val scalaProbeApi = project(id = "scala-probe-api", path = "extensions/scala/api", publish = true)
+  .dependsOn(api)
+  .settings(crossScalaVersions := List(scala212))
 
 lazy val scalaProbePlugin =
-  ideaPluginModule(id = "scala-probe-plugin", path = "extensions/scala/probePlugin")
+  ideaPluginModule(id = "scala-probe-plugin", path = "extensions/scala/probePlugin", publish = true)
     .dependsOn(probePlugin, scalaProbeApi)
     .settings(
       intellijPluginName := "ideprobe-scala",
+      crossScalaVersions := List(scala212),
       packageArtifactZipFilter := { file: File =>
         // We want only this main jar to be packaged, all the library dependencies
         // are already in the probePlugin which will be available in runtime as we
@@ -137,9 +130,18 @@ lazy val scalaProbeDriver = project(id = "scala-probe-driver", path = "extension
   .dependsOn(scalaProbeApi, junitDriver)
   .settings(
     name := "scala-probe-driver",
-    buildInfoKeys := Seq[BuildInfoKey](version),
-    buildInfoPackage := "org.virtuslab.intellij.scala"
+    crossScalaVersions := List(scala212)
   )
+
+lazy val scalaTests = testModule("scala-tests", "extensions/scala/tests")
+  .dependsOn(junitDriver, scalaProbeDriver)
+  .usesIdeaPlugin(scalaProbePlugin)
+
+
+lazy val examples = testModule("examples", "examples")
+  .dependsOn(junitDriver, scalaProbeDriver)
+  .usesIdeaPlugin(scalaProbePlugin)
+  .settings(libraryDependencies += Dependencies.junitJupiterParams)
 
 val commonSettings = Seq(
   libraryDependencies ++= Dependencies.junit,

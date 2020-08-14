@@ -7,9 +7,9 @@
     <depends>com.intellij.modules.java</depends>
     <depends>org.virtuslab.ideprobe</depends>
     <depends>org.intellij.scala</depends>
-    <idea-version since-build="191.*" until-build="201.*"/>
+    <idea-version since-build="191.*"/>
 
     <extensions defaultExtensionNs="org.virtuslab.ideprobe">
-        <probeHandlerContributor implementation="org.virtuslab.intellij.scala.probe.SbtProbeHandlerContributor"/>
+        <probeHandlerContributor implementation="org.virtuslab.ideprobe.scala.ScalaProbeHandlerContributor"/>
     </extensions>
 </idea-plugin>

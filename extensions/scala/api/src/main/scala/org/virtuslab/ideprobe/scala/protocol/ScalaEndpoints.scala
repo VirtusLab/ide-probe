@@ -1,11 +1,11 @@
-package org.virtuslab.intellij.scala.protocol
+package org.virtuslab.ideprobe.scala.protocol
 
 import org.virtuslab.ideprobe.jsonrpc.JsonRpc.Method.Request
 import org.virtuslab.ideprobe.protocol.ProjectRef
 import org.virtuslab.ideprobe.jsonrpc.PayloadJsonFormat._
 import pureconfig.generic.auto._
 
-object SbtEndpoints {
+object ScalaEndpoints {
   val GetSbtProjectSettings =
     Request[ProjectRef, SbtProjectSettings]("sbt/project/settings/get")
 
