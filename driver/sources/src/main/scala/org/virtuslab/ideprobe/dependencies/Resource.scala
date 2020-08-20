@@ -1,6 +1,6 @@
 package org.virtuslab.ideprobe.dependencies
 
-import java.net.URI
+import java.net.{HttpURLConnection, URI}
 import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.Path
@@ -19,6 +19,18 @@ sealed trait Resource
 object Resource extends ConfigFormat {
   implicit val resourceConfigReader: ConfigReader[Resource] = { cur: ConfigCursor =>
     cur.asString.map(Resource.from)
+  }
+
+  def exists(uri: URI): Boolean = from(uri) match {
+    case Jar(uri) => true // TODO
+    case File(path) => Files.exists(path)
+    case Http(uri) => {
+      val connection = uri.toURL.openConnection()
+      connection.connect()
+      val responseCode = connection.asInstanceOf[HttpURLConnection].getResponseCode
+      responseCode == 200
+    }
+    case Unresolved(_, _) => true // can't verify, assume it exists
   }
 
   def from(value: String): Resource = {

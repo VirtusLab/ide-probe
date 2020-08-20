@@ -6,7 +6,9 @@ val scala213 = "2.13.1"
 skip in publish := true
 
 scalaVersion.in(ThisBuild) := scala212
-intellijBuild.in(ThisBuild) := "202.6397.20-EAP-SNAPSHOT"
+// -EAP-SNAPSHOT suffix results in incorrect url for the intellij scala plugin
+// it is appended automatically for intellij sdk dependency url and manually for the BuildInfo
+intellijBuild.in(ThisBuild) := "202.6397.20"
 licenses.in(ThisBuild) := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0"))
 organization.in(ThisBuild) := "org.virtuslab.ideprobe"
 homepage.in(ThisBuild) := Some(url("https://github.com/VirtusLab/ide-probe"))
@@ -81,6 +83,8 @@ lazy val driver = module("driver", "driver/sources")
     buildInfoPackage := "org.virtuslab.ideprobe"
   )
 
+
+
 lazy val driverTests = testModule("driver-tests", "driver/tests")
   .dependsOn(driver, junitDriver, api % "compile->compile;test->test")
   .usesIdeaPlugin(driverTestPlugin)
@@ -120,7 +124,7 @@ lazy val scalaProbePlugin =
         // seems to be no way to prevent including probePlugin.jar in the dist reasonable way.
         file.getName == "scala-probe-plugin.jar"
       },
-      intellijPlugins += "org.intellij.scala:2020.2.734".toPlugin,
+      intellijPlugins += "org.intellij.scala:2020.2.753:nightly".toPlugin,
       name := "scala-probe-plugin"
     )
 
