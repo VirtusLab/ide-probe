@@ -3,14 +3,19 @@ package org.virtuslab.ideprobe
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.InputStream
+import java.io.IOException
 import java.io.OutputStream
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.FileVisitResult
+import java.nio.file.NoSuchFileException
 import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
-import java.util.Comparator
+import java.nio.file.SimpleFileVisitor
+import java.nio.file.attribute.BasicFileAttributes
 import java.util.zip.ZipInputStream
+import scala.util.control.NonFatal
 
 trait ProbeExtensions {
 
@@ -97,17 +102,8 @@ trait ProbeExtensions {
     }
 
     def delete(): Unit = {
-      if (path.isFile) Files.delete(path)
-      else {
-        val stream = Files.walk(path)
-        try {
-          stream
-            .sorted(Comparator.reverseOrder())
-            .forEach(Files.delete(_))
-        } finally {
-          stream.close()
-        }
-      }
+      val deletingVisitor = new ProbeExtensions.DeletingVisitor(path)
+      Files.walkFileTree(path, deletingVisitor)
     }
 
     def content(): String = {
@@ -170,6 +166,40 @@ trait ProbeExtensions {
         .takeWhile(read => read >= 0)
         .foreach(read => output.write(buffer, 0, read))
       output.flush()
+    }
+  }
+}
+
+object ProbeExtensions {
+  private class DeletingVisitor(root: Path) extends SimpleFileVisitor[Path] {
+    override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
+      if(!Files.isDirectory(file))  Files.delete(file)
+      FileVisitResult.CONTINUE
+    }
+
+    override def visitFileFailed(file: Path, exc: IOException): FileVisitResult = {
+      exc match {
+        case nsf: NoSuchFileException =>
+          FileVisitResult.CONTINUE
+        case NonFatal(e) =>
+          val message = s"Failure while deleting $root at file $file"
+          val exception = new IOException(message, exc)
+          exception.printStackTrace()
+          FileVisitResult.TERMINATE
+      }
+    }
+
+    override def postVisitDirectory(dir: Path, exc: IOException): FileVisitResult = {
+      Option(exc) match {
+        case None =>
+          Files.delete(dir)
+          FileVisitResult.CONTINUE
+        case Some(e) =>
+          val message = s"Failure while deleting $root at dir  $dir"
+          val exception = new IOException(message, e)
+          exception.printStackTrace()
+          FileVisitResult.TERMINATE
+      }
     }
   }
 }
