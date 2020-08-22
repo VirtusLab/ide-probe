@@ -63,7 +63,10 @@ sealed trait WorkspaceTemplate extends WorkspaceProvider {
     workspace
   }
 
-  override def cleanup(path: Path): Unit = path.delete()
+  override def cleanup(path: Path): Unit = {
+    path.delete()
+    path.getParent.delete()
+  }
 
   def setupIn(workspace: Path): Unit
 }
