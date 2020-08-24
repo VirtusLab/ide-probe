@@ -1,5 +1,6 @@
 package org.virtuslab.ideprobe
 
+import java.nio.file.Path
 import org.virtuslab.ideprobe.dependencies.Resource
 import pureconfig.ConfigReader
 import pureconfig.generic.semiauto.deriveReader
@@ -25,12 +26,15 @@ object WorkspaceConfig extends ConfigFormat {
 
   case class Default(path: Resource) extends WorkspaceConfig
 
+  case class Existing(existing: Path) extends WorkspaceConfig
+
   implicit val workspaceConfigReader: ConfigReader[WorkspaceConfig] = {
     possiblyAmbiguousAdtReader[WorkspaceConfig](
       deriveReader[GitBranch],
       deriveReader[GitTag],
       deriveReader[GitCommit],
-      deriveReader[Default]
+      deriveReader[Default],
+      deriveReader[Existing]
     )
   }
 }

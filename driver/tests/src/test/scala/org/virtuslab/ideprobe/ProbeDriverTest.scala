@@ -56,7 +56,7 @@ final class ProbeDriverTest extends IntegrationTestSuite with Assertions {
   @Test
   def projectOpen(): Unit =
     fixture
-      .copy(workspaceTemplate = WorkspaceTemplate.FromResource("OpenProjectTest"))
+      .copy(workspaceProvider = WorkspaceTemplate.FromResource("OpenProjectTest"))
       .run { intelliJ =>
         val expectedProjectName = "empty-project"
         val projectPath = intelliJ.workspace.resolve(expectedProjectName)
@@ -88,12 +88,12 @@ final class ProbeDriverTest extends IntegrationTestSuite with Assertions {
     }
   }
 
-  private val buildTestFixture = fixture.copy(workspaceTemplate = WorkspaceTemplate.FromResource("BuildTest"))
+  private val buildTestFixture = fixture.copy(workspaceProvider = WorkspaceTemplate.FromResource("BuildTest"))
 
   @Test
   def vcsDetection(): Unit = {
     fixture
-      .copy(workspaceTemplate = WorkspaceTemplate.FromResource("OpenProjectTest"))
+      .copy(workspaceProvider = WorkspaceTemplate.FromResource("OpenProjectTest"))
       .withWorkspace { workspace =>
         val projectDir = workspace.path.resolve("empty-project")
         Shell.run(in = projectDir, "git", "init")
@@ -107,7 +107,7 @@ final class ProbeDriverTest extends IntegrationTestSuite with Assertions {
 
   @Test
   def listsAllSourceRoots(): Unit = {
-    fixture.copy(workspaceTemplate = WorkspaceTemplate.FromResource("gradle-project")).run { intelliJ =>
+    fixture.copy(workspaceProvider = WorkspaceTemplate.FromResource("gradle-project")).run { intelliJ =>
       val projectDir = intelliJ.workspace.resolve("build.gradle")
       val src = intelliJ.workspace.resolve("src")
 
@@ -126,7 +126,7 @@ final class ProbeDriverTest extends IntegrationTestSuite with Assertions {
 
   @Test
   def listsModuleDependencies(): Unit = {
-    fixture.copy(workspaceTemplate = WorkspaceTemplate.FromResource("gradle-project")).run { intelliJ =>
+    fixture.copy(workspaceProvider = WorkspaceTemplate.FromResource("gradle-project")).run { intelliJ =>
       val projectDir = intelliJ.workspace.resolve("build.gradle")
       val p = intelliJ.probe.openProject(projectDir)
 
@@ -153,7 +153,7 @@ final class ProbeDriverTest extends IntegrationTestSuite with Assertions {
         val failedResult = intelliJ.probe.build()
         assertExists(failedResult.errors) { error =>
           error.file.exists(_.endsWith("src/main/scala/Main.scala")) &&
-            error.content.contains("expected class or object definition")
+          error.content.contains("expected class or object definition")
         }
       }
   }
@@ -252,7 +252,10 @@ final class ProbeDriverTest extends IntegrationTestSuite with Assertions {
     val dialogContent = newProjectDialog.fullText
 
     val projectSdk = "Project SDK"
-    assertTrue(s"New Project dialog content: '$dialogContent' did not contain '$projectSdk'", dialogContent.contains(projectSdk))
+    assertTrue(
+      s"New Project dialog content: '$dialogContent' did not contain '$projectSdk'",
+      dialogContent.contains(projectSdk)
+    )
   }
 
   // temporary for debugging
@@ -265,7 +268,8 @@ final class ProbeDriverTest extends IntegrationTestSuite with Assertions {
         if (times > 0) {
           println("Failed to find element, retrying...")
           e.printStackTrace()
-          try println(IOUtils.toString(new URL("http://localhost:9534/"), Charset.defaultCharset())) catch {
+          try println(IOUtils.toString(new URL("http://localhost:9534/"), Charset.defaultCharset()))
+          catch {
             case e: Exception => e.printStackTrace()
           }
           retry(times - 1)(action)

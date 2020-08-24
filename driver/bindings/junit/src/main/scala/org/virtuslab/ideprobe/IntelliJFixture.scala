@@ -13,12 +13,12 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 
 final case class IntelliJFixture(
-  workspaceTemplate: WorkspaceTemplate,
-  factory: IntelliJFactory,
-  version: IntelliJVersion,
-  plugins: Seq[Plugin],
-  config: Config,
-  afterWorkspaceSetup: Seq[(IntelliJFixture, Path) => Unit]
+    workspaceProvider: WorkspaceProvider,
+    factory: IntelliJFactory,
+    version: IntelliJVersion,
+    plugins: Seq[Plugin],
+    config: Config,
+    afterWorkspaceSetup: Seq[(IntelliJFixture, Path) => Unit]
 )(implicit ec: ExecutionContext) {
 
   def withConfig(entries: (String, String)*): IntelliJFixture = {
@@ -39,15 +39,13 @@ final case class IntelliJFixture(
   def withWorkspace = new MultipleRunsIntelliJ(this)
 
   def setupWorkspace(): Path = {
-    val workspaceBase = Files.createTempDirectory("ideprobe-workspace")
-    val workspace = workspaceBase.createDirectory("ws")
-    workspaceTemplate.setupIn(workspace)
+    val workspace = workspaceProvider.setup()
     afterWorkspaceSetup.foreach(_.apply(this, workspace))
     workspace
   }
 
   def deleteWorkspace(workspace: Path): Unit = {
-    workspace.delete()
+    workspaceProvider.cleanup(workspace)
   }
 
   def installIntelliJ(): InstalledIntelliJ = {
@@ -89,11 +87,11 @@ object IntelliJFixture {
   private val ConfigRoot = "probe"
 
   def apply(
-    workspaceTemplate: WorkspaceTemplate = WorkspaceTemplate.Empty,
-    version: IntelliJVersion = IntelliJVersion.Latest,
-    intelliJFactory: IntelliJFactory = IntelliJFactory.Default,
-    plugins: Seq[Plugin] = Seq.empty,
-    environment: Config = Config.Empty
+      workspaceTemplate: WorkspaceTemplate = WorkspaceTemplate.Empty,
+      version: IntelliJVersion = IntelliJVersion.Latest,
+      intelliJFactory: IntelliJFactory = IntelliJFactory.Default,
+      plugins: Seq[Plugin] = Seq.empty,
+      environment: Config = Config.Empty
   )(implicit ec: ExecutionContext): IntelliJFixture = {
     new IntelliJFixture(workspaceTemplate, intelliJFactory, version, plugins, environment, afterWorkspaceSetup = Nil)
   }
@@ -102,7 +100,7 @@ object IntelliJFixture {
     val probeConfig = config[IdeProbeConfig](path)
 
     new IntelliJFixture(
-      workspaceTemplate = probeConfig.workspace.map(WorkspaceTemplate.from).getOrElse(WorkspaceTemplate.Empty),
+      workspaceProvider = probeConfig.workspace.map(WorkspaceProvider.from).getOrElse(WorkspaceTemplate.Empty),
       factory = IntelliJFactory.from(probeConfig.resolvers, probeConfig.driver),
       version = probeConfig.intellij.version,
       plugins = probeConfig.intellij.plugins.filterNot(_.isInstanceOf[Plugin.Empty]),
