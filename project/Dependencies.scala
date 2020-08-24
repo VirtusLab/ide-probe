@@ -34,4 +34,6 @@ object Dependencies {
     "net.aichler" % "jupiter-interface" % "0.8.3" % Test
   )
 
+  val intellijScala = "org.intellij.scala:2020.2.753:nightly"
+
 }

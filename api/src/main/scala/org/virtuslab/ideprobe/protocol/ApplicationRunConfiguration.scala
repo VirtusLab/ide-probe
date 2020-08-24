@@ -13,6 +13,12 @@ final case class JUnitRunConfiguration(
     directory: Option[String]
 )
 
+final case class ScalaTestRunConfiguration(module: ModuleRef,
+                                           packageName: Option[String],
+                                           className: Option[String],
+                                           testName: Option[String],
+)
+
 object JUnitRunConfiguration {
   def mainClass(module: ModuleRef, mainClass: String): JUnitRunConfiguration =
     JUnitRunConfiguration(module, Some(mainClass), None, None, None)
@@ -43,4 +49,18 @@ object TestRunConfiguration {
 
   def module(module: ModuleRef, runnerNameFragment: String): TestRunConfiguration =
     TestRunConfiguration(module, Some(runnerNameFragment))
+}
+
+object ScalaTestRunConfiguration {
+  def method(module: ModuleRef, className: String, methodName: String): ScalaTestRunConfiguration =
+    ScalaTestRunConfiguration(module, None, Some(className), Some(methodName))
+
+  def className(module: ModuleRef, className: String): ScalaTestRunConfiguration =
+    ScalaTestRunConfiguration(module, None, Some(className), None)
+
+  def packageName(module: ModuleRef, packageName: String): ScalaTestRunConfiguration =
+    ScalaTestRunConfiguration(module, Some(packageName), None, None)
+
+  def module(module: ModuleRef): ScalaTestRunConfiguration =
+    ScalaTestRunConfiguration(module, None, None, None)
 }

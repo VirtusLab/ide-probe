@@ -25,7 +25,6 @@ class ModuleTest extends IdeProbeFixture with ScalaPluginExtension with RobotPlu
     val project = intelliJ.probe.projectModel()
     val modulesFromConfig = intelliJ.config[Seq[String]]("modules.verify")
     val missingModules = modulesFromConfig.diff(project.moduleNames)
-
     Assert.assertTrue(s"Modules $missingModules are missing", missingModules.isEmpty)
   }
 

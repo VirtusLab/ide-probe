@@ -205,6 +205,11 @@ class ProbeDriver(
   def run(runConfiguration: JUnitRunConfiguration): TestsRunResult = send(Endpoints.RunJUnit, runConfiguration)
 
   /**
+   * Runs the specified ScalaTest configuration
+   */
+  def run(runConfiguration: ScalaTestRunConfiguration): TestsRunResult = send(Endpoints.RunScalaTest, runConfiguration)
+
+  /**
    * Saves the current view of the IDE alongside the automatically captured screenshots
    * with the specified name suffix
    */
