@@ -1,6 +1,7 @@
 name := "ideprobe"
 
 val scala212 = "2.12.10"
+// don't cross compile with scala 2.13.1 for now because of issues with scala probe modules
 val scala213 = "2.13.1"
 
 skip in publish := true
@@ -69,7 +70,6 @@ lazy val api = project("api", "api", publish = true)
   .settings(
     libraryDependencies ++= Dependencies.pureConfig,
     libraryDependencies += Dependencies.gson,
-    crossScalaVersions := List(scala213, scala212),
   )
 
 lazy val driver = module("driver", "driver/sources")
@@ -82,7 +82,6 @@ lazy val driver = module("driver", "driver/sources")
     libraryDependencies += Dependencies.remoteRobotFixtures,
     buildInfoKeys := Seq[BuildInfoKey](version, intellijBuild, "robotVersion" -> Dependencies.remoteRobot.revision),
     buildInfoPackage := "org.virtuslab.ideprobe",
-    crossScalaVersions := List(scala213, scala212),
   )
 
 
@@ -90,26 +89,18 @@ lazy val driver = module("driver", "driver/sources")
 lazy val driverTests = testModule("driver-tests", "driver/tests")
   .dependsOn(driver, junitDriver, api % "compile->compile;test->test")
   .usesIdeaPlugin(driverTestPlugin)
-  .settings(crossScalaVersions := List(scala213, scala212))
 
 lazy val probePlugin = ideaPluginModule("probe-plugin", "probePlugin", publish = true)
   .dependsOn(api)
-  .settings(
-    intellijPluginName := "ideprobe",
-    crossScalaVersions := List(scala213, scala212)
-  )
+  .settings(intellijPluginName := "ideprobe")
 
 lazy val driverTestPlugin = ideaPluginModule("probe-test-plugin", "driver/test-plugin")
-  .settings(
-    intellijPluginName := "driver-test-plugin",
-    crossScalaVersions := List(scala213, scala212)
-  )
+  .settings(intellijPluginName := "driver-test-plugin")
 
 lazy val junitDriver = module("junit-driver", "driver/bindings/junit")
   .dependsOn(driver, api % "compile->compile;test->test")
   .settings(
     libraryDependencies ++= Dependencies.junit,
-    crossScalaVersions := List(scala213, scala212)
   )
 
 lazy val scalaProbeApi = project(id = "scala-probe-api", path = "extensions/scala/api", publish = true)
@@ -129,7 +120,7 @@ lazy val scalaProbePlugin =
         file.getName == "scala-probe-plugin.jar"
       },
       intellijPlugins += "org.intellij.scala:2020.2.753:nightly".toPlugin,
-      name := "scala-probe-plugin"
+      name := "scala-probe-plugin",
     )
 
 lazy val scalaProbeDriver = project(id = "scala-probe-driver", path = "extensions/scala/driver", publish = true)
@@ -162,7 +153,6 @@ def project(id: String, path: String, publish: Boolean): Project = {
     .settings(
       skip in Keys.publish := !publish,
       libraryDependencies ++= Dependencies.junit,
-      crossScalaVersions := List(scala212),
       test in assembly := {},
       assemblyExcludedJars in assembly := {
         val cp = (fullClasspath in assembly).value
