@@ -1,11 +1,13 @@
 import java.nio.file.Paths
+
 import sbt.Def
-import sbt.Keys.loadedBuild
+import sbt.Keys.{crossScalaVersions, loadedBuild, scalaVersion}
 import sbt.ProjectRef
 import sbt._
 
 object CI {
   private val excluded = Set("ci", "ide-probe", "ideprobe", "probe")
+  private val excluded213 = Set("scala-probe-plugin", "scala-probe-driver", "scala-probe-api", "scala-tests")
   lazy val generateScripts = taskKey[Seq[File]]("Generate CI scripts")
 
   def groupedProjects(): Def.Initialize[Task[Map[String, Seq[ProjectRef]]]] = Def.task {
@@ -24,7 +26,9 @@ object CI {
 
   def generateTestScript(group: String, projects: Seq[ProjectRef], scalaVersion: String): sbt.File = {
     val script = file(s"ci/tests/$scalaVersion/test-$group")
-    val arguments = projects.map(ref => s"; ${ref.project} / test").mkString
+    val arguments = projects
+      .filterNot(ref => scalaVersion == "2.13.1" && excluded213.contains(ref.project))
+      .map(ref => s"; ${ref.project} / test").mkString
     val content = s"""|#!/bin/sh
                       |
                       |export IDEPROBE_DISPLAY=xvfb

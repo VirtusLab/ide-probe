@@ -2,11 +2,14 @@ package org.virtuslab.intellij.extensions
 
 import org.junit.{Assert, Test}
 import org.virtuslab.ideprobe.Config
+import org.virtuslab.ideprobe.dependencies.DependencyProvider
 import org.virtuslab.ideprobe.protocol.Setting
 import org.virtuslab.ideprobe.scala.ScalaTestSuite
 import org.virtuslab.ideprobe.scala.protocol.{SbtProjectSettings, SbtProjectSettingsChangeRequest}
 
 class SbtSettingsTest extends ScalaTestSuite {
+  DependencyProvider.registerBuilder(ScalaPluginBuilder)
+
   private val config = Config.fromClasspath("SbtProject/ideprobe.conf")
 
   @Test
