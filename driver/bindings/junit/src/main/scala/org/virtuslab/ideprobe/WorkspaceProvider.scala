@@ -9,22 +9,30 @@ import java.nio.file.StandardCopyOption
 import java.util.Collections
 import org.virtuslab.ideprobe.Extensions._
 
-sealed trait WorkspaceTemplate {
-  def setupIn(workspace: Path): Unit
+trait WorkspaceProvider {
+  def setup(): Path
+  def cleanup(path: Path): Unit
 }
 
-object WorkspaceTemplate {
-  def from(config: WorkspaceConfig): WorkspaceTemplate = {
+case class ExistingWorkspace(path: Path) extends WorkspaceProvider {
+  override def setup(): Path = path
+  override def cleanup(path: Path): Unit = ()
+}
+
+object WorkspaceProvider {
+  def from(config: WorkspaceConfig): WorkspaceProvider = {
     import org.virtuslab.ideprobe.dependencies.Resource._
     config match {
+      case WorkspaceConfig.Existing(path) =>
+        ExistingWorkspace(path)
       case WorkspaceConfig.Default(resource) =>
         resource match {
           case File(path) =>
-            FromFile(path)
+            WorkspaceTemplate.FromFile(path)
           case Http(uri) if uri.getHost == "github.com" =>
-            FromGit(uri.toString, None)
+            WorkspaceTemplate.FromGit(uri.toString, None)
           case Jar(uri) =>
-            FromJar(uri)
+            WorkspaceTemplate.FromJar(uri)
           case other =>
             throw new IllegalArgumentException(s"Unsupported workspace template: $other")
         }
@@ -33,17 +41,34 @@ object WorkspaceTemplate {
         val ref = Some(git.ref)
         repository match {
           case File(path) =>
-            FromGit(path.toString, ref)
+            WorkspaceTemplate.FromGit(path.toString, ref)
           case Http(uri) =>
-            FromGit(uri.toString, ref)
+            WorkspaceTemplate.FromGit(uri.toString, ref)
           case Unresolved(path, _) =>
-            FromGit(path, ref)
+            WorkspaceTemplate.FromGit(path, ref)
           case other =>
             throw new IllegalArgumentException(s"Unsupported git workspace template: $other")
         }
     }
   }
 
+}
+
+sealed trait WorkspaceTemplate extends WorkspaceProvider {
+
+  override final def setup(): Path = {
+    val workspaceBase = Files.createTempDirectory("ideprobe-workspace")
+    val workspace = workspaceBase.createDirectory("ws")
+    setupIn(workspace)
+    workspace
+  }
+
+  override def cleanup(path: Path): Unit = path.delete()
+
+  def setupIn(workspace: Path): Unit
+}
+
+object WorkspaceTemplate {
   case object Empty extends WorkspaceTemplate {
     override def setupIn(workspace: Path): Unit = ()
   }

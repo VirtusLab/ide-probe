@@ -1,19 +1,17 @@
 package org.virtuslab.ideprobe
 
-import java.nio.file.Files
 import java.nio.file.Path
+
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.dependencies.IntelliJVersion
-import org.virtuslab.ideprobe.dependencies.Plugin
-import org.virtuslab.ideprobe.ide.intellij.InstalledIntelliJ
-import org.virtuslab.ideprobe.ide.intellij.IntelliJFactory
-import org.virtuslab.ideprobe.ide.intellij.RunningIde
+import org.virtuslab.ideprobe.dependencies.{IntelliJVersion, Plugin}
+import org.virtuslab.ideprobe.ide.intellij.{InstalledIntelliJ, IntelliJFactory, RunningIde}
+
 import scala.annotation.tailrec
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 
 final case class IntelliJFixture(
-    workspaceTemplate: WorkspaceTemplate,
+    workspaceProvider: WorkspaceProvider,
     factory: IntelliJFactory,
     version: IntelliJVersion,
     plugins: Seq[Plugin],
@@ -48,15 +46,13 @@ final case class IntelliJFixture(
   def withWorkspace = new MultipleRunsIntelliJ(this)
 
   def setupWorkspace(): Path = {
-    val workspaceBase = Files.createTempDirectory("ideprobe-workspace")
-    val workspace = workspaceBase.createDirectory("ws")
-    workspaceTemplate.setupIn(workspace)
+    val workspace = workspaceProvider.setup()
     afterWorkspaceSetup.foreach(_.apply(this, workspace))
     workspace
   }
 
   def deleteWorkspace(workspace: Path): Unit = {
-    workspace.delete()
+    workspaceProvider.cleanup(workspace)
   }
 
   def installIntelliJ(): InstalledIntelliJ = {
@@ -121,7 +117,7 @@ object IntelliJFixture {
     val probeConfig = config[IdeProbeConfig](path)
 
     new IntelliJFixture(
-      workspaceTemplate = probeConfig.workspace.map(WorkspaceTemplate.from).getOrElse(WorkspaceTemplate.Empty),
+      workspaceProvider = probeConfig.workspace.map(WorkspaceProvider.from).getOrElse(WorkspaceTemplate.Empty),
       factory = IntelliJFactory.from(probeConfig.resolvers, probeConfig.driver),
       version = probeConfig.intellij.version,
       plugins = probeConfig.intellij.plugins.filterNot(_.isInstanceOf[Plugin.Empty]),
