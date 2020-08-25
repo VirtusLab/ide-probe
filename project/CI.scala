@@ -6,7 +6,7 @@ import sbt.ProjectRef
 import sbt._
 
 object CI {
-  private val excluded = Set("ci", "ide-probe", "ideprobe", "probe")
+  private val excluded = Set("ci", "ide-probe", "ideprobe", "probe", "examples")
   private val excluded213 = Set("scala-probe-plugin", "scala-probe-driver", "scala-probe-api", "scala-tests")
   lazy val generateScripts = taskKey[Seq[File]]("Generate CI scripts")
 
