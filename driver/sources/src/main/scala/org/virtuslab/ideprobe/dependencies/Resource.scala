@@ -1,16 +1,12 @@
 package org.virtuslab.ideprobe.dependencies
 
-import java.net.{HttpURLConnection, URI}
-import java.nio.file.FileSystems
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
+import java.net.{HttpURLConnection, JarURLConnection, URI}
+import java.nio.file.{FileSystems, Files, Path, Paths}
 import java.util.zip.ZipInputStream
 
 import org.virtuslab.ideprobe.ConfigFormat
 import org.virtuslab.ideprobe.Extensions._
-import pureconfig.ConfigCursor
-import pureconfig.ConfigReader
+import pureconfig.{ConfigCursor, ConfigReader}
 
 import scala.util.control.NonFatal
 
@@ -22,7 +18,11 @@ object Resource extends ConfigFormat {
   }
 
   def exists(uri: URI): Boolean = from(uri) match {
-    case Jar(uri) => true // TODO
+    case Jar(uri) => {
+      val jarEntryConn = uri.toURL.openConnection.asInstanceOf[JarURLConnection]
+      val jarFileURL = jarEntryConn.getJarFileURL
+      Files.exists(Paths.get(jarFileURL.toURI.getPath))
+    }
     case File(path) => Files.exists(path)
     case Http(uri) => {
       val connection = uri.toURL.openConnection()
