@@ -28,4 +28,6 @@ object Dependencies {
     } ++ Seq(typesafeConfig, shapeless)
   }
 
+  val junitJupiterParams = "org.junit.jupiter" % "junit-jupiter-params" % "5.4.2"
+
 }

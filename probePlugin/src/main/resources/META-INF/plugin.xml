@@ -6,6 +6,7 @@
     <depends>com.intellij.modules.lang</depends>
     <depends>com.intellij.modules.java</depends>
     <depends>JUnit</depends>
+    <depends optional="true" config-file="scala-plugin.xml">org.intellij.scala</depends>
     <idea-version since-build="191.*" until-build="202.*"/>
 
     <extensions defaultExtensionNs="com.intellij">

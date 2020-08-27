@@ -1,5 +1,7 @@
 package org.virtuslab.ideprobe.dependencies
 
+import org.virtuslab.ideprobe.dependencies.Dependency.Artifact
+
 object IntelliJResolver {
   private val officialUri = "https://www.jetbrains.com/intellij-repository"
   private val officialGroup = "com/jetbrains/intellij/idea"
@@ -10,7 +12,14 @@ object IntelliJResolver {
 
   val Official: DependencyResolver[IntelliJVersion] = (key: IntelliJVersion) => {
     if (key.build.endsWith("SNAPSHOT")) officialSnapshots.resolve(key)
-    else officialReleases.resolve(key)
+    else {
+      val dependency = officialReleases.resolve(key)
+      dependency match {
+        case Artifact(uri) if Resource.exists(uri) => dependency
+        case Artifact(_) => officialSnapshots.resolve(key.copy(build = key.build + "-EAP-SNAPSHOT"))
+        case _ => dependency
+      }
+    }
   }
 
   def fromMaven(uri: String, group: String, artifact: String): DependencyResolver[IntelliJVersion] = {

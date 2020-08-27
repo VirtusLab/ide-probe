@@ -9,6 +9,16 @@ import org.junit.runners.JUnit4
 @RunWith(classOf[JUnit4])
 final class OfficialResolversTest {
   @Test
+  def resolvesImplicitSnapshot(): Unit = {
+    val repo = IntelliJResolver.Official
+    val version = IntelliJVersion("202.6397.20")
+
+    val artifact = repo.resolve(version).asInstanceOf[Dependency.Artifact]
+
+    assertTrue(artifact.uri.toString.endsWith("-EAP-SNAPSHOT.zip"))
+  }
+
+  @Test
   def resolvesBuildToExistingArtifact(): Unit = {
     val version = IntelliJVersion.Latest
     val uri = IntelliJResolver.Official.resolve(version)

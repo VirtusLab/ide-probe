@@ -1,13 +1,11 @@
 package org.virtuslab.ideprobe
 
-import java.nio.file.Files
 import java.nio.file.Path
+
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.dependencies.IntelliJVersion
-import org.virtuslab.ideprobe.dependencies.Plugin
-import org.virtuslab.ideprobe.ide.intellij.InstalledIntelliJ
-import org.virtuslab.ideprobe.ide.intellij.IntelliJFactory
-import org.virtuslab.ideprobe.ide.intellij.RunningIde
+import org.virtuslab.ideprobe.dependencies.{IntelliJVersion, Plugin}
+import org.virtuslab.ideprobe.ide.intellij.{InstalledIntelliJ, IntelliJFactory, RunningIde}
+
 import scala.annotation.tailrec
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
@@ -18,7 +16,8 @@ final case class IntelliJFixture(
     version: IntelliJVersion,
     plugins: Seq[Plugin],
     config: Config,
-    afterWorkspaceSetup: Seq[(IntelliJFixture, Path) => Unit]
+    afterWorkspaceSetup: Seq[(IntelliJFixture, Path) => Unit],
+    afterIntelliJInstall: Seq[(IntelliJFixture, InstalledIntelliJ) => Unit]
 )(implicit ec: ExecutionContext) {
 
   def withConfig(entries: (String, String)*): IntelliJFixture = {
@@ -28,6 +27,14 @@ final case class IntelliJFixture(
 
   def withAfterWorkspaceSetup(action: (IntelliJFixture, Path) => Unit): IntelliJFixture = {
     copy(afterWorkspaceSetup = afterWorkspaceSetup :+ action)
+  }
+
+  def withAfterIntelliJInstall(action: (IntelliJFixture, InstalledIntelliJ) => Unit): IntelliJFixture = {
+    copy(afterIntelliJInstall = afterIntelliJInstall :+ action)
+  }
+
+  def withPlugin(plugin: Plugin): IntelliJFixture = {
+    copy(plugins = plugin +: plugins)
   }
 
   def headless: IntelliJFixture = {
@@ -49,7 +56,9 @@ final case class IntelliJFixture(
   }
 
   def installIntelliJ(): InstalledIntelliJ = {
-    factory.create(version, plugins)
+    val installedIntelliJ = factory.create(version, plugins)
+    afterIntelliJInstall.foreach(_.apply(this, installedIntelliJ))
+    installedIntelliJ
   }
 
   def deleteIntelliJ(installedIntelliJ: InstalledIntelliJ): Unit = {
@@ -93,7 +102,15 @@ object IntelliJFixture {
       plugins: Seq[Plugin] = Seq.empty,
       environment: Config = Config.Empty
   )(implicit ec: ExecutionContext): IntelliJFixture = {
-    new IntelliJFixture(workspaceTemplate, intelliJFactory, version, plugins, environment, afterWorkspaceSetup = Nil)
+    new IntelliJFixture(
+      workspaceTemplate,
+      intelliJFactory,
+      version,
+      plugins,
+      environment,
+      afterWorkspaceSetup = Nil,
+      afterIntelliJInstall = Nil
+    )
   }
 
   def fromConfig(config: Config, path: String = ConfigRoot)(implicit ec: ExecutionContext): IntelliJFixture = {
@@ -105,7 +122,8 @@ object IntelliJFixture {
       version = probeConfig.intellij.version,
       plugins = probeConfig.intellij.plugins.filterNot(_.isInstanceOf[Plugin.Empty]),
       config = config,
-      afterWorkspaceSetup = Nil
+      afterWorkspaceSetup = Nil,
+      afterIntelliJInstall = Nil
     )
   }
 }

@@ -33,8 +33,10 @@ trait RunningIntellijPerSuite {
 
   @AfterClass
   final def teardown(): Unit = {
-    try AfterTestChecks(baseFixture.factory.config.check, runningIntelliJFixture.probe) finally {
-      try afterAll() finally {
+    try AfterTestChecks(baseFixture.factory.config.check, runningIntelliJFixture.probe)
+    finally {
+      try afterAll()
+      finally {
         baseFixture.closeIntellij(running)
         baseFixture.deleteIntelliJ(installed)
         baseFixture.deleteWorkspace(workspace)
@@ -67,7 +69,8 @@ trait WorkspacePerSuite {
 
   @AfterClass
   final def teardown(): Unit = {
-    try afterAll() finally {
+    try afterAll()
+    finally {
       baseFixture.deleteIntelliJ(installed)
       baseFixture.deleteWorkspace(workspacePath)
     }
