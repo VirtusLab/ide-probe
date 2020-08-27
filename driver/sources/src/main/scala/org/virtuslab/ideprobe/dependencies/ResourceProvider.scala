@@ -5,7 +5,9 @@ import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+
 import org.virtuslab.ideprobe.Extensions._
+import org.virtuslab.ideprobe.config.DependenciesConfig
 
 trait ResourceProvider {
   def get(uri: URI, provider: () => InputStream): Resource

@@ -8,6 +8,8 @@ import org.apache.commons.io.IOUtils
 import org.junit.Assert._
 import org.junit.Ignore
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.dependencies.IntelliJVersion
 import org.virtuslab.ideprobe.dependencies.Plugin
@@ -27,7 +29,8 @@ import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
 
-final class ProbeDriverTest extends IntegrationTestSuite with Assertions {
+@RunWith(classOf[JUnit4])
+final class ProbeDriverTest extends IdeProbeFixture with Assertions {
   private val scalaPlugin = Plugin("org.intellij.scala", "2020.2.584", Some("nightly"))
   private val probeTestPlugin = ProbeTestPlugin.bundled
 

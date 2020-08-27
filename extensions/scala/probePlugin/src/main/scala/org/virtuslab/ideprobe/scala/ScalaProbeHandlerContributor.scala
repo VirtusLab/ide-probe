@@ -1,7 +1,7 @@
 package org.virtuslab.ideprobe.scala
 
-import org.virtuslab.ProbeHandlerContributor
-import org.virtuslab.ProbeHandlers.ProbeHandler
+import org.virtuslab.ideprobe.ProbeHandlerContributor
+import org.virtuslab.ideprobe.ProbeHandlers.ProbeHandler
 import org.virtuslab.ideprobe.scala.handlers.SbtSettings
 import org.virtuslab.ideprobe.scala.protocol.ScalaEndpoints
 

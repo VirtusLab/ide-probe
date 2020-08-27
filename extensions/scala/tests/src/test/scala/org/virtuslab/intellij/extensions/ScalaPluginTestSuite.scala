@@ -1,14 +1,18 @@
 package org.virtuslab.intellij.extensions
 
-import org.virtuslab.ideprobe.IntegrationTestSuite
-import org.virtuslab.ideprobe.IntelliJFixture
+import org.virtuslab.ideprobe.IdeProbeFixture
 import org.virtuslab.ideprobe.Shell
-import org.virtuslab.ideprobe.dependencies.DependencyProvider
+import org.virtuslab.ideprobe.junit4.IdeProbeTestSuite
+import org.virtuslab.ideprobe.scala.ScalaPluginExtension
 
-class ScalaPluginTestSuite extends IntegrationTestSuite {
-  DependencyProvider.registerBuilder(ScalaPluginBuilder)
+class ScalaPluginTestSuite
+  extends IdeProbeTestSuite
+    with ScalaPluginExtension
+    with BloopExtension
 
-  override protected def transformFixture(fixture: IntelliJFixture): IntelliJFixture = {
+trait BloopExtension { this: IdeProbeFixture =>
+
+  registerFixtureTransformer { fixture =>
     fixture.withAfterWorkspaceSetup((_, _) => ensureBloopIsNotRunning())
   }
 
