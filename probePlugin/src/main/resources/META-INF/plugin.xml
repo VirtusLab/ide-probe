@@ -10,19 +10,19 @@
     <idea-version since-build="191.*" until-build="202.*"/>
 
     <extensions defaultExtensionNs="com.intellij">
-        <appStarter implementation="org.virtuslab.HeadlessStarter"/>
-        <applicationService serviceImplementation="org.virtuslab.IdeProbeService"/>
-        <applicationInitializedListener implementation="org.virtuslab.IdeProbeLauncher"/>
+        <appStarter implementation="org.virtuslab.ideprobe.HeadlessStarter"/>
+        <applicationService serviceImplementation="org.virtuslab.ideprobe.IdeProbeService"/>
+        <applicationInitializedListener implementation="org.virtuslab.ideprobe.IdeProbeLauncher"/>
     </extensions>
 
     <extensionPoints>
         <extensionPoint
                 name="probeHandlerContributor"
-                interface="org.virtuslab.ProbeHandlerContributor"/>
+                interface="org.virtuslab.ideprobe.ProbeHandlerContributor"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="org.virtuslab.ideprobe">
-        <probeHandlerContributor implementation="org.virtuslab.BaseProbeHandlerContributor"/>
+        <probeHandlerContributor implementation="org.virtuslab.ideprobe.BaseProbeHandlerContributor"/>
     </extensions>
 
 </idea-plugin>

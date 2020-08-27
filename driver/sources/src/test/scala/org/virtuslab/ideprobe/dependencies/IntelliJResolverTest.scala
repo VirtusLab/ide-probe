@@ -2,6 +2,7 @@ package org.virtuslab.ideprobe.dependencies
 
 import java.nio.file.Files
 import java.nio.file.Paths
+
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
@@ -9,6 +10,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.virtuslab.ideprobe.Config
 import org.virtuslab.ideprobe.ConfigFormat
+import org.virtuslab.ideprobe.config.DependenciesConfig
 
 @RunWith(classOf[JUnit4])
 class IntelliJResolverTest extends ConfigFormat {

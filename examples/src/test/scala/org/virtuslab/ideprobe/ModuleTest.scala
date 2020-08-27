@@ -5,11 +5,16 @@ import java.nio.file.Files
 import org.junit.Assert
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
-import org.virtuslab.ideprobe.protocol.{BuildScope, JUnitRunConfiguration, ModuleRef, Setting}
-import org.virtuslab.ideprobe.scala.ScalaTestSuite
+import org.virtuslab.ideprobe.Extensions._
+import org.virtuslab.ideprobe.protocol.BuildScope
+import org.virtuslab.ideprobe.protocol.JUnitRunConfiguration
+import org.virtuslab.ideprobe.protocol.ModuleRef
+import org.virtuslab.ideprobe.protocol.Setting
+import org.virtuslab.ideprobe.scala.ScalaPluginExtension
 import org.virtuslab.ideprobe.scala.protocol.SbtProjectSettingsChangeRequest
 
-class ModuleTest extends ScalaTestSuite {
+
+class ModuleTest extends IdeProbeFixture with ScalaPluginExtension {
   @ParameterizedTest
   @ValueSource(
     strings = Array(
@@ -56,4 +61,13 @@ class ModuleTest extends ScalaTestSuite {
       case (module, result) => Assert.assertTrue(s"Tests in module ${module} failed", result.isSuccess)
     }
   }
+
+  /**
+   * The presence of .idea can prevent automatic import of gradle project
+   */
+  protected def deleteIdeaSettings(intelliJ: RunningIntelliJFixture): Unit = {
+    val path = intelliJ.workspace.resolve(".idea")
+    if (Files.exists(path)) path.delete()
+  }
+
 }

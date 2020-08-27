@@ -37,9 +37,12 @@ developers.in(ThisBuild) := List(
 crossScalaVersions := Nil
 sonatypeProfileName := "org.virtuslab"
 
-resolvers.in(ThisBuild) += MavenRepository(
-  "jetbrains-3rd",
-  "https://jetbrains.bintray.com/intellij-third-party-dependencies"
+resolvers.in(ThisBuild) ++= Seq(
+  MavenRepository(
+    "jetbrains-3rd",
+    "https://jetbrains.bintray.com/intellij-third-party-dependencies"
+  ),
+  Resolver.jcenterRepo
 )
 
 import IdeaPluginAdapter._
@@ -126,7 +129,7 @@ lazy val scalaProbePlugin =
 lazy val scalaProbeDriver = project(id = "scala-probe-driver", path = "extensions/scala/driver", publish = true)
   .enablePlugins(BuildInfoPlugin)
   .disableIdeaPluginDevelopment
-  .dependsOn(scalaProbeApi, junitDriver)
+  .dependsOn(scalaProbeApi, driver)
   .settings(name := "scala-probe-driver")
 
 lazy val scalaTests = testModule("scala-tests", "extensions/scala/tests")
@@ -135,9 +138,9 @@ lazy val scalaTests = testModule("scala-tests", "extensions/scala/tests")
 
 
 lazy val examples = testModule("examples", "examples")
-  .dependsOn(junitDriver, scalaProbeDriver)
+  .dependsOn(driver, scalaProbeDriver)
   .usesIdeaPlugin(scalaProbePlugin)
-  .settings(libraryDependencies += Dependencies.junitJupiterParams)
+  .settings(libraryDependencies ++= Dependencies.junit5)
 
 val commonSettings = Seq(
   libraryDependencies ++= Dependencies.junit,

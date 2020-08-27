@@ -13,6 +13,7 @@ import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.ProbeDriver
 import org.virtuslab.ideprobe.Shell
 import org.virtuslab.ideprobe.TestCase
+import org.virtuslab.ideprobe.config.DriverConfig
 import org.virtuslab.ideprobe.jsonrpc.JsonRpcConnection
 
 import scala.concurrent.ExecutionContext

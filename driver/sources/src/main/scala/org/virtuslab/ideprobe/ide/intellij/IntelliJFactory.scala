@@ -8,8 +8,9 @@ import java.util.stream.{Stream => JStream}
 
 import org.virtuslab.ideprobe.BuildInfo
 import org.virtuslab.ideprobe.Extensions._
+import org.virtuslab.ideprobe.config.DependenciesConfig
+import org.virtuslab.ideprobe.config.DriverConfig
 import org.virtuslab.ideprobe.dependencies.InternalPlugins
-import org.virtuslab.ideprobe.dependencies.DependenciesConfig
 import org.virtuslab.ideprobe.dependencies.DependencyProvider
 import org.virtuslab.ideprobe.dependencies.IntelliJResolver
 import org.virtuslab.ideprobe.dependencies.IntelliJVersion

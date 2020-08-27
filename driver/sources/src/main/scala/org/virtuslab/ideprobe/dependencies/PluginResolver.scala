@@ -1,5 +1,6 @@
 package org.virtuslab.ideprobe.dependencies
 
+import org.virtuslab.ideprobe.config.DependenciesConfig
 import org.virtuslab.ideprobe.dependencies.Plugin.Bundled
 
 object PluginResolver {

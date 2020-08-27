@@ -1,5 +1,5 @@
 <idea-plugin>
-    <id>org.virtuslab.ideprobe.scalaplugin</id>
+    <id>org.virtuslab.ideprobe.scala</id>
     <name>Virtuslab IdeProbe Scala</name>
     <vendor email="info@virtuslab.com" url="http://www.virtuslab.com">VirtusLab</vendor>
 

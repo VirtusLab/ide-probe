@@ -1,3 +1,4 @@
+import net.aichler.jupiter.sbt.Import.JupiterKeys
 import sbt._
 
 object Dependencies {
@@ -28,6 +29,9 @@ object Dependencies {
     } ++ Seq(typesafeConfig, shapeless)
   }
 
-  val junitJupiterParams = "org.junit.jupiter" % "junit-jupiter-params" % "5.4.2"
+  val junit5 = Seq(
+    "org.junit.jupiter" % "junit-jupiter-params" % "5.4.2",
+    "net.aichler" % "jupiter-interface" % "0.8.3" % Test
+  )
 
 }

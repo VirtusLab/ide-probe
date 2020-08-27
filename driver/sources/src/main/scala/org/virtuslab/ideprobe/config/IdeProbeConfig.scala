@@ -1,0 +1,16 @@
+package org.virtuslab.ideprobe.config
+
+import org.virtuslab.ideprobe.ConfigFormat
+import pureconfig.ConfigReader
+import pureconfig.generic.auto._
+
+case class IdeProbeConfig(
+    intellij: IntellijConfig = IntellijConfig(),
+    workspace: Option[WorkspaceConfig] = None,
+    resolvers: DependenciesConfig.Resolvers = DependenciesConfig.Resolvers(),
+    driver: DriverConfig = DriverConfig()
+)
+
+object IdeProbeConfig extends ConfigFormat {
+  implicit val format: ConfigReader[IdeProbeConfig] = exportReader[IdeProbeConfig].instance
+}
