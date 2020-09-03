@@ -3,7 +3,7 @@ package org.virtuslab.ideprobe.scala.protocol
 import java.nio.file.Path
 
 import org.virtuslab.ideprobe.jsonrpc.JsonRpc.Method.Request
-import org.virtuslab.ideprobe.protocol.ProjectRef
+import org.virtuslab.ideprobe.protocol.{ProjectRef, ScalaTestRunConfiguration, TestsRunResult}
 import org.virtuslab.ideprobe.jsonrpc.PayloadJsonFormat._
 import pureconfig.generic.auto._
 
@@ -17,4 +17,5 @@ object ScalaEndpoints {
   val ImportBspProject =
     Request[Path, ProjectRef]("bsp/import")
 
+  val RunScalaTest = Request[ScalaTestRunConfiguration, TestsRunResult]("run/scalatest")
 }

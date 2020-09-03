@@ -19,12 +19,9 @@ import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.psi.{JavaPsiFacade, PsiManager}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.testFramework.MapDataContext
-import org.jetbrains.plugins.scala.testingSupport.test.scalatest.{ScalaTestConfigurationType, ScalaTestRunConfigurationFactory}
-import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData, SingleTestData}
-import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, TestKind}
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.RunnerSettingsWithProcessOutput
-import org.virtuslab.ideprobe.protocol.{ApplicationRunConfiguration, JUnitRunConfiguration, ProcessResult, TestRun, TestStatus, TestSuite, TestsRunResult, _}
+import org.virtuslab.ideprobe.protocol._
 
 import scala.collection.convert.ImplicitConversions.`collection AsScalaIterable`
 import scala.concurrent.ExecutionContext
@@ -84,7 +81,7 @@ object RunConfigurations extends IntelliJApi {
       val selectedConfiguration = producer.getConfigurationSettings
       val transformedConfiguration = RunConfigurationTransformer.transform(selectedConfiguration)
 
-      awaitTestResults(project, () => launch(project, transformedConfiguration))
+      RunConfigurationUtil.awaitTestResults(project, () => RunConfigurationUtil.launch(project, transformedConfiguration))
     }
 
   def execute(runConfiguration: JUnitRunConfiguration)(implicit ec: ExecutionContext): TestsRunResult = {
@@ -120,99 +117,15 @@ object RunConfigurations extends IntelliJApi {
     val settings = new RunnerAndConfigurationSettingsImpl(runManager, configuration)
     RunManager.getInstance(project).addConfiguration(settings)
 
-    awaitTestResults(project, settings)
+    RunConfigurationUtil.awaitTestResults(project, () => RunConfigurationUtil.launch(project, settings))
   }
 
   def execute(runConfiguration: ApplicationRunConfiguration)(implicit ec: ExecutionContext): ProcessResult = {
     val configuration = registerObservableConfiguration(runConfiguration)
     val project = Projects.resolve(runConfiguration.module.project)
 
-    launch(project, configuration)
+    RunConfigurationUtil.launch(project, configuration)
     await(configuration.processResult())
-  }
-
-  def execute(runConfiguration: ScalaTestRunConfiguration)(implicit ec: ExecutionContext): TestsRunResult = {
-    val module = Modules.resolve(runConfiguration.module)
-    val project = module.getProject
-
-    val runManager = RunManagerImpl.getInstanceImpl(project)
-    val configurationType = ScalaTestConfigurationType.instance
-    val factory = new ScalaTestRunConfigurationFactory(configurationType)
-    val configuration = factory.createTemplateConfiguration(project).asInstanceOf[AbstractTestRunConfiguration]
-    configuration.setModule(module)
-
-    (runConfiguration.packageName, runConfiguration.className, runConfiguration.testName) match {
-      case (Some(packageName), None, None) => {
-        configuration.setTestKind(TestKind.ALL_IN_PACKAGE)
-        configuration.testConfigurationData = AllInPackageTestData(configuration, packageName)
-      }
-      case (None, Some(className), None) => {
-        configuration.setTestKind(TestKind.CLAZZ)
-        configuration.testConfigurationData = ClassTestData(configuration, className)
-      }
-      case (None, Some(className), Some(testName)) => {
-        configuration.setTestKind(TestKind.TEST_NAME)
-        configuration.testConfigurationData = SingleTestData(configuration, className, testName)
-      }
-      case (None, None, None) => {
-        configuration.setTestKind(TestKind.ALL_IN_PACKAGE)
-        configuration.testConfigurationData = AllInPackageTestData(configuration, "")
-      }
-      case _ =>
-        throw new RuntimeException(s"Unsupported parameter combination for $runConfiguration")
-    }
-
-    configuration.testConfigurationData.setWorkingDirectory(project.getBasePath)
-    configuration.testConfigurationData.setUseSbt(true)
-    configuration.testConfigurationData.setUseUiWithSbt(true)
-
-    val settings = new RunnerAndConfigurationSettingsImpl(runManager, configuration)
-
-    RunManager.getInstance(project).addConfiguration(settings)
-    configuration.setBeforeRunTasks(Collections.singletonList(new MakeBeforeRunTask))
-
-    awaitTestResults(project, settings)
-  }
-
-  private def awaitTestResults(project: Project, settings: RunnerAndConfigurationSettingsImpl): TestsRunResult = {
-    val latch = new CountDownLatch(1)
-    var testProxy: SMTestProxy.SMRootTestProxy = null
-    project.getMessageBus
-      .connect()
-      .subscribe(
-        SMTRunnerEventsListener.TEST_STATUS,
-        new SMTRunnerEventsAdapter() {
-          override def onTestingFinished(testsRoot: SMTestProxy.SMRootTestProxy): Unit = {
-            testProxy = testsRoot
-            latch.countDown()
-          }
-        }
-      )
-
-    launch(project, settings)
-    latch.await()
-
-    def createSuite(suiteProxy: SMTestProxy) = {
-      val tests = suiteProxy.getChildren.asScala.map { testProxy =>
-        val status =
-          if (testProxy.isPassed) TestStatus.Passed
-          else if (testProxy.isIgnored) TestStatus.Ignored
-          else TestStatus.Failed(testProxy.getErrorMessage + testProxy.getStacktrace)
-        TestRun(testProxy.getPresentableName, testProxy.getDuration, status)
-      }.toSeq
-      TestSuite(suiteProxy.getPresentableName, tests)
-    }
-
-    awaitTestResults(project, () => launch(project, settings))
-  }
-
-  private def launch(project: Project, configuration: RunnerAndConfigurationSettings): Unit = {
-    val environment = ExecutionUtil
-      .createEnvironment(new DefaultRunExecutor, configuration)
-      .activeTarget()
-      .build()
-
-    ExecutionManager.getInstance(project).restartRunProfile(environment)
   }
 
   private def registerObservableConfiguration(
@@ -240,7 +153,9 @@ object RunConfigurations extends IntelliJApi {
 
     new RunnerSettingsWithProcessOutput(settings)
   }
+}
 
+object RunConfigurationUtil {
   def awaitTestResults(project: Project, launch: () => Unit): TestsRunResult = {
     val latch = new CountDownLatch(1)
     var testProxy: SMTestProxy.SMRootTestProxy = null
@@ -277,5 +192,14 @@ object RunConfigurations extends IntelliJApi {
     }
 
     TestsRunResult(suites)
+  }
+
+  def launch(project: Project, configuration: RunnerAndConfigurationSettings): Unit = {
+    val environment = ExecutionUtil
+      .createEnvironment(new DefaultRunExecutor, configuration)
+      .activeTarget()
+      .build()
+
+    ExecutionManager.getInstance(project).restartRunProfile(environment)
   }
 }

@@ -23,8 +23,11 @@ object Endpoints {
   val OpenProject = Request[Path, ProjectRef]("project/open")
   val Run = Request[ApplicationRunConfiguration, ProcessResult]("run/application")
   val RunJUnit = Request[JUnitRunConfiguration, TestsRunResult]("run/junit")
+<<<<<<< HEAD
   val RunTest = Request[TestRunConfiguration, TestsRunResult]("run/test")
   val RunScalaTest = Request[ScalaTestRunConfiguration, TestsRunResult]("run/scalatest")
+=======
+>>>>>>> 2715fcb... Move scalatest run configuration logic to the extensions modules
   val Shutdown = Notification[Unit]("shutdown")
   val SyncFiles = Request[Unit, Unit]("fs/sync")
   val TakeScreenshot = Request[String, Unit]("screenshot")

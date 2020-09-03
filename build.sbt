@@ -108,10 +108,7 @@ lazy val driverTests = testModule("driver-tests", "driver/tests")
 
 lazy val probePlugin = ideaPluginModule("probe-plugin", "probePlugin", publish = true)
   .dependsOn(api)
-  .settings(
-    intellijPluginName := "ideprobe",
-    intellijPlugins += Dependencies.intellijScala.toPlugin
-  )
+  .settings(intellijPluginName := "ideprobe")
 
 lazy val driverTestPlugin = ideaPluginModule("probe-test-plugin", "driver/test-plugin")
   .settings(intellijPluginName := "driver-test-plugin")
