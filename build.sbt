@@ -10,6 +10,8 @@ scalaVersion.in(ThisBuild) := scala212
 // -EAP-SNAPSHOT suffix results in incorrect url for the intellij scala plugin
 // it is appended automatically for intellij sdk dependency url and manually for the BuildInfo
 intellijBuild.in(ThisBuild) := "202.6948.69"
+// provide intellij version in case of the release version
+val intellijVersion = Some("2020.2.1")
 licenses.in(ThisBuild) := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0"))
 organization.in(ThisBuild) := "org.virtuslab.ideprobe"
 homepage.in(ThisBuild) := Some(url("https://github.com/VirtusLab/ide-probe"))
@@ -83,7 +85,12 @@ lazy val driver = module("driver", "driver/sources")
     libraryDependencies += Dependencies.nuProcess,
     libraryDependencies += Dependencies.remoteRobot,
     libraryDependencies += Dependencies.remoteRobotFixtures,
-    buildInfoKeys := Seq[BuildInfoKey](version, intellijBuild, "robotVersion" -> Dependencies.remoteRobot.revision),
+    buildInfoKeys := Seq[BuildInfoKey](
+      version,
+      intellijBuild,
+      "intellijVersion" -> intellijVersion,
+      "robotVersion" -> Dependencies.remoteRobot.revision
+    ),
     buildInfoPackage := "org.virtuslab.ideprobe",
   )
 

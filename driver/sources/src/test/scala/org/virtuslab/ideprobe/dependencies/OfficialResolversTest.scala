@@ -11,7 +11,7 @@ final class OfficialResolversTest {
   @Test
   def resolvesImplicitSnapshot(): Unit = {
     val repo = IntelliJResolver.Official
-    val version = IntelliJVersion("202.6397.20")
+    val version = IntelliJVersion("202.6397.20", None)
 
     val artifact = repo.resolve(version).asInstanceOf[Dependency.Artifact]
 

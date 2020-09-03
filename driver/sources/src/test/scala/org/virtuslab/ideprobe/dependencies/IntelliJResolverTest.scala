@@ -17,7 +17,7 @@ class IntelliJResolverTest extends ConfigFormat {
   private val mavenRepo = getClass.getResource(".").toURI.resolve("intellij/maven").toString
   private val mavenGroup = "group"
   private val mavenArtifact = "artifact"
-  private val mavenVersion = IntelliJVersion("1.0")
+  private val mavenVersion = IntelliJVersion("1.0", None)
 
   @Test
   def resolvesWithinCustomRepository(): Unit = {
