@@ -243,7 +243,7 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions {
 
   @Test
   def robotTest(): Unit = fixture.run { intelliJ =>
-    val version = fixture.version.build.stripSuffix("-SNAPSHOT").stripSuffix("-EAP")
+    val version = fixture.version.release.getOrElse(fixture.version.build.stripSuffix("-SNAPSHOT").stripSuffix("-EAP"))
     val welcomeFrame = intelliJ.probe.robot.find(query.className("FlatWelcomeFrame"))
     val windowText = welcomeFrame.fullText
     assertTrue(s"Window content: '$windowText' did not contain '$version'", windowText.contains(version))
