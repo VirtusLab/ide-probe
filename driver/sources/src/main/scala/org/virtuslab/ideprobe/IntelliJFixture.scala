@@ -21,7 +21,8 @@ final case class IntelliJFixture(
     plugins: Seq[Plugin] = Nil,
     config: Config = Config.Empty,
     afterWorkspaceSetup: Seq[(IntelliJFixture, Path) => Unit] = Nil,
-    afterIntelliJInstall: Seq[(IntelliJFixture, InstalledIntelliJ) => Unit] = Nil
+    afterIntelliJInstall: Seq[(IntelliJFixture, InstalledIntelliJ) => Unit] = Nil,
+    afterIntelliJStartup: Seq[(IntelliJFixture, RunningIntelliJFixture) => Unit] = Nil
 )(implicit ec: ExecutionContext) {
 
   def withConfig(entries: (String, String)*): IntelliJFixture = {
@@ -35,6 +36,10 @@ final case class IntelliJFixture(
 
   def withAfterIntelliJInstall(action: (IntelliJFixture, InstalledIntelliJ) => Unit): IntelliJFixture = {
     copy(afterIntelliJInstall = afterIntelliJInstall :+ action)
+  }
+
+  def withAfterIntelliJStartup(action: (IntelliJFixture, RunningIntelliJFixture) => Unit): IntelliJFixture = {
+    copy(afterIntelliJStartup = afterIntelliJStartup :+ action)
   }
 
   def withPlugin(plugin: Plugin): IntelliJFixture = {
@@ -73,6 +78,8 @@ final case class IntelliJFixture(
     val runningIde = installedIntelliJ.startIn(workspace)
     val probe = runningIde.probe
     probe.awaitIdle()
+    val running = new RunningIntelliJFixture(workspace, probe, config, installedIntelliJ.paths)
+    afterIntelliJStartup.foreach(_.apply(this, running))
     Runtime.getRuntime.addShutdownHook(new Thread(() => runningIde.shutdown()))
     runningIde
   }
@@ -107,9 +114,7 @@ object IntelliJFixture {
       factory = IntelliJFactory.from(probeConfig.resolvers, probeConfig.driver),
       version = probeConfig.intellij.version,
       plugins = probeConfig.intellij.plugins.filterNot(_.isInstanceOf[Plugin.Empty]),
-      config = config,
-      afterWorkspaceSetup = Nil,
-      afterIntelliJInstall = Nil
+      config = config
     )
   }
 }
