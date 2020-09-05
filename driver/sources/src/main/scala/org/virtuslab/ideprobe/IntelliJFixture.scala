@@ -15,13 +15,13 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 
 final case class IntelliJFixture(
-    workspaceProvider: WorkspaceProvider,
-    factory: IntelliJFactory,
-    version: IntelliJVersion,
-    plugins: Seq[Plugin],
-    config: Config,
-    afterWorkspaceSetup: Seq[(IntelliJFixture, Path) => Unit],
-    afterIntelliJInstall: Seq[(IntelliJFixture, InstalledIntelliJ) => Unit]
+    workspaceProvider: WorkspaceProvider = WorkspaceTemplate.Empty,
+    factory: IntelliJFactory = IntelliJFactory.Default,
+    version: IntelliJVersion = IntelliJVersion.Latest,
+    plugins: Seq[Plugin] = Nil,
+    config: Config = Config.Empty,
+    afterWorkspaceSetup: Seq[(IntelliJFixture, Path) => Unit] = Nil,
+    afterIntelliJInstall: Seq[(IntelliJFixture, InstalledIntelliJ) => Unit] = Nil
 )(implicit ec: ExecutionContext) {
 
   def withConfig(entries: (String, String)*): IntelliJFixture = {
@@ -98,24 +98,6 @@ final case class IntelliJFixture(
 
 object IntelliJFixture {
   private val ConfigRoot = "probe"
-
-  def apply(
-      workspaceTemplate: WorkspaceTemplate = WorkspaceTemplate.Empty,
-      version: IntelliJVersion = IntelliJVersion.Latest,
-      intelliJFactory: IntelliJFactory = IntelliJFactory.Default,
-      plugins: Seq[Plugin] = Seq.empty,
-      environment: Config = Config.Empty
-  )(implicit ec: ExecutionContext): IntelliJFixture = {
-    new IntelliJFixture(
-      workspaceTemplate,
-      intelliJFactory,
-      version,
-      plugins,
-      environment,
-      afterWorkspaceSetup = Nil,
-      afterIntelliJInstall = Nil
-    )
-  }
 
   def fromConfig(config: Config, path: String = ConfigRoot)(implicit ec: ExecutionContext): IntelliJFixture = {
     val probeConfig = config[IdeProbeConfig](path)

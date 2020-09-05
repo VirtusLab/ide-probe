@@ -46,7 +46,7 @@ private val config = Config.fromString("""probe { workspace.path = /foo/bar } ""
 C) specified programmatically.
 ```scala
 private val fixture = IntelliJFixture(
-  workspaceTemplate = WorkspaceTemplate.fromFile(path),
+  workspaceProvider = WorkspaceTemplate.fromFile(path),
   version = IntelliJVersion("202.5792.28-EAP-SNAPSHOT"),
   plugins = List(Plugin("org.intellij.scala", "2020.2.7"))
 )
