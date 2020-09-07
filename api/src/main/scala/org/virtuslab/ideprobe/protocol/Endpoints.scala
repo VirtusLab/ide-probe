@@ -40,4 +40,5 @@ object Endpoints {
   val ProjectSdk = Request[ProjectRef, Option[Sdk]]("project/sdk")
   val ProjectModel = Request[ProjectRef, Project]("project/model")
   val VcsRoots = Request[ProjectRef, Seq[VcsRoot]]("project/vcsRoots")
+  val ExpandMacro = Request[ExpandMacroData, String](name = "expandMacro")
 }
