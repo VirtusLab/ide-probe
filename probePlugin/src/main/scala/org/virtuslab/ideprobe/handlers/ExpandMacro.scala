@@ -14,7 +14,7 @@ object ExpandMacro {
     val macroText = macroRequest.macroText
 
     val project = Projects.resolve(fileRef.project)
-    val file = VirtualFileManager.getInstance().findFileByNioPath(fileRef.path)
+    val file = VFS.toVirtualFile(fileRef.path)
     val context = makeDataContext(fileRef, project, file)
     MacroManager.getInstance().expandMacrosInString(macroText, false, context)
   }
