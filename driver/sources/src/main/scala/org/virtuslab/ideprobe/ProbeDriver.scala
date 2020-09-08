@@ -3,9 +3,6 @@ package org.virtuslab.ideprobe
 import java.nio.file.Path
 
 import com.intellij.remoterobot.RemoteRobot
-import com.intellij.remoterobot.SearchContext
-import com.intellij.remoterobot.fixtures.CommonContainerFixture
-import com.intellij.remoterobot.search.locators.Locators
 import org.virtuslab.ideprobe.jsonrpc.JsonRpc.Handler
 import org.virtuslab.ideprobe.jsonrpc.JsonRpc.Method
 import org.virtuslab.ideprobe.jsonrpc.JsonRpcConnection
@@ -30,6 +27,7 @@ import org.virtuslab.ideprobe.protocol.ProjectRef
 import org.virtuslab.ideprobe.protocol.Reference
 import org.virtuslab.ideprobe.protocol.TestsRunResult
 import org.virtuslab.ideprobe.protocol.VcsRoot
+import org.virtuslab.ideprobe.protocol.ExpandMacroData
 
 import scala.annotation.tailrec
 import scala.concurrent.Await
@@ -258,6 +256,12 @@ final class ProbeDriver(
   def runLocalInspection(className: String, targetFile: FileRef, runFixesSpec: RunFixesSpec = RunFixesSpec.None): InspectionRunResult = {
     send(Endpoints.RunLocalInspection, InspectionRunParams(className, targetFile, runFixesSpec))
   }
+
+  /**
+   *  Expand macro in a given file
+   */
+  def expandMacro(macroText: String, fileRef: FileRef): String =
+    send(Endpoints.ExpandMacro, ExpandMacroData(fileRef, macroText))
 
   def closeTipOfTheDay(): Unit = {
     Try(robot.mainWindow.find(query.dialog("Tip of the Day")).button("Close").click())

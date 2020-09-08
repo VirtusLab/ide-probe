@@ -29,3 +29,8 @@ object JUnitRunConfiguration {
   def module(module: ModuleRef): JUnitRunConfiguration =
     JUnitRunConfiguration(module, None, None, None, None)
 }
+
+final case class ExpandMacroData(
+    fileRef: FileRef,
+    macroText: String
+)

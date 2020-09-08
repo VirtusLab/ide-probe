@@ -15,6 +15,7 @@ import org.virtuslab.ideprobe.dependencies.IntelliJVersion
 import org.virtuslab.ideprobe.dependencies.Plugin
 import org.virtuslab.ideprobe.jsonrpc.RemoteException
 import org.virtuslab.ideprobe.protocol.BuildScope
+import org.virtuslab.ideprobe.protocol.FileRef
 import org.virtuslab.ideprobe.protocol.InstalledPlugin
 import org.virtuslab.ideprobe.protocol.JUnitRunConfiguration
 import org.virtuslab.ideprobe.protocol.ModuleRef
@@ -107,6 +108,16 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions {
         }
       }
   }
+
+  @Test
+  def expandsMacro(): Unit =
+    fixture.copy(workspaceProvider = WorkspaceTemplate.FromResource("gradle-project")).run { intelliJ =>
+      val projectRef = intelliJ.probe.openProject(intelliJ.workspace)
+      val fileExtension =
+        intelliJ.probe
+          .expandMacro("$FileExt$", FileRef(intelliJ.workspace.resolve("build.gradle"), projectRef))
+      assertEquals("gradle", fileExtension)
+    }
 
   @Test
   def listsAllSourceRoots(): Unit = {

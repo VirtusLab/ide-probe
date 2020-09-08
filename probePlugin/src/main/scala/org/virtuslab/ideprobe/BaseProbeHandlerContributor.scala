@@ -37,5 +37,6 @@ class BaseProbeHandlerContributor extends ProbeHandlerContributor {
       .on(Endpoints.TakeScreenshot)(Screenshot.take)
       .on(Endpoints.RunLocalInspection)(Inspections.runLocal)
       .on(Endpoints.VcsRoots)(VCS.roots)
+      .on(Endpoints.ExpandMacro)(ExpandMacro.expand)
   }
 }
