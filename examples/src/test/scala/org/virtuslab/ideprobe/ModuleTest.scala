@@ -6,10 +6,7 @@ import org.junit.Assert
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.protocol.BuildScope
-import org.virtuslab.ideprobe.protocol.JUnitRunConfiguration
-import org.virtuslab.ideprobe.protocol.ModuleRef
-import org.virtuslab.ideprobe.protocol.Setting
+import org.virtuslab.ideprobe.protocol.{ModuleRef, Setting, TestRunConfiguration}
 import org.virtuslab.ideprobe.scala.ScalaPluginExtension
 import org.virtuslab.ideprobe.scala.protocol.SbtProjectSettingsChangeRequest
 
@@ -18,8 +15,8 @@ class ModuleTest extends IdeProbeFixture with ScalaPluginExtension {
   @ParameterizedTest
   @ValueSource(
     strings = Array(
-      "projects/shapeless.conf",
-      "projects/cats.conf",
+      "projects/io.conf",
+      "projects/librarymanagement.conf",
       "projects/dokka.conf"
     )
   )
@@ -36,14 +33,14 @@ class ModuleTest extends IdeProbeFixture with ScalaPluginExtension {
   @ParameterizedTest
   @ValueSource(
     strings = Array(
-      "projects/shapeless.conf",
-      "projects/cats.conf",
-      "projects/dokka.conf"
+      "projects/io.conf",
+      "projects/librarymanagement.conf",
+      "projects/dokka.conf",
     )
   )
   def runTestsInModules(configName: String): Unit = fixtureFromConfig(configName).run { intelliJ =>
     deleteIdeaSettings(intelliJ)
-    val projectRef = intelliJ.probe.openProject(intelliJ.workspace)
+    intelliJ.probe.openProject(intelliJ.workspace)
     if (Files.exists(intelliJ.workspace.resolve("build.sbt"))) {
       intelliJ.probe.setSbtProjectSettings(
         SbtProjectSettingsChangeRequest(
@@ -53,12 +50,11 @@ class ModuleTest extends IdeProbeFixture with ScalaPluginExtension {
       )
     }
     val modulesFromConfig = intelliJ.config[Seq[String]]("modules.test")
+    val runnerNameFragmentOpt = intelliJ.config.get[String]("runner")
     val moduleRefs = modulesFromConfig.map(ModuleRef(_))
-    val runConfigs = moduleRefs.map(JUnitRunConfiguration.module)
-    val buildResult = intelliJ.probe.build(BuildScope.modules(projectRef, modulesFromConfig: _*))
-    buildResult.assertSuccess()
+    val runConfigs = moduleRefs.map(moduleRef => TestRunConfiguration(moduleRef, runnerNameFragmentOpt))
     runConfigs.map(config => config.module -> intelliJ.probe.run(config)).foreach {
-      case (module, result) => Assert.assertTrue(s"Tests in module ${module} failed", result.isSuccess)
+      case (module, result) => Assert.assertTrue(s"Tests in module $module failed", result.isSuccess)
     }
   }
 

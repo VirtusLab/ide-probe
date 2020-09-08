@@ -3,45 +3,17 @@ package org.virtuslab.ideprobe
 import java.nio.file.Path
 
 import com.intellij.remoterobot.RemoteRobot
-import org.virtuslab.ideprobe.jsonrpc.JsonRpc.Handler
-import org.virtuslab.ideprobe.jsonrpc.JsonRpc.Method
-import org.virtuslab.ideprobe.jsonrpc.JsonRpcConnection
-import org.virtuslab.ideprobe.jsonrpc.JsonRpcEndpoint
-import org.virtuslab.ideprobe.protocol.ApplicationRunConfiguration
-import org.virtuslab.ideprobe.protocol.BuildParams
-import org.virtuslab.ideprobe.protocol.BuildResult
-import org.virtuslab.ideprobe.protocol.BuildScope
-import org.virtuslab.ideprobe.protocol.Endpoints
-import org.virtuslab.ideprobe.protocol.FileRef
-import org.virtuslab.ideprobe.protocol.Freeze
-import org.virtuslab.ideprobe.protocol.IdeMessage
-import org.virtuslab.ideprobe.protocol.IdeNotification
-import org.virtuslab.ideprobe.protocol.InstalledPlugin
-import org.virtuslab.ideprobe.protocol.JUnitRunConfiguration
-import org.virtuslab.ideprobe.protocol.ModuleRef
-import org.virtuslab.ideprobe.protocol.NavigationQuery
-import org.virtuslab.ideprobe.protocol.NavigationTarget
-import org.virtuslab.ideprobe.protocol.ProcessResult
-import org.virtuslab.ideprobe.protocol.Project
-import org.virtuslab.ideprobe.protocol.ProjectRef
-import org.virtuslab.ideprobe.protocol.Reference
-import org.virtuslab.ideprobe.protocol.TestsRunResult
-import org.virtuslab.ideprobe.protocol.VcsRoot
-import org.virtuslab.ideprobe.protocol.ExpandMacroData
+import org.virtuslab.ideprobe.RobotExtensions._
+import org.virtuslab.ideprobe.jsonrpc.JsonRpc.{Handler, Method}
+import org.virtuslab.ideprobe.jsonrpc.{JsonRpcConnection, JsonRpcEndpoint}
+import org.virtuslab.ideprobe.protocol._
 
 import scala.annotation.tailrec
-import scala.concurrent.Await
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{Await, ExecutionContext}
 import scala.concurrent.duration._
 import scala.language.implicitConversions
 import scala.reflect.ClassTag
-import scala.util.Failure
-import scala.util.Try
-import RobotExtensions._
-import org.virtuslab.ideprobe.protocol.InspectionRunParams
-import org.virtuslab.ideprobe.protocol.InspectionRunResult
-import org.virtuslab.ideprobe.protocol.RunFixesSpec
-import org.virtuslab.ideprobe.protocol.Sdk
+import scala.util.{Failure, Try}
 
 final class ProbeDriver(
   protected val connection: JsonRpcConnection,
@@ -212,6 +184,12 @@ final class ProbeDriver(
    * Returns the list of all freezes detected by the IDE
    */
   def freezes: Seq[Freeze] = send(Endpoints.Freezes)
+
+  /**
+   * Runs the specified test configuration with a test runner containing provided string
+   * or with the first available runner when the string is not present
+   */
+  def run(runConfiguration: TestRunConfiguration): TestsRunResult = send(Endpoints.RunTest, runConfiguration)
 
   /**
    * Runs the specified application configuration

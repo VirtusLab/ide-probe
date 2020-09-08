@@ -19,6 +19,9 @@
         <extensionPoint
                 name="probeHandlerContributor"
                 interface="org.virtuslab.ideprobe.ProbeHandlerContributor"/>
+        <extensionPoint
+                name="runConfigurationTransformer"
+                interface="org.virtuslab.ideprobe.handlers.RunConfigurationTransformer"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="org.virtuslab.ideprobe">
