@@ -34,3 +34,13 @@ final case class ExpandMacroData(
     fileRef: FileRef,
     macroText: String
 )
+
+final case class TestRunConfiguration(module: ModuleRef, runnerNameFragment: Option[String])
+
+object TestRunConfiguration {
+  def module(module: ModuleRef): TestRunConfiguration =
+    TestRunConfiguration(module, None)
+
+  def module(module: ModuleRef, runnerNameFragment: String): TestRunConfiguration =
+    TestRunConfiguration(module, Some(runnerNameFragment))
+}

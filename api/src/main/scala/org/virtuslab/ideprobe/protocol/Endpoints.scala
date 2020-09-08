@@ -23,6 +23,7 @@ object Endpoints {
   val OpenProject = Request[Path, ProjectRef]("project/open")
   val Run = Request[ApplicationRunConfiguration, ProcessResult]("run/application")
   val RunJUnit = Request[JUnitRunConfiguration, TestsRunResult]("run/junit")
+  val RunTest = Request[TestRunConfiguration, TestsRunResult]("run/test")
   val Shutdown = Notification[Unit]("shutdown")
   val SyncFiles = Request[Unit, Unit]("fs/sync")
   val TakeScreenshot = Request[String, Unit]("screenshot")
