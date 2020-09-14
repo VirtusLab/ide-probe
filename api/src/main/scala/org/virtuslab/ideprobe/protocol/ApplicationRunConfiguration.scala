@@ -35,12 +35,20 @@ final case class ExpandMacroData(
     macroText: String
 )
 
-final case class TestRunConfiguration(module: ModuleRef, runnerNameFragment: Option[String])
+final case class TestRunConfiguration(
+   module: ModuleRef,
+   className: Option[String],
+   methodName: Option[String],
+   name: Option[String]
+)
 
 object TestRunConfiguration {
-  def module(module: ModuleRef): TestRunConfiguration =
-    TestRunConfiguration(module, None)
+  def module(module: ModuleRef, runnerNameFragment: Option[String] = None): TestRunConfiguration =
+    TestRunConfiguration(module, None, None, runnerNameFragment)
 
-  def module(module: ModuleRef, runnerNameFragment: String): TestRunConfiguration =
-    TestRunConfiguration(module, Some(runnerNameFragment))
+  def mainClass(module: ModuleRef, className: String, runnerNameFragment: Option[String] = None): TestRunConfiguration =
+    TestRunConfiguration(module, Some(className), None, runnerNameFragment)
+
+  def method(module: ModuleRef, className: String, methodName: String, runnerNameFragment: Option[String] = None): TestRunConfiguration =
+    TestRunConfiguration(module, Some(className), Some(methodName), runnerNameFragment)
 }

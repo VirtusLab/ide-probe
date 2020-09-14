@@ -1,20 +1,22 @@
 package org.virtuslab.ideprobe
 
 import java.nio.file.Files
-import org.junit.{Assert, Test}
+
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
+import org.junit.{Assert, Test}
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.protocol.{JUnitRunConfiguration, ModuleRef, Setting, TestRunConfiguration}
+import org.virtuslab.ideprobe.protocol.{ModuleRef, Setting, TestRunConfiguration}
 import org.virtuslab.ideprobe.robot.RobotPluginExtension
 import org.virtuslab.ideprobe.scala.ScalaPluginExtension
 import org.virtuslab.ideprobe.scala.protocol.{SbtProjectSettingsChangeRequest, ScalaTestRunConfiguration}
 
 class ModuleTest extends IdeProbeFixture with ScalaPluginExtension with RobotPluginExtension {
-  @Test
-  def runJUnitTestsInDifferentScopes: Unit = fixtureFromConfig("projects/dokka.conf").run { intelliJ =>
+  @Test def runTestsInDifferentScopes: Unit = fixtureFromConfig("projects/dokka.conf").run { intelliJ =>
     deleteIdeaSettings(intelliJ)
     intelliJ.probe.openProject(intelliJ.workspace)
+    val buildResult = intelliJ.probe.build()
+    buildResult.assertSuccess()
 
     val moduleName = intelliJ.config[String]("test.module")
     val className = intelliJ.config[String]("test.class")
@@ -22,9 +24,9 @@ class ModuleTest extends IdeProbeFixture with ScalaPluginExtension with RobotPlu
     val moduleRef = ModuleRef(moduleName)
 
     val runConfigurations = List(
-      JUnitRunConfiguration.module(moduleRef),
-      JUnitRunConfiguration.mainClass(moduleRef, className),
-      JUnitRunConfiguration.method(moduleRef, className, methodName)
+      TestRunConfiguration.module(moduleRef),
+      TestRunConfiguration.mainClass(moduleRef, className),
+      TestRunConfiguration.method(moduleRef, className, methodName)
     )
 
     runConfigurations.map(intelliJ.probe.run).foreach { result =>

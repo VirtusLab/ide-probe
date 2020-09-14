@@ -1,6 +1,5 @@
 package org.virtuslab.ideprobe.handlers
 
-import java.nio.file.Paths
 import java.util.concurrent.CountDownLatch
 import java.util.{Collections, UUID}
 
@@ -13,11 +12,12 @@ import com.intellij.execution.impl.{RunManagerImpl, RunnerAndConfigurationSettin
 import com.intellij.execution.junit.JUnitConfiguration
 import com.intellij.execution.runners.ExecutionUtil
 import com.intellij.execution.testframework.sm.runner.{SMTRunnerEventsAdapter, SMTRunnerEventsListener, SMTestProxy}
-import com.intellij.openapi.actionSystem.{CommonDataKeys, LangDataKeys, PlatformDataKeys}
+import com.intellij.openapi.actionSystem.{CommonDataKeys, LangDataKeys}
+import com.intellij.openapi.module.{Module => IntelliJModule}
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots.ModuleRootManager
-import com.intellij.psi.{JavaPsiFacade, PsiManager}
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.{JavaPsiFacade, PsiClass, PsiElement, PsiManager}
 import com.intellij.testFramework.MapDataContext
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.RunnerSettingsWithProcessOutput
@@ -36,53 +36,80 @@ object RunConfigurations extends IntelliJApi {
       dataContext.put(CommonDataKeys.PROJECT, project)
       dataContext.put(LangDataKeys.MODULE, module)
 
-      val projectPath = Paths.get(project.getBasePath)
-
-      // TODO getContentRoots returns an array, is taking head only reliable?
-      val moduleVirtualFile = ModuleRootManager.getInstance(module).getContentRoots.head
-      val moduleDir = runOnUISync {
-        PsiManager.getInstance(project).findDirectory(moduleVirtualFile)
+      val psiElement: PsiElement = (runConfiguration.className, runConfiguration.methodName) match {
+        case (None, None) => {
+          // TODO getContentRoots returns an array, is taking head only reliable?
+          val moduleVirtualFile = ModuleRootManager.getInstance(module).getContentRoots.head
+          val psiDirectory = read {
+            PsiManager.getInstance(project).findDirectory(moduleVirtualFile)
+          }
+          Option(psiDirectory).getOrElse(error(s"Directory of module ${module.getName} not found"))
+        }
+        case (Some(className), None) => {
+          Option(findPsiClass(className, module)).getOrElse(error(s"Class $className not found"))
+        }
+        case (Some(className), Some(methodName)) => {
+          val psiClass = findPsiClass(className, module)
+          val psiMethods = read {
+            psiClass.getMethods
+          }
+          psiMethods.find(_.getName == methodName)
+            .getOrElse(error(s"Method $methodName not found in class $className. Available methods: ${psiMethods.map(_.getName)}"))
+        }
       }
 
-      dataContext.put(PlatformDataKeys.SELECTED_ITEMS, List(moduleDir).asJava.toArray)
-
-      val wsVirtualFile = VFS.toVirtualFile(projectPath)
-      dataContext.put(PlatformDataKeys.PROJECT_FILE_DIRECTORY, wsVirtualFile)
-
-      val location = PsiLocation.fromPsiElement(moduleDir)
+      val location = read {
+        PsiLocation.fromPsiElement(psiElement)
+      }
       dataContext.put(Location.DATA_KEY, location)
 
       val configurationContext = ConfigurationContext.getFromContext(dataContext)
       val runManager = configurationContext.getRunManager.asInstanceOf[RunManagerEx]
-      val configurationFromContext = runOnUISync(configurationContext.getConfiguration)
+      val configurationFromContext = read {
+        configurationContext.getConfiguration
+      }
 
       runManager.setTemporaryConfiguration(configurationFromContext)
       runManager.setSelectedConfiguration(configurationFromContext)
 
-      val configurations = runOnUISync {
+      val configurations = read {
         configurationContext.getConfigurationsFromContext
       }
-      val producer = runConfiguration.runnerNameFragment match {
+      val producer = runConfiguration.name match {
         case Some(fragment) =>
           configurations
-            .find(_.toString.toLowerCase contains fragment.toLowerCase)
+            .find(_.toString contains fragment)
             .getOrElse(
-              throw new RuntimeException(
+              error(
                 s"Runner name fragment $fragment does not match any configuration name. Available configurations: $configurations."
               )
             )
         case _ =>
           configurations.headOption.getOrElse(
-            throw new RuntimeException(
+            error(
               "No test configuration available for specified settings."
             )
           )
       }
       val selectedConfiguration = producer.getConfigurationSettings
       val transformedConfiguration = RunConfigurationTransformer.transform(selectedConfiguration)
+      transformedConfiguration.getConfiguration match {
+        case config: JUnitConfiguration => {
+          // sets the "use classpath of module:" configuration setting
+          // because it isn't set out of the box in JUnitConfiguration
+          config.getTestObject.getConfiguration.getConfigurationModule.setModule(module)
+        }
+        case _ =>
+      }
 
       RunConfigurationUtil.awaitTestResults(project, () => RunConfigurationUtil.launch(project, transformedConfiguration))
     }
+
+  private def findPsiClass(qualifiedName: String, module: IntelliJModule): PsiClass = {
+    val scope = GlobalSearchScope.moduleWithDependenciesScope(module)
+    DumbService.getInstance(module.getProject).waitForSmartMode()
+    read { JavaPsiFacade.getInstance(module.getProject).findClass(qualifiedName, scope) }
+  }
 
   def execute(runConfiguration: JUnitRunConfiguration)(implicit ec: ExecutionContext): TestsRunResult = {
     val module = Modules.resolve(runConfiguration.module)
@@ -135,11 +162,7 @@ object RunConfigurations extends IntelliJApi {
     val project = module.getProject
 
     val configuration = {
-      val psiClass = {
-        val scope = GlobalSearchScope.moduleWithDependenciesScope(module)
-        DumbService.getInstance(project).waitForSmartMode()
-        read { JavaPsiFacade.getInstance(project).findClass(mainClass.mainClass, scope) }
-      }
+      val psiClass = findPsiClass(mainClass.mainClass, module)
 
       val name = UUID.randomUUID()
       val configuration = new ApplicationConfiguration(name.toString, project)
