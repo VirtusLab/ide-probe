@@ -3,7 +3,6 @@ before_install:
   - sbt ci/generateScripts
   - ci/tests/build_image
 
-if: type = push
 stages:
   - name: Test
   - name: Release
