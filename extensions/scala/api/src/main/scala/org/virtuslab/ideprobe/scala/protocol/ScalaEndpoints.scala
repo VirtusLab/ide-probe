@@ -1,5 +1,7 @@
 package org.virtuslab.ideprobe.scala.protocol
 
+import java.nio.file.Path
+
 import org.virtuslab.ideprobe.jsonrpc.JsonRpc.Method.Request
 import org.virtuslab.ideprobe.protocol.ProjectRef
 import org.virtuslab.ideprobe.jsonrpc.PayloadJsonFormat._
@@ -11,4 +13,8 @@ object ScalaEndpoints {
 
   val ChangeSbtProjectSettings =
     Request[(ProjectRef, SbtProjectSettingsChangeRequest), Unit]("sbt/project/settings/change")
+
+  val ImportBspProject =
+    Request[Path, ProjectRef]("bsp/import")
+
 }

@@ -1,5 +1,7 @@
 package org.virtuslab.ideprobe.scala
 
+import java.nio.file.Path
+
 import org.virtuslab.ideprobe.ProbeDriver
 import org.virtuslab.ideprobe.protocol.ProjectRef
 import org.virtuslab.ideprobe.scala.protocol._
@@ -20,5 +22,9 @@ final class ScalaProbeDriver(val driver: ProbeDriver) extends AnyVal {
     project: ProjectRef = ProjectRef.Default
   ): Unit = {
     driver.send(ScalaEndpoints.ChangeSbtProjectSettings, (project, settings))
+  }
+
+  def importBspProject(path: Path): ProjectRef = {
+    driver.send(ScalaEndpoints.ImportBspProject, path)
   }
 }
