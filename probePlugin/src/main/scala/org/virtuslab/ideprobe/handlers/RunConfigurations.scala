@@ -16,6 +16,7 @@ import com.intellij.openapi.actionSystem.{CommonDataKeys, LangDataKeys}
 import com.intellij.openapi.module.{Module => IntelliJModule}
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots.ModuleRootManager
+import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaPsiFacade, PsiClass, PsiElement, PsiManager}
 import com.intellij.testFramework.MapDataContext
@@ -36,25 +37,33 @@ object RunConfigurations extends IntelliJApi {
       dataContext.put(CommonDataKeys.PROJECT, project)
       dataContext.put(LangDataKeys.MODULE, module)
 
-      val psiElement: PsiElement = (runConfiguration.className, runConfiguration.methodName) match {
-        case (None, None) => {
-          // TODO getContentRoots returns an array, is taking head only reliable?
-          val moduleVirtualFile = ModuleRootManager.getInstance(module).getContentRoots.head
-          val psiDirectory = read {
-            PsiManager.getInstance(project).findDirectory(moduleVirtualFile)
-          }
-          Option(psiDirectory).getOrElse(error(s"Directory of module ${module.getName} not found"))
-        }
-        case (Some(className), None) => {
-          Option(findPsiClass(className, module)).getOrElse(error(s"Class $className not found"))
-        }
-        case (Some(className), Some(methodName)) => {
+      val psiElement: PsiElement = (runConfiguration.packageName, runConfiguration.className, runConfiguration.methodName) match {
+        case (None, Some(className), Some(methodName)) => {
           val psiClass = findPsiClass(className, module)
           val psiMethods = read {
             psiClass.getMethods
           }
           psiMethods.find(_.getName == methodName)
             .getOrElse(error(s"Method $methodName not found in class $className. Available methods: ${psiMethods.map(_.getName)}"))
+        }
+        case (None, Some(className), None) => {
+          Option(findPsiClass(className, module)).getOrElse(error(s"Class $className not found"))
+        }
+        case (Some(packageName), None, None) => {
+          val moduleSourceRoots = ModuleRootManager.getInstance(module).getSourceRoots.head
+          val dirPath = Paths.get(moduleSourceRoots.getPath, packageName.replace(".", "/"))
+          val dirVirtualFile = VirtualFileManager.getInstance().findFileByNioPath(dirPath)
+          val psiDirectory = read {
+            PsiManager.getInstance(project).findDirectory(dirVirtualFile)
+          }
+          Option(psiDirectory).getOrElse(error(s"Directory $packageName not found"))
+        }
+        case (None, None, None) => {
+          val moduleVirtualFile = ModuleRootManager.getInstance(module).getContentRoots.head
+          val psiDirectory = read {
+            PsiManager.getInstance(project).findDirectory(moduleVirtualFile)
+          }
+          Option(psiDirectory).getOrElse(error(s"Directory of module ${module.getName} not found"))
         }
       }
 
@@ -93,14 +102,6 @@ object RunConfigurations extends IntelliJApi {
       }
       val selectedConfiguration = producer.getConfigurationSettings
       val transformedConfiguration = RunConfigurationTransformer.transform(selectedConfiguration)
-      transformedConfiguration.getConfiguration match {
-        case config: JUnitConfiguration => {
-          // sets the "use classpath of module:" configuration setting
-          // because it isn't set out of the box in JUnitConfiguration
-          config.getTestObject.getConfiguration.getConfigurationModule.setModule(module)
-        }
-        case _ =>
-      }
 
       RunConfigurationUtil.awaitTestResults(project, () => RunConfigurationUtil.launch(project, transformedConfiguration))
     }

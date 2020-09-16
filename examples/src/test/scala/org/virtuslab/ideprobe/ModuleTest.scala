@@ -19,12 +19,14 @@ class ModuleTest extends IdeProbeFixture with ScalaPluginExtension with RobotPlu
     buildResult.assertSuccess()
 
     val moduleName = intelliJ.config[String]("test.module")
+    val packageName = intelliJ.config[String]("test.package")
     val className = intelliJ.config[String]("test.class")
     val methodName = intelliJ.config[String]("test.method")
     val moduleRef = ModuleRef(moduleName)
 
     val runConfigurations = List(
       TestRunConfiguration.module(moduleRef),
+      TestRunConfiguration.mainPackage(moduleRef, packageName),
       TestRunConfiguration.mainClass(moduleRef, className),
       TestRunConfiguration.method(moduleRef, className, methodName)
     )
