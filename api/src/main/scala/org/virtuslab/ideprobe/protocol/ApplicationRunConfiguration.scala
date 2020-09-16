@@ -37,6 +37,7 @@ final case class ExpandMacroData(
 
 final case class TestRunConfiguration(
    module: ModuleRef,
+   directory: Option[String],
    packageName: Option[String],
    className: Option[String],
    methodName: Option[String],
@@ -45,14 +46,17 @@ final case class TestRunConfiguration(
 
 object TestRunConfiguration {
   def module(module: ModuleRef, runnerNameFragment: Option[String] = None): TestRunConfiguration =
-    TestRunConfiguration(module, None, None, None, runnerNameFragment)
+    TestRunConfiguration(module, None, None, None, None, runnerNameFragment)
 
   def mainPackage(module: ModuleRef, packageName: String, runnerFragmentName: Option[String] = None): TestRunConfiguration =
-    TestRunConfiguration(module, Some(packageName), None, None, runnerFragmentName)
+    TestRunConfiguration(module, None, Some(packageName), None, None, runnerFragmentName)
 
   def mainClass(module: ModuleRef, className: String, runnerNameFragment: Option[String] = None): TestRunConfiguration =
-    TestRunConfiguration(module, None, Some(className), None, runnerNameFragment)
+    TestRunConfiguration(module, None, None, Some(className), None, runnerNameFragment)
 
   def method(module: ModuleRef, className: String, methodName: String, runnerNameFragment: Option[String] = None): TestRunConfiguration =
-    TestRunConfiguration(module, None, Some(className), Some(methodName), runnerNameFragment)
+    TestRunConfiguration(module, None, None, Some(className), Some(methodName), runnerNameFragment)
+
+  def directory(module: ModuleRef, directory: String, runnerNameFragment: Option[String] = None): TestRunConfiguration =
+    TestRunConfiguration(module, Some(directory), None, None, None, runnerNameFragment)
 }

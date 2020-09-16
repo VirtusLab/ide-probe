@@ -17,6 +17,7 @@ import com.intellij.openapi.module.{Module => IntelliJModule}
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.vfs.VirtualFileManager
+import com.intellij.psi.impl.file.PsiPackageImpl
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaPsiFacade, PsiClass, PsiElement, PsiManager}
 import com.intellij.testFramework.MapDataContext
@@ -37,8 +38,8 @@ object RunConfigurations extends IntelliJApi {
       dataContext.put(CommonDataKeys.PROJECT, project)
       dataContext.put(LangDataKeys.MODULE, module)
 
-      val psiElement: PsiElement = (runConfiguration.packageName, runConfiguration.className, runConfiguration.methodName) match {
-        case (None, Some(className), Some(methodName)) => {
+      val psiElement: PsiElement = (runConfiguration.directory, runConfiguration.packageName, runConfiguration.className, runConfiguration.methodName) match {
+        case (None, None, Some(className), Some(methodName)) => {
           val psiClass = findPsiClass(className, module)
           val psiMethods = read {
             psiClass.getMethods
@@ -46,19 +47,23 @@ object RunConfigurations extends IntelliJApi {
           psiMethods.find(_.getName == methodName)
             .getOrElse(error(s"Method $methodName not found in class $className. Available methods: ${psiMethods.map(_.getName)}"))
         }
-        case (None, Some(className), None) => {
+        case (None, None, Some(className), None) => {
           Option(findPsiClass(className, module)).getOrElse(error(s"Class $className not found"))
         }
-        case (Some(packageName), None, None) => {
-          val moduleSourceRoots = ModuleRootManager.getInstance(module).getSourceRoots.head
-          val dirPath = Paths.get(moduleSourceRoots.getPath, packageName.replace(".", "/"))
+        case (Some(directoryName), None, None, None) => {
+          val moduleContentRoots = ModuleRootManager.getInstance(module).getContentRoots.head
+          val dirPath = Paths.get(moduleContentRoots.getPath, directoryName.replace(".", "/"))
           val dirVirtualFile = VirtualFileManager.getInstance().findFileByNioPath(dirPath)
           val psiDirectory = read {
             PsiManager.getInstance(project).findDirectory(dirVirtualFile)
           }
-          Option(psiDirectory).getOrElse(error(s"Directory $packageName not found"))
+          Option(psiDirectory).getOrElse(error(s"Directory $directoryName not found"))
         }
-        case (None, None, None) => {
+        case (None, Some(packageName), None, None) => {
+          val psiPackage = new PsiPackageImpl(PsiManager.getInstance(project), packageName)
+          Option(psiPackage).getOrElse(error(s"Package $packageName not found"))
+        }
+        case (None, None, None, None) => {
           val moduleVirtualFile = ModuleRootManager.getInstance(module).getContentRoots.head
           val psiDirectory = read {
             PsiManager.getInstance(project).findDirectory(moduleVirtualFile)
