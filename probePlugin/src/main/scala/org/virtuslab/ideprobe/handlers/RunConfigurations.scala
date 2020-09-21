@@ -32,25 +32,21 @@ object RunConfigurations extends IntelliJApi {
   def execute(runConfiguration: TestRunConfiguration)(implicit ec: ExecutionContext): TestsRunResult =
     BackgroundTasks.withAwaitNone {
       val project = Projects.resolve(ProjectRef.Default)
-      val module = Modules.resolve(runConfiguration.module)
+      val module = Modules.resolve(runConfiguration.moduleRef)
 
       val dataContext = new MapDataContext
       dataContext.put(CommonDataKeys.PROJECT, project)
       dataContext.put(LangDataKeys.MODULE, module)
 
-      val psiElement: PsiElement = (runConfiguration.directory, runConfiguration.packageName, runConfiguration.className, runConfiguration.methodName) match {
-        case (None, None, Some(className), Some(methodName)) => {
-          val psiClass = findPsiClass(className, module)
-          val psiMethods = read {
-            psiClass.getMethods
+      val psiElement: PsiElement = runConfiguration match {
+        case ModuleTestRunConfiguration(_, _) => {
+          val moduleVirtualFile = ModuleRootManager.getInstance(module).getContentRoots.head
+          val psiDirectory = read {
+            PsiManager.getInstance(project).findDirectory(moduleVirtualFile)
           }
-          psiMethods.find(_.getName == methodName)
-            .getOrElse(error(s"Method $methodName not found in class $className. Available methods: ${psiMethods.map(_.getName)}"))
+          Option(psiDirectory).getOrElse(error(s"Directory of module ${module.getName} not found"))
         }
-        case (None, None, Some(className), None) => {
-          Option(findPsiClass(className, module)).getOrElse(error(s"Class $className not found"))
-        }
-        case (Some(directoryName), None, None, None) => {
+        case DirectoryTestRunConfiguration(_, directoryName, _) => {
           val moduleContentRoots = ModuleRootManager.getInstance(module).getContentRoots.head
           val dirPath = Paths.get(moduleContentRoots.getPath, directoryName.replace(".", "/"))
           val dirVirtualFile = VirtualFileManager.getInstance().findFileByNioPath(dirPath)
@@ -59,16 +55,20 @@ object RunConfigurations extends IntelliJApi {
           }
           Option(psiDirectory).getOrElse(error(s"Directory $directoryName not found"))
         }
-        case (None, Some(packageName), None, None) => {
+        case PackageTestRunConfiguration(_, packageName, _) => {
           val psiPackage = new PsiPackageImpl(PsiManager.getInstance(project), packageName)
           Option(psiPackage).getOrElse(error(s"Package $packageName not found"))
         }
-        case (None, None, None, None) => {
-          val moduleVirtualFile = ModuleRootManager.getInstance(module).getContentRoots.head
-          val psiDirectory = read {
-            PsiManager.getInstance(project).findDirectory(moduleVirtualFile)
+        case ClassTestRunConfiguration(_, className, _) => {
+          Option(findPsiClass(className, module)).getOrElse(error(s"Class $className not found"))
+        }
+        case MethodTestRunConfiguration(_, className, methodName, _) => {
+          val psiClass = findPsiClass(className, module)
+          val psiMethods = read {
+            psiClass.getMethods
           }
-          Option(psiDirectory).getOrElse(error(s"Directory of module ${module.getName} not found"))
+          psiMethods.find(_.getName == methodName)
+            .getOrElse(error(s"Method $methodName not found in class $className. Available methods: ${psiMethods.map(_.getName)}"))
         }
       }
 
@@ -89,7 +89,7 @@ object RunConfigurations extends IntelliJApi {
       val configurations = read {
         configurationContext.getConfigurationsFromContext
       }
-      val producer = runConfiguration.name match {
+      val producer = runConfiguration.runnerNameFragment match {
         case Some(fragment) =>
           configurations
             .find(_.toString contains fragment)
@@ -118,31 +118,29 @@ object RunConfigurations extends IntelliJApi {
   }
 
   def execute(runConfiguration: JUnitRunConfiguration)(implicit ec: ExecutionContext): TestsRunResult = {
-    val module = Modules.resolve(runConfiguration.module)
+    val module = Modules.resolve(runConfiguration.moduleRef)
     val project = module.getProject
 
     val configuration = new JUnitConfiguration(UUID.randomUUID().toString, project)
     configuration.setModule(module)
     val data = configuration.getPersistentData
-    (runConfiguration.methodName, runConfiguration.mainClass, runConfiguration.packageName, runConfiguration.directory) match {
-      case (Some(methodName), Some(className), None, None) =>
+    runConfiguration match {
+      case ModuleJUnitRunConfiguration(_) =>
+        data.PACKAGE_NAME = ""
+        data.TEST_OBJECT = JUnitConfiguration.TEST_PACKAGE
+      case DirectoryJUnitRunConfiguration(_, directoryName) =>
+        data.setDirName(directoryName)
+        data.TEST_OBJECT = JUnitConfiguration.TEST_DIRECTORY
+      case PackageJUnitRunConfiguration(_, packageName) =>
+        data.PACKAGE_NAME = packageName
+        data.TEST_OBJECT = JUnitConfiguration.TEST_PACKAGE
+      case ClassJUnitRunConfiguration(_, className) =>
+        data.MAIN_CLASS_NAME = className
+        data.TEST_OBJECT = JUnitConfiguration.TEST_CLASS
+      case MethodJUnitRunConfiguration(_, className, methodName) =>
         data.METHOD_NAME = methodName
         data.MAIN_CLASS_NAME = className
         data.TEST_OBJECT = JUnitConfiguration.TEST_METHOD
-      case (None, Some(className), None, None) =>
-        data.MAIN_CLASS_NAME = className
-        data.TEST_OBJECT = JUnitConfiguration.TEST_CLASS
-      case (None, None, Some(packageName), None) =>
-        data.PACKAGE_NAME = packageName
-        data.TEST_OBJECT = JUnitConfiguration.TEST_PACKAGE
-      case (None, None, None, Some(directory)) =>
-        data.setDirName(directory)
-        data.TEST_OBJECT = JUnitConfiguration.TEST_DIRECTORY
-      case (None, None, None, None) =>
-        data.PACKAGE_NAME = ""
-        data.TEST_OBJECT = JUnitConfiguration.TEST_PACKAGE
-      case _ =>
-        throw new RuntimeException(s"Unsupported parameter combination for $runConfiguration")
     }
     configuration.setBeforeRunTasks(Collections.singletonList(new MakeBeforeRunTask))
 

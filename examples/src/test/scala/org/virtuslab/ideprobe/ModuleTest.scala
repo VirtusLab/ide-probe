@@ -6,8 +6,8 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import org.junit.{Assert, Test}
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.protocol.{ModuleRef, Setting, TestRunConfiguration}
 import org.virtuslab.ideprobe.robot.RobotPluginExtension
+import org.virtuslab.ideprobe.protocol._
 import org.virtuslab.ideprobe.scala.ScalaPluginExtension
 import org.virtuslab.ideprobe.scala.protocol.{SbtProjectSettingsChangeRequest, ScalaTestRunConfiguration}
 
@@ -26,11 +26,11 @@ class ModuleTest extends IdeProbeFixture with ScalaPluginExtension with RobotPlu
     val moduleRef = ModuleRef(moduleName)
 
     val runConfigurations = List(
-      TestRunConfiguration.module(moduleRef),
-      TestRunConfiguration.directory(moduleRef, directoryName),
-      TestRunConfiguration.mainPackage(moduleRef, packageName),
-      TestRunConfiguration.mainClass(moduleRef, className),
-      TestRunConfiguration.method(moduleRef, className, methodName)
+      ModuleTestRunConfiguration(moduleRef, None),
+      DirectoryTestRunConfiguration(moduleRef, directoryName, None),
+      PackageTestRunConfiguration(moduleRef, packageName, None),
+      ClassTestRunConfiguration(moduleRef, className, None),
+      MethodTestRunConfiguration(moduleRef, className, methodName, None)
     )
 
     runConfigurations.map(intelliJ.probe.run).foreach { result =>
@@ -94,8 +94,8 @@ class ModuleTest extends IdeProbeFixture with ScalaPluginExtension with RobotPlu
     val modulesFromConfig = intelliJ.config[Seq[String]]("modules.test")
     val runnerNameFragmentOpt = intelliJ.config.get[String]("runner")
     val moduleRefs = modulesFromConfig.map(ModuleRef(_))
-    val runConfigs = moduleRefs.map(moduleRef => TestRunConfiguration(moduleRef, runnerNameFragmentOpt))
-    runConfigs.map(config => config.module -> intelliJ.probe.run(config)).foreach {
+    val runConfigs = moduleRefs.map(moduleRef => ModuleTestRunConfiguration(moduleRef, runnerNameFragmentOpt))
+    runConfigs.map(config => config.moduleRef -> intelliJ.probe.run(config)).foreach {
       case (module, result) => Assert.assertTrue(s"Tests in module $module failed", result.isSuccess)
     }
   }

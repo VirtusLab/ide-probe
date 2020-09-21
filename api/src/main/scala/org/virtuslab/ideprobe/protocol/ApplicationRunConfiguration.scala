@@ -5,58 +5,33 @@ final case class ApplicationRunConfiguration(
     mainClass: String
 )
 
-final case class JUnitRunConfiguration(
-    module: ModuleRef,
-    mainClass: Option[String],
-    methodName: Option[String],
-    packageName: Option[String],
-    directory: Option[String]
-)
-
-object JUnitRunConfiguration {
-  def mainClass(module: ModuleRef, mainClass: String): JUnitRunConfiguration =
-    JUnitRunConfiguration(module, Some(mainClass), None, None, None)
-
-  def method(module: ModuleRef, mainClass: String, methodName: String): JUnitRunConfiguration =
-    JUnitRunConfiguration(module, Some(mainClass), Some(methodName), None, None)
-
-  def packageName(module: ModuleRef, packageName: String): JUnitRunConfiguration =
-    JUnitRunConfiguration(module, None, None, Some(packageName), None)
-
-  def directory(module: ModuleRef, directory: String): JUnitRunConfiguration =
-    JUnitRunConfiguration(module, None, None, None, Some(directory))
-
-  def module(module: ModuleRef): JUnitRunConfiguration =
-    JUnitRunConfiguration(module, None, None, None, None)
-}
-
 final case class ExpandMacroData(
     fileRef: FileRef,
     macroText: String
 )
 
-final case class TestRunConfiguration(
-   module: ModuleRef,
-   directory: Option[String],
-   packageName: Option[String],
-   className: Option[String],
-   methodName: Option[String],
-   name: Option[String]
-)
+sealed abstract class JUnitRunConfiguration(val moduleRef: ModuleRef)
 
-object TestRunConfiguration {
-  def module(module: ModuleRef, runnerNameFragment: Option[String] = None): TestRunConfiguration =
-    TestRunConfiguration(module, None, None, None, None, runnerNameFragment)
+case class ModuleJUnitRunConfiguration(override val moduleRef: ModuleRef)
+  extends JUnitRunConfiguration(moduleRef)
+case class DirectoryJUnitRunConfiguration(override val moduleRef: ModuleRef, directoryName: String)
+  extends JUnitRunConfiguration(moduleRef)
+case class PackageJUnitRunConfiguration(override val moduleRef: ModuleRef, packageName: String)
+  extends JUnitRunConfiguration(moduleRef)
+case class ClassJUnitRunConfiguration(override val moduleRef: ModuleRef, className: String)
+  extends JUnitRunConfiguration(moduleRef)
+case class MethodJUnitRunConfiguration(override val moduleRef: ModuleRef, className: String, testName: String)
+  extends JUnitRunConfiguration(moduleRef)
 
-  def mainPackage(module: ModuleRef, packageName: String, runnerFragmentName: Option[String] = None): TestRunConfiguration =
-    TestRunConfiguration(module, None, Some(packageName), None, None, runnerFragmentName)
+sealed abstract class TestRunConfiguration(val moduleRef: ModuleRef, val runnerNameFragment: Option[String])
 
-  def mainClass(module: ModuleRef, className: String, runnerNameFragment: Option[String] = None): TestRunConfiguration =
-    TestRunConfiguration(module, None, None, Some(className), None, runnerNameFragment)
-
-  def method(module: ModuleRef, className: String, methodName: String, runnerNameFragment: Option[String] = None): TestRunConfiguration =
-    TestRunConfiguration(module, None, None, Some(className), Some(methodName), runnerNameFragment)
-
-  def directory(module: ModuleRef, directory: String, runnerNameFragment: Option[String] = None): TestRunConfiguration =
-    TestRunConfiguration(module, Some(directory), None, None, None, runnerNameFragment)
-}
+case class ModuleTestRunConfiguration(override val moduleRef: ModuleRef, override val runnerNameFragment: Option[String])
+  extends TestRunConfiguration(moduleRef, runnerNameFragment)
+case class DirectoryTestRunConfiguration(override val moduleRef: ModuleRef, directoryName: String, override val runnerNameFragment: Option[String])
+  extends TestRunConfiguration(moduleRef, runnerNameFragment)
+case class PackageTestRunConfiguration(override val moduleRef: ModuleRef, packageName: String, override val runnerNameFragment: Option[String])
+  extends TestRunConfiguration(moduleRef, runnerNameFragment)
+case class ClassTestRunConfiguration(override val moduleRef: ModuleRef, className: String, override val runnerNameFragment: Option[String])
+  extends TestRunConfiguration(moduleRef, runnerNameFragment)
+case class MethodTestRunConfiguration(override val moduleRef: ModuleRef, className: String, methodName: String, override val runnerNameFragment: Option[String])
+  extends TestRunConfiguration(moduleRef, runnerNameFragment)
