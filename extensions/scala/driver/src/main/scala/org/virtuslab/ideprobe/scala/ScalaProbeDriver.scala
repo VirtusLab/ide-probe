@@ -3,7 +3,7 @@ package org.virtuslab.ideprobe.scala
 import java.nio.file.Path
 
 import org.virtuslab.ideprobe.ProbeDriver
-import org.virtuslab.ideprobe.protocol.{ProjectRef, ScalaTestRunConfiguration, TestsRunResult}
+import org.virtuslab.ideprobe.protocol.{ProjectRef, TestsRunResult}
 import org.virtuslab.ideprobe.scala.protocol._
 
 object ScalaProbeDriver {

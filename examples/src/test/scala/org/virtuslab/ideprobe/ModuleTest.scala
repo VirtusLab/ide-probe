@@ -8,7 +8,7 @@ import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.protocol.{ModuleRef, Setting, TestRunConfiguration}
 import org.virtuslab.ideprobe.robot.RobotPluginExtension
 import org.virtuslab.ideprobe.scala.ScalaPluginExtension
-import org.virtuslab.ideprobe.scala.protocol.SbtProjectSettingsChangeRequest
+import org.virtuslab.ideprobe.scala.protocol.{SbtProjectSettingsChangeRequest, ScalaTestClassRunConfiguration, ScalaTestMethodRunConfiguration, ScalaTestModuleRunConfiguration, ScalaTestPackageRunConfiguration}
 
 class ModuleTest extends IdeProbeFixture with ScalaPluginExtension with RobotPluginExtension {
   @Test
@@ -39,12 +39,16 @@ class ModuleTest extends IdeProbeFixture with ScalaPluginExtension with RobotPlu
     useSbtShell(intelliJ)
 
     val moduleName = intelliJ.config[String]("test.module")
+    val packageName = intelliJ.config[String]("test.package")
     val className = intelliJ.config[String]("test.class")
+    val methodName = intelliJ.config[String]("test.method")
     val moduleRef = ModuleRef(moduleName)
 
     val runConfigurations = List(
-      ScalaTestRunConfiguration.module(moduleRef),
-      ScalaTestRunConfiguration.className(moduleRef, className),
+      ScalaTestModuleRunConfiguration(moduleRef),
+      ScalaTestPackageRunConfiguration(moduleRef, packageName),
+      ScalaTestClassRunConfiguration(moduleRef, className),
+      ScalaTestMethodRunConfiguration(moduleRef, className, methodName)
     )
 
     runConfigurations.map(intelliJ.probe.run(_)).foreach { result =>
