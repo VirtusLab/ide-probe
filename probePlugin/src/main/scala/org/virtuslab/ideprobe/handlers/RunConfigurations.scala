@@ -29,24 +29,25 @@ import scala.collection.convert.ImplicitConversions.`collection AsScalaIterable`
 import scala.concurrent.ExecutionContext
 
 object RunConfigurations extends IntelliJApi {
-  def execute(runConfiguration: TestRunConfiguration)(implicit ec: ExecutionContext): TestsRunResult =
+  def execute(testRunnerMatch: TestRunConfigurationMatch)(implicit ec: ExecutionContext): TestsRunResult =
     BackgroundTasks.withAwaitNone {
+      val TestRunConfigurationMatch(runConfiguration, runnerNameFragment) = testRunnerMatch
       val project = Projects.resolve(ProjectRef.Default)
-      val module = Modules.resolve(runConfiguration.moduleRef)
+      val module = Modules.resolve(runConfiguration.module)
 
       val dataContext = new MapDataContext
       dataContext.put(CommonDataKeys.PROJECT, project)
       dataContext.put(LangDataKeys.MODULE, module)
 
       val psiElement: PsiElement = runConfiguration match {
-        case ModuleTestRunConfiguration(_, _) => {
+        case TestRunConfiguration.Module(_) => {
           val moduleVirtualFile = ModuleRootManager.getInstance(module).getContentRoots.head
           val psiDirectory = read {
             PsiManager.getInstance(project).findDirectory(moduleVirtualFile)
           }
           Option(psiDirectory).getOrElse(error(s"Directory of module ${module.getName} not found"))
         }
-        case DirectoryTestRunConfiguration(_, directoryName, _) => {
+        case TestRunConfiguration.Directory(_, directoryName) => {
           val moduleContentRoots = ModuleRootManager.getInstance(module).getContentRoots.head
           val dirPath = Paths.get(moduleContentRoots.getPath, directoryName.replace(".", "/"))
           val dirVirtualFile = VirtualFileManager.getInstance().findFileByNioPath(dirPath)
@@ -55,14 +56,14 @@ object RunConfigurations extends IntelliJApi {
           }
           Option(psiDirectory).getOrElse(error(s"Directory $directoryName not found"))
         }
-        case PackageTestRunConfiguration(_, packageName, _) => {
+        case TestRunConfiguration.Package(_, packageName) => {
           val psiPackage = new PsiPackageImpl(PsiManager.getInstance(project), packageName)
           Option(psiPackage).getOrElse(error(s"Package $packageName not found"))
         }
-        case ClassTestRunConfiguration(_, className, _) => {
+        case TestRunConfiguration.Class(_, className) => {
           Option(findPsiClass(className, module)).getOrElse(error(s"Class $className not found"))
         }
-        case MethodTestRunConfiguration(_, className, methodName, _) => {
+        case TestRunConfiguration.Method(_, className, methodName) => {
           val psiClass = findPsiClass(className, module)
           val psiMethods = read {
             psiClass.getMethods
@@ -89,7 +90,7 @@ object RunConfigurations extends IntelliJApi {
       val configurations = read {
         configurationContext.getConfigurationsFromContext
       }
-      val producer = runConfiguration.runnerNameFragment match {
+      val producer = runnerNameFragment match {
         case Some(fragment) =>
           configurations
             .find(_.toString contains fragment)
@@ -117,27 +118,27 @@ object RunConfigurations extends IntelliJApi {
     read { JavaPsiFacade.getInstance(module.getProject).findClass(qualifiedName, scope) }
   }
 
-  def execute(runConfiguration: JUnitRunConfiguration)(implicit ec: ExecutionContext): TestsRunResult = {
-    val module = Modules.resolve(runConfiguration.moduleRef)
+  def execute(runConfiguration: TestRunConfiguration)(implicit ec: ExecutionContext): TestsRunResult = {
+    val module = Modules.resolve(runConfiguration.module)
     val project = module.getProject
 
     val configuration = new JUnitConfiguration(UUID.randomUUID().toString, project)
     configuration.setModule(module)
     val data = configuration.getPersistentData
     runConfiguration match {
-      case ModuleJUnitRunConfiguration(_) =>
+      case TestRunConfiguration.Module(_) =>
         data.PACKAGE_NAME = ""
         data.TEST_OBJECT = JUnitConfiguration.TEST_PACKAGE
-      case DirectoryJUnitRunConfiguration(_, directoryName) =>
+      case TestRunConfiguration.Directory(_, directoryName) =>
         data.setDirName(directoryName)
         data.TEST_OBJECT = JUnitConfiguration.TEST_DIRECTORY
-      case PackageJUnitRunConfiguration(_, packageName) =>
+      case TestRunConfiguration.Package(_, packageName) =>
         data.PACKAGE_NAME = packageName
         data.TEST_OBJECT = JUnitConfiguration.TEST_PACKAGE
-      case ClassJUnitRunConfiguration(_, className) =>
+      case TestRunConfiguration.Class(_, className) =>
         data.MAIN_CLASS_NAME = className
         data.TEST_OBJECT = JUnitConfiguration.TEST_CLASS
-      case MethodJUnitRunConfiguration(_, className, methodName) =>
+      case TestRunConfiguration.Method(_, className, methodName) =>
         data.METHOD_NAME = methodName
         data.MAIN_CLASS_NAME = className
         data.TEST_OBJECT = JUnitConfiguration.TEST_METHOD

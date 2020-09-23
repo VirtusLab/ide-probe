@@ -189,10 +189,12 @@ class ProbeDriver(
   def freezes: Seq[Freeze] = send(Endpoints.Freezes)
 
   /**
-   * Runs the specified test configuration with a test runner containing provided string
-   * or with the first available runner when the string is not present
+   * Runs the specified test configuration with a test runner containing provided runnerNameFragment
+   * or with the first available runner when the runnerNameFragment is not present
    */
-  def run(runConfiguration: TestRunConfiguration): TestsRunResult = send(Endpoints.RunTest, runConfiguration)
+  def run(runConfiguration: TestRunConfiguration, runnerNameFragment: Option[String]): TestsRunResult = {
+    send(Endpoints.RunTest, TestRunConfigurationMatch(runConfiguration, runnerNameFragment))
+  }
 
   /**
    * Runs the specified application configuration
@@ -202,7 +204,7 @@ class ProbeDriver(
   /**
    * Runs the specified JUnit configuration
    */
-  def run(runConfiguration: JUnitRunConfiguration): TestsRunResult = send(Endpoints.RunJUnit, runConfiguration)
+  def run(runConfiguration: TestRunConfiguration): TestsRunResult = send(Endpoints.RunJUnit, runConfiguration)
 
   /**
    * Saves the current view of the IDE alongside the automatically captured screenshots

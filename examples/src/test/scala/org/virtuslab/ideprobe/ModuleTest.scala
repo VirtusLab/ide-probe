@@ -26,14 +26,14 @@ class ModuleTest extends IdeProbeFixture with ScalaPluginExtension with RobotPlu
     val moduleRef = ModuleRef(moduleName)
 
     val runConfigurations = List(
-      ModuleTestRunConfiguration(moduleRef, None),
-      DirectoryTestRunConfiguration(moduleRef, directoryName, None),
-      PackageTestRunConfiguration(moduleRef, packageName, None),
-      ClassTestRunConfiguration(moduleRef, className, None),
-      MethodTestRunConfiguration(moduleRef, className, methodName, None)
+      TestRunConfiguration.Module(moduleRef),
+      TestRunConfiguration.Directory(moduleRef, directoryName),
+      TestRunConfiguration.Package(moduleRef, packageName),
+      TestRunConfiguration.Class(moduleRef, className),
+      TestRunConfiguration.Method(moduleRef, className, methodName)
     )
 
-    runConfigurations.map(intelliJ.probe.run).foreach { result =>
+    runConfigurations.map(intelliJ.probe.run(_, None)).foreach { result =>
       Assert.assertTrue(s"Test result $result should not be empty", result.suites.nonEmpty)
     }
   }
@@ -94,8 +94,8 @@ class ModuleTest extends IdeProbeFixture with ScalaPluginExtension with RobotPlu
     val modulesFromConfig = intelliJ.config[Seq[String]]("modules.test")
     val runnerNameFragmentOpt = intelliJ.config.get[String]("runner")
     val moduleRefs = modulesFromConfig.map(ModuleRef(_))
-    val runConfigs = moduleRefs.map(moduleRef => ModuleTestRunConfiguration(moduleRef, runnerNameFragmentOpt))
-    runConfigs.map(config => config.moduleRef -> intelliJ.probe.run(config)).foreach {
+    val runConfigs = moduleRefs.map(moduleRef => TestRunConfiguration.Module(moduleRef))
+    runConfigs.map(config => config.module -> intelliJ.probe.run(config, runnerNameFragmentOpt)).foreach {
       case (module, result) => Assert.assertTrue(s"Tests in module $module failed", result.isSuccess)
     }
   }
