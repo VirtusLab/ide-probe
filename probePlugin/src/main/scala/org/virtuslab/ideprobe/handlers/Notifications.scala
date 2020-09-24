@@ -19,7 +19,7 @@ object Notifications extends IntelliJApi {
         new NotificationListener {
           override def notify(notification: Notification): Unit = {
             if (notification.getTitle == id) {
-              result.success(new IdeNotification(notification.getType.name()))
+              result.trySuccess(new IdeNotification(notification.getType.name()))
             }
           }
         }
