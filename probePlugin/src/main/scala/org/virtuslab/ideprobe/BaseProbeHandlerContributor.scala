@@ -11,8 +11,9 @@ class BaseProbeHandlerContributor extends ProbeHandlerContributor {
 
   override def registerHandlers(handler: ProbeHandler): ProbeHandler = {
     handler
-      .on(Endpoints.PreconfigureJDK)(_ => JDK.preconfigure())
+      .on(Endpoints.PreconfigureJdk)(_ => JDK.preconfigure())
       .on(Endpoints.PID)(_ => App.pid)
+      .on(Endpoints.SystemProperties)(_ => App.systemProperties)
       .on(Endpoints.Ping)(_ => ())
       .on(Endpoints.Plugins)(_ => Plugins.list)
       .on(Endpoints.Shutdown)(_ => App.shutdown())

@@ -2,7 +2,6 @@ package org.virtuslab.ideprobe
 
 import java.net.URL
 import java.nio.charset.Charset
-
 import com.intellij.remoterobot.utils.WaitForConditionTimeoutException
 import org.apache.commons.io.IOUtils
 import org.junit.Assert._
@@ -23,7 +22,7 @@ import org.virtuslab.ideprobe.protocol.ProjectRef
 import org.virtuslab.ideprobe.protocol.TestStatus
 import org.virtuslab.ideprobe.protocol.TestStatus.Passed
 import org.virtuslab.ideprobe.protocol.VcsRoot
-
+import org.virtuslab.ideprobe.robot.RobotPluginExtension
 import scala.annotation.tailrec
 import scala.concurrent.duration._
 import scala.util.Failure
@@ -31,14 +30,14 @@ import scala.util.Success
 import scala.util.Try
 
 @RunWith(classOf[JUnit4])
-final class ProbeDriverTest extends IdeProbeFixture with Assertions {
+final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPluginExtension {
   private val scalaPlugin = Plugin("org.intellij.scala", "2020.2.584", Some("nightly"))
   private val probeTestPlugin = ProbeTestPlugin.bundled
 
   private val fixture = IntelliJFixture(
     version = IntelliJVersion.Latest,
     plugins = List(scalaPlugin, probeTestPlugin)
-  )
+  ).enableExtensions
 
   @Test
   def listsPlugins(): Unit = fixture.run { intelliJ =>
@@ -64,7 +63,7 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions {
       .run { intelliJ =>
         val expectedProjectName = "empty-project"
         val projectPath = intelliJ.workspace.resolve(expectedProjectName)
-        val actualProjectRef = intelliJ.probe.openProject(projectPath)
+        val actualProjectRef = intelliJ.probe.withRobot.openProject(projectPath)
         assertEquals(ProjectRef(expectedProjectName), actualProjectRef)
       }
 
@@ -102,7 +101,7 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions {
         val projectDir = workspace.path.resolve("empty-project")
         Shell.run(in = projectDir, "git", "init")
         workspace.runIntellij { intelliJ =>
-          intelliJ.probe.openProject(projectDir)
+          intelliJ.probe.withRobot.openProject(projectDir)
           val vcsRoots = intelliJ.probe.vcsRoots()
           assertEquals(Seq(VcsRoot("Git", projectDir)), vcsRoots)
         }
@@ -112,7 +111,7 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions {
   @Test
   def expandsMacro(): Unit =
     fixture.copy(workspaceProvider = WorkspaceTemplate.FromResource("gradle-project")).run { intelliJ =>
-      val projectRef = intelliJ.probe.openProject(intelliJ.workspace)
+      val projectRef = intelliJ.probe.withRobot.openProject(intelliJ.workspace)
       val fileExtension =
         intelliJ.probe
           .expandMacro("$FileExt$", FileRef(intelliJ.workspace.resolve("build.gradle"), projectRef))
@@ -125,7 +124,7 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions {
       val projectDir = intelliJ.workspace.resolve("build.gradle")
       val src = intelliJ.workspace.resolve("src")
 
-      intelliJ.probe.openProject(projectDir)
+      intelliJ.probe.withRobot.openProject(projectDir)
 
       val model = intelliJ.probe.projectModel()
       val mainModule = model.modules.find(_.name == "foo.main").get
@@ -142,7 +141,7 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions {
   def listsModuleDependencies(): Unit = {
     fixture.copy(workspaceProvider = WorkspaceTemplate.FromResource("gradle-project")).run { intelliJ =>
       val projectDir = intelliJ.workspace.resolve("build.gradle")
-      val p = intelliJ.probe.openProject(projectDir)
+      val p = intelliJ.probe.withRobot.openProject(projectDir)
 
       val testModule = intelliJ.probe.projectModel().modules.find(_.name == "foo.test").get
       assertEquals(Set(ModuleRef("foo.main", p)), testModule.dependencies)
@@ -156,7 +155,7 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions {
       .run { intelliJ =>
         val projectDir = intelliJ.workspace.resolve("simple-sbt-project")
 
-        intelliJ.probe.openProject(projectDir)
+        intelliJ.probe.withRobot.openProject(projectDir)
 
         val successfulResult = intelliJ.probe.build()
         assertEquals(successfulResult.errors, Nil)
@@ -177,7 +176,7 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions {
   def buildFilesTest(): Unit = {
     buildTestFixture.run { intelliJ =>
       val projectDir = intelliJ.workspace.resolve("simple-sbt-project")
-      val project = intelliJ.probe.openProject(projectDir)
+      val project = intelliJ.probe.withRobot.openProject(projectDir)
 
       val compilingFile = projectDir.resolve("src/main/scala/Main.scala")
       val nonCompilingFile = projectDir.resolve("src/main/scala/Incorrect.scala")
@@ -199,7 +198,7 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions {
       .run { intelliJ =>
         val projectDir = intelliJ.workspace.resolve("simple-sbt-project")
 
-        intelliJ.probe.openProject(projectDir)
+        intelliJ.probe.withRobot.openProject(projectDir)
 
         intelliJ.probe.build()
         val configuration = JUnitRunConfiguration.module(ModuleRef("simple-sbt-project"))
@@ -255,13 +254,13 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions {
   @Test
   def robotTest(): Unit = fixture.run { intelliJ =>
     val version = fixture.version.release.getOrElse(fixture.version.build.stripSuffix("-SNAPSHOT").stripSuffix("-EAP"))
-    val welcomeFrame = intelliJ.probe.robot.find(query.className("FlatWelcomeFrame"))
+    val welcomeFrame = intelliJ.probe.withRobot.find(query.className("FlatWelcomeFrame"))
     val windowText = welcomeFrame.fullText
     assertTrue(s"Window content: '$windowText' did not contain '$version'", windowText.contains(version))
 
     val newProjectDialog = retry(3) {
       welcomeFrame.actionLink("New Project").click()
-      intelliJ.probe.robot.find(query.dialog("New Project"))
+      intelliJ.probe.withRobot.find(query.dialog("New Project"))
     }
     val dialogContent = newProjectDialog.fullText
 

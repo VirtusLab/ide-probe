@@ -12,7 +12,7 @@ import scala.concurrent.duration.Duration
 object Endpoints {
 
   // commands
-  val PreconfigureJDK = Request[Unit, Unit]("jdk/preconfigure")
+  val PreconfigureJdk = Request[Unit, Unit]("jdk/preconfigure")
   val AwaitIdle = Request[Unit, Unit]("awaitIdle")
   val AwaitNotification = Request[(String, Duration), IdeNotification]("notification/await")
   val Build = Request[BuildParams, BuildResult]("build")
@@ -36,6 +36,7 @@ object Endpoints {
   val Messages = Request[Unit, Seq[IdeMessage]]("messages")
   val ModuleSdk = Request[ModuleRef, Option[Sdk]]("module/sdk")
   val PID = Request[Unit, Long]("pid")
+  val SystemProperties = Request[Unit, Map[String, String]]("systemProperties")
   val Ping = Request[Unit, Unit]("ping")
   val Plugins = Request[Unit, Seq[InstalledPlugin]]("plugins")
   val ProjectSdk = Request[ProjectRef, Option[Sdk]]("project/sdk")

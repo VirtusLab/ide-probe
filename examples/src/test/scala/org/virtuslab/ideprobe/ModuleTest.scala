@@ -1,17 +1,16 @@
 package org.virtuslab.ideprobe
 
 import java.nio.file.Files
-
 import org.junit.Assert
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.protocol.{ModuleRef, Setting, TestRunConfiguration}
+import org.virtuslab.ideprobe.robot.RobotPluginExtension
 import org.virtuslab.ideprobe.scala.ScalaPluginExtension
 import org.virtuslab.ideprobe.scala.protocol.SbtProjectSettingsChangeRequest
 
-
-class ModuleTest extends IdeProbeFixture with ScalaPluginExtension {
+class ModuleTest extends IdeProbeFixture with ScalaPluginExtension with RobotPluginExtension {
   @ParameterizedTest
   @ValueSource(
     strings = Array(
@@ -22,7 +21,7 @@ class ModuleTest extends IdeProbeFixture with ScalaPluginExtension {
   )
   def verifyModulesPresent(configName: String): Unit = fixtureFromConfig(configName).run { intelliJ =>
     deleteIdeaSettings(intelliJ)
-    intelliJ.probe.openProject(intelliJ.workspace)
+    intelliJ.probe.withRobot.openProject(intelliJ.workspace)
     val project = intelliJ.probe.projectModel()
     val modulesFromConfig = intelliJ.config[Seq[String]]("modules.verify")
     val missingModules = modulesFromConfig.diff(project.moduleNames)
@@ -35,12 +34,12 @@ class ModuleTest extends IdeProbeFixture with ScalaPluginExtension {
     strings = Array(
       "projects/io.conf",
       "projects/librarymanagement.conf",
-      "projects/dokka.conf",
+      "projects/dokka.conf"
     )
   )
   def runTestsInModules(configName: String): Unit = fixtureFromConfig(configName).run { intelliJ =>
     deleteIdeaSettings(intelliJ)
-    intelliJ.probe.openProject(intelliJ.workspace)
+    intelliJ.probe.withRobot.openProject(intelliJ.workspace)
     if (Files.exists(intelliJ.workspace.resolve("build.sbt"))) {
       intelliJ.probe.setSbtProjectSettings(
         SbtProjectSettingsChangeRequest(

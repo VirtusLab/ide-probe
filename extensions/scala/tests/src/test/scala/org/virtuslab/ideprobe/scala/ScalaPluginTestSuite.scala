@@ -1,14 +1,14 @@
-package org.virtuslab.intellij.extensions
+package org.virtuslab.ideprobe.scala
 
-import org.virtuslab.ideprobe.IdeProbeFixture
-import org.virtuslab.ideprobe.Shell
+import org.virtuslab.ideprobe.{IdeProbeFixture, Shell}
 import org.virtuslab.ideprobe.junit4.IdeProbeTestSuite
-import org.virtuslab.ideprobe.scala.ScalaPluginExtension
+import org.virtuslab.ideprobe.robot.RobotPluginExtension
 
 class ScalaPluginTestSuite
-  extends IdeProbeTestSuite
+    extends IdeProbeTestSuite
     with ScalaPluginExtension
     with BloopExtension
+    with RobotPluginExtension
 
 trait BloopExtension { this: IdeProbeFixture =>
 

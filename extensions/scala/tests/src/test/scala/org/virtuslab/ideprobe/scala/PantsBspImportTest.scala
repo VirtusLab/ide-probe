@@ -1,4 +1,4 @@
-package org.virtuslab.intellij.extensions
+package org.virtuslab.ideprobe.scala
 
 import java.net.URL
 import java.nio.file.Files
@@ -16,7 +16,7 @@ class PantsBspImportTest extends ScalaPluginTestSuite {
     fixtureFromConfig().run { intelliJ =>
       val projectPath = createBspProjectWithFastpass(intelliJ.workspace, "java_app::", "scala_tests::")
 
-      intelliJ.probe.openProject(projectPath)
+      intelliJ.probe.withRobot.openProject(projectPath)
 
       val project = intelliJ.probe.projectModel()
 
@@ -30,13 +30,13 @@ class PantsBspImportTest extends ScalaPluginTestSuite {
     }
   }
 
-
   private def createBspProjectWithFastpass(workspace: Path, targets: String*): Path = {
     val args = Seq(
       "create",
       "--no-bloop-exit",
       "--intellij",
-      "--intellijLauncher", "echo"
+      "--intellijLauncher",
+      "echo"
     ) ++ targets
     Paths.get(runFastpass(workspace, args).out)
   }
@@ -48,8 +48,10 @@ class PantsBspImportTest extends ScalaPluginTestSuite {
       coursierPath.toString,
       "launch",
       s"org.scalameta:fastpass_2.12:$fastpassVersion",
-      "-r", "sonatype:snapshots",
-      "--main", "scala.meta.fastpass.Fastpass",
+      "-r",
+      "sonatype:snapshots",
+      "--main",
+      "scala.meta.fastpass.Fastpass",
       "--"
     ) ++ args
     Shell.run(workspace, command: _*)

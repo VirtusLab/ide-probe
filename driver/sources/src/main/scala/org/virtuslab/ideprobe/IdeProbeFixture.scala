@@ -1,11 +1,10 @@
 package org.virtuslab.ideprobe
 
 import java.util.concurrent.Executors
-
 import scala.concurrent.ExecutionContext
 import scala.util.Try
 
-trait IdeProbeFixture extends RobotExtensions {
+trait IdeProbeFixture {
   protected implicit val ec: ExecutionContext = ExecutionContext.fromExecutorService(Executors.newCachedThreadPool())
 
   protected var fixtureTransformers: Seq[IntelliJFixture => IntelliJFixture] = Nil
@@ -38,6 +37,10 @@ trait IdeProbeFixture extends RobotExtensions {
 
   protected def transformFixture(fixture: IntelliJFixture): IntelliJFixture = {
     fixtureTransformers.foldLeft(fixture)((fixture, transformer) => transformer(fixture))
+  }
+
+  implicit class IntelliJFixtureOps(fixture: IntelliJFixture) {
+    def enableExtensions: IntelliJFixture = transformFixture(fixture)
   }
 
 }

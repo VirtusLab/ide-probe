@@ -1,4 +1,4 @@
-package org.virtuslab.intellij.extensions
+package org.virtuslab.ideprobe.scala
 
 import org.junit.Assert
 import org.junit.Test
@@ -11,7 +11,7 @@ class SbtSettingsTest extends ScalaPluginTestSuite {
   @Test
   def setSbtSettings(): Unit = {
     fixtureFromConfig("SbtProject/ideprobe.conf").run { intelliJ =>
-      intelliJ.probe.openProject(intelliJ.workspace.resolve("root"))
+      intelliJ.probe.withRobot.openProject(intelliJ.workspace.resolve("root"))
 
       intelliJ.probe.setSbtProjectSettings(
         SbtProjectSettingsChangeRequest(

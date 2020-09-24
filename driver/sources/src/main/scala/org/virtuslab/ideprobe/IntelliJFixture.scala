@@ -25,6 +25,11 @@ final case class IntelliJFixture(
     afterIntelliJStartup: Seq[(IntelliJFixture, RunningIntelliJFixture) => Unit] = Nil
 )(implicit ec: ExecutionContext) {
 
+  def withVmOptions(vmOptions: String*): IntelliJFixture = {
+    val newVmOptions = vmOptions ++ factory.config.vmOptions
+    copy(factory = factory.withConfig(factory.config.copy(vmOptions = newVmOptions)))
+  }
+
   def withConfig(entries: (String, String)*): IntelliJFixture = {
     val newConfig = Config.fromMap(entries.toMap).withFallback(config)
     copy(config = newConfig)
