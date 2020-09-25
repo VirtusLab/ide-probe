@@ -5,19 +5,22 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.util.stream.Collectors
 import java.util.stream.{Stream => JStream}
-
 import org.virtuslab.ideprobe.BuildInfo
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.config.DependenciesConfig
 import org.virtuslab.ideprobe.config.DriverConfig
-import org.virtuslab.ideprobe.dependencies.InternalPlugins
-import org.virtuslab.ideprobe.dependencies.DependencyProvider
-import org.virtuslab.ideprobe.dependencies.IntelliJResolver
-import org.virtuslab.ideprobe.dependencies.IntelliJVersion
-import org.virtuslab.ideprobe.dependencies.Plugin
-import org.virtuslab.ideprobe.dependencies.PluginResolver
-import org.virtuslab.ideprobe.dependencies.Resource
-import org.virtuslab.ideprobe.dependencies.ResourceProvider
+import org.virtuslab.ideprobe.dependencies.{
+  DependencyProvider,
+  IntelliJDependencyProvider,
+  IntelliJVersion,
+  IntelliJZipResolver,
+  InternalPlugins,
+  Plugin,
+  PluginDependencyProvider,
+  PluginResolver,
+  Resource,
+  ResourceProvider
+}
 
 final class IntelliJFactory(dependencies: DependencyProvider, val config: DriverConfig) {
   def withConfig(config: DriverConfig): IntelliJFactory = new IntelliJFactory(dependencies, config)
@@ -63,10 +66,10 @@ final class IntelliJFactory(dependencies: DependencyProvider, val config: Driver
     }
   }
 
-  private def toArchive(resource: Resource): Resource.Archive = {
+  private def toArchive(resource: Path): Resource.Archive = {
     resource match {
       case Resource.Archive(archive) => archive
-      case _ => throw new IllegalStateException(s"Not an archive: $resource")
+      case _                         => throw new IllegalStateException(s"Not an archive: $resource")
     }
   }
 
@@ -82,15 +85,20 @@ final class IntelliJFactory(dependencies: DependencyProvider, val config: Driver
 object IntelliJFactory {
   val Default =
     new IntelliJFactory(
-      new DependencyProvider(IntelliJResolver.Official, PluginResolver.Official, ResourceProvider.Default),
+      new DependencyProvider(
+        new IntelliJDependencyProvider(IntelliJZipResolver.Community, ResourceProvider.Default),
+        new PluginDependencyProvider(PluginResolver.Official, ResourceProvider.Default)
+      ),
       DriverConfig()
     )
 
   def from(resolversConfig: DependenciesConfig.Resolvers, driverConfig: DriverConfig): IntelliJFactory = {
-    val intelliJResolver = IntelliJResolver.from(resolversConfig.intellij)
+    val intelliJResolver = IntelliJZipResolver.from(resolversConfig.intellij)
     val pluginResolver = PluginResolver.from(resolversConfig.plugins)
     val resourceProvider = ResourceProvider.from(resolversConfig.resourceProvider)
-    val dependencyProvider = new DependencyProvider(intelliJResolver, pluginResolver, resourceProvider)
+    val intelliJDependencyProvider = new IntelliJDependencyProvider(intelliJResolver, resourceProvider)
+    val pluginDependencyProvider = new PluginDependencyProvider(pluginResolver, resourceProvider)
+    val dependencyProvider = new DependencyProvider(intelliJDependencyProvider, pluginDependencyProvider)
     new IntelliJFactory(dependencyProvider, driverConfig)
   }
 }

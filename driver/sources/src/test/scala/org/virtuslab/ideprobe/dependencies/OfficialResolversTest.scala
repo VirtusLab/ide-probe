@@ -10,7 +10,7 @@ import org.junit.runners.JUnit4
 final class OfficialResolversTest {
   @Test
   def resolvesImplicitSnapshot(): Unit = {
-    val repo = IntelliJResolver.Official
+    val repo = IntelliJZipResolver.Community
     val version = IntelliJVersion("202.6397.20", None)
 
     val artifact = repo.resolve(version).asInstanceOf[Dependency.Artifact]
@@ -21,7 +21,7 @@ final class OfficialResolversTest {
   @Test
   def resolvesBuildToExistingArtifact(): Unit = {
     val version = IntelliJVersion.Latest
-    val uri = IntelliJResolver.Official.resolve(version)
+    val uri = IntelliJZipResolver.Community.resolve(version)
 
     verify(uri)
   }

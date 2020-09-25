@@ -2,8 +2,7 @@ package org.virtuslab.ideprobe.scala
 
 import java.io.File
 import java.io.InputStream
-import java.nio.file.Files
-
+import java.nio.file.{Files, Path}
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.Id
 import org.virtuslab.ideprobe.Shell
@@ -16,13 +15,13 @@ import org.virtuslab.ideprobe.dependencies.SourceRepository
 import org.virtuslab.ideprobe.dependencies.SourceRepository.Git
 
 object ScalaPluginBuilder extends DependencyBuilder(Id("scala")) {
-  def build(repository: SourceRepository, resources: ResourceProvider): Resource =
+  def build(repository: SourceRepository, resources: ResourceProvider): Path =
     repository match {
       case git: Git =>
         val hash = this.hash(git, "HEAD")
         val artifact = git.path.resolveChild(hash)
 
-        resources.get(artifact, provider = () => build(git, resources))
+        resources.get(artifact, provider = build(git, resources))
     }
 
   private def build(repository: Git, resources: ResourceProvider): InputStream = {

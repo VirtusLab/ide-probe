@@ -219,6 +219,7 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
         assertEquals("testB", testB.name)
         testB.status match {
           case TestStatus.Failed(errorMessage) => assertTrue(errorMessage.contains("java.lang.AssertionError"))
+          case _                               => fail()
         }
 
         assertEquals("testC", testC.name)
@@ -227,6 +228,7 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
         assertEquals("testD", testD.name)
         testD.status match {
           case TestStatus.Failed(errorMessage) => assertTrue(errorMessage.contains("java.lang.OutOfMemoryError"))
+          case _                               => fail()
         }
       }
   }

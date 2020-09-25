@@ -21,7 +21,7 @@ class IntelliJResolverTest extends ConfigFormat {
 
   @Test
   def resolvesWithinCustomRepository(): Unit = {
-    val repo = IntelliJResolver.fromMaven(mavenRepo, mavenGroup, mavenArtifact)
+    val repo = IntelliJZipResolver.fromMaven(mavenRepo, mavenGroup, mavenArtifact)
 
     val artifactUri = repo.resolve(mavenVersion)
 
@@ -44,7 +44,7 @@ class IntelliJResolverTest extends ConfigFormat {
         |""".stripMargin)
     val intelliJConfig = config[DependenciesConfig.IntelliJ]("probe.resolvers.intellij")
 
-    val repo = IntelliJResolver.from(intelliJConfig)
+    val repo = IntelliJZipResolver.from(intelliJConfig)
     val artifactUri = repo.resolve(mavenVersion)
     assertExists(artifactUri)
   }

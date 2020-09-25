@@ -10,9 +10,9 @@ import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.config.DependenciesConfig
 
 trait ResourceProvider {
-  def get(uri: URI, provider: () => InputStream): Resource
+  def get(uri: URI, provider: => InputStream): Path
 
-  def get(uri: URI): Resource = get(uri, () => uri.toURL.openStream())
+  def get(uri: URI): Path = get(uri, uri.toURL.openStream())
 }
 
 object ResourceProvider {
@@ -23,27 +23,33 @@ object ResourceProvider {
   val Default = new Cached(Paths.get(sys.props("java.io.tmpdir"), "ideprobe", "cache"))
 
   final class Cached(directory: Path) extends ResourceProvider {
-    override def get(uri: URI, provider: () => InputStream): Resource = {
+    override def get(uri: URI, provider: => InputStream): Path = {
       Resource.from(uri) match {
         case Resource.Http(uri) =>
           cacheUri(uri, provider, cached => s"Fetching $uri into $cached")
         case Resource.Jar(uri) =>
           cacheUri(uri, provider, cached => s"Extracting $uri from jar into $cached")
-        case nonCacheable =>
-          nonCacheable
+        case file: Resource.File =>
+          file.path
+        case Resource.Unresolved(path, cause) =>
+          throw new RuntimeException(s"Could not resolve $path due to $cause")
       }
     }
 
-    private def cacheUri(uri: URI, stream: () => InputStream, message: Path => String): Resource.File = {
+    private def cacheUri(
+        uri: URI,
+        stream: => InputStream,
+        message: Path => String
+    ): Path = {
       val cachedResource = cached(uri)
       if (!cachedResource.isFile) {
         println(message(cachedResource))
         Files
           .createTempFile("cached-resource", "-tmp")
-          .append(stream())
+          .append(stream)
           .moveTo(cachedResource)
       }
-      Resource.File(cachedResource)
+      cachedResource
     }
 
     private def cached(uri: URI): Path = {

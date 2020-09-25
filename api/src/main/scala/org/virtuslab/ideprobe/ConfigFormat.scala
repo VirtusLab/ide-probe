@@ -10,7 +10,7 @@ import pureconfig.error.ConfigReaderFailures
 import pureconfig.error.ConvertFailure
 import pureconfig.generic.ProductHint
 import scala.reflect.ClassTag
-import scala.util.Try
+import scala.util.{Success, Try}
 
 // This trait should always be mixed-in to object where we create ConfigReaders
 // so that we use consistent ProductHint that is responsible for prohibiting
@@ -52,6 +52,16 @@ trait ConfigFormat {
           val header = ConvertFailure(CannotConvert("", cls, "None of the below alternatives matched"), cur)
           read.flatMap(errors).foldLeft(ConfigReaderFailures(header))(_ ++ _)
         }
+    }
+
+  def possiblyAmbiguousAdtWriter[Base](
+      writers: ConfigWriter[_]*
+  ): ConfigWriter[Base] =
+    (obj: Base) => {
+      val written = writers.map(writer => Try(writer.asInstanceOf[ConfigWriter[Base]].to(obj)))
+      written.collectFirst { case Success(value) => value }.getOrElse {
+        throw new RuntimeException(s"Missing writer for ${obj.getClass}")
+      }
     }
 
   implicit def hint[T]: ProductHint[T] =
