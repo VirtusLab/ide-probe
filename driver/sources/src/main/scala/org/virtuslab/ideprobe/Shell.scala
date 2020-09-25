@@ -1,26 +1,48 @@
 package org.virtuslab.ideprobe
 
-import java.nio.Buffer
-import java.nio.ByteBuffer
+import com.zaxxer.nuprocess.{NuAbstractProcessHandler, NuProcess, NuProcessBuilder, NuProcessHandler}
 import java.nio.channels.Channels
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
-
-import com.zaxxer.nuprocess.NuAbstractProcessHandler
-import com.zaxxer.nuprocess.NuProcess
-import com.zaxxer.nuprocess.NuProcessHandler
-
-import scala.concurrent.Await
-import scala.concurrent.Future
-import scala.concurrent.Promise
+import java.nio.{Buffer, ByteBuffer}
 import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future, Promise}
 
-object Shell {
-  case class CommandResult(outSafe: String, err: String, exitCode: Int) {
-    def out: String = {
-      if (exitCode != 0) throw new RuntimeException(s"Command failed with exit code $exitCode") else outSafe
-    }
+object Shell extends BaseShell
+
+case class CommandResult(outSafe: String, err: String, exitCode: Int) {
+  def isSuccess: Boolean = exitCode == 0
+
+  def out: String = {
+    ok()
+    outSafe
   }
+
+  def ok(): Unit = {
+    if (!isSuccess) throw new RuntimeException(s"Command failed with exit code $exitCode")
+  }
+}
+
+class ShellInDirectory(in: Path, shell: BaseShell) {
+  def async(command: Seq[String]): Future[CommandResult] = {
+    shell.async(in, Map.empty[String, String], command)
+  }
+
+  def async(env: Map[String, String], command: Seq[String]): Future[CommandResult] = {
+    shell.async(in, env, command)
+  }
+
+  def run(command: String*): CommandResult = {
+    shell.run(in, command: _*)
+  }
+
+  def run(env: Map[String, String], command: String*): CommandResult = {
+    shell.run(in, env, command: _*)
+  }
+}
+
+class BaseShell {
+  def in(workingDirectory: Path): ShellInDirectory = new ShellInDirectory(workingDirectory, this)
 
   class ProcessOutputLogger extends NuAbstractProcessHandler {
     private val outputChannel = Channels.newChannel(System.out)
@@ -70,23 +92,18 @@ object Shell {
     override def onStart(nuProcess: NuProcess): Unit = handlers.foreach(_.onStart(nuProcess))
 
     override def onExit(statusCode: Int): Unit = handlers.foreach(_.onExit(statusCode))
-  }
 
-  def async(command: String*): Future[CommandResult] = {
-    async(in = null, command)
-  }
-
-  def async(in: Path, command: Seq[String]): Future[CommandResult] = {
-    async(in, Map.empty[String, String], command)
+    override def onStdinReady(buffer: ByteBuffer): Boolean = handlers.exists(_.onStdinReady(buffer))
   }
 
   def async(in: Path, env: Map[String, String], command: Seq[String]): Future[CommandResult] = {
     val location = if (in == null) "" else s" (in $in)"
-    println(s"Executing command$location: ${command.mkString(" ")}")
+    println(s"Executing command$location:\n$$ ${command.mkString(" ")}")
 
     import com.zaxxer.nuprocess._
     val builder = new NuProcessBuilder(command: _*)
     builder.setCwd(in)
+    customizeBuilder(builder)
     env.foreach(e => builder.environment().put(e._1, e._2))
     val finished = Promise[CommandResult]()
     val outputCollector = new ProcessOutputCollector
@@ -101,6 +118,14 @@ object Shell {
     finished.future
   }
 
+  def async(command: String*): Future[CommandResult] = {
+    async(in = null, command)
+  }
+
+  def async(in: Path, command: Seq[String]): Future[CommandResult] = {
+    async(in, Map.empty[String, String], command)
+  }
+
   def run(command: String*): CommandResult = {
     run(in = null, command: _*)
   }
@@ -112,4 +137,6 @@ object Shell {
   def run(in: Path, env: Map[String, String], command: String*): CommandResult = {
     Await.result(async(in, env, command), Duration.Inf)
   }
+
+  protected def customizeBuilder(builder: NuProcessBuilder): Unit = ()
 }

@@ -4,11 +4,9 @@ import java.net.URL
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
-
 import org.junit.Assert
 import org.junit.Test
-import org.virtuslab.ideprobe.Shell
-import org.virtuslab.ideprobe.Shell.CommandResult
+import org.virtuslab.ideprobe.{CommandResult, Shell}
 
 class PantsBspImportTest extends ScalaPluginTestSuite {
 

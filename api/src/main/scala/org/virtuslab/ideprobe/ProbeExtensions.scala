@@ -17,6 +17,7 @@ import java.util.zip.ZipInputStream
 import scala.util.Failure
 import scala.util.Try
 import scala.util.control.NonFatal
+import scala.collection.JavaConverters._
 
 trait ProbeExtensions {
 
@@ -28,6 +29,12 @@ trait ProbeExtensions {
   }
 
   implicit final class PathExtension(path: Path) {
+    def directChildren(): List[Path] = {
+      val stream = Files.list(path)
+      try stream.iterator().asScala.toList
+      finally stream.close()
+    }
+
     def name: String = {
       path.getFileName.toString
     }
@@ -53,7 +60,7 @@ trait ProbeExtensions {
     }
 
     def copyTo(target: Path): Path = {
-      Files.copy(path, target)
+      Files.copy(path, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES)
     }
 
     def moveTo(target: Path): Path = {
@@ -64,6 +71,12 @@ trait ProbeExtensions {
     def write(content: String): Path = {
       path.createParentDirectory()
       Files.write(path, content.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
+    }
+
+    def edit(f: String => String): Path = {
+      val toEdit = content()
+      val edited = f(toEdit)
+      write(edited)
     }
 
     def append(content: InputStream): Path = {
@@ -174,7 +187,7 @@ trait ProbeExtensions {
 object ProbeExtensions {
   private class DeletingVisitor(root: Path) extends SimpleFileVisitor[Path] {
     override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
-      if(!attrs.isDirectory)  Files.delete(file)
+      if (!attrs.isDirectory) Files.delete(file)
       FileVisitResult.CONTINUE
     }
 

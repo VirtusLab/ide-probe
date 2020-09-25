@@ -2,7 +2,6 @@ package org.virtuslab.ideprobe
 
 import java.nio.file.Path
 
-import org.virtuslab.ideprobe.Shell.CommandResult
 import org.virtuslab.ideprobe.ide.intellij.InstalledIntelliJ
 import org.virtuslab.ideprobe.ide.intellij.IntelliJPaths
 import org.virtuslab.ideprobe.reporting.AfterTestChecks

@@ -1,35 +1,30 @@
 package org.virtuslab.ideprobe.dependencies
 
-import java.net.{HttpURLConnection, JarURLConnection, URI}
-import java.nio.file.{FileSystems, Files, Path, Paths}
+import java.net.{HttpURLConnection, URI}
+import java.nio.file.FileSystems
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.zip.ZipInputStream
 
 import org.virtuslab.ideprobe.ConfigFormat
 import org.virtuslab.ideprobe.Extensions._
-import pureconfig.{ConfigCursor, ConfigReader}
+import pureconfig.ConfigReader
 
 import scala.util.control.NonFatal
 
 sealed trait Resource
 
 object Resource extends ConfigFormat {
-  implicit val resourceConfigReader: ConfigReader[Resource] = { cur: ConfigCursor =>
-    cur.asString.map(Resource.from)
-  }
+  implicit val resourceConfigReader: ConfigReader[Resource] = ConfigReader[String].map(from)
 
   def exists(uri: URI): Boolean = from(uri) match {
-    case Jar(uri) => {
-      val jarEntryConn = uri.toURL.openConnection.asInstanceOf[JarURLConnection]
-      val jarFileURL = jarEntryConn.getJarFileURL
-      Files.exists(Paths.get(jarFileURL.toURI.getPath))
-    }
     case File(path) => Files.exists(path)
-    case Http(uri) => {
+    case Http(uri) =>
       val connection = uri.toURL.openConnection()
       connection.connect()
       val responseCode = connection.asInstanceOf[HttpURLConnection].getResponseCode
       responseCode == 200
-    }
     case Unresolved(_, _) => true // can't verify, assume it exists
   }
 
@@ -49,7 +44,8 @@ object Resource extends ConfigFormat {
     case "jar"            => Jar(uri)
     case "http" | "https" => Http(uri)
     case "classpath"      => from(getClass.getResource(uri.getPath).toURI)
-    case scheme           => Unresolved(uri.toString, new IllegalArgumentException(s"Unsupported scheme: $scheme"))
+    case scheme =>
+      Unresolved(uri.toString, new IllegalArgumentException(s"Unsupported scheme: $scheme"))
   }
 
   case class Jar(uri: URI) extends Resource
@@ -72,12 +68,12 @@ object Resource extends ConfigFormat {
   object Archive {
     private val ZipMagicNumber = 0x504b0304
 
-    def unapply(file: File): Option[Archive] = {
+    def unapply(path: Path): Option[Archive] = {
       import java.io.DataInputStream
-      val stream = new DataInputStream(file.path.inputStream)
+      val stream = new DataInputStream(path.inputStream)
       try {
         val magicNumber = stream.readInt()
-        if (magicNumber == ZipMagicNumber) Some(new Archive(file.path))
+        if (magicNumber == ZipMagicNumber) Some(new Archive(path))
         else None
       } catch {
         case NonFatal(_) =>

@@ -23,25 +23,22 @@ object JDK {
       val installationDir = LibraryProvider.DefaultDir.resolve(key.name)
 
       if (installationDir.isDirectory) installationDir
-      else
-        resources.get(uri) match {
-          case Resource.File(path) =>
-            val result = Shell.run(
-              "tar",
-              "xzf",
-              path.toString,
-              "-C",
-              installationDir.createDirectory().toString,
-              "--strip-components=1"
-            )
-            if (result.exitCode != 0) {
-              installationDir.delete()
-              throw new Exception(s"Cannot unpack $key from $path. STDERR: ${result.err}")
-            }
-            installationDir
-          case resource =>
-            throw new Exception(s"Cannot unpack $key from $resource")
+      else {
+        val path = resources.get(uri)
+        val result = Shell.run(
+          "tar",
+          "xzf",
+          path.toString,
+          "-C",
+          installationDir.createDirectory().toString,
+          "--strip-components=1"
+        )
+        if (result.exitCode != 0) {
+          installationDir.delete()
+          throw new Exception(s"Cannot unpack $key from $path. STDERR: ${result.err}")
         }
+        installationDir
+      }
     }
   }
 
