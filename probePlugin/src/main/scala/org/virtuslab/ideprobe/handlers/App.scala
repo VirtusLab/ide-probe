@@ -12,6 +12,8 @@ object App extends IntelliJApi {
     }
   }
 
+  val systemProperties: Map[String, String] = sys.props.toMap
+
   def shutdown(): Unit = {
     application.exit(true, true, false)
   }

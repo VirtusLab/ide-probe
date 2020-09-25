@@ -1,4 +1,4 @@
-package org.virtuslab.intellij.extensions
+package org.virtuslab.ideprobe.scala
 
 import org.junit.Assert
 import org.junit.Test
@@ -16,7 +16,7 @@ final class ScalaImportTest extends ScalaPluginTestSuite {
   @Test
   def importSbtProject(): Unit = {
     fixtureFromConfig(config).run { intellij =>
-      val projectRef = intellij.probe.openProject(intellij.workspace.resolve("root"))
+      val projectRef = intellij.probe.withRobot.openProject(intellij.workspace.resolve("root"))
       val project = intellij.probe.projectModel(projectRef)
       val modules = project.modules.map(_.name).toSet
       val sdk = intellij.probe.projectSdk()
@@ -63,7 +63,7 @@ final class ScalaImportTest extends ScalaPluginTestSuite {
         root.resolve(".idea").delete()
       } // todo find out why it is here
 
-      val projectRef = intellij.probe.openProject(root)
+      val projectRef = intellij.probe.withRobot.openProject(root)
       val project = intellij.probe.projectModel(projectRef)
 
       val workspaceName = root.getFileName.toString

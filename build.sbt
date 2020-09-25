@@ -39,13 +39,7 @@ developers.in(ThisBuild) := List(
 crossScalaVersions := Nil
 sonatypeProfileName := "org.virtuslab"
 
-resolvers.in(ThisBuild) ++= Seq(
-  MavenRepository(
-    "jetbrains-3rd",
-    "https://jetbrains.bintray.com/intellij-third-party-dependencies"
-  ),
-  Resolver.jcenterRepo
-)
+resolvers.in(ThisBuild) += Resolver.jcenterRepo
 
 import IdeaPluginAdapter._
 import IdeaPluginDevelopment.packageArtifactZipFilter
@@ -74,7 +68,7 @@ lazy val ci = project("ci", "ci", publish = false)
 lazy val api = project("api", "api", publish = true)
   .settings(
     libraryDependencies ++= Dependencies.pureConfig,
-    libraryDependencies += Dependencies.gson,
+    libraryDependencies += Dependencies.gson
   )
 
 lazy val driver = module("driver", "driver/sources")
@@ -83,21 +77,34 @@ lazy val driver = module("driver", "driver/sources")
   .usesIdeaPlugin(probePlugin)
   .settings(
     libraryDependencies += Dependencies.nuProcess,
-    libraryDependencies += Dependencies.remoteRobot,
-    libraryDependencies += Dependencies.remoteRobotFixtures,
     buildInfoKeys := Seq[BuildInfoKey](
       version,
       intellijBuild,
       "intellijVersion" -> intellijVersion,
       "robotVersion" -> Dependencies.remoteRobot.revision
     ),
-    buildInfoPackage := "org.virtuslab.ideprobe",
+    buildInfoPackage := "org.virtuslab.ideprobe"
   )
 
-
+lazy val robotDriver = module("robot-driver", "extensions/robot/driver")
+  .dependsOn(driver)
+  .enablePlugins(BuildInfoPlugin)
+  .settings(
+    resolvers += MavenRepository(
+      "jetbrains-3rd",
+      "https://jetbrains.bintray.com/intellij-third-party-dependencies"
+    ),
+    libraryDependencies += Dependencies.remoteRobot,
+    libraryDependencies += Dependencies.remoteRobotFixtures,
+    buildInfoKeys := Seq[BuildInfoKey](
+      "robotVersion" -> Dependencies.remoteRobot.revision
+    ),
+    buildInfoPackage := "org.virtuslab.ideprobe.robot",
+    name := "robot-driver"
+  )
 
 lazy val driverTests = testModule("driver-tests", "driver/tests")
-  .dependsOn(driver, junitDriver, api % "compile->compile;test->test")
+  .dependsOn(junitDriver, robotDriver, api % "compile->compile;test->test")
   .usesIdeaPlugin(driverTestPlugin)
 
 lazy val probePlugin = ideaPluginModule("probe-plugin", "probePlugin", publish = true)
@@ -110,7 +117,7 @@ lazy val driverTestPlugin = ideaPluginModule("probe-test-plugin", "driver/test-p
 lazy val junitDriver = module("junit-driver", "driver/bindings/junit")
   .dependsOn(driver, api % "compile->compile;test->test")
   .settings(
-    libraryDependencies ++= Dependencies.junit,
+    libraryDependencies ++= Dependencies.junit
   )
 
 lazy val scalaProbeApi = project(id = "scala-probe-api", path = "extensions/scala/api", publish = true)
@@ -130,23 +137,21 @@ lazy val scalaProbePlugin =
         file.getName == "scala-probe-plugin.jar"
       },
       intellijPlugins += "org.intellij.scala:2020.2.753:nightly".toPlugin,
-      name := "scala-probe-plugin",
+      name := "scala-probe-plugin"
     )
 
-lazy val scalaProbeDriver = project(id = "scala-probe-driver", path = "extensions/scala/driver", publish = true)
-  .enablePlugins(BuildInfoPlugin)
-  .disableIdeaPluginDevelopment
-  .dependsOn(scalaProbeApi, driver)
-  .usesIdeaPlugin(scalaProbePlugin)
-  .settings(name := "scala-probe-driver")
+lazy val scalaProbeDriver =
+  module(id = "scala-probe-driver", path = "extensions/scala/driver")
+    .dependsOn(scalaProbeApi, driver)
+    .usesIdeaPlugin(scalaProbePlugin)
+    .settings(name := "scala-probe-driver")
 
 lazy val scalaTests = testModule("scala-tests", "extensions/scala/tests")
-  .dependsOn(junitDriver, scalaProbeDriver)
+  .dependsOn(junitDriver, robotDriver, scalaProbeDriver)
   .usesIdeaPlugin(scalaProbePlugin)
 
-
 lazy val examples = testModule("examples", "examples")
-  .dependsOn(driver, scalaProbeDriver)
+  .dependsOn(driver, robotDriver, scalaProbeDriver)
   .settings(libraryDependencies ++= Dependencies.junit5)
 
 val commonSettings = Seq(

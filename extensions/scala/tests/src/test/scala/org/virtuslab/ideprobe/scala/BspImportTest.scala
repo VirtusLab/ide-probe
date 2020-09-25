@@ -1,4 +1,4 @@
-package org.virtuslab.intellij.extensions
+package org.virtuslab.ideprobe.scala
 
 import org.junit.{Assert, Test}
 import org.virtuslab.ideprobe.Config

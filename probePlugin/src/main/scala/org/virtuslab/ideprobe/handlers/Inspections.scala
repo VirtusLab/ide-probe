@@ -30,8 +30,8 @@ object Inspections extends IntelliJApi {
     val descriptors = read { inspection.checkFile(psiFile, InspectionManager.getInstance(project), false) }
 
     def runFixes(
-      descriptor: codeInspection.ProblemDescriptor,
-      predicate: QuickFix[CommonProblemDescriptor] => Boolean = _ => true
+        descriptor: codeInspection.ProblemDescriptor,
+        predicate: QuickFix[CommonProblemDescriptor] => Boolean = _ => true
     ): Unit = {
       val fixes = descriptor.getFixes.toList.asInstanceOf[List[QuickFix[CommonProblemDescriptor]]]
       fixes.filter(predicate).foreach { fix =>
@@ -40,18 +40,22 @@ object Inspections extends IntelliJApi {
     }
 
     params.runFixes match {
-      case RunFixesSpec.None => ()
-      case RunFixesSpec.All => descriptors.foreach(runFixes(_))
+      case RunFixesSpec.None            => ()
+      case RunFixesSpec.All             => descriptors.foreach(runFixes(_))
       case RunFixesSpec.Specific(fixes) => descriptors.foreach(runFixes(_, fix => fixes.contains(fix.getName)))
     }
 
     InspectionRunResult(
-      descriptors.map(desc => ProblemDescriptor(
-        desc.getDescriptionTemplate,
-        desc.getLineNumber,
-        desc.getPsiElement.getText,
-        desc.getFixes.map(_.getName)
-      ))
+      descriptors.map(desc =>
+        read {
+          ProblemDescriptor(
+            desc.getDescriptionTemplate,
+            desc.getLineNumber,
+            desc.getPsiElement.getText,
+            desc.getFixes.map(_.getName)
+          )
+        }
+      )
     )
   }
 

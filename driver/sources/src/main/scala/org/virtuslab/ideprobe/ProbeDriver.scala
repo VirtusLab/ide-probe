@@ -1,33 +1,35 @@
 package org.virtuslab.ideprobe
 
 import java.nio.file.Path
-
-import com.intellij.remoterobot.RemoteRobot
-import org.virtuslab.ideprobe.RobotExtensions._
 import org.virtuslab.ideprobe.jsonrpc.JsonRpc.{Handler, Method}
 import org.virtuslab.ideprobe.jsonrpc.{JsonRpcConnection, JsonRpcEndpoint}
 import org.virtuslab.ideprobe.protocol._
-
 import scala.annotation.tailrec
-import scala.concurrent.{Await, ExecutionContext}
 import scala.concurrent.duration._
+import scala.concurrent.{Await, ExecutionContext}
 import scala.language.implicitConversions
 import scala.reflect.ClassTag
-import scala.util.{Failure, Try}
+import scala.util.Failure
 
-final class ProbeDriver(
-  protected val connection: JsonRpcConnection,
-  val robot: RemoteRobot
-)(implicit protected val ec: ExecutionContext) extends JsonRpcEndpoint {
+class ProbeDriver(
+    protected val connection: JsonRpcConnection
+)(implicit protected val ec: ExecutionContext)
+    extends JsonRpcEndpoint {
   protected val handler: Handler = (_, _) => Failure(new Exception("Receiving requests is not supported"))
 
   def pid(): Long = send(Endpoints.PID)
 
+  def systemProperties(): Map[String, String] = send(Endpoints.SystemProperties)
+
   def listOpenProjects(): Seq[ProjectRef] = send(Endpoints.ListOpenProjects)
 
-  def openProjectWithName(path: Path, expectedName: String): ProjectRef = {
+  def openProjectWithName(
+      path: Path,
+      expectedName: String,
+      open: Path => ProjectRef = openProject
+  ): ProjectRef = {
     val expectedRef = ProjectRef(expectedName)
-    val projectRef = openProject(path)
+    val projectRef = open(path)
 
     @tailrec def attempt(attempts: Int): ProjectRef = {
       awaitIdle()
@@ -52,8 +54,12 @@ final class ProbeDriver(
     }
   }
 
-  def openProjectWithModules(path: Path, expectedModules: Set[String]): ProjectRef = {
-    val projectRef = openProject(path)
+  def openProjectWithModules(
+      path: Path,
+      expectedModules: Set[String],
+      open: Path => ProjectRef = openProject
+  ): ProjectRef = {
+    val projectRef = open(path)
     val modules = projectModel(projectRef).modules.map(_.name).toSet
 
     @tailrec def attempt(attempts: Int): ProjectRef = {
@@ -80,7 +86,7 @@ final class ProbeDriver(
     }
   }
 
-  def preconfigureJDK(): Unit = send(Endpoints.PreconfigureJDK)
+  def preconfigureJdk(): Unit = send(Endpoints.PreconfigureJdk)
 
   /**
    * Forces the probe to wait until all background tasks are complete before processing next request
@@ -118,10 +124,7 @@ final class ProbeDriver(
    * Opens specified project
    */
   def openProject(path: Path): ProjectRef = {
-    val ref = send(Endpoints.OpenProject, path)
-    closeTipOfTheDay()
-    checkBuildPanelErrors()
-    ref
+    send(Endpoints.OpenProject, path)
   }
 
   /**
@@ -231,7 +234,11 @@ final class ProbeDriver(
    * Runs inspection given by fully qualified class name on specified file.
    * Optionally it can also run some or all of the quick fixes
    */
-  def runLocalInspection(className: String, targetFile: FileRef, runFixesSpec: RunFixesSpec = RunFixesSpec.None): InspectionRunResult = {
+  def runLocalInspection(
+      className: String,
+      targetFile: FileRef,
+      runFixesSpec: RunFixesSpec = RunFixesSpec.None
+  ): InspectionRunResult = {
     send(Endpoints.RunLocalInspection, InspectionRunParams(className, targetFile, runFixesSpec))
   }
 
@@ -240,24 +247,6 @@ final class ProbeDriver(
    */
   def expandMacro(macroText: String, fileRef: FileRef): String =
     send(Endpoints.ExpandMacro, ExpandMacroData(fileRef, macroText))
-
-  def closeTipOfTheDay(): Unit = {
-    Try(robot.mainWindow.find(query.dialog("Tip of the Day")).button("Close").click())
-  }
-
-  def checkBuildPanelErrors(): Unit = {
-    robot.findOpt(query.className("MultipleBuildsPanel")).foreach { buildPanel =>
-      val tree = buildPanel.find(query.className("Tree"))
-      val treeTexts = tree.fullTexts
-      val hasErrors = treeTexts.contains("failed")
-      if (hasErrors) {
-        val message = buildPanel
-          .find(query.div("accessiblename" -> "Editor", "class" -> "EditorComponentImpl"))
-          .fullText
-        throw new RuntimeException(s"Failed to open project. Output: $message")
-      }
-    }
-  }
 
   def ping(): Unit = send(Endpoints.Ping)
 
@@ -279,9 +268,9 @@ final class ProbeDriver(
 }
 
 object ProbeDriver {
-  def start(connection: JsonRpcConnection, robot: RemoteRobot)(implicit ec: ExecutionContext): ProbeDriver = {
+  def start(connection: JsonRpcConnection)(implicit ec: ExecutionContext): ProbeDriver = {
     import scala.concurrent.Future
-    val driver = new ProbeDriver(connection, robot)
+    val driver = new ProbeDriver(connection)
     Future(driver.listen).onComplete(_ => driver.close())
     driver
   }
