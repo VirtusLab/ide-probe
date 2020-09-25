@@ -2,32 +2,23 @@ package org.virtuslab.ideprobe
 
 import java.net.URL
 import java.nio.charset.Charset
+
 import com.intellij.remoterobot.utils.WaitForConditionTimeoutException
 import org.apache.commons.io.IOUtils
 import org.junit.Assert._
-import org.junit.Ignore
-import org.junit.Test
+import org.junit.{Ignore, Test}
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.dependencies.IntelliJVersion
-import org.virtuslab.ideprobe.dependencies.Plugin
+import org.virtuslab.ideprobe.dependencies.{IntelliJVersion, Plugin}
 import org.virtuslab.ideprobe.jsonrpc.RemoteException
-import org.virtuslab.ideprobe.protocol.BuildScope
-import org.virtuslab.ideprobe.protocol.FileRef
-import org.virtuslab.ideprobe.protocol.InstalledPlugin
-import org.virtuslab.ideprobe.protocol.JUnitRunConfiguration
-import org.virtuslab.ideprobe.protocol.ModuleRef
-import org.virtuslab.ideprobe.protocol.ProjectRef
-import org.virtuslab.ideprobe.protocol.TestStatus
 import org.virtuslab.ideprobe.protocol.TestStatus.Passed
-import org.virtuslab.ideprobe.protocol.VcsRoot
+import org.virtuslab.ideprobe.protocol._
 import org.virtuslab.ideprobe.robot.RobotPluginExtension
+
 import scala.annotation.tailrec
 import scala.concurrent.duration._
-import scala.util.Failure
-import scala.util.Success
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 @RunWith(classOf[JUnit4])
 final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPluginExtension {
@@ -130,8 +121,8 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
       val mainModule = model.modules.find(_.name == "foo.main").get
       val testModule = model.modules.find(_.name == "foo.test").get
 
-      assertEquals(Set(src.resolve("main/java")), mainModule.contentRoots.paths.sources)
-      assertEquals(Set(src.resolve("main/resources")), mainModule.contentRoots.paths.resources)
+      assertEquals(Set(src.resolve("test-configuration-project/java")), mainModule.contentRoots.paths.sources)
+      assertEquals(Set(src.resolve("test-configuration-project/resources")), mainModule.contentRoots.paths.resources)
       assertEquals(Set(src.resolve("test/java")), testModule.contentRoots.paths.testSources)
       assertEquals(Set(src.resolve("test/resources")), testModule.contentRoots.paths.testResources)
     }
@@ -193,7 +184,7 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
 
   @Ignore
   @Test
-  def runTests(): Unit = {
+  def runJUnitTests(): Unit = {
     buildTestFixture
       .run { intelliJ =>
         val projectDir = intelliJ.workspace.resolve("simple-sbt-project")
@@ -201,7 +192,7 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
         intelliJ.probe.withRobot.openProject(projectDir)
 
         intelliJ.probe.build()
-        val configuration = JUnitRunConfiguration.module(ModuleRef("simple-sbt-project"))
+        val configuration = TestRunConfiguration.Module(ModuleRef("simple-sbt-project"))
         val result = intelliJ.probe.run(configuration)
 
         assertFalse(result.isSuccess)
@@ -276,6 +267,38 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
       s"New Project dialog content: '$dialogContent' did not contain '$projectSdk'",
       dialogContent.contains(projectSdk)
     )
+  }
+
+  @Test
+  def runTestsInDifferentScopes(): Unit = IntelliJFixture.fromConfig(Config.fromClasspath("test-configuration-project/ideprobe.conf")).run { intelliJ =>
+    intelliJ.probe.openProject(intelliJ.workspace)
+    val moduleRef = ModuleRef("main")
+
+    val moduleRunConfiguration = TestRunConfiguration.Module(moduleRef)
+    val runResult = intelliJ.probe.run(moduleRunConfiguration, None)
+    assert(runResult.suites.size == 2)
+
+    val directoryName = "src/test/functional/java"
+    val directoryRunConfiguration = TestRunConfiguration.Directory(moduleRef, directoryName)
+    val directoryRunResult = intelliJ.probe.run(directoryRunConfiguration, None)
+    assert(directoryRunResult.suites.size == 1)
+
+    val packageName = "com.example"
+    val packageRunConfiguration = TestRunConfiguration.Package(moduleRef, packageName)
+    val packageRunResult = intelliJ.probe.run(packageRunConfiguration, None)
+    assert(packageRunResult.suites.size == 2)
+
+    val className = "com.example.FunctionalTest"
+    val classRunConfiguration = TestRunConfiguration.Class(moduleRef, className)
+    val classRunResult = intelliJ.probe.run(classRunConfiguration, None)
+    assert(classRunResult.suites.size == 1)
+    assert(classRunResult.suites.head.tests.size == 2)
+
+    val methodName = "functionalTestA"
+    val methodRunConfiguration = TestRunConfiguration.Method(moduleRef, className, methodName)
+    val methodRunResult = intelliJ.probe.run(methodRunConfiguration, None)
+    assert(methodRunResult.suites.size == 1)
+    assert(methodRunResult.suites.head.tests.size == 1)
   }
 
   // temporary for debugging

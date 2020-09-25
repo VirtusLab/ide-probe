@@ -1,4 +1,5 @@
 .idea/
+!driver/tests/src/test/resources/test-configuration-project/main/.idea
 dist/*
 target/
 lib_managed/
