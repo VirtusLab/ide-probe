@@ -1,17 +1,15 @@
 name := "ideprobe"
 
-val scala212 = "2.12.10"
-// don't cross compile with scala 2.13.1 for now because of issues with scala probe modules
 val scala213 = "2.13.1"
 
 skip in publish := true
 
-scalaVersion.in(ThisBuild) := scala212
+scalaVersion.in(ThisBuild) := scala213
 // -EAP-SNAPSHOT suffix results in incorrect url for the intellij scala plugin
 // it is appended automatically for intellij sdk dependency url and manually for the BuildInfo
-intellijBuild.in(ThisBuild) := "202.6948.69"
+intellijBuild.in(ThisBuild) := "203.3645.34"
 // provide intellij version in case of the release version
-val intellijVersion = Some("2020.2.1")
+val intellijVersion = None
 licenses.in(ThisBuild) := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0"))
 organization.in(ThisBuild) := "org.virtuslab.ideprobe"
 homepage.in(ThisBuild) := Some(url("https://github.com/VirtusLab/ide-probe"))
@@ -36,7 +34,6 @@ developers.in(ThisBuild) := List(
   )
 )
 
-crossScalaVersions := Nil
 sonatypeProfileName := "org.virtuslab"
 
 resolvers.in(ThisBuild) += Resolver.jcenterRepo
@@ -56,7 +53,7 @@ lazy val ci = project("ci", "ci", publish = false)
     CI.generateScripts := {
       for {
         (group, projects) <- CI.groupedProjects().value.toList
-        version <- crossScalaVersions.value
+        version <- List(scala213)
       } yield CI.generateTestScript(group, projects, version)
     }
   )
@@ -136,7 +133,7 @@ lazy val scalaProbePlugin =
         // seems to be no way to prevent including probePlugin.jar in the dist reasonable way.
         file.getName == "scala-probe-plugin.jar"
       },
-      intellijPlugins += "org.intellij.scala:2020.2.753:nightly".toPlugin,
+      intellijPlugins += "org.intellij.scala:2020.3.369:nightly".toPlugin,
       name := "scala-probe-plugin"
     )
 

@@ -31,7 +31,7 @@ import scala.util.Try
 
 @RunWith(classOf[JUnit4])
 final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPluginExtension {
-  private val scalaPlugin = Plugin("org.intellij.scala", "2020.2.584", Some("nightly"))
+  private val scalaPlugin = Plugin("org.intellij.scala", "2020.3.369", Some("nightly"))
   private val probeTestPlugin = ProbeTestPlugin.bundled
 
   private val fixture = IntelliJFixture(
@@ -255,13 +255,18 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
 
   @Test
   def robotTest(): Unit = fixture.run { intelliJ =>
-    val version = fixture.version.release.getOrElse(fixture.version.build.stripSuffix("-SNAPSHOT").stripSuffix("-EAP"))
+    val version = fixture.version.inferredMajor
     val welcomeFrame = intelliJ.probe.withRobot.find(query.className("FlatWelcomeFrame"))
     val windowText = welcomeFrame.fullText
     assertTrue(s"Window content: '$windowText' did not contain '$version'", windowText.contains(version))
 
     val newProjectDialog = retry(3) {
-      welcomeFrame.actionLink("New Project").click()
+      Try {
+        welcomeFrame.actionLink("New Project").click()
+      }.getOrElse {
+        // fallback for 2020.3
+        welcomeFrame.find(query.button("selectedicon" -> "createNewProjectTabSelected.svg")).click()
+      }
       intelliJ.probe.withRobot.find(query.dialog("New Project"))
     }
     val dialogContent = newProjectDialog.fullText

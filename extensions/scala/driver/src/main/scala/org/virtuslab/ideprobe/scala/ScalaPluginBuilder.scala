@@ -1,18 +1,12 @@
-package org.virtuslab.ideprobe.scala
+package org.virtuslab.ideprobe
+package scala
 
-import java.io.File
-import java.io.InputStream
+import java.io.{File, InputStream}
 import java.nio.file.{Files, Path}
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.Id
-import org.virtuslab.ideprobe.Shell
-import org.virtuslab.ideprobe.dependencies.DependencyBuilder
-import org.virtuslab.ideprobe.dependencies.JDK
-import org.virtuslab.ideprobe.dependencies.JDK.JDK_1_8
-import org.virtuslab.ideprobe.dependencies.Resource
-import org.virtuslab.ideprobe.dependencies.ResourceProvider
-import org.virtuslab.ideprobe.dependencies.SourceRepository
 import org.virtuslab.ideprobe.dependencies.SourceRepository.Git
+import org.virtuslab.ideprobe.dependencies._
+import _root_.scala.util.Try
 
 object ScalaPluginBuilder extends DependencyBuilder(Id("scala")) {
   def build(repository: SourceRepository, resources: ResourceProvider): Path =
@@ -27,14 +21,26 @@ object ScalaPluginBuilder extends DependencyBuilder(Id("scala")) {
   private def build(repository: Git, resources: ResourceProvider): InputStream = {
     val localRepo = clone(repository)
 
-    val jdk = JDK(JDK_1_8, resources).resolve("bin")
-    val env = Map("PATH" -> (jdk + File.pathSeparator + sys.env("PATH")))
-    val command = List("sbt", "packageArtifactZip")
-    val result = Shell.run(localRepo, env, command: _*)
-    if (result.exitCode != 0) throw new Exception(s"Couldn't build scala plugin. STDERR:\n${result.err}")
-    println("Built scala plugin")
+    Try {
+      runSbtPackageArtifact(resources, localRepo, Jdks.JDK_11)
+    }.getOrElse {
+      runSbtPackageArtifact(resources, localRepo, Jdks.JDK_8)
+    }
 
     localRepo.resolve("target/Scala-0.1.0-SNAPSHOT.zip").inputStream
+  }
+
+  private def runSbtPackageArtifact(
+      resources: ResourceProvider,
+      localRepo: Path,
+      jdk: JdkInstaller
+  ): Unit = {
+    val jdkPath = jdk.install(resources).resolve("bin")
+    val env = Map("PATH" -> (jdkPath + File.pathSeparator + sys.env("PATH")))
+    val command = List("sbt", "packageArtifactZip")
+    val result = Shell.run(localRepo, env, command: _*)
+    if (!result.isSuccess) error(s"Couldn't build scala plugin")
+    println("Built scala plugin")
   }
 
   private def clone(repository: Git) = {

@@ -14,16 +14,16 @@ services:
 os: linux
 dist: trusty
 language: scala
-jdk: openjdk8
+jdk: openjdk11
 scala:
   - 2.13.1
 
 jobs:
   include:
-    - name: test-probe @ scala-2.12
-      script: ci/tests/run probe 2.12.10
-    - name: test-scala @ scala-2.12
-      script: ci/tests/run scala 2.12.10
+    - name: test-probe @ scala-2.13
+      script: ci/tests/run probe 2.13.1
+    - name: test-scala @ scala-2.13
+      script: ci/tests/run scala 2.13.1
     - stage: Release
       name: Release
       script: sbt ci-release

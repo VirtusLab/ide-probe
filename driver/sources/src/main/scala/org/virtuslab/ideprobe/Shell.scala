@@ -107,8 +107,9 @@ class BaseShell {
     env.foreach(e => builder.environment().put(e._1, e._2))
     val finished = Promise[CommandResult]()
     val outputCollector = new ProcessOutputCollector
-    val outputForwarder = new ProcessOutputLogger
-    builder.setProcessListener(new CompositeOutputHandler(Seq(outputCollector, outputForwarder)) {
+    val extraHandlers = customOutputHandlers()
+    val handlers = Seq(outputCollector) ++ extraHandlers
+    builder.setProcessListener(new CompositeOutputHandler(handlers) {
       override def onExit(statusCode: Int): Unit = {
         finished.success(CommandResult(outputCollector.output.trim, outputCollector.error.trim, statusCode))
       }
@@ -136,6 +137,11 @@ class BaseShell {
 
   def run(in: Path, env: Map[String, String], command: String*): CommandResult = {
     Await.result(async(in, env, command), Duration.Inf)
+  }
+
+  protected def customOutputHandlers(): Seq[NuAbstractProcessHandler] = {
+    val outputForwarder = new ProcessOutputLogger
+    Seq(outputForwarder)
   }
 
   protected def customizeBuilder(builder: NuProcessBuilder): Unit = ()
