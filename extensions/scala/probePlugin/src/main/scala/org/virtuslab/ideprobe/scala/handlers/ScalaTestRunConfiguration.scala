@@ -9,12 +9,12 @@ import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTes
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, TestKind}
 import org.virtuslab.ideprobe.handlers.{Modules, RunConfigurationUtil}
 import org.virtuslab.ideprobe.protocol.TestsRunResult
-import org.virtuslab.ideprobe.scala.protocol.{ScalaTestClassRunConfiguration, ScalaTestMethodRunConfiguration, ScalaTestModuleRunConfiguration, ScalaTestPackageRunConfiguration, ScalaTestRunConfiguration}
+import org.virtuslab.ideprobe.scala.protocol.{ScalaTestRunConfiguration => RunConfiguration}
 
 import scala.concurrent.ExecutionContext
 
 object ScalaTestRunConfiguration {
-  def execute(runConfiguration: ScalaTestRunConfiguration)(implicit ec: ExecutionContext): TestsRunResult = {
+  def execute(runConfiguration: RunConfiguration)(implicit ec: ExecutionContext): TestsRunResult = {
     val module = Modules.resolve(runConfiguration.module)
     val project = module.getProject
 
@@ -25,19 +25,19 @@ object ScalaTestRunConfiguration {
     configuration.setModule(module)
 
     runConfiguration match {
-      case ScalaTestModuleRunConfiguration(_) => {
+      case RunConfiguration.Module(_) => {
         configuration.setTestKind(TestKind.ALL_IN_PACKAGE)
         configuration.testConfigurationData = AllInPackageTestData(configuration, "")
       }
-      case ScalaTestPackageRunConfiguration(_, packageName) => {
+      case RunConfiguration.Package(_, packageName) => {
         configuration.setTestKind(TestKind.ALL_IN_PACKAGE)
         configuration.testConfigurationData = AllInPackageTestData(configuration, packageName)
       }
-      case ScalaTestClassRunConfiguration(_, className) => {
+      case RunConfiguration.Class(_, className) => {
         configuration.setTestKind(TestKind.CLAZZ)
         configuration.testConfigurationData = ClassTestData(configuration, className)
       }
-      case ScalaTestMethodRunConfiguration(_, className, methodName) => {
+      case RunConfiguration.Method(_, className, methodName) => {
         configuration.setTestKind(TestKind.TEST_NAME)
         configuration.testConfigurationData = SingleTestData(configuration, className, methodName)
       }

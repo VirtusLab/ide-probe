@@ -5,10 +5,10 @@ import org.junit.{Assert, Test}
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.protocol.{ModuleRef, Setting, TestRunConfiguration}
+import org.virtuslab.ideprobe.protocol.{JUnitRunConfiguration, ModuleRef, Setting, TestRunConfiguration}
 import org.virtuslab.ideprobe.robot.RobotPluginExtension
 import org.virtuslab.ideprobe.scala.ScalaPluginExtension
-import org.virtuslab.ideprobe.scala.protocol.{SbtProjectSettingsChangeRequest, ScalaTestClassRunConfiguration, ScalaTestMethodRunConfiguration, ScalaTestModuleRunConfiguration, ScalaTestPackageRunConfiguration}
+import org.virtuslab.ideprobe.scala.protocol.{SbtProjectSettingsChangeRequest, ScalaTestRunConfiguration}
 
 class ModuleTest extends IdeProbeFixture with ScalaPluginExtension with RobotPluginExtension {
   @Test
@@ -45,10 +45,10 @@ class ModuleTest extends IdeProbeFixture with ScalaPluginExtension with RobotPlu
     val moduleRef = ModuleRef(moduleName)
 
     val runConfigurations = List(
-      ScalaTestModuleRunConfiguration(moduleRef),
-      ScalaTestPackageRunConfiguration(moduleRef, packageName),
-      ScalaTestClassRunConfiguration(moduleRef, className),
-      ScalaTestMethodRunConfiguration(moduleRef, className, methodName)
+      ScalaTestRunConfiguration.Module(moduleRef),
+      ScalaTestRunConfiguration.Package(moduleRef, packageName),
+      ScalaTestRunConfiguration.Class(moduleRef, className),
+      ScalaTestRunConfiguration.Method(moduleRef, className, methodName)
     )
 
     runConfigurations.map(intelliJ.probe.run(_)).foreach { result =>
