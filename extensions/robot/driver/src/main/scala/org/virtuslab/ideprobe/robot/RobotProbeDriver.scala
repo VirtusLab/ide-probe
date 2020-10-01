@@ -63,10 +63,11 @@ final class RobotProbeDriver(
       val tree = buildPanel.find(query.className("Tree"))
       val treeTexts = tree.fullTexts
       val hasErrors = treeTexts.contains("failed")
+      val message = buildPanel
+        .find(query.div("accessiblename" -> "Editor", "class" -> "EditorComponentImpl"))
+        .fullText
+      println(s"!!!!!!! $message")
       if (hasErrors) {
-        val message = buildPanel
-          .find(query.div("accessiblename" -> "Editor", "class" -> "EditorComponentImpl"))
-          .fullText
         throw new RuntimeException(s"Failed to open project. Output: $message")
       }
     }

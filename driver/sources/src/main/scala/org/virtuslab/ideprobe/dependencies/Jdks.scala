@@ -36,6 +36,9 @@ object Jdks {
     Map(
       OS.Unix -> URI.create(
         "https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u252-b09/OpenJDK8U-jdk_x64_linux_hotspot_8u252b09.tar.gz"
+      ),
+      OS.Mac -> URI.create(
+        "https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u265-b01/OpenJDK8U-jdk_x64_mac_hotspot_8u265b01.tar.gz"
       )
     )
   )

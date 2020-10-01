@@ -97,7 +97,7 @@ final class InstalledIntelliJ(val root: Path, config: DriverConfig) {
         "IDEPROBE_DRIVER_PORT" -> server.getLocalPort.toString,
         "IDEPROBE_OUTPUT_DIR" -> Paths.get("/tmp/ideprobe/output").toString,
         "PATH" -> PATH
-      ) ++ overrideDisplay
+      ) ++ overrideDisplay ++ config.env
     }
 
     val builder = new NuProcessBuilder(command.asJava)

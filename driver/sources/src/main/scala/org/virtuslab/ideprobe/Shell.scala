@@ -120,11 +120,15 @@ class BaseShell {
   }
 
   def async(command: String*): Future[CommandResult] = {
-    async(in = null, command)
+    async(in = null, command: _*)
   }
 
-  def async(in: Path, command: Seq[String]): Future[CommandResult] = {
+  def async(in: Path, command: String*): Future[CommandResult] = {
     async(in, Map.empty[String, String], command)
+  }
+
+  def async(env: Map[String, String], command: String*): Future[CommandResult] = {
+    async(in = null, env, command)
   }
 
   def run(command: String*): CommandResult = {
@@ -137,6 +141,10 @@ class BaseShell {
 
   def run(in: Path, env: Map[String, String], command: String*): CommandResult = {
     Await.result(async(in, env, command), Duration.Inf)
+  }
+
+  def run(env: Map[String, String], command: String*): CommandResult = {
+    run(in = null, env, command: _*)
   }
 
   protected def customOutputHandlers(): Seq[NuAbstractProcessHandler] = {
