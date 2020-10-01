@@ -26,14 +26,14 @@ class ModuleTest extends IdeProbeFixture with ScalaPluginExtension with RobotPlu
     val moduleRef = ModuleRef(moduleName)
 
     val runConfigurations = List(
-      TestRunConfiguration.Module(moduleRef),
-      TestRunConfiguration.Directory(moduleRef, directoryName),
-      TestRunConfiguration.Package(moduleRef, packageName),
-      TestRunConfiguration.Class(moduleRef, className),
-      TestRunConfiguration.Method(moduleRef, className, methodName)
+      TestScope.Module(moduleRef),
+      TestScope.Directory(moduleRef, directoryName),
+      TestScope.Package(moduleRef, packageName),
+      TestScope.Class(moduleRef, className),
+      TestScope.Method(moduleRef, className, methodName)
     )
 
-    runConfigurations.map(intelliJ.probe.run(_, None)).foreach { result =>
+    runConfigurations.map(intelliJ.probe.runTestsFromGenerated).foreach { result =>
       Assert.assertTrue(s"Test result $result should not be empty", result.suites.nonEmpty)
     }
   }
@@ -92,10 +92,14 @@ class ModuleTest extends IdeProbeFixture with ScalaPluginExtension with RobotPlu
     intelliJ.probe.withRobot.openProject(intelliJ.workspace)
     useSbtShell(intelliJ)
     val modulesFromConfig = intelliJ.config[Seq[String]]("modules.test")
-    val runnerNameFragmentOpt = intelliJ.config.get[String]("runner")
+    val runnerToSelectOpt = intelliJ.config.get[String]("runner")
     val moduleRefs = modulesFromConfig.map(ModuleRef(_))
-    val runConfigs = moduleRefs.map(moduleRef => TestRunConfiguration.Module(moduleRef))
-    runConfigs.map(config => config.module -> intelliJ.probe.run(config, runnerNameFragmentOpt)).foreach {
+    val runConfigs = moduleRefs.map(moduleRef => TestScope.Module(moduleRef))
+
+    val moduleResults = runConfigs.map(config => config.module -> {
+      runnerToSelectOpt.fold(intelliJ.probe.runTestsFromGenerated(config))(intelliJ.probe.runTestsFromGenerated(config, _))
+    })
+    moduleResults.foreach {
       case (module, result) => Assert.assertTrue(s"Tests in module $module failed", result.isSuccess)
     }
   }

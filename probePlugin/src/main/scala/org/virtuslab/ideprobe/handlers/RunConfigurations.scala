@@ -1,5 +1,6 @@
 package org.virtuslab.ideprobe.handlers
 
+import java.nio.file.Paths
 import java.util.concurrent.CountDownLatch
 import java.util.{Collections, UUID}
 
@@ -16,7 +17,6 @@ import com.intellij.openapi.actionSystem.{CommonDataKeys, LangDataKeys}
 import com.intellij.openapi.module.{Module => IntelliJModule}
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots.ModuleRootManager
-import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.impl.file.PsiPackageImpl
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaPsiFacade, PsiClass, PsiElement, PsiManager}
@@ -29,41 +29,40 @@ import scala.collection.convert.ImplicitConversions.`collection AsScalaIterable`
 import scala.concurrent.ExecutionContext
 
 object RunConfigurations extends IntelliJApi {
-  def execute(testRunnerMatch: TestRunConfigurationMatch)(implicit ec: ExecutionContext): TestsRunResult =
+  def runTestsFromGenerated(scope: TestScope, runnerToSelect: Option[String])(implicit ec: ExecutionContext): TestsRunResult =
     BackgroundTasks.withAwaitNone {
-      val TestRunConfigurationMatch(runConfiguration, runnerNameFragment) = testRunnerMatch
-      val project = Projects.resolve(ProjectRef.Default)
-      val module = Modules.resolve(runConfiguration.module)
+      val module = Modules.resolve(scope.module)
+      val project = module.getProject
 
       val dataContext = new MapDataContext
       dataContext.put(CommonDataKeys.PROJECT, project)
       dataContext.put(LangDataKeys.MODULE, module)
 
-      val psiElement: PsiElement = runConfiguration match {
-        case TestRunConfiguration.Module(_) => {
+      val psiElement: PsiElement = scope match {
+        case TestScope.Module(_) => {
           val moduleVirtualFile = ModuleRootManager.getInstance(module).getContentRoots.head
           val psiDirectory = read {
             PsiManager.getInstance(project).findDirectory(moduleVirtualFile)
           }
           Option(psiDirectory).getOrElse(error(s"Directory of module ${module.getName} not found"))
         }
-        case TestRunConfiguration.Directory(_, directoryName) => {
+        case TestScope.Directory(_, directoryName) => {
           val moduleContentRoots = ModuleRootManager.getInstance(module).getContentRoots.head
           val dirPath = Paths.get(moduleContentRoots.getPath, directoryName.replace(".", "/"))
-          val dirVirtualFile = VirtualFileManager.getInstance().findFileByNioPath(dirPath)
+          val dirVirtualFile = VFS.toVirtualFile(dirPath)
           val psiDirectory = read {
             PsiManager.getInstance(project).findDirectory(dirVirtualFile)
           }
           Option(psiDirectory).getOrElse(error(s"Directory $directoryName not found"))
         }
-        case TestRunConfiguration.Package(_, packageName) => {
+        case TestScope.Package(_, packageName) => {
           val psiPackage = new PsiPackageImpl(PsiManager.getInstance(project), packageName)
           Option(psiPackage).getOrElse(error(s"Package $packageName not found"))
         }
-        case TestRunConfiguration.Class(_, className) => {
+        case TestScope.Class(_, className) => {
           Option(findPsiClass(className, module)).getOrElse(error(s"Class $className not found"))
         }
-        case TestRunConfiguration.Method(_, className, methodName) => {
+        case TestScope.Method(_, className, methodName) => {
           val psiClass = findPsiClass(className, module)
           val psiMethods = read {
             psiClass.getMethods
@@ -90,7 +89,7 @@ object RunConfigurations extends IntelliJApi {
       val configurations = read {
         configurationContext.getConfigurationsFromContext
       }
-      val producer = runnerNameFragment match {
+      val producer = runnerToSelect match {
         case Some(fragment) =>
           configurations
             .find(_.toString contains fragment)
@@ -118,27 +117,27 @@ object RunConfigurations extends IntelliJApi {
     read { JavaPsiFacade.getInstance(module.getProject).findClass(qualifiedName, scope) }
   }
 
-  def execute(runConfiguration: TestRunConfiguration)(implicit ec: ExecutionContext): TestsRunResult = {
-    val module = Modules.resolve(runConfiguration.module)
+  def runJUnit(scope: TestScope)(implicit ec: ExecutionContext): TestsRunResult = {
+    val module = Modules.resolve(scope.module)
     val project = module.getProject
 
     val configuration = new JUnitConfiguration(UUID.randomUUID().toString, project)
     configuration.setModule(module)
     val data = configuration.getPersistentData
-    runConfiguration match {
-      case TestRunConfiguration.Module(_) =>
+    scope match {
+      case TestScope.Module(_) =>
         data.PACKAGE_NAME = ""
         data.TEST_OBJECT = JUnitConfiguration.TEST_PACKAGE
-      case TestRunConfiguration.Directory(_, directoryName) =>
+      case TestScope.Directory(_, directoryName) =>
         data.setDirName(directoryName)
         data.TEST_OBJECT = JUnitConfiguration.TEST_DIRECTORY
-      case TestRunConfiguration.Package(_, packageName) =>
+      case TestScope.Package(_, packageName) =>
         data.PACKAGE_NAME = packageName
         data.TEST_OBJECT = JUnitConfiguration.TEST_PACKAGE
-      case TestRunConfiguration.Class(_, className) =>
+      case TestScope.Class(_, className) =>
         data.MAIN_CLASS_NAME = className
         data.TEST_OBJECT = JUnitConfiguration.TEST_CLASS
-      case TestRunConfiguration.Method(_, className, methodName) =>
+      case TestScope.Method(_, className, methodName) =>
         data.METHOD_NAME = methodName
         data.MAIN_CLASS_NAME = className
         data.TEST_OBJECT = JUnitConfiguration.TEST_METHOD
@@ -152,7 +151,7 @@ object RunConfigurations extends IntelliJApi {
     RunConfigurationUtil.awaitTestResults(project, () => RunConfigurationUtil.launch(project, settings))
   }
 
-  def execute(runConfiguration: ApplicationRunConfiguration)(implicit ec: ExecutionContext): ProcessResult = {
+  def runApp(runConfiguration: ApplicationRunConfiguration)(implicit ec: ExecutionContext): ProcessResult = {
     val configuration = registerObservableConfiguration(runConfiguration)
     val project = Projects.resolve(runConfiguration.module.project)
 

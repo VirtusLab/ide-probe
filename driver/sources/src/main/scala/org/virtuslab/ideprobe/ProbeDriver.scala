@@ -189,22 +189,30 @@ class ProbeDriver(
   def freezes: Seq[Freeze] = send(Endpoints.Freezes)
 
   /**
-   * Runs the specified test configuration with a test runner containing provided runnerNameFragment
-   * or with the first available runner when the runnerNameFragment is not present
+   * Runs the specified test configuration with the first available test runner
    */
-  def run(runConfiguration: TestRunConfiguration, runnerNameFragment: Option[String]): TestsRunResult = {
-    send(Endpoints.RunTest, TestRunConfigurationMatch(runConfiguration, runnerNameFragment))
+  def runTestsFromGenerated(runConfiguration: TestScope): TestsRunResult = runTestsFromGenerated(runConfiguration, runnerToSelect = None)
+
+  /**
+   * Runs the specified test configuration with a test runner containing provided runnerToSelect substring
+   */
+  def runTestsFromGenerated(runConfiguration: TestScope, runnerToSelect: String): TestsRunResult = {
+    runTestsFromGenerated(runConfiguration, runnerToSelect = Some(runnerToSelect))
+  }
+
+  private def runTestsFromGenerated(runConfiguration: TestScope, runnerToSelect: Option[String]): TestsRunResult = {
+    send(Endpoints.RunTestsFromGenerated, (runConfiguration, runnerToSelect))
   }
 
   /**
    * Runs the specified application configuration
    */
-  def run(runConfiguration: ApplicationRunConfiguration): ProcessResult = send(Endpoints.Run, runConfiguration)
+  def runApp(runConfiguration: ApplicationRunConfiguration): ProcessResult = send(Endpoints.RunApp, runConfiguration)
 
   /**
    * Runs the specified JUnit configuration
    */
-  def run(runConfiguration: TestRunConfiguration): TestsRunResult = send(Endpoints.RunJUnit, runConfiguration)
+  def runJUnit(runConfiguration: TestScope): TestsRunResult = send(Endpoints.RunJUnit, runConfiguration)
 
   /**
    * Saves the current view of the IDE alongside the automatically captured screenshots

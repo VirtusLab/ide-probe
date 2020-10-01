@@ -10,14 +10,12 @@ final case class ExpandMacroData(
     macroText: String
 )
 
-sealed abstract class TestRunConfiguration(val module: ModuleRef)
+sealed abstract class TestScope(val module: ModuleRef)
 
-object TestRunConfiguration {
-  case class Module(override val module: ModuleRef) extends TestRunConfiguration(module)
-  case class Directory(override val module: ModuleRef, directoryName: String) extends TestRunConfiguration(module)
-  case class Package(override val module: ModuleRef, packageName: String) extends TestRunConfiguration(module)
-  case class Class(override val module: ModuleRef, className: String) extends TestRunConfiguration(module)
-  case class Method(override val module: ModuleRef, className: String, methodName: String) extends TestRunConfiguration(module)
+object TestScope {
+  case class Module(override val module: ModuleRef) extends TestScope(module)
+  case class Directory(override val module: ModuleRef, directoryName: String) extends TestScope(module)
+  case class Package(override val module: ModuleRef, packageName: String) extends TestScope(module)
+  case class Class(override val module: ModuleRef, className: String) extends TestScope(module)
+  case class Method(override val module: ModuleRef, className: String, methodName: String) extends TestScope(module)
 }
-
-case class TestRunConfigurationMatch(runConfiguration: TestRunConfiguration, runnerNameFragment: Option[String])

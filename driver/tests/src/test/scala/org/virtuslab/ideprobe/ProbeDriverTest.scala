@@ -192,8 +192,8 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
         intelliJ.probe.withRobot.openProject(projectDir)
 
         intelliJ.probe.build()
-        val configuration = TestRunConfiguration.Module(ModuleRef("simple-sbt-project"))
-        val result = intelliJ.probe.run(configuration)
+        val configuration = TestScope.Module(ModuleRef("simple-sbt-project"))
+        val result = intelliJ.probe.runTestsFromGenerated(configuration)
 
         assertFalse(result.isSuccess)
 
@@ -275,32 +275,32 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
       intelliJ.probe.withRobot.openProject(intelliJ.workspace)
       val moduleRef = ModuleRef("foo.test")
 
-      val moduleRunConfiguration = TestRunConfiguration.Module(moduleRef)
-      val runResult = intelliJ.probe.run(moduleRunConfiguration, None)
-      assert(runResult.suites.size == 2)
+      val moduleRunConfiguration = TestScope.Module(moduleRef)
+      val runResult = intelliJ.probe.runTestsFromGenerated(moduleRunConfiguration)
+      assertEquals(2, runResult.suites.size)
 
       val directoryName = "java"
-      val directoryRunConfiguration = TestRunConfiguration.Directory(moduleRef, directoryName)
-      val directoryRunResult = intelliJ.probe.run(directoryRunConfiguration, None)
-      assert(directoryRunResult.suites.size == 2)
+      val directoryRunConfiguration = TestScope.Directory(moduleRef, directoryName)
+      val directoryRunResult = intelliJ.probe.runTestsFromGenerated(directoryRunConfiguration)
+      assertEquals(2, directoryRunResult.suites.size)
 
       val packageName = "com.example"
-      val packageRunConfiguration = TestRunConfiguration.Package(moduleRef, packageName)
-      val packageRunResult = intelliJ.probe.run(packageRunConfiguration, None)
+      val packageRunConfiguration = TestScope.Package(moduleRef, packageName)
+      val packageRunResult = intelliJ.probe.runTestsFromGenerated(packageRunConfiguration)
       // gradle task will be performed for one tests sources root
-      assert(packageRunResult.suites.size == 2)
+      assertEquals(2, packageRunResult.suites.size)
 
       val className = "com.example.Foo"
-      val classRunConfiguration = TestRunConfiguration.Class(moduleRef, className)
-      val classRunResult = intelliJ.probe.run(classRunConfiguration, None)
-      assert(classRunResult.suites.size == 1)
-      assert(classRunResult.suites.head.tests.size == 2)
+      val classRunConfiguration = TestScope.Class(moduleRef, className)
+      val classRunResult = intelliJ.probe.runTestsFromGenerated(classRunConfiguration)
+      assertEquals(1, classRunResult.suites.size)
+      assertEquals(2, classRunResult.suites.head.tests.size)
 
       val methodName = "testA"
-      val methodRunConfiguration = TestRunConfiguration.Method(moduleRef, className, methodName)
-      val methodRunResult = intelliJ.probe.run(methodRunConfiguration, None)
-      assert(methodRunResult.suites.size == 1)
-      assert(methodRunResult.suites.head.tests.size == 1)
+      val methodRunConfiguration = TestScope.Method(moduleRef, className, methodName)
+      val methodRunResult = intelliJ.probe.runTestsFromGenerated(methodRunConfiguration)
+      assertEquals(1, methodRunResult.suites.size)
+      assertEquals(1, methodRunResult.suites.head.tests.size)
     }
   }
 
