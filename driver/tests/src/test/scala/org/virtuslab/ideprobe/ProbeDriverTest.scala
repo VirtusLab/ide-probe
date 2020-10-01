@@ -121,8 +121,8 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
       val mainModule = model.modules.find(_.name == "foo.main").get
       val testModule = model.modules.find(_.name == "foo.test").get
 
-      assertEquals(Set(src.resolve("test-configuration-project/java")), mainModule.contentRoots.paths.sources)
-      assertEquals(Set(src.resolve("test-configuration-project/resources")), mainModule.contentRoots.paths.resources)
+      assertEquals(Set(src.resolve("main/java")), mainModule.contentRoots.paths.sources)
+      assertEquals(Set(src.resolve("main/resources")), mainModule.contentRoots.paths.resources)
       assertEquals(Set(src.resolve("test/java")), testModule.contentRoots.paths.testSources)
       assertEquals(Set(src.resolve("test/resources")), testModule.contentRoots.paths.testResources)
     }
@@ -270,35 +270,38 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
   }
 
   @Test
-  def runTestsInDifferentScopes(): Unit = IntelliJFixture.fromConfig(Config.fromClasspath("test-configuration-project/ideprobe.conf")).run { intelliJ =>
-    intelliJ.probe.openProject(intelliJ.workspace)
-    val moduleRef = ModuleRef("main")
+  def runTestsInDifferentScopes(): Unit = {
+    fixture.copy(workspaceProvider = WorkspaceTemplate.FromResource("gradle-project")).run { intelliJ =>
+      intelliJ.probe.withRobot.openProject(intelliJ.workspace)
+      val moduleRef = ModuleRef("foo.test")
 
-    val moduleRunConfiguration = TestRunConfiguration.Module(moduleRef)
-    val runResult = intelliJ.probe.run(moduleRunConfiguration, None)
-    assert(runResult.suites.size == 2)
+      val moduleRunConfiguration = TestRunConfiguration.Module(moduleRef)
+      val runResult = intelliJ.probe.run(moduleRunConfiguration, None)
+      assert(runResult.suites.size == 2)
 
-    val directoryName = "src/test/functional/java"
-    val directoryRunConfiguration = TestRunConfiguration.Directory(moduleRef, directoryName)
-    val directoryRunResult = intelliJ.probe.run(directoryRunConfiguration, None)
-    assert(directoryRunResult.suites.size == 1)
+      val directoryName = "java"
+      val directoryRunConfiguration = TestRunConfiguration.Directory(moduleRef, directoryName)
+      val directoryRunResult = intelliJ.probe.run(directoryRunConfiguration, None)
+      assert(directoryRunResult.suites.size == 2)
 
-    val packageName = "com.example"
-    val packageRunConfiguration = TestRunConfiguration.Package(moduleRef, packageName)
-    val packageRunResult = intelliJ.probe.run(packageRunConfiguration, None)
-    assert(packageRunResult.suites.size == 2)
+      val packageName = "com.example"
+      val packageRunConfiguration = TestRunConfiguration.Package(moduleRef, packageName)
+      val packageRunResult = intelliJ.probe.run(packageRunConfiguration, None)
+      // gradle task will be performed for one tests sources root
+      assert(packageRunResult.suites.size == 2)
 
-    val className = "com.example.FunctionalTest"
-    val classRunConfiguration = TestRunConfiguration.Class(moduleRef, className)
-    val classRunResult = intelliJ.probe.run(classRunConfiguration, None)
-    assert(classRunResult.suites.size == 1)
-    assert(classRunResult.suites.head.tests.size == 2)
+      val className = "com.example.Foo"
+      val classRunConfiguration = TestRunConfiguration.Class(moduleRef, className)
+      val classRunResult = intelliJ.probe.run(classRunConfiguration, None)
+      assert(classRunResult.suites.size == 1)
+      assert(classRunResult.suites.head.tests.size == 2)
 
-    val methodName = "functionalTestA"
-    val methodRunConfiguration = TestRunConfiguration.Method(moduleRef, className, methodName)
-    val methodRunResult = intelliJ.probe.run(methodRunConfiguration, None)
-    assert(methodRunResult.suites.size == 1)
-    assert(methodRunResult.suites.head.tests.size == 1)
+      val methodName = "testA"
+      val methodRunConfiguration = TestRunConfiguration.Method(moduleRef, className, methodName)
+      val methodRunResult = intelliJ.probe.run(methodRunConfiguration, None)
+      assert(methodRunResult.suites.size == 1)
+      assert(methodRunResult.suites.head.tests.size == 1)
+    }
   }
 
   // temporary for debugging

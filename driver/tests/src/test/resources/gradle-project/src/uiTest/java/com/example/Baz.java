@@ -2,9 +2,11 @@ package com.example;
 
 import org.junit.Test;
 
-public class UiTest {
+public class Baz {
+    public Baz() {}
+
     @Test
-    public void uiTest() {
+    public void testA() {
         assert(true);
     }
 }
