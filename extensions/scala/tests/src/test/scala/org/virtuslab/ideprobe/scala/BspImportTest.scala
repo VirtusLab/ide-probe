@@ -1,13 +1,14 @@
 package org.virtuslab.ideprobe.scala
 
-import org.junit.{Assert, Test}
+import org.junit.Assert
+import org.junit.Ignore
 import org.virtuslab.ideprobe.Config
 
 final class BspImportTest extends ScalaPluginTestSuite {
 
   private val config = Config.fromClasspath("SbtProject/ideprobe.conf")
 
-  @Test
+  @Ignore
   def importSbtProject(): Unit = {
     fixtureFromConfig(config).run { intellij =>
       val projectRef = intellij.probe.importBspProject(intellij.workspace.resolve("root"))

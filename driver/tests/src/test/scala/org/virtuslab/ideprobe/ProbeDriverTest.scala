@@ -31,7 +31,7 @@ import scala.util.Try
 
 @RunWith(classOf[JUnit4])
 final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPluginExtension {
-  private val scalaPlugin = Plugin("org.intellij.scala", "2020.2.584", Some("nightly"))
+  private val scalaPlugin = Plugin("org.intellij.scala", "2020.3.369", Some("nightly"))
   private val probeTestPlugin = ProbeTestPlugin.bundled
 
   private val fixture = IntelliJFixture(
