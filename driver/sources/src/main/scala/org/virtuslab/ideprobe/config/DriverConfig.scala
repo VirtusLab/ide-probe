@@ -8,12 +8,13 @@ case class DriverConfig(
     launch: LaunchParameters = LaunchParameters(),
     check: CheckConfig = CheckConfig(),
     headless: Boolean = false,
-    vmOptions: Seq[String] = Nil
+    vmOptions: Seq[String] = Nil,
+    env: Map[String, String] = Map.empty
 )
 
 object DriverConfig {
   case class LaunchParameters(
-    command: Seq[String] = Nil,
-    timeout: FiniteDuration = 30.seconds
+      command: Seq[String] = Nil,
+      timeout: FiniteDuration = 30.seconds
   )
 }

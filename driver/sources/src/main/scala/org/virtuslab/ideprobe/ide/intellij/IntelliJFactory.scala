@@ -22,7 +22,10 @@ import org.virtuslab.ideprobe.dependencies.{
   ResourceProvider
 }
 
-final class IntelliJFactory(dependencies: DependencyProvider, val config: DriverConfig) {
+final class IntelliJFactory(
+    dependencies: DependencyProvider,
+    val config: DriverConfig
+) {
   def withConfig(config: DriverConfig): IntelliJFactory = new IntelliJFactory(dependencies, config)
 
   def create(version: IntelliJVersion, plugins: Seq[Plugin]): InstalledIntelliJ = {

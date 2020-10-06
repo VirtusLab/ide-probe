@@ -97,8 +97,7 @@ class BaseShell {
   }
 
   def async(in: Path, env: Map[String, String], command: Seq[String]): Future[CommandResult] = {
-    val location = if (in == null) "" else s" (in $in)"
-    println(s"Executing command$location:\n$$ ${command.mkString(" ")}")
+    logExecution(Option(in), command)
 
     import com.zaxxer.nuprocess._
     val builder = new NuProcessBuilder(command: _*)
@@ -107,8 +106,9 @@ class BaseShell {
     env.foreach(e => builder.environment().put(e._1, e._2))
     val finished = Promise[CommandResult]()
     val outputCollector = new ProcessOutputCollector
-    val outputForwarder = new ProcessOutputLogger
-    builder.setProcessListener(new CompositeOutputHandler(Seq(outputCollector, outputForwarder)) {
+    val extraHandlers = customOutputHandlers()
+    val handlers = Seq(outputCollector) ++ extraHandlers
+    builder.setProcessListener(new CompositeOutputHandler(handlers) {
       override def onExit(statusCode: Int): Unit = {
         finished.success(CommandResult(outputCollector.output.trim, outputCollector.error.trim, statusCode))
       }
@@ -119,11 +119,15 @@ class BaseShell {
   }
 
   def async(command: String*): Future[CommandResult] = {
-    async(in = null, command)
+    async(in = null, command: _*)
   }
 
-  def async(in: Path, command: Seq[String]): Future[CommandResult] = {
+  def async(in: Path, command: String*): Future[CommandResult] = {
     async(in, Map.empty[String, String], command)
+  }
+
+  def async(env: Map[String, String], command: String*): Future[CommandResult] = {
+    async(in = null, env, command)
   }
 
   def run(command: String*): CommandResult = {
@@ -136,6 +140,20 @@ class BaseShell {
 
   def run(in: Path, env: Map[String, String], command: String*): CommandResult = {
     Await.result(async(in, env, command), Duration.Inf)
+  }
+
+  def run(env: Map[String, String], command: String*): CommandResult = {
+    run(in = null, env, command: _*)
+  }
+
+  protected def logExecution(cwd: Option[Path], command: Seq[String]): Unit = {
+    val location = cwd.fold("")(path => s"[$path]\n")
+    println(s"$location$$ ${command.mkString(" ")}")
+  }
+
+  protected def customOutputHandlers(): Seq[NuAbstractProcessHandler] = {
+    val outputForwarder = new ProcessOutputLogger
+    Seq(outputForwarder)
   }
 
   protected def customizeBuilder(builder: NuProcessBuilder): Unit = ()

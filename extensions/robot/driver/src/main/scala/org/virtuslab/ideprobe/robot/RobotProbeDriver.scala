@@ -21,7 +21,11 @@ object RobotProbeDriver {
       pluginId, { driver =>
         val port = getRobotPort(driver)
         val robot = synchronized {
-          robots.getOrElseUpdate(port, new RemoteRobot(s"http://127.0.0.1:$port"))
+          robots.getOrElseUpdate(port, {
+            val url = s"http://127.0.0.1:$port"
+            println(s"Robot available at $url")
+            new RemoteRobot(url)
+          })
         }
         new RobotProbeDriver(driver, robot)
       }

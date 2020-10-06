@@ -1,0 +1,6 @@
+#!/bin/sh
+
+export IDEPROBE_DISPLAY=xvfb
+export JAVA_HOME=/usr/lib/jvm/java-11-openjdk
+sbt "scala-tests/testOnly org.virtuslab.ideprobe.scala.BspImportTest"
+sbt "; clean; ++2.13.1! ; probe-test-plugin / test; junit-driver / test; driver / test; probe-plugin / test; api / test; driver-tests / test"
