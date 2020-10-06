@@ -54,7 +54,7 @@ lazy val ci = project("ci", "ci", publish = false)
     CI.generateScripts := {
       for {
         (group, projects) <- CI.groupedProjects().value.toList
-        version <- crossScalaVersions.value
+        version <- List(scala213)
       } yield CI.generateTestScript(group, projects, version)
     }
   )
