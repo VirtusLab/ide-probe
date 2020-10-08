@@ -3,8 +3,8 @@ package org.virtuslab.ideprobe.dependencies
 import java.net.URI
 import org.virtuslab.ideprobe.ConfigFormat
 import org.virtuslab.ideprobe.Id
-import pureconfig.ConfigReader
-import pureconfig.generic.semiauto.deriveReader
+import pureconfig.{ConfigReader, ConfigWriter}
+import pureconfig.generic.semiauto.{deriveReader, deriveWriter}
 
 sealed trait Plugin
 
@@ -26,6 +26,16 @@ object Plugin extends ConfigFormat {
       deriveReader[Bundled],
       deriveReader[FromSources],
       deriveReader[Empty]
+    )
+  }
+
+  implicit val pluginWriter: ConfigWriter[Plugin] = {
+    possiblyAmbiguousAdtWriter[Plugin](
+      deriveWriter[Versioned],
+      deriveWriter[Direct],
+      deriveWriter[Bundled],
+      deriveWriter[FromSources],
+      deriveWriter[Empty]
     )
   }
 }

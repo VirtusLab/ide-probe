@@ -1,6 +1,8 @@
 package org.virtuslab.ideprobe.dependencies
 
 import org.virtuslab.ideprobe.BuildInfo
+import pureconfig.ConfigConvert
+import pureconfig.generic.semiauto.deriveConvert
 
 final case class IntelliJVersion(build: String, release: Option[String]) {
   def major: Option[String] = {
@@ -18,5 +20,7 @@ final case class IntelliJVersion(build: String, release: Option[String]) {
 }
 
 object IntelliJVersion {
+  implicit val configConvert: ConfigConvert[IntelliJVersion] = deriveConvert[IntelliJVersion]
+
   val Latest = IntelliJVersion(BuildInfo.intellijBuild, BuildInfo.intellijVersion)
 }
