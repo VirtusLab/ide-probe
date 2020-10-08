@@ -1,8 +1,8 @@
 package org.virtuslab.ideprobe.dependencies
 
 import java.nio.file.Path
-import org.virtuslab.ideprobe.Id
+import org.virtuslab.ideprobe.{Config, Id}
 
 abstract class DependencyBuilder(val id: Id) {
-  def build(repository: SourceRepository, resources: ResourceProvider): Path
+  def build(config: Config, resources: ResourceProvider): Path
 }
