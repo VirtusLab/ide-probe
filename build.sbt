@@ -1,7 +1,6 @@
 name := "ideprobe"
 
 val scala212 = "2.12.10"
-// don't cross compile with scala 2.13.1 for now because of issues with scala probe modules
 val scala213 = "2.13.1"
 
 skip in publish := true

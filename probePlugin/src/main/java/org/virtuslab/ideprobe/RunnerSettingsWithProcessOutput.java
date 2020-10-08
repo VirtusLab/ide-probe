@@ -23,7 +23,7 @@ import scala.concurrent.Promise;
 public final class RunnerSettingsWithProcessOutput extends RunnerAndConfigurationSettingsDelegate {
     private final StringBuilder stdout = new StringBuilder();
     private final StringBuilder stderr = new StringBuilder();
-    private final Promise<ProcessResult> promise = Promise.apply();
+    private final Promise<ProcessResult> promise = Promise.<ProcessResult>apply();
 
     public RunnerSettingsWithProcessOutput(RunnerAndConfigurationSettings next) {
         super(next);

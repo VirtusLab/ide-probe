@@ -32,9 +32,9 @@ final class FixtureConfigTest extends WorkspaceFixture {
     val file = Files.createTempFile(workspace, "ideprobe", "file")
     val config = Config.fromString(s"""probe.workspace.path = "$workspace" """)
 
-    IntelliJFixture.fromConfig(config).run { probe =>
-      val workspaceFile = probe.workspace.resolve(file.getFileName)
-      assertTrue(s"Invalid workspace used: ${probe.workspace}", Files.exists(workspaceFile))
+    IntelliJFixture.fromConfig(config).withWorkspace { workspace =>
+      val workspaceFile = workspace.path.resolve(file.getFileName)
+      assertTrue(s"Invalid workspace used: ${workspace.path}", Files.exists(workspaceFile))
     }
   }
 
@@ -61,8 +61,8 @@ final class FixtureConfigTest extends WorkspaceFixture {
 
     val config = Config.fromString(s"""probe.workspace.path = "$publicRepository" """)
 
-    IntelliJFixture.fromConfig(config).run { intelliJ =>
-      assertTrue(intelliJ.workspace.resolve(".git").isDirectory)
+    IntelliJFixture.fromConfig(config).withWorkspace { workspace =>
+      assertTrue(workspace.path.resolve(".git").isDirectory)
     }
   }
 
@@ -78,8 +78,8 @@ final class FixtureConfigTest extends WorkspaceFixture {
           |}
           |""".stripMargin)
 
-    IntelliJFixture.fromConfig(config).run { intelliJ =>
-      val HEAD = intelliJ.workspace.resolve(".git/HEAD").content().trim
+    IntelliJFixture.fromConfig(config).withWorkspace { workspace =>
+      val HEAD = workspace.path.resolve(".git/HEAD").content().trim
       assertEquals(HEAD, s"ref: refs/heads/$branch")
     }
   }
@@ -96,8 +96,8 @@ final class FixtureConfigTest extends WorkspaceFixture {
           |}
           |""".stripMargin)
 
-    IntelliJFixture.fromConfig(config).run { intelliJ =>
-      val HEAD = intelliJ.workspace.resolve(".git/HEAD").content().trim
+    IntelliJFixture.fromConfig(config).withWorkspace { workspace =>
+      val HEAD = workspace.path.resolve(".git/HEAD").content().trim
       assertEquals(HEAD, commit)
     }
   }

@@ -8,5 +8,6 @@ object Plugins {
   def list: Seq[InstalledPlugin] = {
     PluginManagerCore.getLoadedPlugins.asScala
       .map(plugin => InstalledPlugin(plugin.getPluginId.getIdString, plugin.getVersion))
+      .toList
   }
 }

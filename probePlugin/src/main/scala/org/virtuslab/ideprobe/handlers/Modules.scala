@@ -5,6 +5,7 @@ import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.roots.ModuleRootManager
 import org.jetbrains.jps.model.java.JavaResourceRootType.RESOURCE
 import org.jetbrains.jps.model.java.JavaResourceRootType.TEST_RESOURCE
+import org.jetbrains.jps.model.java.{JavaModuleSourceRootTypes, JavaResourceRootProperties, JavaSourceRootProperties}
 import org.jetbrains.jps.model.java.JavaSourceRootType.SOURCE
 import org.jetbrains.jps.model.java.JavaSourceRootType.TEST_SOURCE
 import org.virtuslab.ideprobe.protocol.ContentEntry
@@ -43,13 +44,18 @@ object Modules extends IntelliJApi {
         val path = VFS.toPath(sf.getFile)
         val packagePrefix = Option(sf.getPackagePrefix).filterNot(_.isEmpty)
         val kind = sf.getRootType match {
-          case SOURCE => SourceFolder.Kind.sources
-          case RESOURCE => SourceFolder.Kind.resources
-          case TEST_SOURCE => SourceFolder.Kind.testSources
+          case SOURCE        => SourceFolder.Kind.sources
+          case RESOURCE      => SourceFolder.Kind.resources
+          case TEST_SOURCE   => SourceFolder.Kind.testSources
           case TEST_RESOURCE => SourceFolder.Kind.testResources
-          case other => other.toString
+          case other         => other.toString
         }
-        val isGenerated = sf.invoke[Boolean]("isForGeneratedSources")()
+        val isGenerated = {
+          val element = sf.getJpsElement
+          val sources: JavaSourceRootProperties = element.getProperties(JavaModuleSourceRootTypes.SOURCES)
+          val resources: JavaResourceRootProperties = element.getProperties(JavaModuleSourceRootTypes.RESOURCES)
+          Option(sources).exists(_.isForGeneratedSources) || Option(resources).exists(_.isForGeneratedSources)
+        }
         SourceFolder(path, packagePrefix, kind, isGenerated)
       }
       ContentEntry(
