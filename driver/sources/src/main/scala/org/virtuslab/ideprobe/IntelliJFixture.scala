@@ -30,6 +30,11 @@ final case class IntelliJFixture(
     copy(factory = factory.withConfig(factory.config.copy(vmOptions = newVmOptions)))
   }
 
+  def withEnv(env: Map[String, String]): IntelliJFixture = {
+    val newEnv = factory.config.env ++ env
+    copy(factory = factory.withConfig(factory.config.copy(env = newEnv)))
+  }
+
   def withConfig(entries: (String, String)*): IntelliJFixture = {
     val newConfig = Config.fromMap(entries.toMap).withFallback(config)
     copy(config = newConfig)

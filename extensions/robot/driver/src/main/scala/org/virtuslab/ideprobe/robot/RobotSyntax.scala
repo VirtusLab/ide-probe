@@ -47,6 +47,10 @@ trait RobotSyntax { outer =>
     def dialog(title: String): String = {
       div("class" -> "MyDialog", "title" -> title)
     }
+    def button(attributes: (String, String)*): String = {
+      val allAttrs = ("class" -> "JButton") +: attributes
+      div(allAttrs: _*)
+    }
     def className(name: String): String = {
       div("class" -> name)
     }

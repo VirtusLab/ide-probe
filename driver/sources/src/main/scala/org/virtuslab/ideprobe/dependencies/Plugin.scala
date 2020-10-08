@@ -1,10 +1,10 @@
 package org.virtuslab.ideprobe.dependencies
 
+import com.typesafe.config.{ConfigObject, ConfigRenderOptions}
 import java.net.URI
-import org.virtuslab.ideprobe.ConfigFormat
-import org.virtuslab.ideprobe.Id
-import pureconfig.ConfigReader
-import pureconfig.generic.semiauto.deriveReader
+import org.virtuslab.ideprobe.{Config, ConfigFormat, Id, error}
+import pureconfig.{ConfigReader, ConfigSource, ConfigWriter}
+import pureconfig.generic.semiauto.{deriveReader, deriveWriter}
 
 sealed trait Plugin
 
@@ -12,11 +12,27 @@ object Plugin extends ConfigFormat {
   case class Bundled(bundle: String) extends Plugin
   case class Versioned(id: String, version: String, channel: Option[String]) extends Plugin
   case class Direct(uri: URI) extends Plugin
-  case class FromSources(id: Id, repository: SourceRepository) extends Plugin
+  case class FromSources(id: Id, config: Config) extends Plugin {
+    override def toString: String = {
+      val conf = config.source.value.fold(_.toString, _.render(ConfigRenderOptions.concise))
+      s"FromSources($id, $conf)"
+    }
+  }
   private[ideprobe] case class Empty() extends Plugin
 
   def apply(id: String, version: String, channel: Option[String] = None): Versioned = {
     Versioned(id, version, channel)
+  }
+
+  implicit val fromSourcesReader: ConfigReader[FromSources] = ConfigReader.fromFunction { cv =>
+    val source = ConfigSource.fromConfig(cv.asInstanceOf[ConfigObject].toConfig)
+    source.at("id").load[Id].map { id =>
+      FromSources(id, Config(source))
+    }
+  }
+
+  implicit val fromSourcesWriter: ConfigWriter[FromSources] = ConfigWriter.fromFunction { fs =>
+    fs.config.source.value.getOrElse(error(s"cannot serialize $fs"))
   }
 
   implicit val pluginReader: ConfigReader[Plugin] = {
@@ -24,8 +40,18 @@ object Plugin extends ConfigFormat {
       deriveReader[Versioned],
       deriveReader[Direct],
       deriveReader[Bundled],
-      deriveReader[FromSources],
+      fromSourcesReader,
       deriveReader[Empty]
+    )
+  }
+
+  implicit val pluginWriter: ConfigWriter[Plugin] = {
+    possiblyAmbiguousAdtWriter[Plugin](
+      deriveWriter[Versioned],
+      deriveWriter[Direct],
+      deriveWriter[Bundled],
+      fromSourcesWriter,
+      deriveWriter[Empty]
     )
   }
 }

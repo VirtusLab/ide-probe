@@ -11,11 +11,11 @@ object Id {
 
   final case class Symbolic(name: String) extends Id
 
-  implicit val pluginReader: ConfigReader[Id] = {
+  implicit val idReader: ConfigReader[Id] = {
     case cursor: ConfigCursor => cursor.asString.map(Id.apply)
   }
 
-  implicit val pluginWriter: ConfigWriter[Id] = {
+  implicit val idWriter: ConfigWriter[Id] = {
     case Symbolic(name) => ConfigValueFactory.fromAnyRef(name)
   }
 }

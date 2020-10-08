@@ -19,15 +19,15 @@ object PSI extends IntelliJApi {
     references(resolve(file))
   }
 
-  def references(root: PsiElement): Seq[Reference] = {
+  def references(root: PsiElement): Seq[Reference] = read {
     val references = mutable.Buffer[Reference]()
     val elements = mutable.Stack[PsiElement](root)
     while (elements.nonEmpty) {
       val element = elements.pop()
-      elements.pushAll(read { element.getChildren })
+      elements.pushAll(element.getChildren)
       element.getReferences.foreach { reference =>
-        val text = read { reference.getCanonicalText }
-        Option(read { reference.resolve() })
+        val text = reference.getCanonicalText
+        Option(reference.resolve())
           .flatMap(toTarget)
           .map(Reference(text, _))
           .foreach(references += _)

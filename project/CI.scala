@@ -28,7 +28,8 @@ object CI {
     val script = file(s"ci/tests/$scalaVersion/test-$group")
     val arguments = projects
       .filterNot(ref => scalaVersion == "2.13.1" && excluded213.contains(ref.project))
-      .map(ref => s"; ${ref.project} / test").mkString
+      .map(ref => s"; ${ref.project} / test")
+      .mkString
     val content = s"""|#!/bin/sh
                       |
                       |export IDEPROBE_DISPLAY=xvfb
