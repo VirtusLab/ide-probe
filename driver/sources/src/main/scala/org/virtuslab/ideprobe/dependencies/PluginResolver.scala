@@ -20,8 +20,8 @@ object PluginResolver {
         case Plugin.Direct(uri) =>
           Dependency.Artifact(uri)
 
-        case Plugin.FromSources(id, repository) =>
-          Dependency.Sources(id, repository)
+        case Plugin.FromSources(id, config) =>
+          Dependency.Sources(id, config)
 
         case Plugin.Versioned(id, version, Some(channel)) =>
           Dependency(s"$uri?pluginId=$id&version=$version&channel=$channel")

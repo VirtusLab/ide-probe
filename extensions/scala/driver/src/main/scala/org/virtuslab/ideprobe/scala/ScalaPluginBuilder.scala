@@ -2,31 +2,27 @@ package org.virtuslab.ideprobe
 package scala
 
 import java.io.{File, InputStream}
-import java.nio.file.{Files, Path}
+import java.nio.file.Path
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.dependencies.SourceRepository.Git
 import org.virtuslab.ideprobe.dependencies._
-import _root_.scala.util.Try
 
 object ScalaPluginBuilder extends DependencyBuilder(Id("scala")) {
-  def build(repository: SourceRepository, resources: ResourceProvider): Path =
-    repository match {
-      case git: Git =>
-        val hash = this.hash(git, "HEAD")
-        val artifact = git.path.resolveChild(hash)
 
-        resources.get(artifact, provider = build(git, resources))
-    }
+  def build(config: Config, resources: ResourceProvider): Path = {
+    val repository = config[GitRepository]("repository")
+    val jdkVersion = config.get[String]("jdk").getOrElse("11")
+    val hash = GitRepository.commitHash(repository, "HEAD")
+    val artifact = repository.path.resolveChild(hash)
+    resources.get(artifact, provider = build(repository, jdkVersion, resources))
+  }
 
-  private def build(repository: Git, resources: ResourceProvider): InputStream = {
-    val localRepo = clone(repository)
-
-    Try {
-      runSbtPackageArtifact(resources, localRepo, Jdks.JDK_11)
-    }.getOrElse {
-      runSbtPackageArtifact(resources, localRepo, Jdks.JDK_8)
-    }
-
+  private def build(
+      repository: GitRepository,
+      jdkVersion: String,
+      resources: ResourceProvider
+  ): InputStream = {
+    val localRepo = GitRepository.clone(repository)
+    runSbtPackageArtifact(resources, localRepo, Jdks.find(jdkVersion))
     localRepo.resolve("target/Scala-0.1.0-SNAPSHOT.zip").inputStream
   }
 
@@ -35,35 +31,12 @@ object ScalaPluginBuilder extends DependencyBuilder(Id("scala")) {
       localRepo: Path,
       jdk: JdkInstaller
   ): Unit = {
-    val jdkPath = jdk.install(resources).resolve("bin")
+    val jdkPath = jdk.install(resources)
     val env = Map("PATH" -> (jdkPath + File.pathSeparator + sys.env("PATH")))
     val command = List("sbt", "packageArtifactZip")
     val result = Shell.run(localRepo, env, command: _*)
-    if (!result.isSuccess) error(s"Couldn't build scala plugin")
+    if (result.isFailed) error(s"Couldn't build scala plugin")
     println("Built scala plugin")
   }
 
-  private def clone(repository: Git) = {
-    val localRepo = Files.createTempDirectory("scala-plugin-repo")
-    val cloned = Shell.run("git", "clone", repository.path.toString, localRepo.toString)
-    if (cloned.exitCode != 0) throw new IllegalStateException(s"Could not clone git $repository")
-    repository.ref.foreach { ref =>
-      val checkout = Shell.run(in = localRepo, "git", "checkout", ref)
-      if (checkout.exitCode != 0) throw new IllegalStateException(s"Could not checkout $ref in $repository")
-    }
-    println(s"Cloned $repository")
-    localRepo
-  }
-
-  private def hash(repository: Git, fallbackRef: String) = {
-    val Ref = repository.ref.getOrElse(fallbackRef)
-    val result = Shell.run("git", "ls-remote", repository.path.toString, Ref)
-
-    if (result.exitCode != 0)
-      throw new Exception(s"Could not fetch hashes from ${repository.path}. STDERR:\n${result.err}")
-    val hash = result.out.linesIterator.map(_.split("\\W+")).collectFirst {
-      case Array(hash, Ref) => hash
-    }
-    hash.orElse(repository.ref).getOrElse(throw new Exception(s"Ref $Ref not found"))
-  }
 }

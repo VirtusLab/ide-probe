@@ -27,9 +27,9 @@ final class PluginDependencyProvider(
     pluginResolver.resolve(plugin) match {
       case Artifact(uri) =>
         resources.get(uri)
-      case Sources(id, repository) =>
+      case Sources(id, config) =>
         DependencyProvider.builders.get(id) match {
-          case Some(builder) => builder.build(repository, resources)
+          case Some(builder) => builder.build(config, resources)
           case None =>
             val message =
               s"No builder found for id: '$id'. Available builders are ${DependencyProvider.builders.keySet}. " +

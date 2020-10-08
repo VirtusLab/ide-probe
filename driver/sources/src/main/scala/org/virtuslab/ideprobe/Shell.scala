@@ -13,6 +13,8 @@ object Shell extends BaseShell
 case class CommandResult(outSafe: String, err: String, exitCode: Int) {
   def isSuccess: Boolean = exitCode == 0
 
+  def isFailed: Boolean = !isSuccess
+
   def out: String = {
     ok()
     outSafe
