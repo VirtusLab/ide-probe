@@ -14,22 +14,23 @@ object RobotProbeDriver {
 
   val pluginId = "com.jetbrains.test.robot-server-plugin"
 
-  private val robots: mutable.Map[Int, RemoteRobot] = mutable.Map.empty
+  private val robotDrivers: mutable.Map[ProbeDriver, RobotProbeDriver] = mutable.Map.empty
 
-  def apply(driver: ProbeDriver): RobotProbeDriver =
-    driver.as(
-      pluginId, { driver =>
-        val port = getRobotPort(driver)
-        val robot = synchronized {
-          robots.getOrElseUpdate(port, {
+  def apply(driver: ProbeDriver): RobotProbeDriver = synchronized {
+    robotDrivers.getOrElseUpdate(
+      driver, {
+        driver.as(
+          pluginId, { driver =>
+            val port = getRobotPort(driver)
             val url = s"http://127.0.0.1:$port"
             println(s"Robot available at $url")
-            new RemoteRobot(url)
-          })
-        }
-        new RobotProbeDriver(driver, robot)
+            val robot = new RemoteRobot(url)
+            new RobotProbeDriver(driver, robot)
+          }
+        )
       }
     )
+  }
 
   private def getRobotPort(driver: ProbeDriver) = {
     driver
