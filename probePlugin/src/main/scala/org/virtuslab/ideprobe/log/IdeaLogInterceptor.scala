@@ -9,7 +9,6 @@ import org.apache.log4j._
 import org.apache.log4j.spi.LoggingEvent
 import org.virtuslab.ideprobe.handlers.IntelliJApi
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.log.IdeaLogParser
 import org.virtuslab.ideprobe.protocol.IdeMessage
 
 object IdeaLogInterceptor extends IntelliJApi {
