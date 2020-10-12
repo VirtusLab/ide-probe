@@ -12,21 +12,28 @@ final case class Config(source: ConfigSource, fallback: Option[Config] = None) {
 
   def withFallback(config: Config): Config = copy(fallback = Some(config))
 
+  def as[A: ClassTag](implicit reader: Derivation[ConfigReader[A]]): A = {
+    getEither[A](None) match {
+      case Right(value) => value
+      case Left(value)  => throw new ConfigReaderException[A](value)
+    }
+  }
+
   def apply[A: ClassTag](path: String)(implicit reader: Derivation[ConfigReader[A]]): A = {
-    getEither[A](path) match {
+    getEither[A](Some(path)) match {
       case Right(value) => value
       case Left(value)  => throw new ConfigReaderException[A](value)
     }
   }
 
   def get[A: ClassTag](path: String)(implicit reader: Derivation[ConfigReader[A]]): Option[A] = {
-    getEither[A](path).toOption
+    getEither[A](Some(path)).toOption
   }
 
   private def getEither[A: ClassTag](
-      path: String
+      path: Option[String]
   )(implicit reader: Derivation[ConfigReader[A]]): ConfigReader.Result[A] = {
-    source.at(path).load[A].left.flatMap { errors =>
+    path.fold(source)(source.at).load[A].left.flatMap { errors =>
       fallback match {
         case Some(fallback) => fallback.getEither[A](path)
         case None           => Left(errors)
