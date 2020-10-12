@@ -9,11 +9,18 @@ object CI {
   private val excluded = Set("ci", "ide-probe", "ideprobe", "probe", "examples")
   lazy val generateScripts = taskKey[Seq[File]]("Generate CI scripts")
 
-  def groupedProjects(): Def.Initialize[Task[Map[String, Seq[ProjectRef]]]] = Def.task {
+  private def scalaVersionToModulePostfix(scalaVersion: String): String =
+    scalaVersion.split("\\.").dropRight(1).mkString("_")
+
+  def groupedProjects(scalaVersions: List[String]): Def.Initialize[Task[Map[String, Seq[ProjectRef]]]] = Def.task {
     val extensionDir = Paths.get(loadedBuild.value.root).resolve("extensions")
+    val excludedCross = for {
+      version <- scalaVersions
+      module <- excluded
+    } yield s"${module}_${scalaVersionToModulePostfix(version)}"
 
     loadedBuild.value.allProjectRefs
-      .filterNot { case (_, project) => excluded.contains(project.id) }
+      .filterNot { case (_, project) => excludedCross.contains(project.id) }
       .groupBy {
         case (_, project) =>
           val projectPath = project.base.toPath
@@ -26,6 +33,7 @@ object CI {
   def generateTestScript(group: String, projects: Seq[ProjectRef], scalaVersion: String): sbt.File = {
     val script = file(s"ci/tests/$scalaVersion/test-$group")
     val arguments = projects
+      .filter(_.project.contains(scalaVersionToModulePostfix(scalaVersion)))
       .map(ref => s"; ${ref.project} / test")
       .mkString
     val content = s"""|#!/bin/sh
@@ -33,7 +41,7 @@ object CI {
                       |export IDEPROBE_DISPLAY=xvfb
                       |export JAVA_HOME=/usr/lib/jvm/java-11-openjdk
                       |
-                      |sbt "; clean; ++$scalaVersion! $arguments"
+                      |sbt "; clean $arguments"
                       |""".stripMargin
     IO.write(script, content)
     println(s"Generated $script")

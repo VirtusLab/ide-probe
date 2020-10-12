@@ -22,6 +22,8 @@ scala:
 
 jobs:
   include:
+    - name: test-probe @ scala-2.12
+      script: ci/tests/run probe 2.12.10
     - name: test-probe @ scala-2.13
       script: ci/tests/run probe 2.13.1
     - name: test-scala @ scala-2.13
