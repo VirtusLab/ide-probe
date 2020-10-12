@@ -11,6 +11,6 @@ object IntelliJDmgResolver {
       artifactName: String,
       group: String = "idea"
   ): DependencyResolver[IntelliJVersion] = { version: IntelliJVersion =>
-    Dependency(s"$baseUri/$group/$artifactName-${version.release}.dmg")
+    Dependency(s"$baseUri/$group/$artifactName-${version.release.getOrElse(version.build)}.dmg")
   }
 }
