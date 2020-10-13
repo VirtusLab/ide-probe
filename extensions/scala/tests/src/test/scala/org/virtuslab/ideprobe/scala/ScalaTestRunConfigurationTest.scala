@@ -5,9 +5,6 @@ import org.virtuslab.ideprobe.protocol.{ModuleRef, Setting}
 import org.virtuslab.ideprobe.scala.protocol.{SbtProjectSettingsChangeRequest, ScalaTestRunConfiguration}
 
 class ScalaTestRunConfigurationTest extends ScalaPluginTestSuite {
-  // ignored because it needs a fix in scala plugin included in the nightly 2020.2.801
-  // that version doesn't work yet though because sbt-idea-compiler-indices can't be resolved
-  @Ignore
   @Test
   def runTestsInDifferentScopes: Unit = fixtureFromConfig("TestConfigurationProject/ideprobe.conf").run { intelliJ =>
     intelliJ.probe.openProject(intelliJ.workspace.resolve("root"))
