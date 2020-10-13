@@ -3,7 +3,7 @@ package org.virtuslab.ideprobe.scala
 import java.nio.file.Path
 
 import org.virtuslab.ideprobe.ProbeDriver
-import org.virtuslab.ideprobe.protocol.ProjectRef
+import org.virtuslab.ideprobe.protocol.{ProjectRef, TestsRunResult}
 import org.virtuslab.ideprobe.scala.protocol._
 
 object ScalaProbeDriver {
@@ -27,4 +27,9 @@ final class ScalaProbeDriver(val driver: ProbeDriver) extends AnyVal {
   def importBspProject(path: Path): ProjectRef = {
     driver.send(ScalaEndpoints.ImportBspProject, path)
   }
+  /**
+   * Runs the specified ScalaTest configuration
+   */
+  def run(runConfiguration: ScalaTestRunConfiguration): TestsRunResult =
+    driver.send(ScalaEndpoints.RunScalaTest, runConfiguration)
 }

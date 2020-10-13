@@ -16,8 +16,8 @@ import com.intellij.execution.testframework.sm.runner.{SMTRunnerEventsAdapter, S
 import com.intellij.openapi.actionSystem.{CommonDataKeys, LangDataKeys, PlatformDataKeys}
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots.ModuleRootManager
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaPsiFacade, PsiManager}
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.testFramework.MapDataContext
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.RunnerSettingsWithProcessOutput
@@ -81,7 +81,7 @@ object RunConfigurations extends IntelliJApi {
       val selectedConfiguration = producer.getConfigurationSettings
       val transformedConfiguration = RunConfigurationTransformer.transform(selectedConfiguration)
 
-      awaitTestResults(project, () => launch(project, transformedConfiguration))
+      RunConfigurationUtil.awaitTestResults(project, () => RunConfigurationUtil.launch(project, transformedConfiguration))
     }
 
   def execute(runConfiguration: JUnitRunConfiguration)(implicit ec: ExecutionContext): TestsRunResult = {
@@ -117,24 +117,15 @@ object RunConfigurations extends IntelliJApi {
     val settings = new RunnerAndConfigurationSettingsImpl(runManager, configuration)
     RunManager.getInstance(project).addConfiguration(settings)
 
-    awaitTestResults(project, () => launch(project, settings))
+    RunConfigurationUtil.awaitTestResults(project, () => RunConfigurationUtil.launch(project, settings))
   }
 
   def execute(runConfiguration: ApplicationRunConfiguration)(implicit ec: ExecutionContext): ProcessResult = {
     val configuration = registerObservableConfiguration(runConfiguration)
-
     val project = Projects.resolve(runConfiguration.module.project)
-    launch(project, configuration)
+
+    RunConfigurationUtil.launch(project, configuration)
     await(configuration.processResult())
-  }
-
-  private def launch(project: Project, configuration: RunnerAndConfigurationSettings): Unit = {
-    val environment = ExecutionUtil
-      .createEnvironment(new DefaultRunExecutor, configuration)
-      .activeTarget()
-      .build()
-
-    ExecutionManager.getInstance(project).restartRunProfile(environment)
   }
 
   private def registerObservableConfiguration(
@@ -162,7 +153,9 @@ object RunConfigurations extends IntelliJApi {
 
     new RunnerSettingsWithProcessOutput(settings)
   }
+}
 
+object RunConfigurationUtil {
   def awaitTestResults(project: Project, launch: () => Unit): TestsRunResult = {
     val latch = new CountDownLatch(1)
     var testProxy: SMTestProxy.SMRootTestProxy = null
@@ -199,5 +192,14 @@ object RunConfigurations extends IntelliJApi {
     }
 
     TestsRunResult(suites)
+  }
+
+  def launch(project: Project, configuration: RunnerAndConfigurationSettings): Unit = {
+    val environment = ExecutionUtil
+      .createEnvironment(new DefaultRunExecutor, configuration)
+      .activeTarget()
+      .build()
+
+    ExecutionManager.getInstance(project).restartRunProfile(environment)
   }
 }

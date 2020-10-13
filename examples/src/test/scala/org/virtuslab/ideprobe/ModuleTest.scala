@@ -1,16 +1,61 @@
 package org.virtuslab.ideprobe
 
 import java.nio.file.Files
-import org.junit.Assert
+import org.junit.{Assert, Test}
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.protocol.{ModuleRef, Setting, TestRunConfiguration}
+import org.virtuslab.ideprobe.protocol.{JUnitRunConfiguration, ModuleRef, Setting, TestRunConfiguration}
 import org.virtuslab.ideprobe.robot.RobotPluginExtension
 import org.virtuslab.ideprobe.scala.ScalaPluginExtension
-import org.virtuslab.ideprobe.scala.protocol.SbtProjectSettingsChangeRequest
+import org.virtuslab.ideprobe.scala.protocol.{SbtProjectSettingsChangeRequest, ScalaTestRunConfiguration}
 
 class ModuleTest extends IdeProbeFixture with ScalaPluginExtension with RobotPluginExtension {
+  @Test
+  def runJUnitTestsInDifferentScopes: Unit = fixtureFromConfig("projects/dokka.conf").run { intelliJ =>
+    deleteIdeaSettings(intelliJ)
+    intelliJ.probe.openProject(intelliJ.workspace)
+
+    val moduleName = intelliJ.config[String]("test.module")
+    val className = intelliJ.config[String]("test.class")
+    val methodName = intelliJ.config[String]("test.method")
+    val moduleRef = ModuleRef(moduleName)
+
+    val runConfigurations = List(
+      JUnitRunConfiguration.module(moduleRef),
+      JUnitRunConfiguration.mainClass(moduleRef, className),
+      JUnitRunConfiguration.method(moduleRef, className, methodName)
+    )
+
+    runConfigurations.map(intelliJ.probe.run).foreach { result =>
+      Assert.assertTrue(s"Test result $result should not be empty", result.suites.nonEmpty)
+    }
+  }
+
+  @Test
+  def runScalaTestTestsInDifferentScopes: Unit = fixtureFromConfig("projects/io.conf").run { intelliJ =>
+    deleteIdeaSettings(intelliJ)
+    intelliJ.probe.openProject(intelliJ.workspace)
+    useSbtShell(intelliJ)
+
+    val moduleName = intelliJ.config[String]("test.module")
+    val packageName = intelliJ.config[String]("test.package")
+    val className = intelliJ.config[String]("test.class")
+    val methodName = intelliJ.config[String]("test.method")
+    val moduleRef = ModuleRef(moduleName)
+
+    val runConfigurations = List(
+      ScalaTestRunConfiguration.Module(moduleRef),
+      ScalaTestRunConfiguration.Package(moduleRef, packageName),
+      ScalaTestRunConfiguration.Class(moduleRef, className),
+      ScalaTestRunConfiguration.Method(moduleRef, className, methodName)
+    )
+
+    runConfigurations.map(intelliJ.probe.run(_)).foreach { result =>
+      Assert.assertTrue(s"Test result $result should not be empty", result.suites.nonEmpty)
+    }
+  }
+
   @ParameterizedTest
   @ValueSource(
     strings = Array(
@@ -25,7 +70,6 @@ class ModuleTest extends IdeProbeFixture with ScalaPluginExtension with RobotPlu
     val project = intelliJ.probe.projectModel()
     val modulesFromConfig = intelliJ.config[Seq[String]]("modules.verify")
     val missingModules = modulesFromConfig.diff(project.moduleNames)
-
     Assert.assertTrue(s"Modules $missingModules are missing", missingModules.isEmpty)
   }
 
@@ -40,6 +84,17 @@ class ModuleTest extends IdeProbeFixture with ScalaPluginExtension with RobotPlu
   def runTestsInModules(configName: String): Unit = fixtureFromConfig(configName).run { intelliJ =>
     deleteIdeaSettings(intelliJ)
     intelliJ.probe.withRobot.openProject(intelliJ.workspace)
+    useSbtShell(intelliJ)
+    val modulesFromConfig = intelliJ.config[Seq[String]]("modules.test")
+    val runnerNameFragmentOpt = intelliJ.config.get[String]("runner")
+    val moduleRefs = modulesFromConfig.map(ModuleRef(_))
+    val runConfigs = moduleRefs.map(moduleRef => TestRunConfiguration(moduleRef, runnerNameFragmentOpt))
+    runConfigs.map(config => config.module -> intelliJ.probe.run(config)).foreach {
+      case (module, result) => Assert.assertTrue(s"Tests in module $module failed", result.isSuccess)
+    }
+  }
+
+  protected def useSbtShell(intelliJ: RunningIntelliJFixture): Unit = {
     if (Files.exists(intelliJ.workspace.resolve("build.sbt"))) {
       intelliJ.probe.setSbtProjectSettings(
         SbtProjectSettingsChangeRequest(
@@ -47,13 +102,6 @@ class ModuleTest extends IdeProbeFixture with ScalaPluginExtension with RobotPlu
           useSbtShellForBuild = Setting.Changed(true)
         )
       )
-    }
-    val modulesFromConfig = intelliJ.config[Seq[String]]("modules.test")
-    val runnerNameFragmentOpt = intelliJ.config.get[String]("runner")
-    val moduleRefs = modulesFromConfig.map(ModuleRef(_))
-    val runConfigs = moduleRefs.map(moduleRef => TestRunConfiguration(moduleRef, runnerNameFragmentOpt))
-    runConfigs.map(config => config.module -> intelliJ.probe.run(config)).foreach {
-      case (module, result) => Assert.assertTrue(s"Tests in module $module failed", result.isSuccess)
     }
   }
 
