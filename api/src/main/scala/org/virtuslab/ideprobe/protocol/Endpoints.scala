@@ -28,6 +28,7 @@ object Endpoints {
   val SyncFiles = Request[Unit, Unit]("fs/sync")
   val TakeScreenshot = Request[String, Unit]("screenshot")
   val RunLocalInspection = Request[InspectionRunParams, InspectionRunResult]("inspections/local/run")
+  val SetConfig = Request[String, Unit]("config/set")
 
   // queries
   val FileReferences = Request[FileRef, Seq[Reference]]("file/references")

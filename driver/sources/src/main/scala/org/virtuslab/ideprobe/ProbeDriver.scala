@@ -260,6 +260,11 @@ class ProbeDriver(
 
   def ping(): Unit = send(Endpoints.Ping)
 
+  /**
+   * Saves the config for the further use
+   */
+  def setConfig(config: String): Unit = send(Endpoints.SetConfig, config)
+
   def as[A](extensionPluginId: String, convert: ProbeDriver => A): A = {
     val isLoaded = plugins.exists(_.id == extensionPluginId)
     if (isLoaded) convert(this)
