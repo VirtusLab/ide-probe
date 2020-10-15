@@ -11,7 +11,6 @@ class ScalaTestRunConfigurationTransformer extends RunConfigurationTransformer {
       case scalaConfig: ScalaTestRunConfiguration => {
         scalaConfig.testConfigurationData.setUseSbt(true)
         scalaConfig.testConfigurationData.setUseUiWithSbt(true)
-        runConfiguration.asInstanceOf[RunnerAndConfigurationSettingsImpl].setConfiguration(scalaConfig)
       }
       case _ =>
     }

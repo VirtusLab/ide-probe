@@ -12,3 +12,17 @@ repositories {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
+sourceSets {
+    uiTest {
+        java {
+            compileClasspath += sourceSets.test.compileClasspath
+            runtimeClasspath += sourceSets.test.runtimeClasspath
+            srcDirs =  ['src/uiTest/java']
+        }
+    }
+}
+
+task uiTest(type: Test) {
+    testClassesDirs = sourceSets.uiTest.output.classesDirs
+    classpath = sourceSets.uiTest.runtimeClasspath
+}

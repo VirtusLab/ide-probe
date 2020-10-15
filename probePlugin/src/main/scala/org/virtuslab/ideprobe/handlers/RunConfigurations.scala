@@ -13,11 +13,13 @@ import com.intellij.execution.impl.{RunManagerImpl, RunnerAndConfigurationSettin
 import com.intellij.execution.junit.JUnitConfiguration
 import com.intellij.execution.runners.ExecutionUtil
 import com.intellij.execution.testframework.sm.runner.{SMTRunnerEventsAdapter, SMTRunnerEventsListener, SMTestProxy}
-import com.intellij.openapi.actionSystem.{CommonDataKeys, LangDataKeys, PlatformDataKeys}
+import com.intellij.openapi.actionSystem.{CommonDataKeys, LangDataKeys}
+import com.intellij.openapi.module.{Module => IntelliJModule}
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots.ModuleRootManager
-import com.intellij.psi.{JavaPsiFacade, PsiManager}
+import com.intellij.psi.impl.file.PsiPackageImpl
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.{JavaPsiFacade, PsiClass, PsiElement, PsiManager}
 import com.intellij.testFramework.MapDataContext
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.RunnerSettingsWithProcessOutput
@@ -27,53 +29,78 @@ import scala.collection.convert.ImplicitConversions.`collection AsScalaIterable`
 import scala.concurrent.ExecutionContext
 
 object RunConfigurations extends IntelliJApi {
-  def execute(runConfiguration: TestRunConfiguration)(implicit ec: ExecutionContext): TestsRunResult =
+  def runTestsFromGenerated(scope: TestScope, runnerToSelect: Option[String])(implicit ec: ExecutionContext): TestsRunResult =
     BackgroundTasks.withAwaitNone {
-      val project = Projects.resolve(ProjectRef.Default)
-      val module = Modules.resolve(runConfiguration.module)
+      val module = Modules.resolve(scope.module)
+      val project = module.getProject
 
       val dataContext = new MapDataContext
       dataContext.put(CommonDataKeys.PROJECT, project)
       dataContext.put(LangDataKeys.MODULE, module)
 
-      val projectPath = Paths.get(project.getBasePath)
-
-      // TODO getContentRoots returns an array, is taking head only reliable?
-      val moduleVirtualFile = ModuleRootManager.getInstance(module).getContentRoots.head
-      val moduleDir = runOnUISync {
-        PsiManager.getInstance(project).findDirectory(moduleVirtualFile)
+      val psiElement: PsiElement = scope match {
+        case TestScope.Module(_) => {
+          val moduleVirtualFile = ModuleRootManager.getInstance(module).getContentRoots.head
+          val psiDirectory = read {
+            PsiManager.getInstance(project).findDirectory(moduleVirtualFile)
+          }
+          Option(psiDirectory).getOrElse(error(s"Directory of module ${module.getName} not found"))
+        }
+        case TestScope.Directory(_, directoryName) => {
+          val moduleContentRoots = ModuleRootManager.getInstance(module).getContentRoots.head
+          val dirPath = Paths.get(moduleContentRoots.getPath, directoryName.replace(".", "/"))
+          val dirVirtualFile = VFS.toVirtualFile(dirPath)
+          val psiDirectory = read {
+            PsiManager.getInstance(project).findDirectory(dirVirtualFile)
+          }
+          Option(psiDirectory).getOrElse(error(s"Directory $directoryName not found"))
+        }
+        case TestScope.Package(_, packageName) => {
+          val psiPackage = new PsiPackageImpl(PsiManager.getInstance(project), packageName)
+          Option(psiPackage).getOrElse(error(s"Package $packageName not found"))
+        }
+        case TestScope.Class(_, className) => {
+          Option(findPsiClass(className, module)).getOrElse(error(s"Class $className not found"))
+        }
+        case TestScope.Method(_, className, methodName) => {
+          val psiClass = findPsiClass(className, module)
+          val psiMethods = read {
+            psiClass.getMethods
+          }
+          psiMethods.find(_.getName == methodName)
+            .getOrElse(error(s"Method $methodName not found in class $className. Available methods: ${psiMethods.map(_.getName)}"))
+        }
       }
 
-      dataContext.put(PlatformDataKeys.SELECTED_ITEMS, List(moduleDir).asJava.toArray)
-
-      val wsVirtualFile = VFS.toVirtualFile(projectPath)
-      dataContext.put(PlatformDataKeys.PROJECT_FILE_DIRECTORY, wsVirtualFile)
-
-      val location = PsiLocation.fromPsiElement(moduleDir)
+      val location = read {
+        PsiLocation.fromPsiElement(psiElement)
+      }
       dataContext.put(Location.DATA_KEY, location)
 
       val configurationContext = ConfigurationContext.getFromContext(dataContext)
       val runManager = configurationContext.getRunManager.asInstanceOf[RunManagerEx]
-      val configurationFromContext = runOnUISync(configurationContext.getConfiguration)
+      val configurationFromContext = read {
+        configurationContext.getConfiguration
+      }
 
       runManager.setTemporaryConfiguration(configurationFromContext)
       runManager.setSelectedConfiguration(configurationFromContext)
 
-      val configurations = runOnUISync {
+      val configurations = read {
         configurationContext.getConfigurationsFromContext
       }
-      val producer = runConfiguration.runnerNameFragment match {
+      val producer = runnerToSelect match {
         case Some(fragment) =>
           configurations
-            .find(_.toString.toLowerCase contains fragment.toLowerCase)
+            .find(_.toString contains fragment)
             .getOrElse(
-              throw new RuntimeException(
+              error(
                 s"Runner name fragment $fragment does not match any configuration name. Available configurations: $configurations."
               )
             )
         case _ =>
           configurations.headOption.getOrElse(
-            throw new RuntimeException(
+            error(
               "No test configuration available for specified settings."
             )
           )
@@ -84,32 +111,36 @@ object RunConfigurations extends IntelliJApi {
       RunConfigurationUtil.awaitTestResults(project, () => RunConfigurationUtil.launch(project, transformedConfiguration))
     }
 
-  def execute(runConfiguration: JUnitRunConfiguration)(implicit ec: ExecutionContext): TestsRunResult = {
-    val module = Modules.resolve(runConfiguration.module)
+  private def findPsiClass(qualifiedName: String, module: IntelliJModule): PsiClass = {
+    val scope = GlobalSearchScope.moduleWithDependenciesScope(module)
+    DumbService.getInstance(module.getProject).waitForSmartMode()
+    read { JavaPsiFacade.getInstance(module.getProject).findClass(qualifiedName, scope) }
+  }
+
+  def runJUnit(scope: TestScope)(implicit ec: ExecutionContext): TestsRunResult = {
+    val module = Modules.resolve(scope.module)
     val project = module.getProject
 
     val configuration = new JUnitConfiguration(UUID.randomUUID().toString, project)
     configuration.setModule(module)
     val data = configuration.getPersistentData
-    (runConfiguration.methodName, runConfiguration.mainClass, runConfiguration.packageName, runConfiguration.directory) match {
-      case (Some(methodName), Some(className), None, None) =>
+    scope match {
+      case TestScope.Module(_) =>
+        data.PACKAGE_NAME = ""
+        data.TEST_OBJECT = JUnitConfiguration.TEST_PACKAGE
+      case TestScope.Directory(_, directoryName) =>
+        data.setDirName(directoryName)
+        data.TEST_OBJECT = JUnitConfiguration.TEST_DIRECTORY
+      case TestScope.Package(_, packageName) =>
+        data.PACKAGE_NAME = packageName
+        data.TEST_OBJECT = JUnitConfiguration.TEST_PACKAGE
+      case TestScope.Class(_, className) =>
+        data.MAIN_CLASS_NAME = className
+        data.TEST_OBJECT = JUnitConfiguration.TEST_CLASS
+      case TestScope.Method(_, className, methodName) =>
         data.METHOD_NAME = methodName
         data.MAIN_CLASS_NAME = className
         data.TEST_OBJECT = JUnitConfiguration.TEST_METHOD
-      case (None, Some(className), None, None) =>
-        data.MAIN_CLASS_NAME = className
-        data.TEST_OBJECT = JUnitConfiguration.TEST_CLASS
-      case (None, None, Some(packageName), None) =>
-        data.PACKAGE_NAME = packageName
-        data.TEST_OBJECT = JUnitConfiguration.TEST_PACKAGE
-      case (None, None, None, Some(directory)) =>
-        data.setDirName(directory)
-        data.TEST_OBJECT = JUnitConfiguration.TEST_DIRECTORY
-      case (None, None, None, None) =>
-        data.PACKAGE_NAME = ""
-        data.TEST_OBJECT = JUnitConfiguration.TEST_PACKAGE
-      case _ =>
-        throw new RuntimeException(s"Unsupported parameter combination for $runConfiguration")
     }
     configuration.setBeforeRunTasks(Collections.singletonList(new MakeBeforeRunTask))
 
@@ -120,7 +151,7 @@ object RunConfigurations extends IntelliJApi {
     RunConfigurationUtil.awaitTestResults(project, () => RunConfigurationUtil.launch(project, settings))
   }
 
-  def execute(runConfiguration: ApplicationRunConfiguration)(implicit ec: ExecutionContext): ProcessResult = {
+  def runApp(runConfiguration: ApplicationRunConfiguration)(implicit ec: ExecutionContext): ProcessResult = {
     val configuration = registerObservableConfiguration(runConfiguration)
     val project = Projects.resolve(runConfiguration.module.project)
 
@@ -135,11 +166,7 @@ object RunConfigurations extends IntelliJApi {
     val project = module.getProject
 
     val configuration = {
-      val psiClass = {
-        val scope = GlobalSearchScope.moduleWithDependenciesScope(module)
-        DumbService.getInstance(project).waitForSmartMode()
-        read { JavaPsiFacade.getInstance(project).findClass(mainClass.mainClass, scope) }
-      }
+      val psiClass = findPsiClass(mainClass.mainClass, module)
 
       val name = UUID.randomUUID()
       val configuration = new ApplicationConfiguration(name.toString, project)

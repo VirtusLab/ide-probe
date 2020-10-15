@@ -24,7 +24,7 @@ object Builds extends IntelliJApi {
     val collector = new BuildResultCollector
     val connection = subscribeForBuildResult(project, collector)
     try {
-      BackgroundTasks.withAwaitNone {
+      val result = BackgroundTasks.withAwaitNone {
         val taskManager = ProjectTaskManager.getInstance(project)
         val promise = if (params.scope.files.nonEmpty) {
           buildFiles(params, project, taskManager)
@@ -35,7 +35,11 @@ object Builds extends IntelliJApi {
         }
         promise.blockingGet(4, TimeUnit.HOURS)
       }
-      collector.buildResult
+      collector.buildResult().getOrElse {
+        val errorMessages = if(result.hasErrors) Seq(BuildMessage(None, "The build failed but ide-probe could not read error messages")) else Seq.empty
+
+        BuildResult(Seq(BuildStepResult(result.isAborted, errorMessages, Seq.empty, Seq.empty, Seq.empty)))
+      }
     } finally {
       connection.disconnect()
     }
@@ -83,9 +87,10 @@ object Builds extends IntelliJApi {
     private var results: Seq[BuildStepResult] = Nil
     private val latch = new CountDownLatch(1)
 
-    def buildResult: BuildResult = {
-      latch.await(10, TimeUnit.MINUTES)
-      BuildResult(results)
+    def buildResult(): Option[BuildResult] = {
+      if (latch.await(30, TimeUnit.SECONDS)) {
+        Some(BuildResult(results))
+      } else None
     }
 
     override def compilationFinished(

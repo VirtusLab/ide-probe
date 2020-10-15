@@ -5,42 +5,17 @@ final case class ApplicationRunConfiguration(
     mainClass: String
 )
 
-final case class JUnitRunConfiguration(
-    module: ModuleRef,
-    mainClass: Option[String],
-    methodName: Option[String],
-    packageName: Option[String],
-    directory: Option[String]
-)
-
-object JUnitRunConfiguration {
-  def mainClass(module: ModuleRef, mainClass: String): JUnitRunConfiguration =
-    JUnitRunConfiguration(module, Some(mainClass), None, None, None)
-
-  def method(module: ModuleRef, mainClass: String, methodName: String): JUnitRunConfiguration =
-    JUnitRunConfiguration(module, Some(mainClass), Some(methodName), None, None)
-
-  def packageName(module: ModuleRef, packageName: String): JUnitRunConfiguration =
-    JUnitRunConfiguration(module, None, None, Some(packageName), None)
-
-  def directory(module: ModuleRef, directory: String): JUnitRunConfiguration =
-    JUnitRunConfiguration(module, None, None, None, Some(directory))
-
-  def module(module: ModuleRef): JUnitRunConfiguration =
-    JUnitRunConfiguration(module, None, None, None, None)
-}
-
 final case class ExpandMacroData(
     fileRef: FileRef,
     macroText: String
 )
 
-final case class TestRunConfiguration(module: ModuleRef, runnerNameFragment: Option[String])
+sealed abstract class TestScope(val module: ModuleRef)
 
-object TestRunConfiguration {
-  def module(module: ModuleRef): TestRunConfiguration =
-    TestRunConfiguration(module, None)
-
-  def module(module: ModuleRef, runnerNameFragment: String): TestRunConfiguration =
-    TestRunConfiguration(module, Some(runnerNameFragment))
+object TestScope {
+  case class Module(override val module: ModuleRef) extends TestScope(module)
+  case class Directory(override val module: ModuleRef, directoryName: String) extends TestScope(module)
+  case class Package(override val module: ModuleRef, packageName: String) extends TestScope(module)
+  case class Class(override val module: ModuleRef, className: String) extends TestScope(module)
+  case class Method(override val module: ModuleRef, className: String, methodName: String) extends TestScope(module)
 }
