@@ -13,7 +13,7 @@ object Endpoints {
 
   // commands
   val PreconfigureJdk = Request[Unit, Unit]("jdk/preconfigure")
-  val AwaitIdle = Request[Unit, Unit]("awaitIdle")
+  val AwaitIdle = Request[Option[AwaitIdleParams], Unit]("awaitIdle")
   val AwaitNotification = Request[(String, Duration), IdeNotification]("notification/await")
   val Build = Request[BuildParams, BuildResult]("build")
   val CloseProject = Request[ProjectRef, Unit]("project/close")

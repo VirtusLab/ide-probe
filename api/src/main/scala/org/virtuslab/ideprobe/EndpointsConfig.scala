@@ -1,9 +1,9 @@
 package org.virtuslab.ideprobe
 
-import org.virtuslab.ideprobe.protocol.AwaitIdle
+import org.virtuslab.ideprobe.protocol.AwaitIdleParams
 
-case class EndpointsConfig(awaitIdle: AwaitIdle)
+case class EndpointsConfig(awaitIdleParams: AwaitIdleParams)
 
 object EndpointsConfig {
-  def apply(): EndpointsConfig = EndpointsConfig(awaitIdle = AwaitIdle.Default)
+  def apply(): EndpointsConfig = EndpointsConfig(awaitIdleParams = AwaitIdleParams.Default)
 }

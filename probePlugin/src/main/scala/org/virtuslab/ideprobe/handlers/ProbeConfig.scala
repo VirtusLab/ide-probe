@@ -3,11 +3,15 @@ package org.virtuslab.ideprobe.handlers
 import org.virtuslab.ideprobe.Config
 
 object ProbeConfig {
-  private var config = Config.Empty
+  private var probeConfig = Config.Empty
 
   def initialize(configContent: String): Unit = {
-    config = Config.fromString(configContent)
+    probeConfig = Config.fromString(configContent)
   }
 
-  def get(): Config = config
+  def initialize(config: Config): Unit = {
+    probeConfig = config
+  }
+
+  def get(): Config = probeConfig
 }

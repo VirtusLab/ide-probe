@@ -47,9 +47,7 @@ final class InstalledIntelliJ(val root: Path, config: DriverConfig) {
       val connection = JsonRpcConnection.from(socket)
 
       val driver = ProbeDriver.start(connection)
-      val stringFromConfig = probeConfig.source.value
-        .fold(e => error(e.prettyPrint()), value => value.render(ConfigRenderOptions.concise()))
-      driver.setConfig(stringFromConfig)
+      setConfig(driver, probeConfig)
       new RunningIde(launcher, driver.pid(), driver)
     } catch {
       case cause: Exception =>
@@ -59,6 +57,12 @@ final class InstalledIntelliJ(val root: Path, config: DriverConfig) {
       // we only need the server to establish the initial connection
       server.close()
     }
+  }
+
+  private def setConfig(driver: ProbeDriver, probeConfig: Config): Unit = {
+    val stringFromConfig = probeConfig.source.value
+      .fold(e => error(e.prettyPrint()), value => value.render(ConfigRenderOptions.concise()))
+    driver.setConfig(stringFromConfig)
   }
 
   private def startProcess(workingDir: Path, server: ServerSocket) = {

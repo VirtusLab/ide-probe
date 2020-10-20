@@ -30,7 +30,7 @@ class BaseProbeHandlerContributor extends ProbeHandlerContributor {
       .on(Endpoints.ProjectSdk)(Projects.sdk)
       .on(Endpoints.ListOpenProjects)(_ => Projects.all)
       .on(Endpoints.ModuleSdk)(Modules.sdk)
-      .on(Endpoints.AwaitIdle)(_ => BackgroundTasks.awaitNone())
+      .on(Endpoints.AwaitIdle)(_.fold(BackgroundTasks.awaitNone())(BackgroundTasks.awaitNone))
       .on(Endpoints.Build)(Builds.build)
       .on(Endpoints.SyncFiles)(_ => VFS.syncAll())
       .on(Endpoints.AwaitNotification)((Notifications.await _).tupled)

@@ -2,6 +2,7 @@ package org.virtuslab.ideprobe
 
 import java.nio.file.Path
 
+import com.typesafe.config.ConfigRenderOptions
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.config.IdeProbeConfig
 import org.virtuslab.ideprobe.dependencies.IntelliJVersion

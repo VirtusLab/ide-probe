@@ -3,10 +3,11 @@ package org.virtuslab.ideprobe.handlers
 import java.lang.reflect.Method
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.protocol.AwaitIdle
+import org.virtuslab.ideprobe.protocol.AwaitIdleParams
 import scala.annotation.tailrec
 import scala.concurrent.duration._
 import pureconfig.generic.auto._
+import org.virtuslab.ideprobe.jsonrpc.PayloadJsonFormat._
 
 object BackgroundTasks extends IntelliJApi {
   def withAwaitNone[A](block: => A): A = {
@@ -16,27 +17,23 @@ object BackgroundTasks extends IntelliJApi {
   }
 
   def awaitNone(): Unit = {
-    doWait()
-  }
-
-  private def doWait(): Unit = {
     val config = ProbeConfig.get()
-      .get[AwaitIdle]("probe.endpoints.awaitIdle")
-      .getOrElse(AwaitIdle.Default)
+      .get[AwaitIdleParams]("probe.endpoints.awaitIdle")
+      .getOrElse(AwaitIdleParams.Default)
 
-    doWait(config)
+    awaitNone(config)
   }
 
   @tailrec
-  private def doWait(config: AwaitIdle): Unit = {
-    sleep(config.initialWait)
+  def awaitNone(params: AwaitIdleParams): Unit = {
+    sleep(params.initialWait)
     val tasks = currentBackgroundTasks()
     if (tasks.nonEmpty) {
       log.warn(s"Waiting for completion of $tasks")
-      doWait(config)
+      awaitNone(params)
     } else {
-      if (newTaskAppeared(within = config.newTaskWait, probeFrequency = config.checkFrequency)) {
-        doWait(config)
+      if (newTaskAppeared(within = params.newTaskWait, probeFrequency = params.checkFrequency)) {
+        awaitNone(params)
       }
     }
   }
