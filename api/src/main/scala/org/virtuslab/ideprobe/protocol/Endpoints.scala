@@ -13,7 +13,7 @@ object Endpoints {
 
   // commands
   val PreconfigureJdk = Request[Unit, Unit]("jdk/preconfigure")
-  val AwaitIdle = Request[Unit, Unit]("awaitIdle")
+  val AwaitIdle = Request[Option[AwaitIdleParams], Unit]("awaitIdle")
   val AwaitNotification = Request[(String, Duration), IdeNotification]("notification/await")
   val Build = Request[BuildParams, BuildResult]("build")
   val CloseProject = Request[ProjectRef, Unit]("project/close")
@@ -28,6 +28,7 @@ object Endpoints {
   val SyncFiles = Request[Unit, Unit]("fs/sync")
   val TakeScreenshot = Request[String, Unit]("screenshot")
   val RunLocalInspection = Request[InspectionRunParams, InspectionRunResult]("inspections/local/run")
+  val SetConfig = Request[String, Unit]("config/set")
 
   // queries
   val FileReferences = Request[FileRef, Seq[Reference]]("file/references")

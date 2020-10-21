@@ -1,23 +1,15 @@
 package org.virtuslab.ideprobe.handlers
 
-import java.nio.file.Path
-import java.nio.file.Paths
-
-import com.intellij.openapi.application.Application
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.application.PathManager
+import java.nio.file.{Path, Paths}
+import com.intellij.openapi.application.{Application, ApplicationManager, PathManager}
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.util.Key
-import com.intellij.openapi.util.ThrowableComputable
-import com.intellij.openapi.util.UserDataHolder
+import com.intellij.openapi.util.{Key, ThrowableComputable, UserDataHolder}
 import com.intellij.ui.CheckBoxList
 import javax.swing.JList
 import org.virtuslab.ideprobe.Probe
-
 import scala.annotation.tailrec
-import scala.concurrent.Await
-import scala.concurrent.Future
 import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
 import scala.reflect.ClassTag
 
 object IntelliJApi extends IntelliJApi

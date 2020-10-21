@@ -89,9 +89,23 @@ class ProbeDriver(
   def preconfigureJdk(): Unit = send(Endpoints.PreconfigureJdk)
 
   /**
+   * Uses awaitIdle endpoint with default parameters
+   */
+  def awaitIdle(): Unit = {
+    awaitIdle(params = None)
+  }
+
+  /**
+   * Uses awaitIdle endpoints with explicitly specified parameters
+   */
+  def awaitIdle(params: AwaitIdleParams): Unit = {
+    awaitIdle(params = Some(params))
+  }
+
+  /**
    * Forces the probe to wait until all background tasks are complete before processing next request
    */
-  def awaitIdle(): Unit = send(Endpoints.AwaitIdle)
+  private def awaitIdle(params: Option[AwaitIdleParams]): Unit = send(Endpoints.AwaitIdle, params)
 
   /**
    * Forces the probe to wait until the specified notification is issued by the IDE
@@ -259,6 +273,11 @@ class ProbeDriver(
     send(Endpoints.ExpandMacro, ExpandMacroData(fileRef, macroText))
 
   def ping(): Unit = send(Endpoints.Ping)
+
+  /**
+   * Saves the config for the further use
+   */
+  def setConfig(config: String): Unit = send(Endpoints.SetConfig, config)
 
   def as[A](extensionPluginId: String, convert: ProbeDriver => A): A = {
     val isLoaded = plugins.exists(_.id == extensionPluginId)

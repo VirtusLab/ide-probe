@@ -2,6 +2,7 @@ package org.virtuslab.ideprobe
 
 import java.nio.file.Path
 
+import com.typesafe.config.ConfigRenderOptions
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.config.IdeProbeConfig
 import org.virtuslab.ideprobe.dependencies.IntelliJVersion
@@ -85,7 +86,7 @@ final case class IntelliJFixture(
   }
 
   def startIntelliJ(workspace: Path, installedIntelliJ: InstalledIntelliJ): RunningIde = {
-    val runningIde = installedIntelliJ.startIn(workspace)
+    val runningIde = installedIntelliJ.startIn(workspace, config)
     val probe = runningIde.probe
     probe.awaitIdle()
     val running = new RunningIntelliJFixture(workspace, probe, config, installedIntelliJ.paths)

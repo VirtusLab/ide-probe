@@ -3,20 +3,14 @@ package org.virtuslab.ideprobe.ide.intellij
 import java.io.File
 import java.net.ServerSocket
 import java.nio.ByteBuffer
-import java.nio.file.Path
-import java.nio.file.Paths
-
-import com.zaxxer.nuprocess.NuAbstractProcessHandler
-import com.zaxxer.nuprocess.NuProcessBuilder
+import java.nio.file.{Path, Paths}
+import com.typesafe.config.ConfigRenderOptions
+import com.zaxxer.nuprocess.{NuAbstractProcessHandler, NuProcessBuilder}
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.ProbeDriver
-import org.virtuslab.ideprobe.Shell
-import org.virtuslab.ideprobe.TestCase
 import org.virtuslab.ideprobe.config.DriverConfig
 import org.virtuslab.ideprobe.jsonrpc.JsonRpcConnection
-
-import scala.concurrent.ExecutionContext
-import scala.concurrent.blocking
+import org.virtuslab.ideprobe._
+import scala.concurrent.{ExecutionContext, blocking}
 
 final class InstalledIntelliJ(val root: Path, config: DriverConfig) {
   val paths: IntelliJPaths = new IntelliJPaths(root, config.headless)
@@ -43,7 +37,7 @@ final class InstalledIntelliJ(val root: Path, config: DriverConfig) {
     root.resolve("bin/idea.properties").write(content)
   }
 
-  def startIn(workingDir: Path)(implicit ec: ExecutionContext): RunningIde = {
+  def startIn(workingDir: Path, probeConfig: Config)(implicit ec: ExecutionContext): RunningIde = {
     val server = new ServerSocket(0)
 
     val launcher = startProcess(workingDir, server)
@@ -53,7 +47,7 @@ final class InstalledIntelliJ(val root: Path, config: DriverConfig) {
       val connection = JsonRpcConnection.from(socket)
 
       val driver = ProbeDriver.start(connection)
-
+      setConfig(driver, probeConfig)
       new RunningIde(launcher, driver.pid(), driver)
     } catch {
       case cause: Exception =>
@@ -63,6 +57,12 @@ final class InstalledIntelliJ(val root: Path, config: DriverConfig) {
       // we only need the server to establish the initial connection
       server.close()
     }
+  }
+
+  private def setConfig(driver: ProbeDriver, probeConfig: Config): Unit = {
+    val stringFromConfig = probeConfig.source.value
+      .fold(e => error(e.prettyPrint()), value => value.render(ConfigRenderOptions.concise()))
+    driver.setConfig(stringFromConfig)
   }
 
   private def startProcess(workingDir: Path, server: ServerSocket) = {
