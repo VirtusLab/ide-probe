@@ -3,6 +3,7 @@ package org.virtuslab.ideprobe.handlers
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.roots.ModuleRootManager
+import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.jps.model.java.JavaResourceRootType.RESOURCE
 import org.jetbrains.jps.model.java.JavaResourceRootType.TEST_RESOURCE
 import org.jetbrains.jps.model.java.{JavaModuleSourceRootTypes, JavaResourceRootProperties, JavaSourceRootProperties}
@@ -37,6 +38,8 @@ object Modules extends IntelliJApi {
   }
 
   def dependencies(module: Module): Array[Module] = moduleRootManager(module).getDependencies
+
+  def contentRoot(module: Module): VirtualFile = moduleRootManager(module).getContentRoots.head
 
   def contentRoots(module: Module): ContentRoots = {
     val entries = moduleRootManager(module).getContentEntries.map { entry =>

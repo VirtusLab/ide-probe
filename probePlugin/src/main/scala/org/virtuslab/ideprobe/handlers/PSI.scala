@@ -1,18 +1,27 @@
 package org.virtuslab.ideprobe.handlers
 
-import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiFile
-import com.intellij.psi.PsiManager
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.impl.file.PsiPackageImpl
+import com.intellij.psi.{PsiDirectory, PsiElement, PsiFile, PsiManager, PsiPackage}
 import org.virtuslab.ideprobe.protocol.FileRef
 import org.virtuslab.ideprobe.protocol.ProjectRef
 import org.virtuslab.ideprobe.protocol.Reference
 import scala.collection.mutable
 
 object PSI extends IntelliJApi {
+  def findPackage(project: Project, packageName: String): Option[PsiPackage] = read {
+    Option(new PsiPackageImpl(manager(project), packageName))
+  }
+
+  def findDirectory(project: Project, file: VirtualFile): Option[PsiDirectory] = read {
+    Option(manager(project).findDirectory(file))
+  }
+
   def resolve(ref: FileRef): PsiFile = {
     val project = Projects.resolve(ref.project)
     val file = VFS.resolve(ref)
-    read { PsiManager.getInstance(project).findFile(file) }
+    read { manager(project).findFile(file) }
   }
 
   def references(file: FileRef): Seq[Reference] = {
@@ -35,6 +44,10 @@ object PSI extends IntelliJApi {
     }
 
     references.toSet.toList
+  }
+
+  private def manager(project: Project) = {
+    PsiManager.getInstance(project)
   }
 
   private def toTarget(element: PsiElement): Option[Reference.Target] = {

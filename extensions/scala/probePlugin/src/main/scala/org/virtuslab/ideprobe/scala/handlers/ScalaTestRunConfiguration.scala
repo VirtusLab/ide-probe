@@ -4,10 +4,13 @@ import java.util.Collections
 
 import com.intellij.compiler.options.CompileStepBeforeRun.MakeBeforeRunTask
 import com.intellij.execution.impl.{RunManagerImpl, RunnerAndConfigurationSettingsImpl}
-import org.jetbrains.plugins.scala.testingSupport.test.scalatest.{ScalaTestConfigurationType, ScalaTestRunConfigurationFactory}
+import org.jetbrains.plugins.scala.testingSupport.test.scalatest.{
+  ScalaTestConfigurationType,
+  ScalaTestRunConfigurationFactory
+}
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData, SingleTestData}
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, TestKind}
-import org.virtuslab.ideprobe.handlers.{Modules, RunConfigurationUtil}
+import org.virtuslab.ideprobe.handlers.{Modules, Tests, RunConfigurations}
 import org.virtuslab.ideprobe.protocol.TestsRunResult
 import org.virtuslab.ideprobe.scala.protocol.{ScalaTestRunConfiguration => RunConfiguration}
 
@@ -54,6 +57,6 @@ object ScalaTestRunConfiguration {
     runManager.setTemporaryConfiguration(settings)
     runManager.setSelectedConfiguration(settings)
 
-    RunConfigurationUtil.awaitTestResults(project, () => RunConfigurationUtil.launch(project, settings))
+    Tests.awaitTestResults(project, () => RunConfigurations.launch(project, settings))
   }
 }

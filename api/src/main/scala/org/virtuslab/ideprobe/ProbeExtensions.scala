@@ -112,6 +112,8 @@ trait ProbeExtensions {
       import java.nio.file.attribute.PosixFilePermission._
       val attributes = Files.getPosixFilePermissions(path)
       attributes.add(OWNER_EXECUTE)
+      attributes.add(GROUP_EXECUTE)
+      attributes.add(OTHERS_EXECUTE)
       Files.setPosixFilePermissions(path, attributes)
     }
 

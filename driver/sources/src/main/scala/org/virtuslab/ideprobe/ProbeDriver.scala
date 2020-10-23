@@ -205,7 +205,8 @@ class ProbeDriver(
   /**
    * Runs the specified test configuration with the first available test runner
    */
-  def runTestsFromGenerated(runConfiguration: TestScope): TestsRunResult = runTestsFromGenerated(runConfiguration, runnerToSelect = None)
+  def runTestsFromGenerated(runConfiguration: TestScope): TestsRunResult =
+    runTestsFromGenerated(runConfiguration, runnerToSelect = None)
 
   /**
    * Runs the specified test configuration with a test runner containing provided runnerToSelect substring
@@ -214,7 +215,7 @@ class ProbeDriver(
     runTestsFromGenerated(runConfiguration, runnerToSelect = Some(runnerToSelect))
   }
 
-  private def runTestsFromGenerated(runConfiguration: TestScope, runnerToSelect: Option[String]): TestsRunResult = {
+  def runTestsFromGenerated(runConfiguration: TestScope, runnerToSelect: Option[String]): TestsRunResult = {
     send(Endpoints.RunTestsFromGenerated, (runConfiguration, runnerToSelect))
   }
 

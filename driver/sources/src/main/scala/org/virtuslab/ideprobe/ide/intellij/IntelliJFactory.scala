@@ -1,6 +1,5 @@
 package org.virtuslab.ideprobe.ide.intellij
 
-import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.stream.Collectors
@@ -89,7 +88,7 @@ object IntelliJFactory {
   val Default =
     new IntelliJFactory(
       new DependencyProvider(
-        new IntelliJDependencyProvider(IntelliJZipResolver.Community, ResourceProvider.Default),
+        new IntelliJDependencyProvider(Seq(IntelliJZipResolver.Community), ResourceProvider.Default),
         new PluginDependencyProvider(PluginResolver.Official, ResourceProvider.Default)
       ),
       DriverConfig()
@@ -99,7 +98,7 @@ object IntelliJFactory {
     val intelliJResolver = IntelliJZipResolver.from(resolversConfig.intellij)
     val pluginResolver = PluginResolver.from(resolversConfig.plugins)
     val resourceProvider = ResourceProvider.from(resolversConfig.resourceProvider)
-    val intelliJDependencyProvider = new IntelliJDependencyProvider(intelliJResolver, resourceProvider)
+    val intelliJDependencyProvider = new IntelliJDependencyProvider(Seq(intelliJResolver), resourceProvider)
     val pluginDependencyProvider = new PluginDependencyProvider(pluginResolver, resourceProvider)
     val dependencyProvider = new DependencyProvider(intelliJDependencyProvider, pluginDependencyProvider)
     new IntelliJFactory(dependencyProvider, driverConfig)

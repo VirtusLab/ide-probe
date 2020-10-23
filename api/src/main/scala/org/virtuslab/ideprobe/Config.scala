@@ -8,7 +8,8 @@ import pureconfig.error.ConfigReaderException
 import org.virtuslab.ideprobe.Extensions._
 import scala.reflect.ClassTag
 
-final case class Config(source: ConfigSource, fallback: Option[Config] = None) {
+final case class Config(source: ConfigObjectSource, fallback: Option[Config] = None) {
+  def hasPath(path: String): Boolean = source.config.exists(_.hasPath(path))
 
   def withFallback(config: Config): Config = copy(fallback = Some(config))
 
@@ -33,7 +34,7 @@ final case class Config(source: ConfigSource, fallback: Option[Config] = None) {
   private def getEither[A: ClassTag](
       path: Option[String]
   )(implicit reader: Derivation[ConfigReader[A]]): ConfigReader.Result[A] = {
-    path.fold(source)(source.at).load[A].left.flatMap { errors =>
+    path.fold[ConfigSource](source)(source.at).load[A].left.flatMap { errors =>
       fallback match {
         case Some(fallback) => fallback.getEither[A](path)
         case None           => Left(errors)
