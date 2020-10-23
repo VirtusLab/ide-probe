@@ -1,7 +1,5 @@
 package org.virtuslab.ideprobe.handlers
 
-import java.nio.file.Paths
-
 import com.intellij.openapi.vcs.ProjectLevelVcsManager
 import org.virtuslab.ideprobe.protocol.ProjectRef
 import org.virtuslab.ideprobe.protocol

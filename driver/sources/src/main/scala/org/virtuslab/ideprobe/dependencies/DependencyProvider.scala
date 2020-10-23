@@ -1,16 +1,29 @@
-package org.virtuslab.ideprobe.dependencies
+package org.virtuslab.ideprobe
+package dependencies
 
 import java.nio.file.Path
-import org.virtuslab.ideprobe.Id
 import org.virtuslab.ideprobe.dependencies.Dependency._
 import scala.collection.mutable
+import scala.util.Try
 
 final class IntelliJDependencyProvider(
-    intelliJResolver: DependencyResolver[IntelliJVersion],
+    intelliJResolvers: Seq[DependencyResolver[IntelliJVersion]],
     resources: ResourceProvider
 ) {
   def fetch(intelliJ: IntelliJVersion): Path = {
-    intelliJResolver.resolve(intelliJ) match {
+    val noResolversError = Try[Path](error("Dependency resolver list is empty"))
+    intelliJResolvers
+      .foldLeft(noResolversError) { (result, resolver) =>
+        result.orElse(Try(resolve(intelliJ, resolver)))
+      }
+      .get
+  }
+
+  private def resolve(
+      intelliJ: IntelliJVersion,
+      resolver: DependencyResolver[IntelliJVersion]
+  ): Path = {
+    resolver.resolve(intelliJ) match {
       case Artifact(uri) =>
         resources.get(uri)
       case other =>

@@ -121,10 +121,10 @@ final class InstalledIntelliJ(val root: Path, config: DriverConfig) {
 
       private def printBuffer(buffer: ByteBuffer, tag: String) = {
         val bytes = new Array[Byte](buffer.remaining)
-        buffer.get(bytes);
+        buffer.get(bytes)
         val output = new String(bytes)
-        val lines = output.split("\n")
-        lines.foreach(line => println(s"[${tag}] ${line}"))
+        val lines = output.linesIterator
+        lines.foreach(line => println(s"[$tag] $line"))
       }
     }
     builder.setProcessListener(processHandler)

@@ -1,63 +1,37 @@
 package org.virtuslab.ideprobe
 
-import java.nio.file.Files
-
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import org.junit.{Assert, Test}
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.robot.RobotPluginExtension
 import org.virtuslab.ideprobe.protocol._
+import org.virtuslab.ideprobe.robot.RobotPluginExtension
 import org.virtuslab.ideprobe.scala.ScalaPluginExtension
-import org.virtuslab.ideprobe.scala.protocol.{SbtProjectSettingsChangeRequest, ScalaTestRunConfiguration}
+import org.virtuslab.ideprobe.scala.protocol.SbtProjectSettingsChangeRequest
 
 class ModuleTest extends IdeProbeFixture with ScalaPluginExtension with RobotPluginExtension {
-  @Test def runTestsInDifferentScopes: Unit = fixtureFromConfig("projects/dokka.conf").run { intelliJ =>
+
+  registerFixtureTransformer(_.withAfterIntelliJStartup((fixture, intelliJ) => {
     deleteIdeaSettings(intelliJ)
-    intelliJ.probe.openProject(intelliJ.workspace)
-    val buildResult = intelliJ.probe.build()
-    buildResult.assertSuccess()
-
-    val moduleName = intelliJ.config[String]("test.module")
-    val packageName = intelliJ.config[String]("test.package")
-    val directoryName = intelliJ.config[String]("test.directory")
-    val className = intelliJ.config[String]("test.class")
-    val methodName = intelliJ.config[String]("test.method")
-    val moduleRef = ModuleRef(moduleName)
-
-    val runConfigurations = List(
-      TestScope.Module(moduleRef),
-      TestScope.Directory(moduleRef, directoryName),
-      TestScope.Package(moduleRef, packageName),
-      TestScope.Class(moduleRef, className),
-      TestScope.Method(moduleRef, className, methodName)
-    )
-
-    runConfigurations.map(intelliJ.probe.runTestsFromGenerated).foreach { result =>
-      Assert.assertTrue(s"Test result $result should not be empty", result.suites.nonEmpty)
-    }
-  }
-
-  @Test
-  def runScalaTestTestsInDifferentScopes: Unit = fixtureFromConfig("projects/io.conf").run { intelliJ =>
-    deleteIdeaSettings(intelliJ)
-    intelliJ.probe.openProject(intelliJ.workspace)
+    intelliJ.probe.withRobot.openProject(intelliJ.workspace)
     useSbtShell(intelliJ)
+  }))
 
-    val moduleName = intelliJ.config[String]("test.module")
-    val packageName = intelliJ.config[String]("test.package")
-    val className = intelliJ.config[String]("test.class")
-    val methodName = intelliJ.config[String]("test.method")
-    val moduleRef = ModuleRef(moduleName)
-
-    val runConfigurations = List(
-      ScalaTestRunConfiguration.Module(moduleRef),
-      ScalaTestRunConfiguration.Package(moduleRef, packageName),
-      ScalaTestRunConfiguration.Class(moduleRef, className),
-      ScalaTestRunConfiguration.Method(moduleRef, className, methodName)
+  @ParameterizedTest
+  @ValueSource(
+    strings = Array(
+      "projects/io.conf",
+      "projects/librarymanagement.conf",
+      "projects/dokka.conf"
     )
-
-    runConfigurations.map(intelliJ.probe.run(_)).foreach { result =>
+  )
+  @Test def runTestsInDifferentScopes(configName: String): Unit = fixtureFromConfig(configName).run { intelliJ =>
+    val runnerToSelect = intelliJ.config.get[String]("runner")
+    val modulesToTest = intelliJ.config[Seq[String]]("modules.test")
+    intelliJ.probe.build().assertSuccess()
+    modulesToTest.foreach { moduleName =>
+      val scope = TestScope.Module(ModuleRef(moduleName))
+      val result = intelliJ.probe.runTestsFromGenerated(scope, runnerToSelect)
       Assert.assertTrue(s"Test result $result should not be empty", result.suites.nonEmpty)
     }
   }
@@ -71,41 +45,14 @@ class ModuleTest extends IdeProbeFixture with ScalaPluginExtension with RobotPlu
     )
   )
   def verifyModulesPresent(configName: String): Unit = fixtureFromConfig(configName).run { intelliJ =>
-    deleteIdeaSettings(intelliJ)
-    intelliJ.probe.withRobot.openProject(intelliJ.workspace)
     val project = intelliJ.probe.projectModel()
-    val modulesFromConfig = intelliJ.config[Seq[String]]("modules.verify")
-    val missingModules = modulesFromConfig.diff(project.moduleNames)
+    val expectedModules = intelliJ.config[Seq[String]]("modules.verify")
+    val missingModules = expectedModules.diff(project.moduleNames)
     Assert.assertTrue(s"Modules $missingModules are missing", missingModules.isEmpty)
   }
 
-  @ParameterizedTest
-  @ValueSource(
-    strings = Array(
-      "projects/io.conf",
-      "projects/librarymanagement.conf",
-      "projects/dokka.conf"
-    )
-  )
-  def runTestsInModules(configName: String): Unit = fixtureFromConfig(configName).run { intelliJ =>
-    deleteIdeaSettings(intelliJ)
-    intelliJ.probe.withRobot.openProject(intelliJ.workspace)
-    useSbtShell(intelliJ)
-    val modulesFromConfig = intelliJ.config[Seq[String]]("modules.test")
-    val runnerToSelectOpt = intelliJ.config.get[String]("runner")
-    val moduleRefs = modulesFromConfig.map(ModuleRef(_))
-    val runConfigs = moduleRefs.map(moduleRef => TestScope.Module(moduleRef))
-
-    val moduleResults = runConfigs.map(config => config.module -> {
-      runnerToSelectOpt.fold(intelliJ.probe.runTestsFromGenerated(config))(intelliJ.probe.runTestsFromGenerated(config, _))
-    })
-    moduleResults.foreach {
-      case (module, result) => Assert.assertTrue(s"Tests in module $module failed", result.isSuccess)
-    }
-  }
-
   protected def useSbtShell(intelliJ: RunningIntelliJFixture): Unit = {
-    if (Files.exists(intelliJ.workspace.resolve("build.sbt"))) {
+    if (intelliJ.workspace.resolve("build.sbt").isFile) {
       intelliJ.probe.setSbtProjectSettings(
         SbtProjectSettingsChangeRequest(
           useSbtShellForImport = Setting.Changed(true),
@@ -118,9 +65,9 @@ class ModuleTest extends IdeProbeFixture with ScalaPluginExtension with RobotPlu
   /**
    * The presence of .idea can prevent automatic import of gradle project
    */
-  protected def deleteIdeaSettings(intelliJ: RunningIntelliJFixture): Unit = {
+  private def deleteIdeaSettings(intelliJ: RunningIntelliJFixture): Unit = {
     val path = intelliJ.workspace.resolve(".idea")
-    if (Files.exists(path)) path.delete()
+    if (path.isDirectory) path.delete()
   }
 
 }

@@ -232,18 +232,6 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
     }
   }
 
-  @Ignore
-  @Test
-  def failsOnUnexpectedWindow(): Unit = fixture.run { intellij =>
-    val action = "org.virtuslab.ideprobe.test.OpenWindowAction"
-    Try(intellij.probe.invokeAction(action)) match {
-      case Failure(e: RemoteException) if e.getMessage.contains("Unexpectedly opened window") => ()
-
-      case Success(_) => fail("Opened window did not trigger an error")
-      case Failure(e) => throw e
-    }
-  }
-
   @Test
   def robotTest(): Unit = fixture.run { intelliJ =>
     val version = fixture.version.inferredMajor
@@ -304,7 +292,6 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
     }
   }
 
-  // temporary for debugging
   @tailrec
   private def retry[A](times: Int)(action: => A): A = {
     try {
