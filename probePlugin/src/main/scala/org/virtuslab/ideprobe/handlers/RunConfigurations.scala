@@ -81,6 +81,7 @@ object RunConfigurations extends IntelliJApi {
       runManager.setTemporaryConfiguration(configurationFromContext)
       runManager.setSelectedConfiguration(configurationFromContext)
 
+      waitForSmartMode(project)
       val configurations = read { configurationContext.getConfigurationsFromContext }
       val producer = runnerToSelect match {
         case Some(fragment) =>
@@ -172,9 +173,12 @@ object RunConfigurations extends IntelliJApi {
 
   private def findPsiClass(qualifiedName: String, module: IntelliJModule): PsiClass = {
     val scope = GlobalSearchScope.moduleWithDependenciesScope(module)
-    DumbService.getInstance(module.getProject).waitForSmartMode()
+    waitForSmartMode(module.getProject)
     val cls = read { JavaPsiFacade.getInstance(module.getProject).findClass(qualifiedName, scope) }
     Option(cls).getOrElse(error(s"Class $qualifiedName not found"))
   }
 
+  private def waitForSmartMode(project: Project) = {
+    DumbService.getInstance(project).waitForSmartMode()
+  }
 }

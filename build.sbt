@@ -8,7 +8,7 @@ skip in publish := true
 scalaVersion.in(ThisBuild) := scala213
 // -EAP-SNAPSHOT suffix results in incorrect url for the intellij scala plugin
 // it is appended automatically for intellij sdk dependency url and manually for the BuildInfo
-intellijBuild.in(ThisBuild) := "203.3645.34"
+intellijBuild.in(ThisBuild) := "203.4818.26"
 // provide intellij version in case of the release version
 val intellijVersion = None
 licenses.in(ThisBuild) := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0"))
