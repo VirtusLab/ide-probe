@@ -25,7 +25,7 @@ trait RunningIntelliJPerSuiteBase {
     workspace = baseFixture.setupWorkspace()
     installed = baseFixture.installIntelliJ()
     running = baseFixture.startIntelliJ(workspace, installed)
-    runningIntelliJFixture = new RunningIntelliJFixture(workspace, running.probe, baseFixture.config, installed.paths)
+    runningIntelliJFixture = new RunningIntelliJFixture(workspace, running.probe, baseFixture.config, installed.intellijPaths)
     beforeAll()
   }
 

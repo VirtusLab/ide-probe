@@ -22,7 +22,7 @@ trait ScalaPluginExtension { this: IdeProbeFixture =>
         // scala plugin. This is why we delete one of them. We declare the scala-library as an
         // optional dependency with config file probePlugin/src/main/resources/META-INF/scala-plugin.xml
         // so that ideprobe plugin can be loaded regardless of the missing scala-library.
-        inteliJ.paths.plugins.resolve("ideprobe/lib/scala-library.jar").delete()
+        inteliJ.intellijPaths.plugins.resolve("ideprobe/lib/scala-library.jar").delete()
       }
   }
 

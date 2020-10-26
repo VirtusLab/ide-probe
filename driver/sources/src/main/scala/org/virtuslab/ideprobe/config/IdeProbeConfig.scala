@@ -9,7 +9,8 @@ case class IdeProbeConfig(
     workspace: Option[WorkspaceConfig] = None,
     resolvers: DependenciesConfig.Resolvers = DependenciesConfig.Resolvers(),
     driver: DriverConfig = DriverConfig(),
-    endpoints: EndpointsConfig = EndpointsConfig()
+    endpoints: EndpointsConfig = EndpointsConfig(),
+    paths: PathsConfig = PathsConfig()
 )
 
 object IdeProbeConfig extends ConfigFormat {

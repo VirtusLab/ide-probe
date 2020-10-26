@@ -9,15 +9,15 @@ import java.nio.file.StandardCopyOption
 import java.util.Collections
 
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.config.WorkspaceConfig
+import org.virtuslab.ideprobe.config.{DriverConfig, PathsConfig, WorkspaceConfig}
 
 trait WorkspaceProvider {
-  def setup(): Path
+  def setup(paths: PathsConfig): Path
   def cleanup(path: Path): Unit
 }
 
 case class ExistingWorkspace(path: Path) extends WorkspaceProvider {
-  override def setup(): Path = path
+  override def setup(paths: PathsConfig): Path = path
   override def cleanup(path: Path): Unit = ()
 }
 
@@ -58,8 +58,11 @@ object WorkspaceProvider {
 
 sealed trait WorkspaceTemplate extends WorkspaceProvider {
 
-  override final def setup(): Path = {
-    val workspaceBase = Files.createTempDirectory("ideprobe-workspace")
+  override final def setup(paths: PathsConfig): Path = {
+    val dirName = "ideprobe-workspace"
+    val suffix = scala.util.Random.nextLong().abs.toString
+    val workspaceBase = paths.workspaces.resolve(dirName + suffix)
+
     val workspace = workspaceBase.createDirectory("ws")
     setupIn(workspace)
     workspace

@@ -4,16 +4,18 @@ import java.io.File
 import java.net.ServerSocket
 import java.nio.ByteBuffer
 import java.nio.file.{Path, Paths}
+
 import com.typesafe.config.ConfigRenderOptions
 import com.zaxxer.nuprocess.{NuAbstractProcessHandler, NuProcessBuilder}
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.config.DriverConfig
-import org.virtuslab.ideprobe.jsonrpc.JsonRpcConnection
 import org.virtuslab.ideprobe._
+import org.virtuslab.ideprobe.config.{DriverConfig, PathsConfig}
+import org.virtuslab.ideprobe.jsonrpc.JsonRpcConnection
+
 import scala.concurrent.{ExecutionContext, blocking}
 
-final class InstalledIntelliJ(val root: Path, config: DriverConfig) {
-  val paths: IntelliJPaths = new IntelliJPaths(root, config.headless)
+final class InstalledIntelliJ(val root: Path, paths: PathsConfig, config: DriverConfig) {
+  val intellijPaths: IntelliJPaths = new IntelliJPaths(root, config.headless)
 
   private val vmoptions: Path = {
     val baseVMOptions = Seq(
@@ -27,11 +29,11 @@ final class InstalledIntelliJ(val root: Path, config: DriverConfig) {
   }
 
   private val ideaProperties: Path = {
-    val content = s"""|idea.config.path=${paths.config}
-                      |idea.system.path=${paths.system}
-                      |idea.plugins.path=${paths.plugins}
-                      |idea.log.path=${paths.logs}
-                      |java.util.prefs.userRoot=${paths.userPrefs}
+    val content = s"""|idea.config.path=${intellijPaths.config}
+                      |idea.system.path=${intellijPaths.system}
+                      |idea.plugins.path=${intellijPaths.plugins}
+                      |idea.log.path=${intellijPaths.logs}
+                      |java.util.prefs.userRoot=${intellijPaths.userPrefs}
                       |""".stripMargin
 
     root.resolve("bin/idea.properties").write(content)
@@ -68,15 +70,15 @@ final class InstalledIntelliJ(val root: Path, config: DriverConfig) {
   private def startProcess(workingDir: Path, server: ServerSocket) = {
     val command = config.launch.command.toList match {
       case Nil =>
-        List(paths.executable.toString)
+        List(intellijPaths.executable.toString)
       case "idea" :: tail =>
-        paths.executable.toString :: tail
+        intellijPaths.executable.toString :: tail
       case nonEmpty =>
         nonEmpty
     }
 
     val environment = {
-      val PATH = List(paths.bin, System.getenv("PATH"))
+      val PATH = List(intellijPaths.bin, System.getenv("PATH"))
         .mkString(File.pathSeparator)
 
       val testCaseEnv: Map[String, String] = TestCase.current match {
@@ -95,7 +97,7 @@ final class InstalledIntelliJ(val root: Path, config: DriverConfig) {
         "IDEA_VM_OPTIONS" -> vmoptions.toString,
         "IDEA_PROPERTIES" -> ideaProperties.toString,
         "IDEPROBE_DRIVER_PORT" -> server.getLocalPort.toString,
-        "IDEPROBE_OUTPUT_DIR" -> Paths.get("/tmp/ideprobe/output").toString,
+        "IDEPROBE_SCREENSHOTS_DIR" -> paths.screenshots.toString,
         "PATH" -> PATH
       ) ++ overrideDisplay ++ config.env
     }

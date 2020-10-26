@@ -4,7 +4,7 @@ import java.nio.file.Path
 
 import com.typesafe.config.ConfigRenderOptions
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.config.IdeProbeConfig
+import org.virtuslab.ideprobe.config.{IdeProbeConfig, PathsConfig}
 import org.virtuslab.ideprobe.dependencies.IntelliJVersion
 import org.virtuslab.ideprobe.dependencies.Plugin
 import org.virtuslab.ideprobe.ide.intellij.InstalledIntelliJ
@@ -21,6 +21,7 @@ final case class IntelliJFixture(
     version: IntelliJVersion = IntelliJVersion.Latest,
     plugins: Seq[Plugin] = Nil,
     config: Config = Config.Empty,
+    paths: PathsConfig = PathsConfig(),
     afterWorkspaceSetup: Seq[(IntelliJFixture, Path) => Unit] = Nil,
     afterIntelliJInstall: Seq[(IntelliJFixture, InstalledIntelliJ) => Unit] = Nil,
     afterIntelliJStartup: Seq[(IntelliJFixture, RunningIntelliJFixture) => Unit] = Nil
@@ -66,7 +67,7 @@ final case class IntelliJFixture(
   def withWorkspace = new MultipleRunsIntelliJ(this)
 
   def setupWorkspace(): Path = {
-    val workspace = workspaceProvider.setup()
+    val workspace = workspaceProvider.setup(paths)
     afterWorkspaceSetup.foreach(_.apply(this, workspace))
     workspace
   }
@@ -89,7 +90,7 @@ final case class IntelliJFixture(
     val runningIde = installedIntelliJ.startIn(workspace, config)
     val probe = runningIde.probe
     probe.awaitIdle()
-    val running = new RunningIntelliJFixture(workspace, probe, config, installedIntelliJ.paths)
+    val running = new RunningIntelliJFixture(workspace, probe, config, installedIntelliJ.intellijPaths)
     afterIntelliJStartup.foreach(_.apply(this, running))
     Runtime.getRuntime.addShutdownHook(new Thread(() => runningIde.shutdown()))
     runningIde
@@ -122,10 +123,11 @@ object IntelliJFixture {
 
     new IntelliJFixture(
       workspaceProvider = probeConfig.workspace.map(WorkspaceProvider.from).getOrElse(WorkspaceTemplate.Empty),
-      factory = IntelliJFactory.from(probeConfig.resolvers, probeConfig.driver),
+      factory = IntelliJFactory.from(probeConfig.resolvers, probeConfig.paths, probeConfig.driver),
       version = probeConfig.intellij.version,
       plugins = probeConfig.intellij.plugins.filterNot(_.isInstanceOf[Plugin.Empty]),
-      config = config
+      config = config,
+      paths = probeConfig.paths
     )
   }
 }

@@ -1,15 +1,10 @@
 package org.virtuslab.ideprobe.config
 
-import java.nio.file.Path
-
 object DependenciesConfig {
   case class Resolvers(
       intellij: IntelliJ = IntelliJ(None),
-      plugins: Plugins = Plugins(None),
-      resourceProvider: ResourceProvider = ResourceProvider(None)
+      plugins: Plugins = Plugins(None)
   )
-
-  case class ResourceProvider(cacheDir: Option[Path])
 
   case class IntelliJ(
       repository: Option[IntellijMavenRepository]

@@ -7,7 +7,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.config.DependenciesConfig
+import org.virtuslab.ideprobe.config.{DependenciesConfig, PathsConfig}
 
 trait ResourceProvider {
   def get(uri: URI, provider: => InputStream): Path
@@ -16,11 +16,11 @@ trait ResourceProvider {
 }
 
 object ResourceProvider {
-  def from(config: DependenciesConfig.ResourceProvider): ResourceProvider = {
-    config.cacheDir.map(new Cached(_)).getOrElse(Default)
+  def from(paths: PathsConfig): ResourceProvider = {
+    new Cached(paths.cache)
   }
 
-  val Default = new Cached(Paths.get(sys.props("java.io.tmpdir"), "ideprobe", "cache"))
+  val Default = new Cached(PathsConfig.Default.cache)
 
   final class Cached(directory: Path) extends ResourceProvider {
     override def get(uri: URI, provider: => InputStream): Path = {

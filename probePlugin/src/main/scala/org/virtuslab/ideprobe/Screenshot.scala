@@ -10,10 +10,10 @@ object Screenshot {
 
   private val probeDisplay = sys.env.get("DISPLAY")
   private val outputDirectory = for {
-    outputDir <- sys.env.get("IDEPROBE_OUTPUT_DIR")
+    screenshotsDir <- sys.env.get("IDEPROBE_SCREENSHOTS_DIR")
     testSuite <- sys.env.get("IDEPROBE_TEST_SUITE")
     testCase <- sys.env.get("IDEPROBE_TEST_CASE")
-    path = Paths.get(outputDir).resolve(testSuite).resolve(testCase)
+    path = Paths.get(screenshotsDir).resolve(testSuite).resolve(testCase)
   } yield Files.createDirectories(path)
 
   def take(nameSuffix: String = ""): Unit = {
