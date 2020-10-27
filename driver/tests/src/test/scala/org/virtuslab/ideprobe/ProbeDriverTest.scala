@@ -260,6 +260,7 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
   def runTestsInDifferentScopes(): Unit = {
     fixture.copy(workspaceProvider = WorkspaceTemplate.FromResource("gradle-project")).run { intelliJ =>
       intelliJ.probe.withRobot.openProject(intelliJ.workspace)
+      intelliJ.probe.build().assertSuccess()
       val moduleRef = ModuleRef("foo.test")
 
       val moduleRunConfiguration = TestScope.Module(moduleRef)
