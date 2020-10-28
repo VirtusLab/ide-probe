@@ -23,4 +23,6 @@ object IntelliJVersion {
   implicit val configConvert: ConfigConvert[IntelliJVersion] = deriveConvert[IntelliJVersion]
 
   val Latest = IntelliJVersion(BuildInfo.intellijBuild, BuildInfo.intellijVersion)
+
+  def snapshot(build: String): IntelliJVersion = IntelliJVersion(build, None)
 }

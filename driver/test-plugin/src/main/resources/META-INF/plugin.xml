@@ -5,7 +5,7 @@
 
     <depends>com.intellij.modules.lang</depends>
     <depends>com.intellij.modules.java</depends>
-    <idea-version since-build="191.*" until-build="202.*"/>
+    <idea-version since-build="191.*"/>
 
     <actions>
         <action id="org.virtuslab.ideprobe.test.ThrowingAction"

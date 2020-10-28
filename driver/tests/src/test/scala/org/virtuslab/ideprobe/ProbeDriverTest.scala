@@ -11,7 +11,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.dependencies.{IntelliJVersion, Plugin}
-import org.virtuslab.ideprobe.jsonrpc.RemoteException
 import org.virtuslab.ideprobe.protocol.TestStatus.Passed
 import org.virtuslab.ideprobe.protocol._
 import org.virtuslab.ideprobe.robot.RobotPluginExtension
@@ -22,7 +21,7 @@ import scala.util.{Failure, Success, Try}
 
 @RunWith(classOf[JUnit4])
 final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPluginExtension {
-  private val scalaPlugin = Plugin("org.intellij.scala", "2020.2.584", Some("nightly"))
+  private val scalaPlugin = Plugin("org.intellij.scala", "2020.3.553", Some("nightly"))
   private val probeTestPlugin = ProbeTestPlugin.bundled
 
   private val fixture = IntelliJFixture(
@@ -261,6 +260,7 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
   def runTestsInDifferentScopes(): Unit = {
     fixture.copy(workspaceProvider = WorkspaceTemplate.FromResource("gradle-project")).run { intelliJ =>
       intelliJ.probe.withRobot.openProject(intelliJ.workspace)
+      intelliJ.probe.build().assertSuccess()
       val moduleRef = ModuleRef("foo.test")
 
       val moduleRunConfiguration = TestScope.Module(moduleRef)

@@ -1,6 +1,6 @@
 package org.virtuslab.ideprobe.scala
 
-import org.junit.{Ignore, Test}
+import org.junit.Test
 import org.virtuslab.ideprobe.protocol.{ModuleRef, Setting}
 import org.virtuslab.ideprobe.scala.protocol.{SbtProjectSettingsChangeRequest, ScalaTestRunConfiguration}
 
@@ -14,6 +14,7 @@ class ScalaTestRunConfigurationTest extends ScalaPluginTestSuite {
         useSbtShellForBuild = Setting.Changed(true)
       )
     )
+    intelliJ.probe.build().assertSuccess()
 
     val moduleName = intelliJ.config[String]("test.module")
     val packageName = intelliJ.config[String]("test.package")
