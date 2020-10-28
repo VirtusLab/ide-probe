@@ -2,14 +2,10 @@ package org.virtuslab.ideprobe
 
 import java.nio.file.Path
 
-import com.typesafe.config.ConfigRenderOptions
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.config.{IdeProbeConfig, PathsConfig}
-import org.virtuslab.ideprobe.dependencies.IntelliJVersion
-import org.virtuslab.ideprobe.dependencies.Plugin
-import org.virtuslab.ideprobe.ide.intellij.InstalledIntelliJ
-import org.virtuslab.ideprobe.ide.intellij.IntelliJFactory
-import org.virtuslab.ideprobe.ide.intellij.RunningIde
+import org.virtuslab.ideprobe.config.IdeProbeConfig
+import org.virtuslab.ideprobe.dependencies.{IntelliJVersion, Plugin}
+import org.virtuslab.ideprobe.ide.intellij.{InstalledIntelliJ, IntelliJFactory, RunningIde}
 
 import scala.annotation.tailrec
 import scala.concurrent.ExecutionContext
@@ -21,7 +17,7 @@ final case class IntelliJFixture(
     version: IntelliJVersion = IntelliJVersion.Latest,
     plugins: Seq[Plugin] = Nil,
     config: Config = Config.Empty,
-    paths: PathsConfig = PathsConfig(),
+    paths: IdeProbePaths = IdeProbePaths.TemporaryPaths,
     afterWorkspaceSetup: Seq[(IntelliJFixture, Path) => Unit] = Nil,
     afterIntelliJInstall: Seq[(IntelliJFixture, InstalledIntelliJ) => Unit] = Nil,
     afterIntelliJStartup: Seq[(IntelliJFixture, RunningIntelliJFixture) => Unit] = Nil
@@ -120,14 +116,15 @@ object IntelliJFixture {
 
   def fromConfig(config: Config, path: String = ConfigRoot)(implicit ec: ExecutionContext): IntelliJFixture = {
     val probeConfig = config[IdeProbeConfig](path)
+    val ideProbePaths = IdeProbePaths.from(probeConfig.paths)
 
     new IntelliJFixture(
       workspaceProvider = probeConfig.workspace.map(WorkspaceProvider.from).getOrElse(WorkspaceTemplate.Empty),
-      factory = IntelliJFactory.from(probeConfig.resolvers, probeConfig.paths, probeConfig.driver),
+      factory = IntelliJFactory.from(probeConfig.resolvers, ideProbePaths, probeConfig.driver),
       version = probeConfig.intellij.version,
       plugins = probeConfig.intellij.plugins.filterNot(_.isInstanceOf[Plugin.Empty]),
       config = config,
-      paths = probeConfig.paths
+      paths = ideProbePaths
     )
   }
 }

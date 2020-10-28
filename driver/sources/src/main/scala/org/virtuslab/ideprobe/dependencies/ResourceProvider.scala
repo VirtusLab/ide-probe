@@ -2,12 +2,9 @@ package org.virtuslab.ideprobe.dependencies
 
 import java.io.InputStream
 import java.net.URI
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
-
+import java.nio.file.{Files, Path}
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.config.{DependenciesConfig, PathsConfig}
+import org.virtuslab.ideprobe.IdeProbePaths
 
 trait ResourceProvider {
   def get(uri: URI, provider: => InputStream): Path
@@ -16,11 +13,11 @@ trait ResourceProvider {
 }
 
 object ResourceProvider {
-  def from(paths: PathsConfig): ResourceProvider = {
+  def from(paths: IdeProbePaths): ResourceProvider = {
     new Cached(paths.cache)
   }
 
-  val Default = new Cached(PathsConfig.Default.cache)
+  val Default = new Cached(IdeProbePaths.TemporaryPaths.cache)
 
   final class Cached(directory: Path) extends ResourceProvider {
     override def get(uri: URI, provider: => InputStream): Path = {

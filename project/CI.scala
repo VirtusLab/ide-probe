@@ -1,9 +1,7 @@
 import java.nio.file.Paths
 
-import sbt.Def
-import sbt.Keys.{crossScalaVersions, loadedBuild, scalaVersion}
-import sbt.ProjectRef
-import sbt._
+import sbt.Keys.loadedBuild
+import sbt.{Def, ProjectRef, _}
 
 object CI {
   private val excluded = Set("ci", "ide-probe", "ideprobe", "probe", "examples")
@@ -40,6 +38,7 @@ object CI {
                       |
                       |export IDEPROBE_DISPLAY=xvfb
                       |export JAVA_HOME=/usr/lib/jvm/java-11-openjdk
+                      |export IDEPROBE_SCREENSHOTS_DIR=/tmp/screenshots
                       |
                       |sbt "; clean $arguments"
                       |""".stripMargin

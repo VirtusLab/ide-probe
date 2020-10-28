@@ -3,12 +3,13 @@ package org.virtuslab.ideprobe.ide.intellij
 import java.nio.file.{Files, Path}
 import java.util.stream.{Collectors, Stream => JStream}
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.config.{DependenciesConfig, DriverConfig, PathsConfig}
+import org.virtuslab.ideprobe.IdeProbePaths
+import org.virtuslab.ideprobe.config.{DependenciesConfig, DriverConfig}
 import org.virtuslab.ideprobe.dependencies._
 
 final class IntelliJFactory(
     dependencies: DependencyProvider,
-    paths: PathsConfig,
+    paths: IdeProbePaths,
     val config: DriverConfig
 ) {
   def withConfig(config: DriverConfig): IntelliJFactory = new IntelliJFactory(dependencies, paths, config)
@@ -25,9 +26,7 @@ final class IntelliJFactory(
   }
 
   private def createInstanceDirectory(version: IntelliJVersion): Path = {
-    val suffix = scala.util.Random.nextLong().abs.toString
-    val instanceDirectoryName = s"intellij-instance-${version.build}-$suffix"
-    val path = paths.instances.resolve(instanceDirectoryName)
+    val path = paths.instances.createTempDirectory(s"intellij-instance-${version.build}-")
 
     Files.createDirectories(path)
   }
@@ -86,11 +85,11 @@ object IntelliJFactory {
         new IntelliJDependencyProvider(Seq(IntelliJZipResolver.Community), ResourceProvider.Default),
         new PluginDependencyProvider(PluginResolver.Official, ResourceProvider.Default)
       ),
-      PathsConfig(),
+      IdeProbePaths.TemporaryPaths,
       DriverConfig()
     )
 
-  def from(resolversConfig: DependenciesConfig.Resolvers, paths: PathsConfig, driverConfig: DriverConfig): IntelliJFactory = {
+  def from(resolversConfig: DependenciesConfig.Resolvers, paths: IdeProbePaths, driverConfig: DriverConfig): IntelliJFactory = {
     val intelliJResolver = IntelliJZipResolver.from(resolversConfig.intellij)
     val pluginResolver = PluginResolver.from(resolversConfig.plugins)
     val resourceProvider = ResourceProvider.from(paths)

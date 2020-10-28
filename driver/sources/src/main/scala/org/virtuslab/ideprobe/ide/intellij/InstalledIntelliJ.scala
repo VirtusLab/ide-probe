@@ -3,18 +3,18 @@ package org.virtuslab.ideprobe.ide.intellij
 import java.io.File
 import java.net.ServerSocket
 import java.nio.ByteBuffer
-import java.nio.file.{Path, Paths}
+import java.nio.file.Path
 
 import com.typesafe.config.ConfigRenderOptions
 import com.zaxxer.nuprocess.{NuAbstractProcessHandler, NuProcessBuilder}
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe._
-import org.virtuslab.ideprobe.config.{DriverConfig, PathsConfig}
+import org.virtuslab.ideprobe.config.DriverConfig
 import org.virtuslab.ideprobe.jsonrpc.JsonRpcConnection
 
 import scala.concurrent.{ExecutionContext, blocking}
 
-final class InstalledIntelliJ(val root: Path, paths: PathsConfig, config: DriverConfig) {
+final class InstalledIntelliJ(val root: Path, paths: IdeProbePaths, config: DriverConfig) {
   val intellijPaths: IntelliJPaths = new IntelliJPaths(root, config.headless)
 
   private val vmoptions: Path = {
@@ -97,7 +97,7 @@ final class InstalledIntelliJ(val root: Path, paths: PathsConfig, config: Driver
         "IDEA_VM_OPTIONS" -> vmoptions.toString,
         "IDEA_PROPERTIES" -> ideaProperties.toString,
         "IDEPROBE_DRIVER_PORT" -> server.getLocalPort.toString,
-        "IDEPROBE_SCREENSHOTS_DIR" -> paths.screenshots.toString,
+        "IDEPROBE_SCREENSHOTS_DIR" -> sys.env.getOrElse("IDEPROBE_SCREENSHOTS_DIR", paths.screenshots.toString),
         "PATH" -> PATH
       ) ++ overrideDisplay ++ config.env
     }
