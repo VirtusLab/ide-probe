@@ -17,7 +17,7 @@ object ResourceProvider {
     new Cached(paths.cache)
   }
 
-  val Default = new Cached(IdeProbePaths.TemporaryPaths.cache)
+  val Default = new Cached(IdeProbePaths.Default.cache)
 
   final class Cached(directory: Path) extends ResourceProvider {
     override def get(uri: URI, provider: => InputStream): Path = {

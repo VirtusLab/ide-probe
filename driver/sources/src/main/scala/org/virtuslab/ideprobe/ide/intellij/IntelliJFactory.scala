@@ -9,10 +9,12 @@ import org.virtuslab.ideprobe.dependencies._
 
 final class IntelliJFactory(
     dependencies: DependencyProvider,
-    paths: IdeProbePaths,
+    val paths: IdeProbePaths,
     val config: DriverConfig
 ) {
   def withConfig(config: DriverConfig): IntelliJFactory = new IntelliJFactory(dependencies, paths, config)
+
+  def withPaths(paths: IdeProbePaths): IntelliJFactory = new IntelliJFactory(dependencies, paths, config)
 
   def create(version: IntelliJVersion, plugins: Seq[Plugin]): InstalledIntelliJ = {
     val root = createInstanceDirectory(version)
@@ -85,7 +87,7 @@ object IntelliJFactory {
         new IntelliJDependencyProvider(Seq(IntelliJZipResolver.Community), ResourceProvider.Default),
         new PluginDependencyProvider(PluginResolver.Official, ResourceProvider.Default)
       ),
-      IdeProbePaths.TemporaryPaths,
+      IdeProbePaths.Default,
       DriverConfig()
     )
 

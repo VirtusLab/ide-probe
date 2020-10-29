@@ -3,7 +3,7 @@ package org.virtuslab.ideprobe
 import java.nio.file.Path
 
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.config.IdeProbeConfig
+import org.virtuslab.ideprobe.config.{IdeProbeConfig, PathsConfig}
 import org.virtuslab.ideprobe.dependencies.{IntelliJVersion, Plugin}
 import org.virtuslab.ideprobe.ide.intellij.{InstalledIntelliJ, IntelliJFactory, RunningIde}
 
@@ -17,7 +17,6 @@ final case class IntelliJFixture(
     version: IntelliJVersion = IntelliJVersion.Latest,
     plugins: Seq[Plugin] = Nil,
     config: Config = Config.Empty,
-    paths: IdeProbePaths = IdeProbePaths.TemporaryPaths,
     afterWorkspaceSetup: Seq[(IntelliJFixture, Path) => Unit] = Nil,
     afterIntelliJInstall: Seq[(IntelliJFixture, InstalledIntelliJ) => Unit] = Nil,
     afterIntelliJStartup: Seq[(IntelliJFixture, RunningIntelliJFixture) => Unit] = Nil
@@ -36,6 +35,10 @@ final case class IntelliJFixture(
   def withConfig(entries: (String, String)*): IntelliJFixture = {
     val newConfig = Config.fromMap(entries.toMap).withFallback(config)
     copy(config = newConfig)
+  }
+
+  def withPaths(probePaths: IdeProbePaths): IntelliJFixture = {
+    copy(factory = factory.withPaths(probePaths))
   }
 
   def withAfterWorkspaceSetup(action: (IntelliJFixture, Path) => Unit): IntelliJFixture = {
@@ -63,9 +66,13 @@ final case class IntelliJFixture(
   def withWorkspace = new MultipleRunsIntelliJ(this)
 
   def setupWorkspace(): Path = {
-    val workspace = workspaceProvider.setup(paths)
+    val workspace = workspaceProvider.setup(probePaths)
     afterWorkspaceSetup.foreach(_.apply(this, workspace))
     workspace
+  }
+
+  def probePaths: IdeProbePaths = {
+    factory.paths
   }
 
   def deleteWorkspace(workspace: Path): Unit = {
@@ -86,7 +93,7 @@ final case class IntelliJFixture(
     val runningIde = installedIntelliJ.startIn(workspace, config)
     val probe = runningIde.probe
     probe.awaitIdle()
-    val running = new RunningIntelliJFixture(workspace, probe, config, installedIntelliJ.intellijPaths)
+    val running = new RunningIntelliJFixture(workspace, probe, config, installedIntelliJ.paths)
     afterIntelliJStartup.foreach(_.apply(this, running))
     Runtime.getRuntime.addShutdownHook(new Thread(() => runningIde.shutdown()))
     runningIde
@@ -123,8 +130,7 @@ object IntelliJFixture {
       factory = IntelliJFactory.from(probeConfig.resolvers, ideProbePaths, probeConfig.driver),
       version = probeConfig.intellij.version,
       plugins = probeConfig.intellij.plugins.filterNot(_.isInstanceOf[Plugin.Empty]),
-      config = config,
-      paths = ideProbePaths
+      config = config
     )
   }
 }

@@ -38,7 +38,7 @@ object CI {
                       |
                       |export IDEPROBE_DISPLAY=xvfb
                       |export JAVA_HOME=/usr/lib/jvm/java-11-openjdk
-                      |export IDEPROBE_SCREENSHOTS_DIR=/tmp/screenshots
+                      |export IDEPROBE_SCREENSHOTS_DIR=/tmp/ideprobe/screenshots
                       |
                       |sbt "; clean $arguments"
                       |""".stripMargin

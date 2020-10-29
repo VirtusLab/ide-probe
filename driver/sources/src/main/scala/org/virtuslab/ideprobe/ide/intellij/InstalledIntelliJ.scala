@@ -14,8 +14,8 @@ import org.virtuslab.ideprobe.jsonrpc.JsonRpcConnection
 
 import scala.concurrent.{ExecutionContext, blocking}
 
-final class InstalledIntelliJ(val root: Path, paths: IdeProbePaths, config: DriverConfig) {
-  val intellijPaths: IntelliJPaths = new IntelliJPaths(root, config.headless)
+final class InstalledIntelliJ(val root: Path, probePaths: IdeProbePaths, config: DriverConfig) {
+  val paths: IntelliJPaths = new IntelliJPaths(root, config.headless)
 
   private val vmoptions: Path = {
     val baseVMOptions = Seq(
@@ -29,11 +29,11 @@ final class InstalledIntelliJ(val root: Path, paths: IdeProbePaths, config: Driv
   }
 
   private val ideaProperties: Path = {
-    val content = s"""|idea.config.path=${intellijPaths.config}
-                      |idea.system.path=${intellijPaths.system}
-                      |idea.plugins.path=${intellijPaths.plugins}
-                      |idea.log.path=${intellijPaths.logs}
-                      |java.util.prefs.userRoot=${intellijPaths.userPrefs}
+    val content = s"""|idea.config.path=${paths.config}
+                      |idea.system.path=${paths.system}
+                      |idea.plugins.path=${paths.plugins}
+                      |idea.log.path=${paths.logs}
+                      |java.util.prefs.userRoot=${paths.userPrefs}
                       |""".stripMargin
 
     root.resolve("bin/idea.properties").write(content)
@@ -70,15 +70,15 @@ final class InstalledIntelliJ(val root: Path, paths: IdeProbePaths, config: Driv
   private def startProcess(workingDir: Path, server: ServerSocket) = {
     val command = config.launch.command.toList match {
       case Nil =>
-        List(intellijPaths.executable.toString)
+        List(paths.executable.toString)
       case "idea" :: tail =>
-        intellijPaths.executable.toString :: tail
+        paths.executable.toString :: tail
       case nonEmpty =>
         nonEmpty
     }
 
     val environment = {
-      val PATH = List(intellijPaths.bin, System.getenv("PATH"))
+      val PATH = List(paths.bin, System.getenv("PATH"))
         .mkString(File.pathSeparator)
 
       val testCaseEnv: Map[String, String] = TestCase.current match {
@@ -97,7 +97,7 @@ final class InstalledIntelliJ(val root: Path, paths: IdeProbePaths, config: Driv
         "IDEA_VM_OPTIONS" -> vmoptions.toString,
         "IDEA_PROPERTIES" -> ideaProperties.toString,
         "IDEPROBE_DRIVER_PORT" -> server.getLocalPort.toString,
-        "IDEPROBE_SCREENSHOTS_DIR" -> sys.env.getOrElse("IDEPROBE_SCREENSHOTS_DIR", paths.screenshots.toString),
+        "IDEPROBE_SCREENSHOTS_DIR" -> probePaths.screenshots.toString,
         "PATH" -> PATH
       ) ++ overrideDisplay ++ config.env
     }

@@ -17,6 +17,7 @@ class PathsConfigTest {
     val config = Config.fromString(
       """
         |probe.paths {
+        | base = "/base"
         | instances = "/instances"
         | workspaces = "/workspaces"
         | screenshots = "/screenshots"
@@ -26,13 +27,14 @@ class PathsConfigTest {
     val fixture = IntelliJFixture.fromConfig(config)
 
     val expected = IdeProbePaths(
+      Paths.get("/base"),
       Paths.get("/instances"),
       Paths.get("/workspaces"),
       Paths.get("/screenshots"),
       Paths.get("/cache")
     )
 
-    assertEquals(expected, fixture.paths)
+    assertEquals(expected, fixture.probePaths)
   }
 
   @Test
@@ -47,13 +49,14 @@ class PathsConfigTest {
 
     val basePath = Paths.get("/base")
     val expected = IdeProbePaths(
+      basePath,
       basePath.resolve("instances"),
       basePath.resolve("workspaces"),
       basePath.resolve("screenshots"),
       basePath.resolve("cache")
     )
 
-    assertEquals(expected, fixture.paths)
+    assertEquals(expected, fixture.probePaths)
   }
 
   @Test
@@ -63,12 +66,13 @@ class PathsConfigTest {
 
     val basePath = Paths.get(System.getProperty("java.io.tmpdir"))
     val expected = IdeProbePaths(
+      basePath,
       basePath.resolve("instances"),
       basePath.resolve("workspaces"),
       basePath.resolve("screenshots"),
       basePath.resolve("cache")
     )
 
-    assertEquals(expected, fixture.paths)
+    assertEquals(expected, fixture.probePaths)
   }
 }
