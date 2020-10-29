@@ -2,6 +2,7 @@ name := "ideprobe"
 
 val scala212 = "2.12.10"
 val scala213 = "2.13.1"
+val crossScalaVersions = List(scala212, scala213)
 
 skip in publish := true
 
@@ -53,8 +54,8 @@ lazy val ci = project("ci", "ci", publish = false)
   .settings(
     CI.generateScripts := {
       for {
-        (group, projects) <- CI.groupedProjects().value.toList
-        version <- crossScalaVersions.value
+        (group, projects) <- CI.groupedProjects(crossScalaVersions).value.toList
+        version <- crossScalaVersions
       } yield CI.generateTestScript(group, projects, version)
     }
   )
@@ -68,11 +69,14 @@ lazy val api = project("api", "api", publish = true)
     libraryDependencies ++= Dependencies.pureConfig,
     libraryDependencies += Dependencies.gson
   )
+  .cross
+
+lazy val api212 = api(scala212)
+
+lazy val api213 = api(scala213)
 
 lazy val driver = module("driver", "driver/sources")
-  .dependsOn(api)
   .enablePlugins(BuildInfoPlugin)
-  .usesIdeaPlugin(probePlugin)
   .settings(
     libraryDependencies += Dependencies.nuProcess,
     buildInfoKeys := Seq[BuildInfoKey](
@@ -83,9 +87,16 @@ lazy val driver = module("driver", "driver/sources")
     ),
     buildInfoPackage := "org.virtuslab.ideprobe"
   )
+  .cross
+  .dependsOn(api)
+
+lazy val driver212 = driver(scala212)
+  .usesIdeaPlugin(probePlugin212)
+
+lazy val driver213 = driver(scala213)
+  .usesIdeaPlugin(probePlugin213)
 
 lazy val robotDriver = module("robot-driver", "extensions/robot/driver")
-  .dependsOn(driver)
   .enablePlugins(BuildInfoPlugin)
   .settings(
     resolvers += MavenRepository(
@@ -100,30 +111,57 @@ lazy val robotDriver = module("robot-driver", "extensions/robot/driver")
     buildInfoPackage := "org.virtuslab.ideprobe.robot",
     name := "robot-driver"
   )
+  .cross
+  .dependsOn(driver)
+
+lazy val robotDriver212 = robotDriver(scala212)
+
+lazy val robotDriver213 = robotDriver(scala213)
 
 lazy val driverTests = testModule("driver-tests", "driver/tests")
+  .cross
   .dependsOn(junitDriver, robotDriver, api % "compile->compile;test->test")
-  .usesIdeaPlugin(driverTestPlugin)
+
+lazy val driverTests212 = driverTests(scala212)
+  .usesIdeaPlugin(driverTestPlugin212)
+
+lazy val driverTests213 = driverTests(scala213)
+  .usesIdeaPlugin(driverTestPlugin213)
 
 lazy val probePlugin = ideaPluginModule("probe-plugin", "probePlugin", publish = true)
-  .dependsOn(api)
   .settings(intellijPluginName := "ideprobe")
+  .cross
+  .dependsOn(api)
+
+lazy val probePlugin212 = probePlugin(scala212)
+
+lazy val probePlugin213 = probePlugin(scala213)
 
 lazy val driverTestPlugin = ideaPluginModule("probe-test-plugin", "driver/test-plugin")
   .settings(intellijPluginName := "driver-test-plugin")
+  .cross
+
+lazy val driverTestPlugin212 = driverTestPlugin(scala212)
+
+lazy val driverTestPlugin213 = driverTestPlugin(scala213)
 
 lazy val junitDriver = module("junit-driver", "driver/bindings/junit")
+  .settings(libraryDependencies ++= Dependencies.junit)
+  .cross
   .dependsOn(driver, api % "compile->compile;test->test")
-  .settings(
-    libraryDependencies ++= Dependencies.junit
-  )
+
+lazy val junitDriver212 = junitDriver(scala212)
+
+lazy val junitDriver213 = junitDriver(scala213)
 
 lazy val scalaProbeApi = project(id = "scala-probe-api", path = "extensions/scala/api", publish = true)
+  .cross
   .dependsOn(api)
+
+lazy val scalaProbeApi213 = scalaProbeApi(scala213)
 
 lazy val scalaProbePlugin =
   ideaPluginModule(id = "scala-probe-plugin", path = "extensions/scala/probePlugin", publish = true)
-    .dependsOn(probePlugin, scalaProbeApi)
     .settings(
       intellijPluginName := "ideprobe-scala",
       packageArtifactZipFilter := { file: File =>
@@ -132,25 +170,38 @@ lazy val scalaProbePlugin =
         // depend on it in plugin.xml.
         // The packaging plugin is created to support one plugin per build, so there
         // seems to be no way to prevent including probePlugin.jar in the dist reasonable way.
-        file.getName == "scala-probe-plugin.jar"
+        file.getName.contains("scala-probe-plugin")
       },
       intellijPlugins += "org.intellij.scala:2020.3.369:nightly".toPlugin,
-      name := "scala-probe-plugin"
+      name := "scala-probe-plugin",
     )
+    .cross
+    .dependsOn(probePlugin, scalaProbeApi)
+
+lazy val scalaProbePlugin213 = scalaProbePlugin(scala213)
 
 lazy val scalaProbeDriver =
   module(id = "scala-probe-driver", path = "extensions/scala/driver")
-    .dependsOn(scalaProbeApi, driver)
-    .usesIdeaPlugin(scalaProbePlugin)
     .settings(name := "scala-probe-driver")
+    .cross
+    .dependsOn(scalaProbeApi, driver)
+
+lazy val scalaProbeDriver213 = scalaProbeDriver(scala213)
+  .usesIdeaPlugin(scalaProbePlugin213)
 
 lazy val scalaTests = testModule("scala-tests", "extensions/scala/tests")
+  .cross
   .dependsOn(junitDriver, robotDriver, scalaProbeDriver)
-  .usesIdeaPlugin(scalaProbePlugin)
+
+lazy val scalaTests213 = scalaTests(scala213)
+  .usesIdeaPlugin(scalaProbePlugin213)
 
 lazy val examples = testModule("examples", "examples")
-  .dependsOn(driver, robotDriver, scalaProbeDriver)
   .settings(libraryDependencies ++= Dependencies.junit5)
+  .cross
+  .dependsOn(driver, robotDriver, scalaProbeDriver)
+
+lazy val examples213 = examples(scala213)
 
 val commonSettings = Seq(
   libraryDependencies ++= Dependencies.junit,
