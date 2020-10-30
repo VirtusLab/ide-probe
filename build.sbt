@@ -202,7 +202,6 @@ lazy val scalaTests213 = scalaTests(scala213)
   .usesIdeaPlugin(scalaProbePlugin213)
 
 lazy val examples = testModule("examples", "examples")
-  .settings(libraryDependencies ++= Dependencies.junit5)
   .cross
   .dependsOn(driver, robotDriver, scalaProbeDriver)
 

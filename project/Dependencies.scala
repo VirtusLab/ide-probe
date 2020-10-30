@@ -29,11 +29,6 @@ object Dependencies {
     } ++ Seq(typesafeConfig, shapeless)
   }
 
-  val junit5 = Seq(
-    "org.junit.jupiter" % "junit-jupiter-params" % "5.4.2",
-    "net.aichler" % "jupiter-interface" % "0.8.3" % Test
-  )
-
   val intellijScala = "org.intellij.scala:2020.2.753:nightly"
 
 }
