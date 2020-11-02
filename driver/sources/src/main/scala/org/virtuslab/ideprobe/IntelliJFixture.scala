@@ -2,14 +2,10 @@ package org.virtuslab.ideprobe
 
 import java.nio.file.Path
 
-import com.typesafe.config.ConfigRenderOptions
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.config.IdeProbeConfig
-import org.virtuslab.ideprobe.dependencies.IntelliJVersion
-import org.virtuslab.ideprobe.dependencies.Plugin
-import org.virtuslab.ideprobe.ide.intellij.InstalledIntelliJ
-import org.virtuslab.ideprobe.ide.intellij.IntelliJFactory
-import org.virtuslab.ideprobe.ide.intellij.RunningIde
+import org.virtuslab.ideprobe.config.{IdeProbeConfig, PathsConfig}
+import org.virtuslab.ideprobe.dependencies.{IntelliJVersion, Plugin}
+import org.virtuslab.ideprobe.ide.intellij.{InstalledIntelliJ, IntelliJFactory, RunningIde}
 
 import scala.annotation.tailrec
 import scala.concurrent.ExecutionContext
@@ -41,6 +37,10 @@ final case class IntelliJFixture(
     copy(config = newConfig)
   }
 
+  def withPaths(probePaths: IdeProbePaths): IntelliJFixture = {
+    copy(factory = factory.withPaths(probePaths))
+  }
+
   def withAfterWorkspaceSetup(action: (IntelliJFixture, Path) => Unit): IntelliJFixture = {
     copy(afterWorkspaceSetup = afterWorkspaceSetup :+ action)
   }
@@ -66,9 +66,13 @@ final case class IntelliJFixture(
   def withWorkspace = new MultipleRunsIntelliJ(this)
 
   def setupWorkspace(): Path = {
-    val workspace = workspaceProvider.setup()
+    val workspace = workspaceProvider.setup(probePaths)
     afterWorkspaceSetup.foreach(_.apply(this, workspace))
     workspace
+  }
+
+  def probePaths: IdeProbePaths = {
+    factory.paths
   }
 
   def deleteWorkspace(workspace: Path): Unit = {
@@ -119,10 +123,11 @@ object IntelliJFixture {
 
   def fromConfig(config: Config, path: String = ConfigRoot)(implicit ec: ExecutionContext): IntelliJFixture = {
     val probeConfig = config[IdeProbeConfig](path)
+    val ideProbePaths = IdeProbePaths.from(probeConfig.paths)
 
     new IntelliJFixture(
       workspaceProvider = probeConfig.workspace.map(WorkspaceProvider.from).getOrElse(WorkspaceTemplate.Empty),
-      factory = IntelliJFactory.from(probeConfig.resolvers, probeConfig.driver),
+      factory = IntelliJFactory.from(probeConfig.resolvers, ideProbePaths, probeConfig.driver),
       version = probeConfig.intellij.version,
       plugins = probeConfig.intellij.plugins.filterNot(_.isInstanceOf[Plugin.Empty]),
       config = config

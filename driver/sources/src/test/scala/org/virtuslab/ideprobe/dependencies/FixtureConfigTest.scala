@@ -5,9 +5,8 @@ import java.util.concurrent.Executors
 
 import org.junit.Assert._
 import org.junit.Test
-import org.virtuslab.ideprobe.Config
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.IntelliJFixture
+import org.virtuslab.ideprobe.{Config, IntelliJFixture}
 
 import scala.concurrent.ExecutionContext
 

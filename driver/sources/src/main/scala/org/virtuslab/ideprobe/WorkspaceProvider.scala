@@ -1,23 +1,19 @@
 package org.virtuslab.ideprobe
 
 import java.net.URI
-import java.nio.file.FileSystems
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
-import java.nio.file.StandardCopyOption
+import java.nio.file._
 import java.util.Collections
 
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.config.WorkspaceConfig
 
 trait WorkspaceProvider {
-  def setup(): Path
+  def setup(paths: IdeProbePaths): Path
   def cleanup(path: Path): Unit
 }
 
 case class ExistingWorkspace(path: Path) extends WorkspaceProvider {
-  override def setup(): Path = path
+  override def setup(paths: IdeProbePaths): Path = path
   override def cleanup(path: Path): Unit = ()
 }
 
@@ -58,8 +54,9 @@ object WorkspaceProvider {
 
 sealed trait WorkspaceTemplate extends WorkspaceProvider {
 
-  override final def setup(): Path = {
-    val workspaceBase = Files.createTempDirectory("ideprobe-workspace")
+  override final def setup(paths: IdeProbePaths): Path = {
+    val workspaceBase = paths.workspaces.createTempDirectory("ideprobe-workspace")
+
     val workspace = workspaceBase.createDirectory("ws")
     setupIn(workspace)
     workspace

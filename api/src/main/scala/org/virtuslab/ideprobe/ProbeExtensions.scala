@@ -13,6 +13,7 @@ import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
+import java.util.UUID
 import java.util.zip.ZipInputStream
 import scala.util.Failure
 import scala.util.Try
@@ -57,6 +58,11 @@ trait ProbeExtensions {
 
     def createDirectory(name: String): Path = {
       Files.createDirectories(path.resolve(name))
+    }
+
+    def createTempDirectory(prefix: String): Path = {
+      val suffix = UUID.randomUUID.toString
+      path.resolve(prefix + suffix)
     }
 
     def copyTo(target: Path): Path = {
