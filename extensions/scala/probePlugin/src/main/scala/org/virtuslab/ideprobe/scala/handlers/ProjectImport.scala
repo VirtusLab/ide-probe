@@ -22,9 +22,9 @@ object ProjectImport extends IntelliJApi {
     importCheckbox.setSelected(true)
 
     val providersList = step.field[JBList[ProjectImportProvider]]("list")
-    val pants = providersList.items
+    val bsp = providersList.items
       .collectFirst { case p: BspProjectImportProvider => p }
       .getOrElse(error(s"Could not find bsp import provider. Available providers are ${providersList.items}"))
-    providersList.setSelectedValue(pants, false)
+    providersList.setSelectedValue(bsp, false)
   }
 }

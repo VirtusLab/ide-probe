@@ -50,7 +50,12 @@ object ProbeHandlers {
     }
 
     override def apply(method: String, json: SerializedJson): Try[SerializedJson] = {
-      Try(dispatch(method)(json))
+      Try {
+        dispatch.get(method) match {
+          case Some(handler) => handler(json)
+          case None          => error(s"No handler for $method. Available handlers: ${dispatch.keys.toList.sorted}")
+        }
+      }
     }
   }
 }
