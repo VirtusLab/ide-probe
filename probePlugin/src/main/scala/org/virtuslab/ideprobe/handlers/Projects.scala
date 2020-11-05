@@ -57,6 +57,7 @@ object Projects extends IntelliJApi {
       @tailrec def goThroughWizard(): Unit = {
         val step = wizard.getCurrentStepObject
         handleStep.applyOrElse(step, (_: Any) => ())
+        runOnUISync(step.updateDataModel())
         if (wizard.isLast) {
           wizard.doFinishAction()
         } else {

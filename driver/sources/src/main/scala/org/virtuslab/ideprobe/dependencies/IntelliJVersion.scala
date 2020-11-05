@@ -22,7 +22,7 @@ final case class IntelliJVersion(build: String, release: Option[String]) {
 object IntelliJVersion {
   implicit val configConvert: ConfigConvert[IntelliJVersion] = deriveConvert[IntelliJVersion]
 
-  val Latest = IntelliJVersion(BuildInfo.intellijBuild, BuildInfo.intellijVersion)
+  val Latest = IntelliJVersion.snapshot("203.5251.39")
 
   def snapshot(build: String): IntelliJVersion = IntelliJVersion(build, None)
 }

@@ -7,9 +7,7 @@ val crossScalaVersions = List(scala212, scala213)
 skip in publish := true
 
 scalaVersion.in(ThisBuild) := scala213
-// -EAP-SNAPSHOT suffix results in incorrect url for the intellij scala plugin
-// it is appended automatically for intellij sdk dependency url and manually for the BuildInfo
-intellijBuild.in(ThisBuild) := "203.5251.39"
+intellijBuild.in(ThisBuild) := "202.6948.69"
 // provide intellij version in case of the release version
 val intellijVersion = None
 licenses.in(ThisBuild) := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0"))
@@ -118,8 +116,7 @@ lazy val robotDriver212 = robotDriver(scala212)
 
 lazy val robotDriver213 = robotDriver(scala213)
 
-lazy val driverTests = testModule("driver-tests", "driver/tests")
-  .cross
+lazy val driverTests = testModule("driver-tests", "driver/tests").cross
   .dependsOn(junitDriver, robotDriver, api % "compile->compile;test->test")
 
 lazy val driverTests212 = driverTests(scala212)
@@ -154,9 +151,10 @@ lazy val junitDriver212 = junitDriver(scala212)
 
 lazy val junitDriver213 = junitDriver(scala213)
 
-lazy val scalaProbeApi = project(id = "scala-probe-api", path = "extensions/scala/api", publish = true)
-  .cross
+lazy val scalaProbeApi = project(id = "scala-probe-api", path = "extensions/scala/api", publish = true).cross
   .dependsOn(api)
+
+lazy val scalaProbeApi212 = scalaProbeApi(scala212)
 
 lazy val scalaProbeApi213 = scalaProbeApi(scala213)
 
@@ -172,13 +170,18 @@ lazy val scalaProbePlugin =
         // seems to be no way to prevent including probePlugin.jar in the dist reasonable way.
         file.getName.contains("scala-probe-plugin")
       },
-      intellijPlugins += "org.intellij.scala:2020.3.369:nightly".toPlugin,
-      name := "scala-probe-plugin",
+      name := "scala-probe-plugin"
     )
     .cross
     .dependsOn(probePlugin, scalaProbeApi)
 
-lazy val scalaProbePlugin213 = scalaProbePlugin(scala213)
+lazy val scalaProbePlugin212 = scalaProbePlugin(scala212).settings(
+  intellijPlugins += "org.intellij.scala:2020.2.49".toPlugin
+)
+
+lazy val scalaProbePlugin213 = scalaProbePlugin(scala213).settings(
+  intellijPlugins += "org.intellij.scala:2020.3.369:nightly".toPlugin
+)
 
 lazy val scalaProbeDriver =
   module(id = "scala-probe-driver", path = "extensions/scala/driver")
@@ -186,11 +189,13 @@ lazy val scalaProbeDriver =
     .cross
     .dependsOn(scalaProbeApi, driver)
 
+lazy val scalaProbeDriver212 = scalaProbeDriver(scala212)
+  .usesIdeaPlugin(scalaProbePlugin212)
+
 lazy val scalaProbeDriver213 = scalaProbeDriver(scala213)
   .usesIdeaPlugin(scalaProbePlugin213)
 
-lazy val scalaTests = testModule("scala-tests", "extensions/scala/tests")
-  .cross
+lazy val scalaTests = testModule("scala-tests", "extensions/scala/tests").cross
   .dependsOn(junitDriver, robotDriver, scalaProbeDriver)
 
 lazy val scalaTests213 = scalaTests(scala213)
