@@ -59,7 +59,7 @@ object Projects extends IntelliJApi {
         handleStep.applyOrElse(step, (_: Any) => ())
         runOnUISync(step.updateDataModel())
         if (wizard.isLast) {
-          wizard.doFinishAction()
+          runOnUISync(wizard.doFinishAction())
         } else {
           runOnUISync(wizard.doNextAction())
           if (step == wizard.getCurrentStepObject) {
