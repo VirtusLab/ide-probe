@@ -108,6 +108,14 @@ object RunConfigurations extends IntelliJApi {
     }
   }
 
+  def rerunFailedTests(projectRef: ProjectRef)(implicit ec: ExecutionContext): TestsRunResult = {
+    val project = Projects.resolve(projectRef)
+    Tests.awaitTestResults(
+      project,
+      () => Actions.invoke("RerunFailedTests")
+    )
+  }
+
   def runJUnit(scope: TestScope)(implicit ec: ExecutionContext): TestsRunResult = {
     val module = Modules.resolve(scope.module)
     val project = module.getProject
