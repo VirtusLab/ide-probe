@@ -142,6 +142,13 @@ class ProbeDriver(
   }
 
   /**
+   * Sets the 'project compiler output' in the project settings
+   */
+  def setCompilerOutput(project: ProjectRef = ProjectRef.Default, path: Path): Unit = {
+    send(Endpoints.SetCompilerOutput, (project, path))
+  }
+
+  /**
    * Rebuilds the specified files, modules or project
    */
   def rebuild(scope: BuildScope = BuildScope.project): BuildResult = build(BuildParams(scope, rebuild = true))
@@ -228,6 +235,11 @@ class ProbeDriver(
    * Runs the specified JUnit configuration
    */
   def runJUnit(runConfiguration: TestScope): TestsRunResult = send(Endpoints.RunJUnit, runConfiguration)
+
+  /**
+   * Runs the tests that have failed during the previous test run
+   */
+  def rerunFailedTests(projectRef: ProjectRef = ProjectRef.Default): TestsRunResult = send(Endpoints.RerunFailedTests, projectRef)
 
   /**
    * Saves the current view of the IDE alongside the automatically captured screenshots

@@ -8,6 +8,7 @@ import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.roots.CompilerProjectExtension
 import com.intellij.projectImport.ProjectImportProvider
 import org.virtuslab.ideprobe.ProbePluginExtensions._
 import org.virtuslab.ideprobe.Extensions._
@@ -116,6 +117,12 @@ object Projects extends IntelliJApi {
 
         error(s"Could not find project $name. $openProjects")
       }
+  }
+
+  def setCompilerOutput(projectRef: ProjectRef, path: Path): Unit = {
+    val project = Projects.resolve(projectRef)
+    val compilerProjectExtension = CompilerProjectExtension.getInstance(project)
+    compilerProjectExtension.setCompilerOutputUrl(path.toUri.toString)
   }
 
   private def allOpenProjects = {
