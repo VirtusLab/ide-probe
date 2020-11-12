@@ -151,22 +151,25 @@ object RunConfigurations extends IntelliJApi {
   }
 
   private def registerObservableConfiguration(
-      mainClass: ApplicationRunConfiguration
-  ): RunnerSettingsWithProcessOutput = {
-    val module = Modules.resolve(mainClass.module)
+      appRunConfig: ApplicationRunConfiguration
+  ) = {
+    val module = Modules.resolve(appRunConfig.module)
     val project = module.getProject
 
     val configuration = {
-      val psiClass = findPsiClass(mainClass.mainClass, module)
       val name = UUID.randomUUID()
       val configuration = new ApplicationConfiguration(name.toString, project)
-      configuration.setMainClass(psiClass)
+      configuration.setModule(module)
+      configuration.setMainClassName(appRunConfig.mainClass)
+      if (appRunConfig.args.nonEmpty) {
+        configuration.setProgramParameters(appRunConfig.args.mkString(" "))
+      }
       configuration
     }
 
     val runManager = RunManagerImpl.getInstanceImpl(project)
     val settings = new RunnerAndConfigurationSettingsImpl(runManager, configuration)
-    RunManager.getInstance(project).addConfiguration(settings)
+    RunManager.getInstance(project).setTemporaryConfiguration(settings)
 
     new RunnerSettingsWithProcessOutput(settings)
   }

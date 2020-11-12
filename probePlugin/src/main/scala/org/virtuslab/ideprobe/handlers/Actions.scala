@@ -10,13 +10,12 @@ import com.intellij.openapi.project.ProjectManager
 
 object Actions extends IntelliJApi {
 
-  def invokeAsync(id: String): Unit =
-    BackgroundTasks.withAwaitNone {
-      val action = getAction(id)
-      runOnUIAsync {
-        invoke(action)
-      }
+  def invokeAsync(id: String): Unit = {
+    val action = getAction(id)
+    runOnUIAsync {
+      invoke(action)
     }
+  }
 
   def invoke(id: String): Unit =
     BackgroundTasks.withAwaitNone {

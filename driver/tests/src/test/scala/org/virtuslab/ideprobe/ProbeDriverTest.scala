@@ -40,6 +40,7 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
   @Test
   def collectErrors(): Unit = fixture.run { intelliJ =>
     intelliJ.probe.invokeActionAsync("org.virtuslab.ideprobe.test.ThrowingAction")
+    intelliJ.probe.awaitIdle()
     val errors = intelliJ.probe.errors
     assertExists(errors)(error =>
       error.content.contains("ThrowingAction") && error.pluginId.contains(ProbeTestPlugin.id)
