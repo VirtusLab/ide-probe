@@ -33,11 +33,20 @@ final class IntelliJDependencyProvider(
 }
 
 final class PluginDependencyProvider(
-    pluginResolver: DependencyResolver[Plugin],
+    pluginResolvers: Seq[DependencyResolver[Plugin]],
     resources: ResourceProvider
 ) {
   def fetch(plugin: Plugin): Path = {
-    pluginResolver.resolve(plugin) match {
+    val noResolversError = Try[Path](error("Dependency resolver list is empty"))
+    pluginResolvers
+      .foldLeft(noResolversError) { (result, resolver) =>
+        result.orElse(Try(resolve(plugin, resolver)))
+      }
+      .get
+  }
+
+  private def resolve(plugin: Plugin, resolver: DependencyResolver[Plugin]): Path = {
+    resolver.resolve(plugin) match {
       case Artifact(uri) =>
         resources.get(uri)
       case Sources(id, config) =>
