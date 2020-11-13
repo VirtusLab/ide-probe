@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - 2020.3
     tags:
       - '**'
 

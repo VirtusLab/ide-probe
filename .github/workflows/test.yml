@@ -4,13 +4,12 @@ on: pull_request
 
 jobs:
   test:
-    timeout-minutes: 120
+    timeout-minutes: 50
     runs-on: ubuntu-latest
     name: test-${{ matrix.type }}
     strategy:
       matrix:
-        type: [probe 2.12.10, probe 2.13.1, scala 2.13.1, examples 2.13.1]
-
+        type: [probe 2.12.10, probe 2.13.1, scala 2.13.1]
     steps:
       - uses: actions/checkout@v2
       - name: generate scripts
@@ -19,3 +18,16 @@ jobs:
         run: sh ci/tests/build_image
       - name: test
         run: sh ci/tests/run ${{ matrix.type }}
+
+  examples:
+    timeout-minutes: 120
+    runs-on: ubuntu-latest
+    name: test-examples 2.13.1
+    steps:
+      - uses: actions/checkout@v2
+      - name: generate scripts
+        run: sbt ci/generateScripts
+      - name: build image
+        run: sh ci/tests/build_image
+      - name: test
+        run: sh ci/tests/run examples 2.13.1
