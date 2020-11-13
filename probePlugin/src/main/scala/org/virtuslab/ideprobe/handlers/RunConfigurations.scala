@@ -2,7 +2,7 @@ package org.virtuslab.ideprobe.handlers
 
 import com.intellij.compiler.options.CompileStepBeforeRun.MakeBeforeRunTask
 import com.intellij.execution._
-import com.intellij.execution.actions.ConfigurationContext
+import com.intellij.execution.actions.{ConfigurationContext, ConfigurationFromContext}
 import com.intellij.execution.application.ApplicationConfiguration
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.impl.{RunManagerImpl, RunnerAndConfigurationSettingsImpl}
@@ -37,52 +37,12 @@ object RunConfigurations extends IntelliJApi {
       scope: TestScope,
       runnerToSelect: Option[String]
   )(implicit ec: ExecutionContext): TestsRunResult = {
+
+    val configurations = availableRunConfigurations(scope)
+
     BackgroundTasks.withAwaitNone {
       val module = Modules.resolve(scope.module)
       val project = module.getProject
-
-      val dataContext = new MapDataContext
-      dataContext.put(CommonDataKeys.PROJECT, project)
-      dataContext.put(LangDataKeys.MODULE, module)
-
-      val psiElement: PsiElement = scope match {
-        case TestScope.Module(_) =>
-          val psiDirectory = PSI.findDirectory(project, Modules.contentRoot(module))
-          psiDirectory.getOrElse(error(s"Directory of module ${module.getName} not found"))
-        case TestScope.Directory(_, directory) =>
-          val contentRoot = Modules.contentRoot(module)
-          val virtualDirectory = directory.split("[/\\\\]").foldLeft(contentRoot)(_.findChild(_))
-          val psiDirectory = PSI.findDirectory(project, virtualDirectory)
-          psiDirectory.getOrElse(error(s"Directory $directory not found"))
-        case TestScope.Package(_, packageName) =>
-          val psiPackage = PSI.findPackage(project, packageName)
-          psiPackage.getOrElse(error(s"Package $packageName not found"))
-        case TestScope.Class(_, className) =>
-          findPsiClass(className, module)
-        case TestScope.Method(_, className, methodName) =>
-          val psiClass = findPsiClass(className, module)
-          val psiMethods = read { psiClass.getMethods }
-          psiMethods
-            .find(_.getName == methodName)
-            .getOrElse(
-              error(
-                s"Method $methodName not found in class $className. Available methods: ${psiMethods.map(_.getName)}"
-              )
-            )
-      }
-
-      val location = read { PsiLocation.fromPsiElement(psiElement) }
-      dataContext.put(Location.DATA_KEY, location)
-
-      val configurationContext = ConfigurationContext.getFromContext(dataContext)
-      val runManager = configurationContext.getRunManager.asInstanceOf[RunManagerEx]
-      val configurationFromContext = read { configurationContext.getConfiguration }
-
-      runManager.setTemporaryConfiguration(configurationFromContext)
-      runManager.setSelectedConfiguration(configurationFromContext)
-
-      waitForSmartMode(project)
-      val configurations = read { configurationContext.getConfigurationsFromContext }
       val producer = runnerToSelect match {
         case Some(fragment) =>
           configurations
@@ -180,6 +140,61 @@ object RunConfigurations extends IntelliJApi {
     RunManager.getInstance(project).setTemporaryConfiguration(settings)
 
     new RunnerSettingsWithProcessOutput(settings)
+  }
+
+  private def availableRunConfigurations(scope: TestScope): Seq[ConfigurationFromContext] = {
+    val module = Modules.resolve(scope.module)
+    val project = module.getProject
+
+    val dataContext = new MapDataContext
+    dataContext.put(CommonDataKeys.PROJECT, project)
+    dataContext.put(LangDataKeys.MODULE, module)
+
+    val psiElement: PsiElement = selectPsiElement(scope, module, project)
+
+    val location = read { PsiLocation.fromPsiElement(psiElement) }
+    dataContext.put(Location.DATA_KEY, location)
+
+    val configurationContext = ConfigurationContext.getFromContext(dataContext)
+    val runManager = configurationContext.getRunManager.asInstanceOf[RunManagerEx]
+    val configurationFromContext = read { configurationContext.getConfiguration }
+
+    runManager.setTemporaryConfiguration(configurationFromContext)
+    runManager.setSelectedConfiguration(configurationFromContext)
+
+    waitForSmartMode(project)
+    val configurations = read { configurationContext.getConfigurationsFromContext }
+    configurations.toSeq
+  }
+
+  private def selectPsiElement(scope: TestScope, module: IntelliJModule, project: Project) = {
+    scope match {
+      case TestScope.Module(_) =>
+        val psiDirectory = PSI.findDirectory(project, Modules.contentRoot(module))
+        psiDirectory.getOrElse(error(s"Directory of module ${module.getName} not found"))
+      case TestScope.Directory(_, directory) =>
+        val contentRoot = Modules.contentRoot(module)
+        val virtualDirectory = directory.split("[/\\\\]").foldLeft(contentRoot)(_.findChild(_))
+        val psiDirectory = PSI.findDirectory(project, virtualDirectory)
+        psiDirectory.getOrElse(error(s"Directory $directory not found"))
+      case TestScope.Package(_, packageName) =>
+        val psiPackage = PSI.findPackage(project, packageName)
+        psiPackage.getOrElse(error(s"Package $packageName not found"))
+      case TestScope.Class(_, className) =>
+        findPsiClass(className, module)
+      case TestScope.Method(_, className, methodName) =>
+        val psiClass = findPsiClass(className, module)
+        val psiMethods = read {
+          psiClass.getMethods
+        }
+        psiMethods
+          .find(_.getName == methodName)
+          .getOrElse(
+            error(
+              s"Method $methodName not found in class $className. Available methods: ${psiMethods.map(_.getName)}"
+            )
+          )
+    }
   }
 
   private def findPsiClass(qualifiedName: String, module: IntelliJModule): PsiClass = {
