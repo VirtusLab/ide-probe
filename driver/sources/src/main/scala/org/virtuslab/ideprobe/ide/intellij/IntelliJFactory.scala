@@ -85,18 +85,22 @@ object IntelliJFactory {
     new IntelliJFactory(
       new DependencyProvider(
         new IntelliJDependencyProvider(Seq(IntelliJZipResolver.Community), ResourceProvider.Default),
-        new PluginDependencyProvider(PluginResolver.Official, ResourceProvider.Default)
+        new PluginDependencyProvider(Seq(PluginResolver.Official), ResourceProvider.Default)
       ),
       IdeProbePaths.Default,
       DriverConfig()
     )
 
-  def from(resolversConfig: DependenciesConfig.Resolvers, paths: IdeProbePaths, driverConfig: DriverConfig): IntelliJFactory = {
+  def from(
+      resolversConfig: DependenciesConfig.Resolvers,
+      paths: IdeProbePaths,
+      driverConfig: DriverConfig
+  ): IntelliJFactory = {
     val intelliJResolver = IntelliJZipResolver.from(resolversConfig.intellij)
     val pluginResolver = PluginResolver.from(resolversConfig.plugins)
     val resourceProvider = ResourceProvider.from(paths)
     val intelliJDependencyProvider = new IntelliJDependencyProvider(Seq(intelliJResolver), resourceProvider)
-    val pluginDependencyProvider = new PluginDependencyProvider(pluginResolver, resourceProvider)
+    val pluginDependencyProvider = new PluginDependencyProvider(Seq(pluginResolver), resourceProvider)
     val dependencyProvider = new DependencyProvider(intelliJDependencyProvider, pluginDependencyProvider)
     new IntelliJFactory(dependencyProvider, paths, driverConfig)
   }
