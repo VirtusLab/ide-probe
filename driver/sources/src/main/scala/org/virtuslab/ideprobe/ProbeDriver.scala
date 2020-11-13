@@ -210,6 +210,12 @@ class ProbeDriver(
   def freezes: Seq[Freeze] = send(Endpoints.Freezes)
 
   /**
+   * Returns the list of test configuration names that are available for the given scope
+   */
+  def testConfigurations(testScope: TestScope): Seq[String] =
+    send(Endpoints.TestConfigurations, testScope)
+
+  /**
    * Runs the specified test configuration with the first available test runner
    */
   def runTestsFromGenerated(runConfiguration: TestScope): TestsRunResult =
@@ -222,6 +228,10 @@ class ProbeDriver(
     runTestsFromGenerated(runConfiguration, runnerToSelect = Some(runnerToSelect))
   }
 
+  /**
+   * Runs the specified test configuration with a test runner containing provided `runnerToSelect` substring,
+   * or the first available test runner if `runnerToSelect` is `None`
+   */
   def runTestsFromGenerated(runConfiguration: TestScope, runnerToSelect: Option[String]): TestsRunResult = {
     send(Endpoints.RunTestsFromGenerated, (runConfiguration, runnerToSelect))
   }
