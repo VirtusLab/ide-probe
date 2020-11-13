@@ -33,6 +33,13 @@ object RunConfigurations extends IntelliJApi {
     ExecutionManager.getInstance(project).restartRunProfile(environment)
   }
 
+  def testConfigurations(
+    scope: TestScope
+  )(implicit ec: ExecutionContext): Seq[String] = {
+    val configurations = availableRunConfigurations(scope)
+    configurations.map(_.getConfigurationSettings.getName)
+  }
+
   def runTestsFromGenerated(
       scope: TestScope,
       runnerToSelect: Option[String]

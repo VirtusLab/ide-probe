@@ -38,6 +38,7 @@ class BaseProbeHandlerContributor extends ProbeHandlerContributor {
       .on(Endpoints.RunApp)(RunConfigurations.runApp)
       .on(Endpoints.RunJUnit)(RunConfigurations.runJUnit)
       .on(Endpoints.RerunFailedTests)(RunConfigurations.rerunFailedTests)
+      .on(Endpoints.TestConfigurations)(RunConfigurations.testConfigurations)
       .on(Endpoints.RunTestsFromGenerated)((RunConfigurations.runTestsFromGenerated _).tupled)
       .on(Endpoints.TakeScreenshot)(Screenshot.take)
       .on(Endpoints.RunLocalInspection)(Inspections.runLocal)

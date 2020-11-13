@@ -25,6 +25,7 @@ object Endpoints {
   val RunApp = Request[ApplicationRunConfiguration, ProcessResult]("run/application")
   val RunJUnit = Request[TestScope, TestsRunResult]("run/junit")
   val RunTestsFromGenerated = Request[(TestScope, Option[String]), TestsRunResult]("run/test")
+  val TestConfigurations = Request[TestScope, Seq[String]]("run/testConfigurations")
   val RerunFailedTests = Request[ProjectRef, TestsRunResult]("run/failedTests")
   val Shutdown = Notification[Unit]("shutdown")
   val SyncFiles = Request[Unit, Unit]("fs/sync")
