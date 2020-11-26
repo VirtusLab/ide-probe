@@ -125,8 +125,17 @@ object RunConfigurations extends IntelliJApi {
     //dataContext.put(LangDataKeys.MODULE, module)
 
     val configurationContext = ConfigurationContext.getFromContext(dataContext)
-    val runManager = configurationContext.getRunManager//.asInstanceOf[RunManagerEx]
-    runManager.getAllConfigurations.toSeq.map(_.getName)
+    val runManager = configurationContext.getRunManager.asInstanceOf[RunManagerEx]
+    val configurationFromContext = read { configurationContext.getConfiguration }
+
+    runManager.setTemporaryConfiguration(configurationFromContext)
+    runManager.setSelectedConfiguration(configurationFromContext)
+
+    waitForSmartMode(project)
+    val configurations = read { configurationContext.getConfigurationsFromContext }
+    val c = configurations.toSeq
+    c.map(_.getConfiguration.getName)
+    //runManager.getAllConfigurations.toSeq.map(_.getName)
   }
 
   def runApp(runConfiguration: ApplicationRunConfiguration)(implicit ec: ExecutionContext): ProcessResult = {
