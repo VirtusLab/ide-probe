@@ -37,6 +37,7 @@ class BaseProbeHandlerContributor extends ProbeHandlerContributor {
       .on(Endpoints.SyncFiles)(_ => VFS.syncAll())
       .on(Endpoints.AwaitNotification)((Notifications.await _).tupled)
       .on(Endpoints.RunApp)(RunConfigurations.runApp)
+      .on(Endpoints.RunConfigurations)(RunConfigurations.list)
       .on(Endpoints.RunJUnit)(RunConfigurations.runJUnit)
       .on(Endpoints.RerunFailedTests)(RunConfigurations.rerunFailedTests)
       .on(Endpoints.TestConfigurations)(RunConfigurations.testConfigurations)

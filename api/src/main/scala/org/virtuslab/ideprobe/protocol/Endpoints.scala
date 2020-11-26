@@ -23,6 +23,7 @@ object Endpoints {
   val OpenProject = Request[Path, ProjectRef]("project/open")
   val SetCompilerOutput = Request[(ProjectRef, Path), Unit]("project/setCompilerOutput")
   val RunApp = Request[ApplicationRunConfiguration, ProcessResult]("run/application")
+  val RunConfigurations = Request[ProjectRef, Seq[String]]("run/configurations")
   val RunJUnit = Request[TestScope, TestsRunResult]("run/junit")
   val RunTestsFromGenerated = Request[(TestScope, Option[String]), TestsRunResult]("run/test")
   val TestConfigurations = Request[TestScope, Seq[String]]("run/testConfigurations")

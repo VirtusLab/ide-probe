@@ -1,9 +1,9 @@
 package org.virtuslab.ideprobe.ide.intellij
 
 object DebugMode {
-  private val enabled: Boolean = env("IDEPROBE_DEBUG", "false").toBoolean
+  private val enabled: Boolean = env("IDEPROBE_DEBUG", "true").toBoolean
   private val suspend: Boolean = env("IDEPROBE_DEBUG_SUSPEND", "false").toBoolean
-  private val port: Int = env("IDEPROBE_DEBUG_PORT", "5005").toInt
+  private val port: Int = env("IDEPROBE_DEBUG_PORT", "7007").toInt
 
   def vmOption: Seq[String] = {
     if (enabled) {

@@ -243,6 +243,11 @@ class ProbeDriver(
   }
 
   /**
+   * Returns the list of all available run configurations
+   */
+  def configurations(projectRef: ProjectRef = ProjectRef.Default): Seq[String] = send(Endpoints.RunConfigurations, projectRef)
+
+  /**
    * Runs the specified application configuration
    */
   def runApp(runConfiguration: ApplicationRunConfiguration): ProcessResult = send(Endpoints.RunApp, runConfiguration)

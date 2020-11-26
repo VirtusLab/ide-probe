@@ -117,6 +117,18 @@ object RunConfigurations extends IntelliJApi {
     Tests.awaitTestResults(project, () => launch(project, settings))
   }
 
+  def list(projectRef: ProjectRef): Seq[String] = {
+    val project = Projects.resolve(projectRef)
+
+    val dataContext = new MapDataContext
+    dataContext.put(CommonDataKeys.PROJECT, project)
+    //dataContext.put(LangDataKeys.MODULE, module)
+
+    val configurationContext = ConfigurationContext.getFromContext(dataContext)
+    val runManager = configurationContext.getRunManager//.asInstanceOf[RunManagerEx]
+    runManager.getAllConfigurations.toSeq.map(_.getName)
+  }
+
   def runApp(runConfiguration: ApplicationRunConfiguration)(implicit ec: ExecutionContext): ProcessResult = {
     val configuration = registerObservableConfiguration(runConfiguration)
     val project = Projects.resolve(runConfiguration.module.project)
