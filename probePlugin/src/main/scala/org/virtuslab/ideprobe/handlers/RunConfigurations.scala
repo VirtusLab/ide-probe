@@ -14,8 +14,8 @@ import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaPsiFacade, PsiClass, PsiElement}
 import com.intellij.testFramework.MapDataContext
-import java.util.{Collections, UUID}
-import org.virtuslab.ideprobe.{RunConfigurationTransformer, RunnerSettingsWithProcessOutput}
+import java.util.Collections
+import org.virtuslab.ideprobe.{RunConfigurationTransformer, RunnerSettingsWithProcessOutput, UUIDs}
 import org.virtuslab.ideprobe.protocol._
 import scala.collection.convert.ImplicitConversions.`collection AsScalaIterable`
 import scala.concurrent.ExecutionContext
@@ -87,7 +87,7 @@ object RunConfigurations extends IntelliJApi {
     val module = Modules.resolve(scope.module)
     val project = module.getProject
 
-    val configuration = new JUnitConfiguration(UUID.randomUUID().toString, project)
+    val configuration = new JUnitConfiguration(UUIDs.randomUUID(), project)
     configuration.setModule(module)
     val data = configuration.getPersistentData
     scope match {
@@ -132,8 +132,7 @@ object RunConfigurations extends IntelliJApi {
     val project = module.getProject
 
     val configuration = {
-      val name = UUID.randomUUID()
-      val configuration = new ApplicationConfiguration(name.toString, project)
+      val configuration = new ApplicationConfiguration(UUIDs.randomUUID(), project)
       configuration.setModule(module)
       configuration.setMainClassName(appRunConfig.mainClass)
       if (appRunConfig.args.nonEmpty) {
