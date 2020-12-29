@@ -13,7 +13,6 @@ import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
-import java.util.UUID
 import java.util.zip.ZipInputStream
 import scala.util.Failure
 import scala.util.Try
@@ -61,8 +60,7 @@ trait ProbeExtensions {
     }
 
     def createTempDirectory(prefix: String): Path = {
-      val suffix = UUID.randomUUID.toString
-      path.resolve(prefix + suffix)
+      path.resolve(s"$prefix-${UUIDs.randomUUID()}")
     }
 
     def copyTo(target: Path): Path = {
