@@ -1,0 +1,28 @@
+name: Build
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        scala-version: [ "2.12.10", "2.13.1" ]
+        test-set: [ "probe", "scala" ]
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v2.0.0
+      - name: Prepare the environment
+        run: |
+          git fetch --tags
+          sbt ci/generateScripts
+          ci/tests/build_image
+      - name: Run tests
+        env:
+          SCALA_VERSION: ${{ matrix.scala-version }}
+          TEST_SET: ${{ matrix.test-set }}
+        run: ci/tests/run $TEST_SET $SCALA_VERSION
