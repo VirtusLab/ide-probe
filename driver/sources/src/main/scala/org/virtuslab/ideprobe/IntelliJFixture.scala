@@ -66,7 +66,7 @@ final case class IntelliJFixture(
   def withWorkspace = new MultipleRunsIntelliJ(this)
 
   def setupWorkspace(): Path = {
-    val workspace = workspaceProvider.setup(probePaths)
+    val workspace = workspaceProvider.setup(probePaths).toRealPath()
     afterWorkspaceSetup.foreach(_.apply(this, workspace))
     workspace
   }
