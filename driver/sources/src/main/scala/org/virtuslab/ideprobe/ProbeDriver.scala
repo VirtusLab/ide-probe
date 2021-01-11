@@ -295,6 +295,14 @@ class ProbeDriver(
   def expandMacro(macroText: String, fileRef: FileRef): String =
     send(Endpoints.ExpandMacro, ExpandMacroData(fileRef, macroText))
 
+  /**
+   *  Build artifact
+   */
+  def buildArtifact(projectRef: ProjectRef, artifactName: String): Unit = {
+    send(Endpoints.BuildArtifact, (projectRef, artifactName))
+  }
+
+
   def ping(): Unit = send(Endpoints.Ping)
 
   /**

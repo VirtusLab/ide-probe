@@ -1,7 +1,6 @@
 package org.virtuslab.ideprobe.handlers
 
 import java.nio.file.Path
-
 import com.intellij.ide.actions.ImportModuleAction
 import com.intellij.ide.impl.ProjectUtil
 import com.intellij.openapi.module.ModuleManager
@@ -9,7 +8,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.roots.CompilerProjectExtension
+import com.intellij.packaging.impl.artifacts.ArtifactUtil
 import com.intellij.projectImport.ProjectImportProvider
+import com.intellij.task.ProjectTaskManager
 import org.virtuslab.ideprobe.ProbePluginExtensions._
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.protocol
@@ -130,4 +131,17 @@ object Projects extends IntelliJApi {
   }
 
   private def toRef(project: Project): ProjectRef = ProjectRef(project.getName)
+
+  def buildArtifact(projectRef: ProjectRef, artifactName: String): Unit = {
+    val defaultProject: Project = projectRef match {
+      case ProjectRef.Default => ProjectManager.getInstance().getDefaultProject
+      case ProjectRef.ByName(name) => ProjectManager.getInstance().getOpenProjects.find(_.getName == name).get
+    }
+
+    val artifacts = ArtifactUtil.getArtifactWithOutputPaths(defaultProject)
+    artifacts.asScala.find(_.getName == artifactName).foreach{
+      artifact =>
+        ProjectTaskManager.getInstance(defaultProject).build(artifact)
+    }
+  }
 }
