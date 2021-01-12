@@ -3,19 +3,17 @@ package org.virtuslab.ideprobe.handlers
 import java.nio.file.Paths
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-
 import com.intellij.openapi.compiler.CompilationStatusListener
 import com.intellij.openapi.compiler.CompileContext
 import com.intellij.openapi.compiler.CompilerMessageCategory
 import com.intellij.openapi.compiler.CompilerTopics
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
+import com.intellij.packaging.impl.artifacts.ArtifactUtil
 import com.intellij.task.ProjectTaskManager
 import com.intellij.util.messages.MessageBusConnection
-import org.virtuslab.ideprobe.protocol.BuildMessage
-import org.virtuslab.ideprobe.protocol.BuildParams
-import org.virtuslab.ideprobe.protocol.BuildResult
-import org.virtuslab.ideprobe.protocol.BuildStepResult
+import org.virtuslab.ideprobe.protocol.{BuildMessage, BuildParams, BuildResult, BuildStepResult, ProjectRef}
+import scala.jdk.CollectionConverters._
 
 object Builds extends IntelliJApi {
   def build(params: BuildParams): BuildResult = {
@@ -115,6 +113,15 @@ object Builds extends IntelliJApi {
 
       results :+= buildResult
       latch.countDown()
+    }
+  }
+
+  def buildArtifact(projectRef: ProjectRef, artifactName: String): Unit = {
+    val defaultProject = Projects.resolve(projectRef)
+    val artifacts = ArtifactUtil.getArtifactWithOutputPaths(defaultProject)
+    artifacts.asScala.find(_.getName == artifactName).foreach{
+      artifact =>
+        ProjectTaskManager.getInstance(defaultProject).build(artifact)
     }
   }
 }
