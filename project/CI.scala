@@ -4,7 +4,7 @@ import sbt.Keys.loadedBuild
 import sbt.{Def, ProjectRef, _}
 
 object CI {
-  private val excluded = Set("ci", "ide-probe", "ideprobe", "probe", "examples")
+  private val excluded = Set("ci", "ide-probe", "ideprobe", "probe")
   lazy val generateScripts = taskKey[Seq[File]]("Generate CI scripts")
 
   private def scalaVersionToModulePostfix(scalaVersion: String): String =
@@ -12,6 +12,7 @@ object CI {
 
   def groupedProjects(scalaVersions: List[String]): Def.Initialize[Task[Map[String, Seq[ProjectRef]]]] = Def.task {
     val extensionDir = Paths.get(loadedBuild.value.root).resolve("extensions")
+    val examplesDir = Paths.get(loadedBuild.value.root).resolve("examples")
     val excludedCross = for {
       version <- scalaVersions
       module <- excluded
@@ -23,6 +24,7 @@ object CI {
         case (_, project) =>
           val projectPath = project.base.toPath
           if (projectPath.startsWith(extensionDir)) extensionDir.relativize(projectPath).getName(0).toString
+          else if (projectPath.startsWith(examplesDir)) "examples"
           else "probe"
       }
       .mapValues(_.map(_._1))
