@@ -22,11 +22,14 @@ scala:
 
 jobs:
   include:
-#    - name: test-probe @ scala-2.12
-#      script: ci/tests/run probe 2.12.10
-    - name: test-probe @ scala-2.13
+    - stage: Probe 2.12
+      name: test-probe @ scala-2.12
+      script: ci/tests/run probe 2.12.10
+    - stage: Probe 2.13
+      name: test-probe @ scala-2.13
       script: ci/tests/run probe 2.13.1
-    - name: test-scala @ scala-2.13
+    - stage: Scala 2.13
+      name: test-scala @ scala-2.13
       script: ci/tests/run scala 2.13.1
     - stage: Release
       name: Release
