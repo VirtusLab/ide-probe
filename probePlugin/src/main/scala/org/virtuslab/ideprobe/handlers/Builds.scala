@@ -13,7 +13,7 @@ import com.intellij.packaging.impl.artifacts.ArtifactUtil
 import com.intellij.task.ProjectTaskManager
 import com.intellij.util.messages.MessageBusConnection
 import org.virtuslab.ideprobe.protocol.{BuildMessage, BuildParams, BuildResult, BuildStepResult, ProjectRef}
-import scala.jdk.CollectionConverters._
+import scala.collection.JavaConverters._
 
 object Builds extends IntelliJApi {
   def build(params: BuildParams): BuildResult = {
