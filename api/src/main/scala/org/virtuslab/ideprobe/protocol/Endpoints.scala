@@ -33,6 +33,7 @@ object Endpoints {
   val RunLocalInspection = Request[InspectionRunParams, InspectionRunResult]("inspections/local/run")
   val SetConfig = Request[String, Unit]("config/set")
   val BuildArtifact = Request[(ProjectRef, String), Unit]("buildArtifact")
+  val BackgroundTasks = Request[Unit, Seq[String]]("backgroundTasks")
 
   // queries
   val FileReferences = Request[FileRef, Seq[Reference]]("file/references")

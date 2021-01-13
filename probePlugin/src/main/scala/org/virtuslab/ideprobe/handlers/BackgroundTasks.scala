@@ -26,14 +26,16 @@ object BackgroundTasks extends IntelliJApi {
 
   @tailrec
   def awaitNone(params: AwaitIdleParams): Unit = {
-    sleep(params.initialWait)
-    val tasks = currentBackgroundTasks()
-    if (tasks.nonEmpty) {
-      log.warn(s"Waiting for completion of $tasks")
-      awaitNone(params)
-    } else {
-      if (newTaskAppeared(within = params.newTaskWait, probeFrequency = params.checkFrequency)) {
+    if (params.active == 1) {
+      sleep(params.initialWait)
+      val tasks = currentBackgroundTasks()
+      if (tasks.nonEmpty) {
+        log.warn(s"Waiting for completion of $tasks")
         awaitNone(params)
+      } else {
+        if (newTaskAppeared(within = params.newTaskWait, probeFrequency = params.checkFrequency)) {
+          awaitNone(params)
+        }
       }
     }
   }
@@ -53,9 +55,13 @@ object BackgroundTasks extends IntelliJApi {
     }
   }
 
-  private def currentBackgroundTasks(): Seq[ProgressIndicator] = {
+  def currentBackgroundTasks(): Seq[ProgressIndicator] = {
     val progressManager = ProgressManager.getInstance
     getCurrentIndicatorsMethod.invoke(progressManager).asInstanceOf[java.util.List[ProgressIndicator]].asScala.toSeq
+  }
+
+  def currentBackgroundTaskNames(): Seq[String] = {
+    currentBackgroundTasks().map(_.toString).filter(_ != null)
   }
 
   private lazy val getCurrentIndicatorsMethod = {

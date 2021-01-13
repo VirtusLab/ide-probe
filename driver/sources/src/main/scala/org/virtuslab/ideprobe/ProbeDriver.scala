@@ -108,6 +108,12 @@ class ProbeDriver(
   private def awaitIdle(params: Option[AwaitIdleParams]): Unit = send(Endpoints.AwaitIdle, params)
 
   /**
+   * Get list of background task names
+   * @return
+   */
+  def backgroundTasks: Seq[String] = send(Endpoints.BackgroundTasks)
+
+  /**
    * Forces the probe to wait until the specified notification is issued by the IDE
    */
   def awaitNotification(title: String, duration: Duration = Duration.Inf): IdeNotification = {
