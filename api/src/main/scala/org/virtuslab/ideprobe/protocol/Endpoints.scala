@@ -32,6 +32,7 @@ object Endpoints {
   val TakeScreenshot = Request[String, Unit]("screenshot")
   val RunLocalInspection = Request[InspectionRunParams, InspectionRunResult]("inspections/local/run")
   val SetConfig = Request[String, Unit]("config/set")
+  val BuildArtifact = Request[(ProjectRef, String), Unit]("buildArtifact")
 
   // queries
   val FileReferences = Request[FileRef, Seq[Reference]]("file/references")
