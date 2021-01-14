@@ -100,6 +100,7 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
   }
 
   @Test
+  @Ignore
   def expandsMacro(): Unit =
     fixture.copy(workspaceProvider = WorkspaceTemplate.FromResource("gradle-project")).run { intelliJ =>
       val projectRef = intelliJ.probe.withRobot.openProject(intelliJ.workspace)
@@ -110,6 +111,7 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
     }
 
   @Test
+  @Ignore
   def listsAllSourceRoots(): Unit = {
     fixture.copy(workspaceProvider = WorkspaceTemplate.FromResource("gradle-project")).run { intelliJ =>
       val projectDir = intelliJ.workspace.resolve("build.gradle")
@@ -129,6 +131,7 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
   }
 
   @Test
+  @Ignore
   def listsModuleDependencies(): Unit = {
     fixture.copy(workspaceProvider = WorkspaceTemplate.FromResource("gradle-project")).run { intelliJ =>
       val projectDir = intelliJ.workspace.resolve("build.gradle")
