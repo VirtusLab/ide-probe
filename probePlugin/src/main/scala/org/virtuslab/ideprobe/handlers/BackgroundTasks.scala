@@ -26,7 +26,7 @@ object BackgroundTasks extends IntelliJApi {
 
   @tailrec
   def awaitNone(params: AwaitIdleParams): Unit = {
-    if (params.active == 1) {
+    if (params.active) {
       sleep(params.initialWait)
       val tasks = currentBackgroundTasks()
       if (tasks.nonEmpty) {
