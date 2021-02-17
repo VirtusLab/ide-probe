@@ -1,0 +1,15 @@
+<idea-plugin>
+    <id>org.virtuslab.ideprobe.bazel</id>
+    <name>Virtuslab IdeProbe Bazel</name>
+    <vendor email="info@virtuslab.com" url="http://www.virtuslab.com">VirtusLab</vendor>
+
+    <depends>com.intellij.modules.lang</depends>
+    <depends>com.intellij.modules.java</depends>
+    <depends>org.virtuslab.ideprobe</depends>
+    <depends>com.google.idea.bazel.ijwb</depends>
+    <idea-version since-build="191.*" until-build="202.*"/>
+
+    <extensions defaultExtensionNs="org.virtuslab.ideprobe">
+        <probeHandlerContributor implementation="org.virtuslab.ideprobe.bazel.BazelProbeHandlerContributor"/>
+    </extensions>
+</idea-plugin>
