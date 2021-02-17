@@ -151,6 +151,7 @@ lazy val junitDriver212 = junitDriver(scala212)
 
 lazy val junitDriver213 = junitDriver(scala213)
 
+// scala extension
 lazy val scalaProbeApi = project(id = "scala-probe-api", path = "extensions/scala/api", publish = true).cross
   .dependsOn(api)
 
@@ -201,6 +202,97 @@ lazy val scalaTests = testModule("scala-tests", "extensions/scala/tests").cross
 lazy val scalaTests213 = scalaTests(scala213)
   .usesIdeaPlugin(scalaProbePlugin213)
 
+// pants extension
+lazy val pantsProbeApi = project(id = "pants-probe-api", path = "extensions/pants/api", publish = true).cross
+  .dependsOn(api)
+
+lazy val pantsProbeApi212 = pantsProbeApi(scala212)
+
+lazy val pantsProbeApi213 = pantsProbeApi(scala213)
+
+lazy val pantsProbePlugin =
+  ideaPluginModule(id = "pants-probe-plugin", path = "extensions/pants/probePlugin", publish = true)
+    .settings(
+      intellijPluginName := "ideprobe-pants",
+      packageArtifactZipFilter := { file: File =>
+        // We want only this main jar to be packaged, all the library dependencies
+        // are already in the probePlugin which will be available in runtime as we
+        // depend on it in plugin.xml.
+        // The packaging plugin is created to support one plugin per build, so there
+        // seems to be no way to prevent including probePlugin.jar in the dist reasonable way.
+        file.getName.contains("pants-probe-plugin")
+      },
+      name := "pants-probe-plugin",
+      intellijPlugins ++= Seq(
+        "PythonCore".toPlugin,
+        "org.intellij.scala".toPlugin,
+        "com.intellij.plugins.pants:1.15.1.42d84c497b639ef81ebdae8328401e3966588b2c:bleedingedge".toPlugin
+      )
+    )
+    .cross
+    .dependsOn(probePlugin, pantsProbeApi)
+
+lazy val pantsProbePlugin212 = pantsProbePlugin(scala212)
+
+lazy val pantsProbePlugin213 = pantsProbePlugin(scala213)
+
+lazy val pantsProbeDriver =
+  module(id = "pants-probe-driver", path = "extensions/pants/driver")
+    .settings(name := "pants-probe-driver")
+    .cross
+    .dependsOn(pantsProbeApi, driver, robotDriver)
+
+lazy val pantsProbeDriver212 = pantsProbeDriver(scala212)
+  .usesIdeaPlugin(pantsProbePlugin212)
+
+lazy val pantsProbeDriver213 = pantsProbeDriver(scala213)
+  .usesIdeaPlugin(pantsProbePlugin213)
+
+// bazel extension
+lazy val bazelProbeApi = project(id = "bazel-probe-api", path = "extensions/bazel/api", publish = true).cross
+  .dependsOn(api)
+
+lazy val bazelProbeApi212 = bazelProbeApi(scala212)
+
+lazy val bazelProbeApi213 = bazelProbeApi(scala213)
+
+lazy val bazelProbePlugin =
+  ideaPluginModule(id = "bazel-probe-plugin", path = "extensions/bazel/probePlugin", publish = true)
+    .settings(
+      intellijPluginName := "ideprobe-bazel",
+      packageArtifactZipFilter := { file: File =>
+        // We want only this main jar to be packaged, all the library dependencies
+        // are already in the probePlugin which will be available in runtime as we
+        // depend on it in plugin.xml.
+        // The packaging plugin is created to support one plugin per build, so there
+        // seems to be no way to prevent including probePlugin.jar in the dist reasonable way.
+        file.getName.contains("bazel-probe-plugin")
+      },
+      name := "bazel-probe-plugin",
+      intellijPlugins ++= Seq(
+        "com.google.idea.bazel.ijwb:2020.12.01.0.1".toPlugin
+      )
+    )
+    .cross
+    .dependsOn(probePlugin, bazelProbeApi)
+
+lazy val bazelProbePlugin212 = bazelProbePlugin(scala212)
+
+lazy val bazelProbePlugin213 = bazelProbePlugin(scala213)
+
+lazy val bazelProbeDriver =
+  module(id = "bazel-probe-driver", path = "extensions/bazel/driver")
+    .settings(name := "bazel-probe-driver")
+    .cross
+    .dependsOn(bazelProbeApi, driver, robotDriver)
+
+lazy val bazelProbeDriver212 = bazelProbeDriver(scala212)
+  .usesIdeaPlugin(bazelProbePlugin212)
+
+lazy val bazelProbeDriver213 = bazelProbeDriver(scala213)
+  .usesIdeaPlugin(bazelProbePlugin213)
+
+// examples
 lazy val examples = testModule("examples", "examples")
   .settings(libraryDependencies ++= Dependencies.junit5)
   .cross
