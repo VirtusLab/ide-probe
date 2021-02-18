@@ -38,9 +38,11 @@ trait RobotSyntax { outer =>
     override protected def robotTimeout: Duration = outer.robotTimeout
   }
 
-  implicit class FixtureOps(val fixtureComponent: Fixture) {
+  implicit class FixtureOps(val fc: Fixture) {
     def fullText: String = fullTexts.mkString("\n")
-    def fullTexts: Seq[String] = fixtureComponent.findAllText.asScala.map(_.getText).toList
+    def fullTexts: Seq[String] = fc.findAllText.asScala.map(_.getText).toList
+    def doClick(): Unit = fc.runJs("component.doClick();", true)
+    def setText(text: String): Unit = fc.runJs(s"component.setText('$text');", true)
   }
 
   object query {
@@ -50,6 +52,18 @@ trait RobotSyntax { outer =>
     def button(attributes: (String, String)*): String = {
       val allAttrs = ("class" -> "JButton") +: attributes
       div(allAttrs: _*)
+    }
+    def button(accessibleName: String, attributes: (String, String)*): String = {
+      val allAttrs = ("accessiblename" -> accessibleName) +: attributes
+      button(allAttrs: _*)
+    }
+    def radioButton(attributes: (String, String)*): String = {
+      val allAttrs = ("class" -> "JRadioButton") +: attributes
+      div(allAttrs: _*)
+    }
+    def radioButton(accessibleName: String, attributes: (String, String)*): String = {
+      val allAttrs = ("accessiblename" -> accessibleName) +: attributes
+      radioButton(allAttrs: _*)
     }
     def className(name: String): String = {
       div("class" -> name)

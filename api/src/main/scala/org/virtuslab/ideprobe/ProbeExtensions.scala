@@ -122,8 +122,12 @@ trait ProbeExtensions {
     }
 
     def delete(): Unit = {
-      val deletingVisitor = new ProbeExtensions.DeletingVisitor(path)
-      Files.walkFileTree(path, deletingVisitor)
+      try Files.deleteIfExists(path)
+      catch {
+        case _: Exception =>
+          val deletingVisitor = new ProbeExtensions.DeletingVisitor(path)
+          Files.walkFileTree(path, deletingVisitor)
+      }
     }
 
     def content(): String = {

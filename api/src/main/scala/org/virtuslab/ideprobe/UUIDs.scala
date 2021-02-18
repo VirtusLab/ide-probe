@@ -11,7 +11,7 @@ object UUIDs {
     val bb = ByteBuffer.wrap(new Array[Byte](16))
     bb.putLong(uuid.getMostSignificantBits)
     bb.putLong(uuid.getLeastSignificantBits)
-    Base64.getUrlEncoder.encodeToString(bb.array)
+    Base64.getUrlEncoder.encodeToString(bb.array).replaceAll("=", "")
   }
 
   def randomUUID(): String = toBase64String(UUID.randomUUID)
