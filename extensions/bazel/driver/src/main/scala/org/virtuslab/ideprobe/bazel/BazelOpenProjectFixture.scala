@@ -11,23 +11,22 @@ import org.virtuslab.ideprobe.protocol.ProjectRef
 import org.virtuslab.ideprobe.robot.RobotPluginExtension
 
 trait BazelOpenProjectFixture extends BazeliskExtension { this: RobotPluginExtension =>
-  private implicit class SearchableComponentExt(sc: CommonContainerFixture) {
-    def doClick(): Unit = sc.runJs("component.doClick();", true)
-    def setText(text: String): Unit = sc.runJs(s"component.setText('$text');", true)
-  }
 
   private implicit class RemoteRobotExt(robot: RemoteRobot) {
     def clickButton(name: String): Unit = {
-      robot.find(query.button("accessiblename" -> name)).doClick()
+      robot.find(query.button(name)).doClick()
     }
     def clickRadioButton(name: String): Unit = {
-      robot.find(query.div("class" -> "JRadioButton", "accessiblename" -> name)).doClick()
+      robot.find(query.radioButton(name)).doClick()
     }
   }
 
   def openProjectWithBazel(intelliJ: RunningIntelliJFixture): ProjectRef = {
     val robot = intelliJ.probe.withRobot.robot
     val projectView = prepareBazelProjectViewFile(intelliJ.config, intelliJ.workspace)
+
+    // delete previous project
+    intelliJ.workspace.resolve(".ijwb").delete()
 
     // set bazel executable path
     BazelProbeDriver(intelliJ.probe).setupBazelExec(bazelPath(intelliJ.workspace))
@@ -48,6 +47,9 @@ trait BazelOpenProjectFixture extends BazeliskExtension { this: RobotPluginExten
     robot.clickButton("Finish")
 
     intelliJ.probe.awaitIdle()
+
+    projectView.delete()
+
     intelliJ.probe.listOpenProjects().head
   }
 
@@ -74,7 +76,7 @@ trait BazelOpenProjectFixture extends BazeliskExtension { this: RobotPluginExten
     }
   }
 
-  private def indentStrings(strs: List[String]) = {
+  private def indentStrings(strs: List[String]): String = {
     strs.map("  " + _).mkString("\n")
   }
 }

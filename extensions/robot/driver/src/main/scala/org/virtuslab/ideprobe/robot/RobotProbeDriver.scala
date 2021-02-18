@@ -56,7 +56,7 @@ final class RobotProbeDriver(
   }
 
   def closeTipOfTheDay(): Unit = {
-    Try(robot.mainWindow.find(query.dialog("Tip of the Day")).button("Close").click())
+    Try(robot.mainWindow.find(query.dialog("Tip of the Day")).button("Close").doClick())
   }
 
   def checkBuildPanelErrors(): Unit = {

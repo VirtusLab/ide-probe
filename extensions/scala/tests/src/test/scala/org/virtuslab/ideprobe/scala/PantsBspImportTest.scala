@@ -1,7 +1,7 @@
 package org.virtuslab.ideprobe.scala
 
-import java.nio.file.Path
-import java.nio.file.Paths
+import java.net.URL
+import java.nio.file.{Files, Path, Paths}
 import org.junit.Assert
 import org.junit.Test
 import org.virtuslab.ideprobe.{CommandResult, Shell}
@@ -35,6 +35,16 @@ class PantsBspImportTest extends ScalaPluginTestSuite {
       "echo"
     ) ++ targets
     Paths.get(runFastpass(workspace, args).out)
+  }
+
+  private lazy val coursierPath: Path = {
+    val destination = Paths.get(System.getProperty("java.io.tmpdir"), "ideprobe-coursier")
+    if (!Files.exists(destination)) {
+      val url = new URL("https://git.io/coursier-cli")
+      Files.copy(url.openConnection.getInputStream, destination)
+      destination.toFile.setExecutable(true)
+    }
+    destination
   }
 
   // fastpass is as tool that can convert pants project into bsp project
