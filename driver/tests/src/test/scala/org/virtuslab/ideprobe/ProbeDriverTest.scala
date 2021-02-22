@@ -244,10 +244,10 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
 
     val newProjectDialog = retry(3) {
       Try {
-        welcomeFrame.actionLink("New Project").doClick()
+        welcomeFrame.find(query.button("selectedicon" -> "createNewProjectTabSelected.svg")).click()
       }.getOrElse {
         // fallback for 2020.3
-        welcomeFrame.find(query.button("selectedicon" -> "createNewProjectTabSelected.svg")).doClick()
+        welcomeFrame.actionLink("New Project").click()
       }
       intelliJ.probe.withRobot.find(query.dialog("New Project"))
     }
