@@ -2,8 +2,13 @@ package org.virtuslab.ideprobe.protocol
 
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 
-case class AwaitIdleParams(initialWait: FiniteDuration, newTaskWait: FiniteDuration, checkFrequency: FiniteDuration, active: Boolean)
+case class AwaitIdleParams(
+    initialWait: FiniteDuration = 5.seconds,
+    newTaskWait: FiniteDuration = 2.seconds,
+    checkFrequency: FiniteDuration = 50.millis,
+    active: Boolean = true
+)
 
 object AwaitIdleParams {
-  val Default: AwaitIdleParams = AwaitIdleParams(5.seconds, 2.seconds, 50.millis, true)
+  val Default = AwaitIdleParams()
 }
