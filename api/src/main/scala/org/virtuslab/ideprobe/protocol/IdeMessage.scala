@@ -14,5 +14,6 @@ object IdeMessage {
     case object Error extends Level
     case object Warn extends Level
     case object Info extends Level
+    case object Other extends Level
   }
 }

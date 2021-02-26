@@ -17,6 +17,7 @@ object NotificationsInterceptor extends IntelliJApi {
         case NotificationType.ERROR       => IdeMessage.Level.Error
         case NotificationType.WARNING     => IdeMessage.Level.Warn
         case NotificationType.INFORMATION => IdeMessage.Level.Info
+        case _                            => IdeMessage.Level.Other
       }
       val error = Message(Some(notification.getContent), throwable = None, level)
       MessageLog.add(error)
