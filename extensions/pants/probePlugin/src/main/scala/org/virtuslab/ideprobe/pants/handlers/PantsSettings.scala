@@ -32,28 +32,27 @@ object PantsSettings {
   def changeProjectSettings(
       ref: ProjectRef,
       toSet: protocol.PantsProjectSettingsChangeRequest
-  ): Unit =
-    BackgroundTasks.withAwaitNone {
-      val project = Projects.resolve(ref)
-      val pantsSettings = getPantsSettings(project)
+  ): Unit = {
+    val project = Projects.resolve(ref)
+    val pantsSettings = getPantsSettings(project)
 
-      def setLinkedSetting[A](setting: Setting[A])(f: (PantsProjectSettings, A) => Unit): Unit = {
-        setting.foreach(value => pantsSettings.getLinkedProjectsSettings.forEach(f(_, value)))
-      }
-
-      def setSetting[A](setting: Setting[A])(f: (PantsSettingsFromPlugin, A) => Unit): Unit = {
-        setting.foreach(value => f(pantsSettings, value))
-      }
-
-      setSetting(toSet.useIdeaProjectJdk)(_.setUseIdeaProjectJdk(_))
-      setSetting(toSet.incrementalProjectImportDepth)((settings, value) =>
-        settings.setEnableIncrementalImport(value.map(Integer.valueOf).asJava)
-      )
-      setLinkedSetting(toSet.useIntellijCompiler)(_.useIntellijCompiler = _)
-      setLinkedSetting(toSet.importSourceDepsAsJars)(_.importSourceDepsAsJars = _)
-      setLinkedSetting(toSet.loadSourcesAndDocsForLibs)(_.libsWithSources = _)
-      setLinkedSetting(toSet.selectedTargets.map(_.asJava))(_.setSelectedTargetSpecs(_))
+    def setLinkedSetting[A](setting: Setting[A])(f: (PantsProjectSettings, A) => Unit): Unit = {
+      setting.foreach(value => pantsSettings.getLinkedProjectsSettings.forEach(f(_, value)))
     }
+
+    def setSetting[A](setting: Setting[A])(f: (PantsSettingsFromPlugin, A) => Unit): Unit = {
+      setting.foreach(value => f(pantsSettings, value))
+    }
+
+    setSetting(toSet.useIdeaProjectJdk)(_.setUseIdeaProjectJdk(_))
+    setSetting(toSet.incrementalProjectImportDepth)((settings, value) =>
+      settings.setEnableIncrementalImport(value.map(Integer.valueOf).asJava)
+    )
+    setLinkedSetting(toSet.useIntellijCompiler)(_.useIntellijCompiler = _)
+    setLinkedSetting(toSet.importSourceDepsAsJars)(_.importSourceDepsAsJars = _)
+    setLinkedSetting(toSet.loadSourcesAndDocsForLibs)(_.libsWithSources = _)
+    setLinkedSetting(toSet.selectedTargets.map(_.asJava))(_.setSelectedTargetSpecs(_))
+  }
 
   private def getPantsSettings(project: Project) = {
     ExternalSystemApiUtil

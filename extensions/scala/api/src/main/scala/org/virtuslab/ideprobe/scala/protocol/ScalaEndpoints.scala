@@ -15,7 +15,7 @@ object ScalaEndpoints {
     Request[(ProjectRef, SbtProjectSettingsChangeRequest), Unit]("sbt/project/settings/change")
 
   val ImportBspProject =
-    Request[Path, ProjectRef]("bsp/import")
+    Request[Path, Unit]("bsp/import")
 
   val RunScalaTest = Request[ScalaTestRunConfiguration, TestsRunResult]("run/scalatest")
 }

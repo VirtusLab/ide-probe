@@ -26,7 +26,9 @@ final class PantsProbeDriver(val driver: ProbeDriver) extends AnyVal {
   }
 
   def importProject(path: Path, settings: PantsProjectSettingsChangeRequest): ProjectRef = {
-    driver.send(PantsEndpoints.ImportPantsProject, (path, settings))
+    driver.awaitForProjectOpen {
+      driver.send(PantsEndpoints.ImportPantsProject, (path, settings))
+    }
   }
 
   def getPantsProjectSettings(project: ProjectRef = ProjectRef.Default): PantsProjectSettings = {
@@ -36,7 +38,7 @@ final class PantsProbeDriver(val driver: ProbeDriver) extends AnyVal {
   def setPantsProjectSettings(
       settings: PantsProjectSettingsChangeRequest,
       project: ProjectRef = ProjectRef.Default
-  ): Unit = {
+  ): Unit = driver.withAwaitIdle {
     driver.send(PantsEndpoints.ChangePantsProjectSettings, (project, settings))
   }
 

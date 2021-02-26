@@ -8,7 +8,7 @@ import org.virtuslab.ideprobe.handlers.{IntelliJApi, Projects}
 import org.virtuslab.ideprobe.protocol.ProjectRef
 
 object ProjectImport extends IntelliJApi {
-  def importBspProject(path: Path): ProjectRef = {
+  def importBspProject(path: Path): Unit = {
     Projects.importFromSources(
       path, {
         case step: ImportChooserStep =>

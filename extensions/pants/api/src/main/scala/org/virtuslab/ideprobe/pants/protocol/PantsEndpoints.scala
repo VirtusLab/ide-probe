@@ -9,7 +9,7 @@ import pureconfig.generic.auto._
 
 object PantsEndpoints extends ConfigFormat {
   val ImportPantsProject =
-    Request[(Path, PantsProjectSettingsChangeRequest), ProjectRef]("pants/project/import")
+    Request[(Path, PantsProjectSettingsChangeRequest), Unit]("pants/project/import")
 
   val GetPantsProjectSettings =
     Request[ProjectRef, PantsProjectSettings]("pants/project/settings/get")

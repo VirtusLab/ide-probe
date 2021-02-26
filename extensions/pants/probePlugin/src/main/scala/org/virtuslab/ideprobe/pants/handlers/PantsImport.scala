@@ -22,7 +22,7 @@ import org.virtuslab.ideprobe.protocol.Setting.Unchanged
 
 object PantsImport extends IntelliJApi {
 
-  def importProject(path: Path, settings: PantsProjectSettingsChangeRequest): ProjectRef = {
+  def importProject(path: Path, settings: PantsProjectSettingsChangeRequest): Unit = {
     Projects.importFromSources(
       path, {
         case step: ImportChooserStep =>
