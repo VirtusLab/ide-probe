@@ -40,7 +40,7 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
   @Test
   def collectErrors(): Unit = fixture.run { intelliJ =>
     intelliJ.probe.invokeActionAsync("org.virtuslab.ideprobe.test.ThrowingAction")
-    intelliJ.probe.awaitIdle()
+    intelliJ.probe.await()
     val errors = intelliJ.probe.errors
     assertExists(errors)(error =>
       error.content.contains("ThrowingAction") && error.pluginId.contains(ProbeTestPlugin.id)
@@ -67,7 +67,7 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
       intelliJ.probe.invokeAction("org.virtuslab.ideprobe.test.BackgroundTaskAction15s")
     }
     assertDuration(max = errorMargin) {
-      intelliJ.probe.awaitIdle()
+      intelliJ.probe.await()
     }
   }
 
@@ -111,7 +111,6 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
     }
 
   @Test
-  @Ignore
   def listsAllSourceRoots(): Unit = {
     fixture.copy(workspaceProvider = WorkspaceTemplate.FromResource("gradle-project")).run { intelliJ =>
       val projectDir = intelliJ.workspace.resolve("build.gradle")

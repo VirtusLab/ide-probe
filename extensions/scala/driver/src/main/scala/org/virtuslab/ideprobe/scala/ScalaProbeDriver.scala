@@ -1,8 +1,7 @@
 package org.virtuslab.ideprobe.scala
 
 import java.nio.file.Path
-
-import org.virtuslab.ideprobe.ProbeDriver
+import org.virtuslab.ideprobe.{ProbeDriver, WaitLogic}
 import org.virtuslab.ideprobe.protocol.{ProjectRef, TestsRunResult}
 import org.virtuslab.ideprobe.scala.protocol._
 
@@ -19,13 +18,14 @@ final class ScalaProbeDriver(val driver: ProbeDriver) extends AnyVal {
 
   def setSbtProjectSettings(
       settings: SbtProjectSettingsChangeRequest,
-      project: ProjectRef = ProjectRef.Default
-  ): Unit = driver.withAwaitIdle {
+      project: ProjectRef = ProjectRef.Default,
+      waitLogic: WaitLogic = WaitLogic.Default
+  ): Unit = driver.withAwait(waitLogic) {
     driver.send(ScalaEndpoints.ChangeSbtProjectSettings, (project, settings))
   }
 
-  def importBspProject(path: Path): ProjectRef = {
-    driver.awaitForProjectOpen {
+  def importBspProject(path: Path, waitLogic: WaitLogic = WaitLogic.Default): ProjectRef = {
+    driver.awaitForProjectOpen(waitLogic) {
       driver.send(ScalaEndpoints.ImportBspProject, path)
     }
   }

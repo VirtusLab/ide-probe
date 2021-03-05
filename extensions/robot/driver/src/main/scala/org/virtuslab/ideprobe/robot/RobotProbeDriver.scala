@@ -3,10 +3,11 @@ package robot
 
 import com.intellij.remoterobot.{RemoteRobot, SearchContext}
 import java.nio.file.Path
-import java.time.Duration
 import org.virtuslab.ideprobe.protocol.ProjectRef
 import org.virtuslab.ideprobe.robot.RobotSyntax._
+import org.virtuslab.ideprobe.wait.DoOnlyOnce
 import scala.collection.mutable
+import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.util.Try
 
 object RobotProbeDriver {
@@ -46,17 +47,31 @@ final class RobotProbeDriver(
 ) extends SearchableComponent {
 
   override protected def searchContext: SearchContext = robot
-  override protected def robotTimeout: Duration = RobotSyntax.robotTimeout
+  override protected def robotTimeout: FiniteDuration = RobotSyntax.robotTimeout
 
-  def openProject(path: Path): ProjectRef = {
-    val ref = driver.openProject(path)
-    closeTipOfTheDay()
-    checkBuildPanelErrors()
-    ref
+  def openProject(path: Path, waitLogic: WaitLogic = WaitLogic.Default): ProjectRef = {
+    val closeTip = new DoOnlyOnce(closeTipOfTheDay())
+    val hideModal = new DoOnlyOnce(hideImportModalWindow())
+    val extendedLogic = waitLogic.doWhileWaiting {
+      hideModal.attempt()
+      closeTip.attempt()
+      checkBuildPanelErrors()
+    }
+    driver.openProject(path, extendedLogic)
   }
 
   def closeTipOfTheDay(): Unit = {
-    Try(robot.mainWindow.find(query.dialog("Tip of the Day")).button("Close").doClick())
+    robot.mainWindow
+      .findWithTimeout(query.dialog("Tip of the Day"), 100.millis)
+      .findWithTimeout(query.button("text" -> "Close"), 100.millis)
+      .doClick()
+  }
+
+  def hideImportModalWindow(): Unit = {
+    robot.mainWindow
+      .findWithTimeout(query.dialog("name" -> "dialog0"), 100.millis)
+      .findWithTimeout(query.button("text" -> "Background"), 100.millis)
+      .doClick()
   }
 
   def checkBuildPanelErrors(): Unit = {
@@ -68,7 +83,7 @@ final class RobotProbeDriver(
         val message = buildPanel
           .find(query.div("accessiblename" -> "Editor", "class" -> "EditorComponentImpl"))
           .fullText
-        throw new RuntimeException(s"Failed to open project. Output: $message")
+        error(s"Failed to open project. Output: $message")
       }
     }
   }
