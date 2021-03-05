@@ -136,8 +136,9 @@ lazy val junitDriver = module("junit-driver", "core/driver/bindings/junit")
 lazy val junitDriver213 = junitDriver(scala213)
 
 // scala extension
-lazy val scalaProbeApi = project(id = "scala-probe-api", path = "extensions/scala/api", publish = true).cross
-  .dependsOn(api)
+lazy val scalaProbeApi =
+  project(id = "scala-probe-api", path = "extensions/scala/api", publish = true).cross
+    .dependsOn(api)
 
 lazy val scalaProbeApi213 = scalaProbeApi(scala213)
 
@@ -178,8 +179,9 @@ lazy val scalaTests213 = scalaTests(scala213)
   .usesIdeaPlugin(scalaProbePlugin213)
 
 // pants extension
-lazy val pantsProbeApi = project(id = "pants-probe-api", path = "extensions/pants/api", publish = true).cross
-  .dependsOn(api)
+lazy val pantsProbeApi =
+  project(id = "pants-probe-api", path = "extensions/pants/api", publish = true).cross
+    .dependsOn(api)
 
 lazy val pantsProbeApi213 = pantsProbeApi(scala213)
 
@@ -217,8 +219,9 @@ lazy val pantsProbeDriver213 = pantsProbeDriver(scala213)
   .usesIdeaPlugin(pantsProbePlugin213)
 
 // bazel extension
-lazy val bazelProbeApi = project(id = "bazel-probe-api", path = "extensions/bazel/api", publish = true).cross
-  .dependsOn(api)
+lazy val bazelProbeApi =
+  project(id = "bazel-probe-api", path = "extensions/bazel/api", publish = true).cross
+    .dependsOn(api)
 
 lazy val bazelProbeApi213 = bazelProbeApi(scala213)
 

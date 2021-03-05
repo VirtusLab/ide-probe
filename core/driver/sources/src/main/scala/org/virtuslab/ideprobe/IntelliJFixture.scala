@@ -92,7 +92,7 @@ final case class IntelliJFixture(
   def startIntelliJ(workspace: Path, installedIntelliJ: InstalledIntelliJ): RunningIde = {
     val runningIde = installedIntelliJ.startIn(workspace, config)
     val probe = runningIde.probe
-    probe.awaitIdle()
+    probe.await(WaitLogic.OnStartup)
     val running = new RunningIntelliJFixture(workspace, probe, config, installedIntelliJ.paths)
     afterIntelliJStartup.foreach(_.apply(this, running))
     Runtime.getRuntime.addShutdownHook(new Thread(() => runningIde.shutdown()))

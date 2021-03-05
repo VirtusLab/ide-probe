@@ -1,0 +1,23 @@
+package org.virtuslab.ideprobe.wait
+
+import scala.concurrent.duration.FiniteDuration
+
+class ExecutionBackoff(maxFrequency: FiniteDuration) {
+
+  private var lastExecutionTime = Option.empty[Long]
+
+  def execute(block: => Unit): Unit = {
+    val now = System.currentTimeMillis()
+    lastExecutionTime match {
+      case Some(last) =>
+        if (now - last >= maxFrequency.toMillis) {
+          lastExecutionTime = Some(now)
+          block
+        }
+      case None =>
+        lastExecutionTime = Some(now)
+        block
+    }
+  }
+
+}

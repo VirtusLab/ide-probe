@@ -14,7 +14,7 @@ import scala.util.Failure
 
 class ProbeDriver(
     protected val connection: JsonRpcConnection,
-    config: Config
+    val config: Config
 )(implicit protected val ec: ExecutionContext)
     extends JsonRpcEndpoint {
   protected val handler: Handler = (_, _) => Failure(new Exception("Receiving requests is not supported"))
@@ -24,69 +24,6 @@ class ProbeDriver(
   def systemProperties(): Map[String, String] = send(Endpoints.SystemProperties)
 
   def listOpenProjects(): Seq[ProjectRef] = send(Endpoints.ListOpenProjects)
-
-  def openProjectWithName(
-      path: Path,
-      expectedName: String,
-      open: Path => ProjectRef = openProject
-  ): ProjectRef = {
-    val expectedRef = ProjectRef(expectedName)
-    val projectRef = open(path)
-
-    @tailrec def attempt(attempts: Int): ProjectRef = {
-      awaitIdle()
-      val open = listOpenProjects()
-      if (open.contains(expectedRef)) {
-        expectedRef
-      } else {
-        if (attempts == 0) {
-          throw new RuntimeException(
-            s"Failed to open project $expectedName, open projects are: ${open.mkString("[", ", ", "]")}"
-          )
-        } else {
-          attempt(attempts - 1)
-        }
-      }
-    }
-
-    if (projectRef == expectedRef) {
-      projectRef
-    } else {
-      attempt(attempts = 10)
-    }
-  }
-
-  def openProjectWithModules(
-      path: Path,
-      expectedModules: Set[String],
-      open: Path => ProjectRef = openProject
-  ): ProjectRef = {
-    val projectRef = open(path)
-    val modules = projectModel(projectRef).modules.map(_.name).toSet
-
-    @tailrec def attempt(attempts: Int): ProjectRef = {
-      awaitIdle()
-      val modules = projectModel(projectRef).modules.map(_.name).toSet
-      if (expectedModules.subsetOf(modules)) {
-        projectRef
-      } else {
-        if (attempts == 0) {
-          throw new RuntimeException(
-            s"Failed to open project with modules ${expectedModules.mkString("[", ", ", "]")}, " +
-              s"loaded modules are: ${modules.mkString("[", ", ", "]")}"
-          )
-        } else {
-          attempt(attempts - 1)
-        }
-      }
-    }
-
-    if (expectedModules.subsetOf(modules)) {
-      projectRef
-    } else {
-      attempt(attempts = 10)
-    }
-  }
 
   def preconfigureJdk(): Unit = send(Endpoints.PreconfigureJdk)
 
@@ -106,7 +43,9 @@ class ProbeDriver(
   /**
    * Builds the specified files, modules or project
    */
-  def build(scope: BuildScope = BuildScope.project): BuildResult = build(BuildParams(scope, rebuild = false))
+  def build(scope: BuildScope = BuildScope.project): BuildResult = {
+    build(BuildParams(scope, rebuild = false))
+  }
 
   /**
    * Closes specified project
@@ -121,13 +60,17 @@ class ProbeDriver(
   /**
    * Invokes the specified actions and waits for it to finish
    */
-  def invokeAction(id: String): Unit = withAwaitIdle { send(Endpoints.InvokeAction, id) }
+  def invokeAction(id: String, waitLogic: WaitLogic = WaitLogic.Default): Unit = {
+    withAwait(waitLogic) {
+      send(Endpoints.InvokeAction, id)
+    }
+  }
 
   /**
    * Opens specified project
    */
-  def openProject(path: Path): ProjectRef = {
-    awaitForProjectOpen {
+  def openProject(path: Path, waitLogic: WaitLogic = WaitLogic.Default): ProjectRef = {
+    awaitForProjectOpen(waitLogic) {
       send(Endpoints.OpenProject, path)
     }
   }
@@ -139,10 +82,10 @@ class ProbeDriver(
    * tasks to finish. This is a helper method to do just
    * this.
    * */
-  def awaitForProjectOpen(open: => Unit): ProjectRef = {
+  def awaitForProjectOpen(waitLogic: WaitLogic = WaitLogic.Default)(open: => Unit): ProjectRef = {
     val previouslyOpened = listOpenProjects()
     open
-    awaitIdle()
+    await(waitLogic)
     val currentlyOpened = listOpenProjects()
     val newlyOpened = (currentlyOpened.toSet -- previouslyOpened.toSet).toSeq
     newlyOpened match {
@@ -175,7 +118,9 @@ class ProbeDriver(
   /**
    * Refreshes the file cache (useful, when those were modified outside of IDE)
    */
-  def syncFiles(): Unit = withAwaitIdle { send(Endpoints.SyncFiles) }
+  def syncFiles(waitLogic: WaitLogic = WaitLogic.Default): Unit = withAwait(waitLogic) {
+    send(Endpoints.SyncFiles)
+  }
 
   /**
    * Finds all the files referenced by the specified file
@@ -299,8 +244,9 @@ class ProbeDriver(
   def runLocalInspection(
       className: String,
       targetFile: FileRef,
-      runFixesSpec: RunFixesSpec = RunFixesSpec.None
-  ): InspectionRunResult = withAwaitIdle {
+      runFixesSpec: RunFixesSpec = RunFixesSpec.None,
+      waitLogic: WaitLogic = WaitLogic.Default
+  ): InspectionRunResult = withAwait(waitLogic) {
     send(Endpoints.RunLocalInspection, InspectionRunParams(className, targetFile, runFixesSpec))
   }
 
@@ -328,52 +274,14 @@ class ProbeDriver(
     send(Endpoints.SetConfig, stringFromConfig)
   }
 
-  def withAwaitIdle[A](block: => A): A = {
+  def withAwait[A](waitLogic: WaitLogic)(block: => A): A = {
     val result = block
-    awaitIdle()
+    await(waitLogic)
     result
   }
 
-  def awaitIdle(): Unit = {
-    val awaitParams = config
-      .getOrElse[AwaitIdleParams]("probe.endpoints.awaitIdle", AwaitIdleParams.Default)
-
-    awaitIdle(awaitParams)
-  }
-
-  @tailrec
-  final def awaitIdle(params: AwaitIdleParams): Unit = {
-    if (params.active) {
-      sleep(params.initialWait)
-      val tasks = backgroundTasks()
-      if (tasks.nonEmpty) {
-        println(s"Waiting for completion of $tasks")
-        awaitIdle(params)
-      } else {
-        if (newTaskAppeared(within = params.newTaskWait, probeFrequency = params.checkFrequency)) {
-          awaitIdle(params)
-        }
-      }
-    }
-  }
-
-  @tailrec
-  private def newTaskAppeared(within: FiniteDuration, probeFrequency: FiniteDuration): Boolean = {
-    if (within <= 0.millis) {
-      false
-    } else {
-      sleep(probeFrequency)
-      val tasks = backgroundTasks()
-      if (tasks.nonEmpty) {
-        true
-      } else {
-        newTaskAppeared(within - probeFrequency, probeFrequency)
-      }
-    }
-  }
-
-  private def sleep(duration: FiniteDuration): Unit = {
-    Thread.sleep(duration.toMillis)
+  def await(waitLogic: WaitLogic = WaitLogic.Default): Unit = {
+    waitLogic.await(this)
   }
 
   def as[A](extensionPluginId: String, convert: ProbeDriver => A): A = {

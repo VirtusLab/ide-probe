@@ -1,7 +1,7 @@
 package org.virtuslab.ideprobe.pants
 
 import java.nio.file.Path
-import org.virtuslab.ideprobe.ProbeDriver
+import org.virtuslab.ideprobe.{ProbeDriver, WaitLogic}
 import org.virtuslab.ideprobe.pants.protocol.{
   PantsEndpoints,
   PantsProjectSettings,
@@ -25,8 +25,12 @@ final class PantsProbeDriver(val driver: ProbeDriver) extends AnyVal {
     driver.send(PantsEndpoints.GetPythonFacets, moduleRef)
   }
 
-  def importProject(path: Path, settings: PantsProjectSettingsChangeRequest): ProjectRef = {
-    driver.awaitForProjectOpen {
+  def importProject(
+      path: Path,
+      settings: PantsProjectSettingsChangeRequest,
+      waitLogic: WaitLogic = WaitLogic.Default
+  ): ProjectRef = {
+    driver.awaitForProjectOpen(waitLogic) {
       driver.send(PantsEndpoints.ImportPantsProject, (path, settings))
     }
   }
@@ -37,8 +41,9 @@ final class PantsProbeDriver(val driver: ProbeDriver) extends AnyVal {
 
   def setPantsProjectSettings(
       settings: PantsProjectSettingsChangeRequest,
-      project: ProjectRef = ProjectRef.Default
-  ): Unit = driver.withAwaitIdle {
+      project: ProjectRef = ProjectRef.Default,
+      waitLogic: WaitLogic = WaitLogic.Default
+  ): Unit = driver.withAwait(waitLogic) {
     driver.send(PantsEndpoints.ChangePantsProjectSettings, (project, settings))
   }
 
