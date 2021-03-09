@@ -8,12 +8,14 @@ import org.virtuslab.ideprobe.reporting.AfterTestChecks
 
 trait RunningIntelliJPerSuiteBase {
 
-  private var workspace: Path = _
-  private var installed: InstalledIntelliJ = _
-  private var running: RunningIde = _
-  private var runningIntelliJFixture: RunningIntelliJFixture = _
+  private var workspace: Option[Path] = None
+  private var installed: Option[InstalledIntelliJ] = None
+  private var running: Option[RunningIde] = None
+  private var runningIntelliJFixture: Option[RunningIntelliJFixture] = None
 
-  final def intelliJ: RunningIntelliJFixture = runningIntelliJFixture
+  final def intelliJ: RunningIntelliJFixture = runningIntelliJFixture.getOrElse(
+    error("Intellij Fixture not initialized")
+  )
 
   protected def baseFixture: IntelliJFixture
 
@@ -22,21 +24,25 @@ trait RunningIntelliJPerSuiteBase {
   protected def afterAll(): Unit = ()
 
   def setup(): Unit = {
-    workspace = baseFixture.setupWorkspace()
-    installed = baseFixture.installIntelliJ()
-    running = baseFixture.startIntelliJ(workspace, installed)
-    runningIntelliJFixture = new RunningIntelliJFixture(workspace, running.probe, baseFixture.config, installed.paths)
+    val workspace = baseFixture.setupWorkspace()
+    this.workspace = Some(workspace)
+    val installed = baseFixture.installIntelliJ()
+    this.installed = Some(installed)
+    val running = baseFixture.startIntelliJ(workspace, installed)
+    this.running = Some(running)
+    val runningIntelliJFixture = new RunningIntelliJFixture(workspace, running.probe, baseFixture.config, installed.paths)
+    this.runningIntelliJFixture = Some(runningIntelliJFixture)
     beforeAll()
   }
 
   def teardown(): Unit = {
-    try AfterTestChecks(baseFixture.factory.config.check, runningIntelliJFixture.probe)
+    try runningIntelliJFixture.foreach( r => AfterTestChecks(baseFixture.factory.config.check, r.probe))
     finally {
       try afterAll()
       finally {
-        baseFixture.closeIntellij(running)
-        baseFixture.deleteIntelliJ(installed)
-        baseFixture.deleteWorkspace(workspace)
+        running.foreach(baseFixture.closeIntellij(_))
+        installed.foreach(baseFixture.deleteIntelliJ(_))
+        workspace.foreach(baseFixture.deleteWorkspace(_))
       }
     }
   }
@@ -44,11 +50,13 @@ trait RunningIntelliJPerSuiteBase {
 
 trait WorkspacePerSuiteBase {
 
-  private var workspacePath: Path = _
-  private var installed: InstalledIntelliJ = _
-  private var runnableIntelliJFixture: RunnableIntelliJFixture = _
+  private var workspacePath: Option[Path] = None
+  private var installed: Option[InstalledIntelliJ] = None
+  private var runnableIntelliJFixture: Option[RunnableIntelliJFixture] = None
 
-  final def workspace: RunnableIntelliJFixture = runnableIntelliJFixture
+  final def workspace: RunnableIntelliJFixture =  runnableIntelliJFixture.getOrElse(
+    error("Intellij Fixture not initialized")
+  )
 
   protected def baseFixture: IntelliJFixture
 
@@ -57,17 +65,20 @@ trait WorkspacePerSuiteBase {
   protected def afterAll(): Unit = ()
 
   def setup(): Unit = {
-    workspacePath = baseFixture.setupWorkspace()
-    installed = baseFixture.installIntelliJ()
-    runnableIntelliJFixture = new RunnableIntelliJFixture(workspacePath, installed, baseFixture)
+    val workspacePath = baseFixture.setupWorkspace()
+    this.workspacePath = Some(workspacePath)
+    val installed = baseFixture.installIntelliJ()
+    this.installed = Some(installed)
+    val runnableIntelliJFixture = new RunnableIntelliJFixture(workspacePath, installed, baseFixture)
+    this.runnableIntelliJFixture = Some(runnableIntelliJFixture)
     beforeAll()
   }
 
   def teardown(): Unit = {
     try afterAll()
     finally {
-      baseFixture.deleteIntelliJ(installed)
-      baseFixture.deleteWorkspace(workspacePath)
+      installed.foreach(baseFixture.deleteIntelliJ(_))
+      workspacePath.foreach(baseFixture.deleteWorkspace(_))
     }
   }
 }
