@@ -62,7 +62,7 @@ lazy val ci = project("ci", "ci", publish = false)
  * Not a [[module]] so it can be bundled with the idea plugin
  * (doesn't work when used disableIdeaPluginDevelopment on a project)
  */
-lazy val api = project("api", "api", publish = true)
+lazy val api = project("api", "core/api", publish = true)
   .settings(
     libraryDependencies ++= Dependencies.pureConfig,
     libraryDependencies += Dependencies.gson
@@ -71,7 +71,7 @@ lazy val api = project("api", "api", publish = true)
 
 lazy val api213 = api(scala213)
 
-lazy val driver = module("driver", "driver/sources")
+lazy val driver = module("driver", "core/driver/sources")
   .enablePlugins(BuildInfoPlugin)
   .settings(
     libraryDependencies += Dependencies.nuProcess,
@@ -109,26 +109,26 @@ lazy val robotDriver = module("robot-driver", "extensions/robot/driver")
 
 lazy val robotDriver213 = robotDriver(scala213)
 
-lazy val driverTests = testModule("driver-tests", "driver/tests").cross
+lazy val driverTests = testModule("driver-tests", "core/driver/tests").cross
   .dependsOn(junitDriver, robotDriver, api % "compile->compile;test->test")
 
 lazy val driverTests213 = driverTests(scala213)
   .usesIdeaPlugin(driverTestPlugin213)
 
-lazy val probePlugin = ideaPluginModule("probe-plugin", "probePlugin", publish = true)
+lazy val probePlugin = ideaPluginModule("probe-plugin", "core/probePlugin", publish = true)
   .settings(intellijPluginName := "ideprobe")
   .cross
   .dependsOn(api)
 
 lazy val probePlugin213 = probePlugin(scala213)
 
-lazy val driverTestPlugin = ideaPluginModule("probe-test-plugin", "driver/test-plugin")
+lazy val driverTestPlugin = ideaPluginModule("probe-test-plugin", "core/driver/test-plugin")
   .settings(intellijPluginName := "driver-test-plugin")
   .cross
 
 lazy val driverTestPlugin213 = driverTestPlugin(scala213)
 
-lazy val junitDriver = module("junit-driver", "driver/bindings/junit")
+lazy val junitDriver = module("junit-driver", "core/driver/bindings/junit")
   .settings(libraryDependencies ++= Dependencies.junit)
   .cross
   .dependsOn(driver, api % "compile->compile;test->test")

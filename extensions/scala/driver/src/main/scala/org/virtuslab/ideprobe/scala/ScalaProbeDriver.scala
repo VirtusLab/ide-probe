@@ -18,15 +18,18 @@ final class ScalaProbeDriver(val driver: ProbeDriver) extends AnyVal {
   }
 
   def setSbtProjectSettings(
-    settings: SbtProjectSettingsChangeRequest,
-    project: ProjectRef = ProjectRef.Default
-  ): Unit = {
+      settings: SbtProjectSettingsChangeRequest,
+      project: ProjectRef = ProjectRef.Default
+  ): Unit = driver.withAwaitIdle {
     driver.send(ScalaEndpoints.ChangeSbtProjectSettings, (project, settings))
   }
 
   def importBspProject(path: Path): ProjectRef = {
-    driver.send(ScalaEndpoints.ImportBspProject, path)
+    driver.awaitForProjectOpen {
+      driver.send(ScalaEndpoints.ImportBspProject, path)
+    }
   }
+
   /**
    * Runs the specified ScalaTest configuration
    */
