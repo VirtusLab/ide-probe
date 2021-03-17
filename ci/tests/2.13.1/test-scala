@@ -1,6 +1,6 @@
 #!/bin/sh
 
 export IDEPROBE_DISPLAY=xvfb
-export JAVA_HOME=/usr/lib/jvm/java-11-openjdk
+export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 
 sbt "; clean; ++2.13.1! ; scala-tests / test; scala-probe-plugin / test; scala-probe-driver / test; scala-probe-api / test"

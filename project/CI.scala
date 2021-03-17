@@ -37,7 +37,7 @@ object CI {
     val content = s"""|#!/bin/sh
                       |
                       |export IDEPROBE_DISPLAY=xvfb
-                      |export JAVA_HOME=/usr/lib/jvm/java-11-openjdk
+                      |export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
                       |export IDEPROBE_SCREENSHOTS_DIR=/tmp/ideprobe/screenshots
                       |
                       |sbt "; clean $arguments"
