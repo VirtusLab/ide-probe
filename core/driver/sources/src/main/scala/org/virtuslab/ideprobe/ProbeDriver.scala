@@ -317,6 +317,18 @@ class ProbeDriver(
     send(Endpoints.BuildArtifact, (projectRef, artifactName))
   }
 
+  def openFile(project: ProjectRef, file: Path): Unit = {
+    send(Endpoints.OpenFile, (project, file))
+  }
+
+  def goToLineColumn(projectRef: ProjectRef, line: Int, column: Int): Unit = {
+    send(Endpoints.GoToLineColumn, (projectRef, line, column))
+  }
+
+  def openFiles(projectRef: ProjectRef): Seq[String] = {
+    send(Endpoints.OpenFiles, projectRef)
+  }
+
   def ping(): Unit = send(Endpoints.Ping)
 
   /**
