@@ -35,7 +35,7 @@ trait ConfigFormat {
   // or { type = filesystem, path = "/tmp" }. It is more convenient for users, especially for such
   // common classes if we can differentiate what class it is by set of fields. We just have to be sure
   // to not introduce e.g. 2 classes with single field 'path'.
-  def possiblyAmbiguousAdtReader[Base](readers: ConfigReader[_]*)(implicit ct: ClassTag[Base]): ConfigReader[Base] =
+  protected def possiblyAmbiguousAdtReader[Base](readers: ConfigReader[_]*)(implicit ct: ClassTag[Base]): ConfigReader[Base] =
     (cur: ConfigCursor) => {
       val read = readers.map(_.from(cur)).asInstanceOf[Seq[Result[Base]]]
 
