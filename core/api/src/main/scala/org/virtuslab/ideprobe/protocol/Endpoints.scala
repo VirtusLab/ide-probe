@@ -32,7 +32,8 @@ object Endpoints {
   val RunLocalInspection = Request[InspectionRunParams, InspectionRunResult]("inspections/local/run")
   val SetConfig = Request[String, Unit]("config/set")
   val BuildArtifact = Request[(ProjectRef, String), Unit]("buildArtifact")
-  val BackgroundTasks = Request[Unit, Seq[String]]("backgroundTasks")
+  val OpenFile = Request[(ProjectRef, Path), Unit]("fileOpen")
+  val GoToLineColumn = Request[(ProjectRef, Int, Int), Unit]("goToLineColumn")
 
   // queries
   val FileReferences = Request[FileRef, Seq[Reference]]("file/references")
@@ -48,4 +49,6 @@ object Endpoints {
   val ProjectModel = Request[ProjectRef, Project]("project/model")
   val VcsRoots = Request[ProjectRef, Seq[VcsRoot]]("project/vcsRoots")
   val ExpandMacro = Request[ExpandMacroData, String](name = "expandMacro")
+  val BackgroundTasks = Request[Unit, Seq[String]]("backgroundTasks")
+  val OpenFiles = Request[ProjectRef, Seq[String]]("project/openFiles")
 }

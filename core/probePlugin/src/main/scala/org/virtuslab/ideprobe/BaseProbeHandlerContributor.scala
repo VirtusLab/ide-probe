@@ -20,7 +20,7 @@ class BaseProbeHandlerContributor extends ProbeHandlerContributor {
       .on(Endpoints.Shutdown)(_ => App.shutdown())
       .on(Endpoints.Messages)(_ => IdeMessages.list)
       .on(Endpoints.Freezes)(_ => Freezes.list)
-      .on(Endpoints.InvokeAction)(Actions.invoke)
+      .on(Endpoints.InvokeAction)(Actions.invokeSync)
       .on(Endpoints.InvokeActionAsync)(Actions.invokeAsync)
       .on(Endpoints.FileReferences)(PSI.references)
       .on(Endpoints.Find)(Navigation.find)
@@ -45,5 +45,8 @@ class BaseProbeHandlerContributor extends ProbeHandlerContributor {
       .on(Endpoints.VcsRoots)(VCS.roots)
       .on(Endpoints.ExpandMacro)(ExpandMacro.expand)
       .on(Endpoints.BuildArtifact)((Builds.buildArtifact _).tupled)
+      .on(Endpoints.OpenFile)((Actions.openFile _).tupled)
+      .on(Endpoints.GoToLineColumn)((Actions.goToLineColumn _).tupled)
+      .on(Endpoints.OpenFiles)(Actions.openFiles)
   }
 }

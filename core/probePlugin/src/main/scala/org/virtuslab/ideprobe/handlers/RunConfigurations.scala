@@ -72,7 +72,7 @@ object RunConfigurations extends IntelliJApi {
     val project = Projects.resolve(projectRef)
     Tests.awaitTestResults(
       project,
-      () => Actions.invoke("RerunFailedTests")
+      () => Actions.invokeSync("RerunFailedTests")
     )
   }
 
