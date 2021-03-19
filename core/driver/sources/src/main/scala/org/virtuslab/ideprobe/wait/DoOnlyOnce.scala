@@ -29,3 +29,14 @@ class DoOnlyOnce(action: => Unit) {
     }
   }
 }
+
+class DoOnlyOnceLazyInit {
+  private var doOnce: DoOnlyOnce = _
+
+  def attempt(action: => Unit): Unit = {
+    if (doOnce == null) {
+      doOnce = new DoOnlyOnce(action)
+    }
+    doOnce.attempt()
+  }
+}

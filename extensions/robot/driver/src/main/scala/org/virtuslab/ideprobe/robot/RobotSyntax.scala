@@ -79,8 +79,9 @@ trait RobotSyntax { outer =>
       val allAttrs = ("accessiblename" -> accessibleName) +: attributes
       radioButton(allAttrs: _*)
     }
-    def className(name: String): String = {
-      div("class" -> name)
+    def className(name: String, attributes: (String, String)*): String = {
+      val allAttrs = ("class" -> name) +: attributes
+      div(allAttrs: _*)
     }
     def div(attributes: (String, String)*): String = {
       attributes.map { case (name, value) => s"@$name='$value'" }.mkString("//div[", " and ", "]")
