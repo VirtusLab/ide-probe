@@ -11,7 +11,7 @@ object IdeProbePaths {
   }
 
   def from(config: PathsConfig): IdeProbePaths = {
-    val basePath = config.base.getOrElse(Paths.get(System.getProperty("java.io.tmpdir")))
+    val basePath = config.base.getOrElse(Paths.get(System.getProperty("java.io.tmpdir")).resolve("ide-probe"))
     val instancesPath = config.instances.getOrElse(basePath.resolve("instances"))
     val workspacesPath = config.workspaces.getOrElse(basePath.resolve("workspaces"))
     val screenshotsPath = config.screenshots.getOrElse(basePath.resolve("screenshots"))

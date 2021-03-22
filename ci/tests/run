@@ -1,8 +1,8 @@
 #!/bin/sh
 
 DOCKER_IMAGE=testimage:local
-DOCKER_DIRECTORY=/tmp/ideprobe/screenshots
-HOST_DIRECTORY=/tmp/ideprobe/screenshots
+DOCKER_DIRECTORY=/tmp/ide-probe
+HOST_DIRECTORY=/tmp/ide-probe
 
 TEST_SUITE=$1
 SCALA_VERSION=$2
