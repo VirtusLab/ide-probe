@@ -5,10 +5,17 @@ import org.virtuslab.ideprobe.robot.RobotPluginExtension
 import org.virtuslab.ideprobe.{BuildInfo, IdeProbeFixture, ProbeDriver, error}
 import scala.language.implicitConversions
 
-trait BazelPluginExtension extends BazelOpenProjectFixture with RobotPluginExtension { this: IdeProbeFixture =>
+trait BazelPluginExtension extends BazelOpenProjectFixture with RobotPluginExtension {
+  this: IdeProbeFixture =>
 
-  if (!System.getProperty("java.version").startsWith("11.")) {
-    error("Bazel tests must run on java 11. Also make sure JAVA_HOME points to java 11")
+  {
+    val javaVersion = System.getProperty("java.version")
+    if (!javaVersion.startsWith("11.")) {
+      error(
+        "Bazel tests must run on java 11. Also make sure JAVA_HOME points to java 11. " +
+          s"Current java version: $javaVersion and JAVA_HOME: ${sys.env.get("JAVA_VERSION")}"
+      )
+    }
   }
 
   val bazelProbePlugin: Plugin = Plugin.Bundled(s"ideprobe-bazel-${BuildInfo.version}.zip")
@@ -19,6 +26,7 @@ trait BazelPluginExtension extends BazelOpenProjectFixture with RobotPluginExten
     installBazelisk(bazelPath(ws), intelliJ.config)
   })
 
-  implicit def bazelProbeDriver(driver: ProbeDriver): BazelProbeDriver = new BazelProbeDriver(driver)
+  implicit def bazelProbeDriver(driver: ProbeDriver): BazelProbeDriver =
+    new BazelProbeDriver(driver)
 
 }

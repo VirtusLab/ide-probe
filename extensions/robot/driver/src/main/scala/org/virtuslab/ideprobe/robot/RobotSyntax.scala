@@ -1,17 +1,27 @@
-package org.virtuslab.ideprobe.robot
+package org.virtuslab.ideprobe
+package robot
 
 import com.intellij.remoterobot.SearchContext
 import com.intellij.remoterobot.fixtures.{CommonContainerFixture, Fixture}
 import com.intellij.remoterobot.search.locators.Locators
 import java.time.Duration
 import org.virtuslab.ideprobe.Extensions._
+import scala.concurrent.duration._
 
 trait SearchableComponent {
   protected def searchContext: SearchContext
-  protected def robotTimeout: Duration
+  protected def robotTimeout: FiniteDuration
+
+  def findWithTimeout(xpath: String, timeout: FiniteDuration): CommonContainerFixture = {
+    searchContext.find(
+      classOf[CommonContainerFixture],
+      Locators.byXpath(xpath),
+      Duration.ofMillis(timeout.toMillis)
+    )
+  }
 
   def find(xpath: String): CommonContainerFixture = {
-    searchContext.find(classOf[CommonContainerFixture], Locators.byXpath(xpath), robotTimeout)
+    findWithTimeout(xpath, timeout = robotTimeout)
   }
 
   def findAll(xpath: String): Seq[CommonContainerFixture] = {
@@ -22,7 +32,7 @@ trait SearchableComponent {
     findAll(xpath) match {
       case Seq()       => None
       case Seq(single) => Some(single)
-      case many        => throw new RuntimeException(s"Found multiple elements for query $xpath: $many")
+      case many        => error(s"Found multiple elements for query $xpath: $many")
     }
   }
 
@@ -32,10 +42,10 @@ trait SearchableComponent {
 object RobotSyntax extends RobotSyntax
 
 trait RobotSyntax { outer =>
-  val robotTimeout: Duration = Duration.ofSeconds(10)
+  val robotTimeout: FiniteDuration = 10.seconds
 
   implicit class SearchableOps(val searchContext: SearchContext) extends SearchableComponent {
-    override protected def robotTimeout: Duration = outer.robotTimeout
+    override protected def robotTimeout: FiniteDuration = outer.robotTimeout
   }
 
   implicit class FixtureOps(val fc: Fixture) {
@@ -47,7 +57,11 @@ trait RobotSyntax { outer =>
 
   object query {
     def dialog(title: String): String = {
-      div("class" -> "MyDialog", "title" -> title)
+      dialog("title" -> title)
+    }
+    def dialog(attributes: (String, String)*): String = {
+      val allAttrs = ("class" -> "MyDialog") +: attributes
+      div(allAttrs: _*)
     }
     def button(attributes: (String, String)*): String = {
       val allAttrs = ("class" -> "JButton") +: attributes

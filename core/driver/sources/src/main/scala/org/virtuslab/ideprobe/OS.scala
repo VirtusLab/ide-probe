@@ -7,7 +7,7 @@ object OS {
     if (name.startsWith("win")) Windows
     else if (name.startsWith("mac")) Mac
     else if (name.contains("nix") || name.contains("nux")) Unix
-    else throw new IllegalStateException(s"Unrecognized system: $name")
+    else error(s"Unrecognized system: $name")
   }
 
   case object Windows extends OS

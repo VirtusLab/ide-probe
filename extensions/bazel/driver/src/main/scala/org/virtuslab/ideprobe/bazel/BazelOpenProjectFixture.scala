@@ -1,14 +1,12 @@
 package org.virtuslab.ideprobe.bazel
 
 import com.intellij.remoterobot.RemoteRobot
-import com.intellij.remoterobot.fixtures.CommonContainerFixture
-import com.intellij.remoterobot.utils.Keyboard
-import java.nio.file.{Files, Path, Paths}
+import java.nio.file.Path
 import java.util.UUID
 import org.virtuslab.ideprobe.Extensions.PathExtension
-import org.virtuslab.ideprobe.{Config, RunningIntelliJFixture}
 import org.virtuslab.ideprobe.protocol.ProjectRef
 import org.virtuslab.ideprobe.robot.RobotPluginExtension
+import org.virtuslab.ideprobe.{RunningIntelliJFixture, WaitLogic}
 
 trait BazelOpenProjectFixture extends BazeliskExtension { this: RobotPluginExtension =>
 
@@ -21,9 +19,21 @@ trait BazelOpenProjectFixture extends BazeliskExtension { this: RobotPluginExten
     }
   }
 
-  def openProjectWithBazel(intelliJ: RunningIntelliJFixture): ProjectRef = {
+  def openProjectWithBazel(
+      intelliJ: RunningIntelliJFixture,
+      waitLogic: WaitLogic = WaitLogic.Default
+  ): ProjectRef = {
+    val importSpec = intelliJ.config[BazelImportSpec]("bazel.import")
+    openProjectWithBazel(intelliJ, importSpec, waitLogic)
+  }
+
+  def openProjectWithBazel(
+      intelliJ: RunningIntelliJFixture,
+      importSpec: BazelImportSpec,
+      waitLogic: WaitLogic
+  ): ProjectRef = {
     val robot = intelliJ.probe.withRobot.robot
-    val projectView = prepareBazelProjectViewFile(intelliJ.config, intelliJ.workspace)
+    val projectView = prepareBazelProjectViewFile(importSpec, intelliJ.workspace)
 
     // delete previous project
     intelliJ.workspace.resolve(".ijwb").delete()
@@ -35,7 +45,9 @@ trait BazelOpenProjectFixture extends BazeliskExtension { this: RobotPluginExten
     intelliJ.probe.invokeActionAsync("Blaze.ImportProject2")
 
     // set workspace/repository root path
-    robot.find(query.className("TextFieldWithHistory")).setText(intelliJ.workspace.toRealPath().toString)
+    robot
+      .find(query.className("TextFieldWithHistory"))
+      .setText(intelliJ.workspace.toRealPath().toString)
     robot.clickButton("Next")
 
     // set project view configuration file
@@ -46,29 +58,26 @@ trait BazelOpenProjectFixture extends BazeliskExtension { this: RobotPluginExten
     // complete import wizard
     robot.clickButton("Finish")
 
-    intelliJ.probe.awaitIdle()
+    intelliJ.probe.await(waitLogic)
 
     projectView.delete()
 
     intelliJ.probe.listOpenProjects().head
   }
 
-  private def prepareBazelProjectViewFile(config: Config, workspace: Path): Path = {
-    val directories = config[List[String]]("bazel.import.directories")
-    val additionalLanguages = config.get[List[String]]("bazel.import.languages").getOrElse(Nil)
-
+  private def prepareBazelProjectViewFile(importSpec: BazelImportSpec, workspace: Path): Path = {
     val text =
-      s"""${section("directories", directories)}
+      s"""${section("directories", importSpec.directories)}
          |
          |derive_targets_from_directories: true
          |
-         |${section("additional_languages", additionalLanguages)}""".stripMargin
+         |${section("additional_languages", importSpec.languages)}""".stripMargin
     val file = workspace.resolve(s"ide-probe${UUID.randomUUID()}.viewconfig")
     file.write(text)
     workspace.relativize(file)
   }
 
-  private def section(name: String, elements: List[String]): String = {
+  private def section(name: String, elements: Seq[String]): String = {
     if (elements.isEmpty) {
       ""
     } else {
@@ -76,7 +85,7 @@ trait BazelOpenProjectFixture extends BazeliskExtension { this: RobotPluginExten
     }
   }
 
-  private def indentStrings(strs: List[String]): String = {
+  private def indentStrings(strs: Seq[String]): String = {
     strs.map("  " + _).mkString("\n")
   }
 }

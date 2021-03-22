@@ -1,6 +1,6 @@
 package org.virtuslab.ideprobe.config
 
-import org.virtuslab.ideprobe.{ConfigFormat, EndpointsConfig}
+import org.virtuslab.ideprobe.ConfigFormat
 import pureconfig.ConfigReader
 import pureconfig.generic.auto._
 
@@ -9,7 +9,6 @@ case class IdeProbeConfig(
     workspace: Option[WorkspaceConfig] = None,
     resolvers: DependenciesConfig.Resolvers = DependenciesConfig.Resolvers(),
     driver: DriverConfig = DriverConfig(),
-    endpoints: EndpointsConfig = EndpointsConfig(),
     paths: PathsConfig = PathsConfig()
 )
 
