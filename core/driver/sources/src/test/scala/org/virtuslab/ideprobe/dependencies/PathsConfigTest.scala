@@ -64,7 +64,7 @@ class PathsConfigTest {
     val config = Config.fromString("probe {}")
     val fixture = IntelliJFixture.fromConfig(config)
 
-    val basePath = Paths.get(System.getProperty("java.io.tmpdir"))
+    val basePath = Paths.get(System.getProperty("java.io.tmpdir")).resolve("ide-probe")
     val expected = IdeProbePaths(
       basePath,
       basePath.resolve("instances"),
