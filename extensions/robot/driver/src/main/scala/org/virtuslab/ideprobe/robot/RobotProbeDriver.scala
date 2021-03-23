@@ -8,7 +8,6 @@ import org.virtuslab.ideprobe.robot.RobotSyntax._
 import org.virtuslab.ideprobe.wait.DoOnlyOnce
 import scala.collection.mutable
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
-import scala.util.Try
 
 object RobotProbeDriver {
   val robotPortProperty = "robot-server.port"
@@ -49,15 +48,18 @@ final class RobotProbeDriver(
   override protected def searchContext: SearchContext = robot
   override protected def robotTimeout: FiniteDuration = RobotSyntax.robotTimeout
 
-  def openProject(path: Path, waitLogic: WaitLogic = WaitLogic.Default): ProjectRef = {
+  def extendWaitLogic(waitLogic: WaitLogic): WaitLogic = {
     val closeTip = new DoOnlyOnce(closeTipOfTheDay())
     val hideModal = new DoOnlyOnce(hideImportModalWindow())
-    val extendedLogic = waitLogic.doWhileWaiting {
+    waitLogic.doWhileWaiting {
       hideModal.attempt()
       closeTip.attempt()
       checkBuildPanelErrors()
     }
-    driver.openProject(path, extendedLogic)
+  }
+
+  def openProject(path: Path, waitLogic: WaitLogic = WaitLogic.Default): ProjectRef = {
+    driver.openProject(path, extendWaitLogic(waitLogic))
   }
 
   def closeTipOfTheDay(): Unit = {
