@@ -88,6 +88,7 @@ lazy val driver = module("driver", "core/driver/sources")
 
 lazy val driver213 = driver(scala213)
   .usesIdeaPlugin(probePlugin213)
+  .settings(Compile / resourceGenerators += (probePlugin212 / packageArtifactZip).map(List(_)).taskValue)
 
 lazy val robotDriver = module("robot-driver", "extensions/robot/driver")
   .enablePlugins(BuildInfoPlugin)

@@ -9,6 +9,7 @@ import org.jetbrains.sbtidea.packaging.PackagingKeys.packageOutputDir
 import org.jetbrains.sbtidea.packaging.artifact.ZipPackager
 import sbt.Keys._
 import sbt._
+import sbtbuildinfo.BuildInfo
 
 /** Our sbt plugin for developing idea plugins (replacing the original one) */
 object IdeaPluginDevelopment extends AbstractSbtIdeaPlugin {
@@ -22,6 +23,8 @@ object IdeaPluginDevelopment extends AbstractSbtIdeaPlugin {
 
   lazy val packageArtifactZipFilter = settingKey[File => Boolean]("Files to include in disted zip")
 
+  private def versionSuffix(f: File) = f.toString.reverse.substring(0,4).reverse
+
   private val overriddenSettings = Seq(
     // automatically include the dependencies in the plugin
     packageLibraryMappings := libraryDependencies.value
@@ -29,7 +32,7 @@ object IdeaPluginDevelopment extends AbstractSbtIdeaPlugin {
       .map(id => (id, Some(s"lib/${id.name}.jar"))),
     packageArtifactZipFilter := ((_: File) => true),
     packageOutputDir := crossTarget.value / "dist",
-    packageArtifactZipFile := crossTarget.value / s"${intellijPluginName.value}-${version.value}.zip",
+    packageArtifactZipFile := crossTarget.value / s"${intellijPluginName.value}_${versionSuffix(crossTarget.value)}-${version.value}.zip",
     packageArtifactZip := Def.task {
       implicit val stream: TaskStreams = streams.value
       val distDir = packageArtifact.value

@@ -1,10 +1,9 @@
 import org.jetbrains.sbtidea.SbtIdeaPlugin
-import org.jetbrains.sbtidea.packaging.PackagingKeys.packageArtifactZip
+import org.jetbrains.sbtidea.packaging.PackagingKeys.{packageArtifactZip, packageArtifactZipFile}
 import org.jetbrains.sbtidea.packaging.PackagingPlugin
 import org.jetbrains.sbtidea.tasks.structure.render.ProjectStructureVisualizerPlugin
-import sbt.Compile
+import sbt.{Compile, Project, file}
 import sbt.Keys.resourceGenerators
-import sbt.Project
 import sbt.internal.DslEntry
 
 object IdeaPluginAdapter {
