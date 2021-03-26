@@ -12,9 +12,11 @@ final class IntelliJFactory(
     val paths: IdeProbePaths,
     val config: DriverConfig
 ) {
-  def withConfig(config: DriverConfig): IntelliJFactory = new IntelliJFactory(dependencies, paths, config)
+  def withConfig(config: DriverConfig): IntelliJFactory =
+    new IntelliJFactory(dependencies, paths, config)
 
-  def withPaths(paths: IdeProbePaths): IntelliJFactory = new IntelliJFactory(dependencies, paths, config)
+  def withPaths(paths: IdeProbePaths): IntelliJFactory =
+    new IntelliJFactory(dependencies, paths, config)
 
   def create(version: IntelliJVersion, plugins: Seq[Plugin]): InstalledIntelliJ = {
     val root = createInstanceDirectory(version)
@@ -38,7 +40,6 @@ final class IntelliJFactory(
     val file = dependencies.fetch(version)
     toArchive(file).extractTo(root)
     root.resolve("bin/linux/fsnotifier64").makeExecutable()
-    println(s"Installed $version")
   }
 
   // This method differentiates plugins by their root entries in zip
@@ -84,7 +85,10 @@ object IntelliJFactory {
   val Default =
     new IntelliJFactory(
       new DependencyProvider(
-        new IntelliJDependencyProvider(Seq(IntelliJZipResolver.Community), ResourceProvider.Default),
+        new IntelliJDependencyProvider(
+          Seq(IntelliJZipResolver.Community),
+          ResourceProvider.Default
+        ),
         new PluginDependencyProvider(Seq(PluginResolver.Official), ResourceProvider.Default)
       ),
       IdeProbePaths.Default,
@@ -99,9 +103,12 @@ object IntelliJFactory {
     val intelliJResolver = IntelliJZipResolver.from(resolversConfig.intellij)
     val pluginResolver = PluginResolver.from(resolversConfig.plugins)
     val resourceProvider = ResourceProvider.from(paths)
-    val intelliJDependencyProvider = new IntelliJDependencyProvider(Seq(intelliJResolver), resourceProvider)
-    val pluginDependencyProvider = new PluginDependencyProvider(Seq(pluginResolver), resourceProvider)
-    val dependencyProvider = new DependencyProvider(intelliJDependencyProvider, pluginDependencyProvider)
+    val intelliJDependencyProvider =
+      new IntelliJDependencyProvider(Seq(intelliJResolver), resourceProvider)
+    val pluginDependencyProvider =
+      new PluginDependencyProvider(Seq(pluginResolver), resourceProvider)
+    val dependencyProvider =
+      new DependencyProvider(intelliJDependencyProvider, pluginDependencyProvider)
     new IntelliJFactory(dependencyProvider, paths, driverConfig)
   }
 }

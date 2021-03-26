@@ -29,11 +29,13 @@ object Endpoints {
   val Shutdown = Notification[Unit]("shutdown")
   val SyncFiles = Request[Unit, Unit]("fs/sync")
   val TakeScreenshot = Request[String, Unit]("screenshot")
-  val RunLocalInspection = Request[InspectionRunParams, InspectionRunResult]("inspections/local/run")
+  val RunLocalInspection =
+    Request[InspectionRunParams, InspectionRunResult]("inspections/local/run")
   val SetConfig = Request[String, Unit]("config/set")
   val BuildArtifact = Request[(ProjectRef, String), Unit]("buildArtifact")
-  val OpenFile = Request[(ProjectRef, Path), Unit]("fileOpen")
-  val GoToLineColumn = Request[(ProjectRef, Int, Int), Unit]("goToLineColumn")
+  val OpenEditor = Request[(ProjectRef, Path), Unit]("project/editors/open")
+  val GoToLineColumn = Request[(ProjectRef, Int, Int), Unit]("project/editors/current/goto")
+  val AddTrustedPath = Request[Path, Unit]("trustedPaths/add")
 
   // queries
   val FileReferences = Request[FileRef, Seq[Reference]]("file/references")
@@ -50,5 +52,5 @@ object Endpoints {
   val VcsRoots = Request[ProjectRef, Seq[VcsRoot]]("project/vcsRoots")
   val ExpandMacro = Request[ExpandMacroData, String](name = "expandMacro")
   val BackgroundTasks = Request[Unit, Seq[String]]("backgroundTasks")
-  val OpenFiles = Request[ProjectRef, Seq[String]]("project/openFiles")
+  val ListOpenEditors = Request[ProjectRef, Seq[Path]]("project/editors/all")
 }

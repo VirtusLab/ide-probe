@@ -10,18 +10,19 @@ import org.virtuslab.ideprobe.{Config, IdeProbePaths, IntelliJFixture}
 import scala.concurrent.ExecutionContext
 
 class PathsConfigTest {
-  private implicit val ec: ExecutionContext = ExecutionContext.fromExecutorService(Executors.newCachedThreadPool())
+  private implicit val ec: ExecutionContext =
+    ExecutionContext.fromExecutorService(Executors.newCachedThreadPool())
 
   @Test
   def usesProvidedPathsConfig(): Unit = {
-    val config = Config.fromString(
-      """
+    val config = Config.fromString("""
         |probe.paths {
         | base = "/base"
         | instances = "/instances"
         | workspaces = "/workspaces"
         | screenshots = "/screenshots"
         | cache = "/cache"
+        | trusted = "/trusted"
         |}
         |""".stripMargin)
     val fixture = IntelliJFixture.fromConfig(config)
@@ -31,7 +32,8 @@ class PathsConfigTest {
       Paths.get("/instances"),
       Paths.get("/workspaces"),
       Paths.get("/screenshots"),
-      Paths.get("/cache")
+      Paths.get("/cache"),
+      Paths.get("/trusted")
     )
 
     assertEquals(expected, fixture.probePaths)
@@ -39,8 +41,7 @@ class PathsConfigTest {
 
   @Test
   def usesProvidedBasePath(): Unit = {
-    val config = Config.fromString(
-      """
+    val config = Config.fromString("""
         |probe.paths {
         | base = "/base"
         |}
@@ -53,7 +54,8 @@ class PathsConfigTest {
       basePath.resolve("instances"),
       basePath.resolve("workspaces"),
       basePath.resolve("screenshots"),
-      basePath.resolve("cache")
+      basePath.resolve("cache"),
+      Paths.get("/")
     )
 
     assertEquals(expected, fixture.probePaths)
@@ -70,7 +72,8 @@ class PathsConfigTest {
       basePath.resolve("instances"),
       basePath.resolve("workspaces"),
       basePath.resolve("screenshots"),
-      basePath.resolve("cache")
+      basePath.resolve("cache"),
+      Paths.get("/")
     )
 
     assertEquals(expected, fixture.probePaths)

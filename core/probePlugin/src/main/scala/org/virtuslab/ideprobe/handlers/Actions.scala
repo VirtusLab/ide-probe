@@ -31,24 +31,4 @@ object Actions extends IntelliJApi {
     ActionManager.getInstance().tryToExecute(action, inputEvent, null, null, now)
   }
 
-  def openFile(projectRef: ProjectRef, file: Path): Unit =
-    runOnUISync {
-      val vFile = VirtualFileManager.getInstance().refreshAndFindFileByNioPath(file)
-      val project = resolve(projectRef)
-      new OpenFileDescriptor(project, vFile).navigate(true)
-    }
-
-  def goToLineColumn(projectRef: ProjectRef, line: Int, column: Int): Unit = {
-    runOnUISync {
-      val ed = FileEditorManager
-        .getInstance(resolve(projectRef))
-        .getSelectedTextEditor
-      val newPosition = new LogicalPosition(line, column)
-      ed.getCaretModel.moveToLogicalPosition(newPosition)
-    }
-  }
-
-  def openFiles(projectRef: ProjectRef): Seq[String] = runOnUISync {
-    FileEditorManager.getInstance(resolve(projectRef)).getOpenFiles.map(_.getPath)
-  }
 }

@@ -7,9 +7,9 @@ val crossScalaVersions = List(scala212, scala213)
 skip in publish := true
 
 scalaVersion.in(ThisBuild) := scala213
-intellijBuild.in(ThisBuild) := "202.8194.7"
+intellijBuild.in(ThisBuild) := "2020.3.3"
 // provide intellij version in case of the release version
-val intellijVersion = None
+val intellijVersion: Option[String] = Some("203.7717.56")
 licenses.in(ThisBuild) := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0"))
 organization.in(ThisBuild) := "org.virtuslab.ideprobe"
 homepage.in(ThisBuild) := Some(url("https://github.com/VirtusLab/ide-probe"))
@@ -199,9 +199,9 @@ lazy val pantsProbePlugin =
       },
       name := "pants-probe-plugin",
       intellijPlugins ++= Seq(
-        "PythonCore".toPlugin,
-        "org.intellij.scala".toPlugin,
-        "com.intellij.plugins.pants:1.15.1.42d84c497b639ef81ebdae8328401e3966588b2c:bleedingedge".toPlugin
+        "PythonCore:203.7717.65".toPlugin,
+        "org.intellij.scala:2020.3.23".toPlugin,
+        "com.intellij.plugins.pants:1.17.0.7c71f505173a6499b6e0c91651e10ed03c6d2ff0:bleedingedge".toPlugin
       )
     )
     .cross
@@ -239,7 +239,7 @@ lazy val bazelProbePlugin =
       },
       name := "bazel-probe-plugin",
       intellijPlugins ++= Seq(
-        "com.google.idea.bazel.ijwb:2020.12.01.0.1".toPlugin
+        "com.google.idea.bazel.ijwb:2021.03.16.0.1:beta".toPlugin
       )
     )
     .cross

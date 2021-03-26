@@ -7,7 +7,7 @@ import org.virtuslab.ideprobe.jsonrpc.{JsonRpcConnection, JsonRpcEndpoint}
 import org.virtuslab.ideprobe.protocol._
 import scala.annotation.tailrec
 import scala.concurrent.duration._
-import scala.concurrent.{Await, ExecutionContext}
+import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.language.implicitConversions
 import scala.reflect.ClassTag
 import scala.util.Failure
@@ -17,7 +17,8 @@ class ProbeDriver(
     val config: Config
 )(implicit protected val ec: ExecutionContext)
     extends JsonRpcEndpoint {
-  protected val handler: Handler = (_, _) => Failure(new Exception("Receiving requests is not supported"))
+  protected val handler: Handler = (_, _) =>
+    Failure(new Exception("Receiving requests is not supported"))
 
   def pid(): Long = send(Endpoints.PID)
 
@@ -108,7 +109,8 @@ class ProbeDriver(
   /**
    * Rebuilds the specified files, modules or project
    */
-  def rebuild(scope: BuildScope = BuildScope.project): BuildResult = build(BuildParams(scope, rebuild = true))
+  def rebuild(scope: BuildScope = BuildScope.project): BuildResult =
+    build(BuildParams(scope, rebuild = true))
 
   /**
    * starts the process of shutting down the IDE
@@ -161,7 +163,8 @@ class ProbeDriver(
   /**
    * Returns the model of the specified project
    */
-  def projectModel(name: ProjectRef = ProjectRef.Default): Project = send(Endpoints.ProjectModel, name)
+  def projectModel(name: ProjectRef = ProjectRef.Default): Project =
+    send(Endpoints.ProjectModel, name)
 
   /**
    * Returns the list of all freezes detected by the IDE
@@ -191,19 +194,24 @@ class ProbeDriver(
    * Runs the specified test configuration with a test runner containing provided `runnerToSelect` substring,
    * or the first available test runner if `runnerToSelect` is `None`
    */
-  def runTestsFromGenerated(runConfiguration: TestScope, runnerToSelect: Option[String]): TestsRunResult = {
+  def runTestsFromGenerated(
+      runConfiguration: TestScope,
+      runnerToSelect: Option[String]
+  ): TestsRunResult = {
     send(Endpoints.RunTestsFromGenerated, (runConfiguration, runnerToSelect))
   }
 
   /**
    * Runs the specified application configuration
    */
-  def runApp(runConfiguration: ApplicationRunConfiguration): ProcessResult = send(Endpoints.RunApp, runConfiguration)
+  def runApp(runConfiguration: ApplicationRunConfiguration): ProcessResult =
+    send(Endpoints.RunApp, runConfiguration)
 
   /**
    * Runs the specified JUnit configuration
    */
-  def runJUnit(runConfiguration: TestScope): TestsRunResult = send(Endpoints.RunJUnit, runConfiguration)
+  def runJUnit(runConfiguration: TestScope): TestsRunResult =
+    send(Endpoints.RunJUnit, runConfiguration)
 
   /**
    * Runs the tests that have failed during the previous test run
@@ -220,7 +228,8 @@ class ProbeDriver(
   /**
    * Returns the sdk of the specified project
    */
-  def projectSdk(project: ProjectRef = ProjectRef.Default): Option[Sdk] = send(Endpoints.ProjectSdk, project)
+  def projectSdk(project: ProjectRef = ProjectRef.Default): Option[Sdk] =
+    send(Endpoints.ProjectSdk, project)
 
   /**
    * Returns the sdk of the specified module
@@ -230,7 +239,8 @@ class ProbeDriver(
   /**
    * Returns the list of VCS roots of the specified project
    */
-  def vcsRoots(project: ProjectRef = ProjectRef.Default): Seq[VcsRoot] = send(Endpoints.VcsRoots, project)
+  def vcsRoots(project: ProjectRef = ProjectRef.Default): Seq[VcsRoot] =
+    send(Endpoints.VcsRoots, project)
 
   /**
    * Returns the list of all installed plugins
@@ -263,16 +273,29 @@ class ProbeDriver(
     send(Endpoints.BuildArtifact, (projectRef, artifactName))
   }
 
-  def openFile(project: ProjectRef, file: Path): Unit = {
-    send(Endpoints.OpenFile, (project, file))
+  /**
+   * Opens file in editor
+   * */
+  def openEditor(file: Path, project: ProjectRef = ProjectRef.Default): Unit = {
+    send(Endpoints.OpenEditor, (project, file))
   }
 
+  /**
+   * Go to specific location in current editor
+   * */
   def goToLineColumn(projectRef: ProjectRef, line: Int, column: Int): Unit = {
     send(Endpoints.GoToLineColumn, (projectRef, line, column))
   }
 
-  def openFiles(projectRef: ProjectRef): Seq[String] = {
-    send(Endpoints.OpenFiles, projectRef)
+  /**
+   * List of open editors
+   * */
+  def listOpenEditors(projectRef: ProjectRef = ProjectRef.Default): Seq[Path] = {
+    send(Endpoints.ListOpenEditors, projectRef)
+  }
+
+  def addTrustedPath(path: Path): Unit = {
+    send(Endpoints.AddTrustedPath, path)
   }
 
   def ping(): Unit = send(Endpoints.Ping)
@@ -302,19 +325,29 @@ class ProbeDriver(
     else throw new IllegalStateException(s"Extension plugin $extensionPluginId is not loaded")
   }
 
-  def send[T: ClassTag, R: ClassTag](method: Method[T, R], parameters: T): R = {
-    Await.result(sendRequest(method, parameters), 2.hours)
-  }
-
   def send[R: ClassTag](method: Method[Unit, R]): R = {
     send(method, ())
+  }
+
+  def send[T: ClassTag, R: ClassTag](method: Method[T, R], parameters: T): R = {
+    Await.result(sendAsync(method, parameters), 2.hours)
+  }
+
+  def sendAsync[R: ClassTag](method: Method[Unit, R]): Future[R] = {
+    sendAsync(method, ())
+  }
+
+  def sendAsync[T: ClassTag, R: ClassTag](method: Method[T, R], parameters: T): Future[R] = {
+    sendRequest(method, parameters)
   }
 
   private def build(params: BuildParams): BuildResult = send(Endpoints.Build, params)
 }
 
 object ProbeDriver {
-  def start(connection: JsonRpcConnection, config: Config)(implicit ec: ExecutionContext): ProbeDriver = {
+  def start(connection: JsonRpcConnection, config: Config)(
+      implicit ec: ExecutionContext
+  ): ProbeDriver = {
     import scala.concurrent.Future
     val driver = new ProbeDriver(connection, config)
     Future(driver.listen).onComplete(_ => driver.close())

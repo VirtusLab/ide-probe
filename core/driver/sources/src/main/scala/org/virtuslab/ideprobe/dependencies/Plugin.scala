@@ -9,13 +9,29 @@ import pureconfig.generic.semiauto.{deriveReader, deriveWriter}
 sealed trait Plugin
 
 object Plugin extends ConfigFormat {
-  case class Bundled(bundle: String) extends Plugin
-  case class Versioned(id: String, version: String, channel: Option[String]) extends Plugin
-  case class Direct(uri: URI) extends Plugin
+
+  case class Bundled(bundle: String) extends Plugin {
+    override def toString: String = {
+      s"Plugin($bundle)"
+    }
+  }
+
+  case class Versioned(id: String, version: String, channel: Option[String]) extends Plugin {
+    override def toString: String = {
+      s"Plugin($id:$version${channel.fold("")(":" + _)})"
+    }
+  }
+
+  case class Direct(uri: URI) extends Plugin {
+    override def toString: String = {
+      s"Plugin($uri)"
+    }
+  }
+
   case class FromSources(id: Id, config: Config) extends Plugin {
     override def toString: String = {
       val conf = config.source.value.fold(_.toString, _.render(ConfigRenderOptions.concise))
-      s"FromSources($id, $conf)"
+      s"Plugin($id, $conf)"
     }
   }
   private[ideprobe] case class Empty() extends Plugin

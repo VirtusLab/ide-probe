@@ -58,7 +58,10 @@ final class RobotProbeDriver(
     }
   }
 
-  def openProject(path: Path, waitLogic: WaitLogic = WaitLogic.Default): ProjectRef = {
+  def openProject(
+      path: Path,
+      waitLogic: WaitLogic = WaitLogic.Default
+  ): ProjectRef = {
     driver.openProject(path, extendWaitLogic(waitLogic))
   }
 

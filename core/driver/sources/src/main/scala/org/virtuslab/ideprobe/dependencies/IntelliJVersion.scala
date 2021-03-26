@@ -17,13 +17,25 @@ final case class IntelliJVersion(build: String, release: Option[String]) {
       s"20$year.$version"
     }
   }
+
+  override def toString: String = {
+    val version = release.fold(build)(r => s"$r, $build")
+    s"IntelliJ($version)"
+  }
 }
 
 object IntelliJVersion {
   implicit val configConvert: ConfigConvert[IntelliJVersion] = deriveConvert[IntelliJVersion]
 
-  val Latest = IntelliJVersion.release("2020.3.2", "203.7148.57")
+  val Latest = BuildInfo.intellijVersion
+    .map(IntelliJVersion.release(BuildInfo.intellijBuild, _))
+    .getOrElse(IntelliJVersion.snapshot(BuildInfo.intellijBuild))
 
-  def snapshot(build: String): IntelliJVersion = IntelliJVersion(build, None)
-  def release(version: String, build: String): IntelliJVersion = IntelliJVersion(build, Some(version))
+  def snapshot(build: String): IntelliJVersion = {
+    IntelliJVersion(build, None)
+  }
+
+  def release(version: String, build: String): IntelliJVersion = {
+    IntelliJVersion(build, Some(version))
+  }
 }

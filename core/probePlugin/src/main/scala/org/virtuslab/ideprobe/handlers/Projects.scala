@@ -42,9 +42,12 @@ object Projects extends IntelliJApi {
 
   def importFromSources(path: Path, handleStep: PartialFunction[Any, Unit]): Unit = {
     val wizard = {
-      val providers = ProjectImportProvider.PROJECT_IMPORT_PROVIDER.getExtensions.filter(_.canCreateNewProject)
+      val providers =
+        ProjectImportProvider.PROJECT_IMPORT_PROVIDER.getExtensions.filter(_.canCreateNewProject)
       val wizard = runOnUISync(
-        write(ImportModuleAction.createImportWizard(null, null, VFS.toVirtualFile(path), providers: _*))
+        write(
+          ImportModuleAction.createImportWizard(null, null, VFS.toVirtualFile(path), providers: _*)
+        )
       )
 
       @tailrec def goThroughWizard(): Unit = {
