@@ -87,7 +87,7 @@ lazy val driver = module("driver", "core/driver/sources")
   .dependsOn(api)
 
 lazy val driver213 = driver(scala213)
-  .usesIdeaPlugin(probePlugin213)
+  .usesIdeaPlugins(probePlugin213, probePlugin212)
 
 lazy val robotDriver = module("robot-driver", "extensions/robot/driver")
   .enablePlugins(BuildInfoPlugin)
@@ -113,7 +113,7 @@ lazy val driverTests = testModule("driver-tests", "core/driver/tests").cross
   .dependsOn(junitDriver, robotDriver, api % "compile->compile;test->test")
 
 lazy val driverTests213 = driverTests(scala213)
-  .usesIdeaPlugin(driverTestPlugin213)
+  .usesIdeaPlugins(driverTestPlugin213, driverTestPlugin212)
 
 lazy val probePlugin = ideaPluginModule("probe-plugin", "core/probePlugin", publish = true)
   .settings(intellijPluginName := "ideprobe")
@@ -170,7 +170,7 @@ lazy val scalaProbeDriver =
     .dependsOn(scalaProbeApi, driver)
 
 lazy val scalaProbeDriver213 = scalaProbeDriver(scala213)
-  .usesIdeaPlugin(scalaProbePlugin213)
+  .usesIdeaPlugins(scalaProbePlugin213, scalaProbePlugin212)
 
 lazy val scalaTests = testModule("scala-tests", "extensions/scala/tests").cross
   .dependsOn(junitDriver, robotDriver, scalaProbeDriver)
@@ -216,7 +216,7 @@ lazy val pantsProbeDriver =
     .dependsOn(pantsProbeApi, driver, robotDriver)
 
 lazy val pantsProbeDriver213 = pantsProbeDriver(scala213)
-  .usesIdeaPlugin(pantsProbePlugin213)
+  .usesIdeaPlugins(pantsProbePlugin213, pantsProbePlugin212)
 
 // bazel extension
 lazy val bazelProbeApi =
@@ -257,7 +257,7 @@ lazy val bazelProbeDriver =
     .dependsOn(bazelProbeApi, driver, robotDriver)
 
 lazy val bazelProbeDriver213 = bazelProbeDriver(scala213)
-  .usesIdeaPlugin(bazelProbePlugin213)
+  .usesIdeaPlugins(bazelProbePlugin213, bazelProbePlugin212)
 
 // examples
 lazy val examples = testModule("examples", "examples")
@@ -278,22 +278,22 @@ val commonSettings = Seq(
 
 // 2.12
 lazy val api212 = api(scala212)
-lazy val driver212 = driver(scala212).usesIdeaPlugin(probePlugin212)
+lazy val driver212 = driver(scala212).usesIdeaPlugins(probePlugin212, probePlugin213)
 lazy val robotDriver212 = robotDriver(scala212)
-lazy val driverTests212 = driverTests(scala212).usesIdeaPlugin(driverTestPlugin212)
+lazy val driverTests212 = driverTests(scala212).usesIdeaPlugins(driverTestPlugin212, driverTestPlugin213)
 lazy val probePlugin212 = probePlugin(scala212)
 lazy val driverTestPlugin212 = driverTestPlugin(scala212)
 lazy val junitDriver212 = junitDriver(scala212)
 lazy val scalaProbeApi212 = scalaProbeApi(scala212)
 lazy val scalaProbePlugin212 =
   scalaProbePlugin(scala212).settings(intellijPlugins += "org.intellij.scala:2020.2.49".toPlugin)
-lazy val scalaProbeDriver212 = scalaProbeDriver(scala212).usesIdeaPlugin(scalaProbePlugin212)
+lazy val scalaProbeDriver212 = scalaProbeDriver(scala212).usesIdeaPlugins(scalaProbePlugin212, scalaProbePlugin213)
 lazy val pantsProbeApi212 = pantsProbeApi(scala212)
 lazy val pantsProbePlugin212 = pantsProbePlugin(scala212)
-lazy val pantsProbeDriver212 = pantsProbeDriver(scala212).usesIdeaPlugin(pantsProbePlugin212)
+lazy val pantsProbeDriver212 = pantsProbeDriver(scala212).usesIdeaPlugins(pantsProbePlugin212, pantsProbePlugin213)
 lazy val bazelProbeApi212 = bazelProbeApi(scala212)
 lazy val bazelProbePlugin212 = bazelProbePlugin(scala212)
-lazy val bazelProbeDriver212 = bazelProbeDriver(scala212).usesIdeaPlugin(bazelProbePlugin212)
+lazy val bazelProbeDriver212 = bazelProbeDriver(scala212).usesIdeaPlugins(bazelProbePlugin212, bazelProbePlugin213)
 
 def project(id: String, path: String, publish: Boolean): Project = {
   Project(id, sbt.file(path))

@@ -1,11 +1,15 @@
 package org.virtuslab.ideprobe.dependencies
 
-import org.virtuslab.ideprobe.BuildInfo
+import org.virtuslab.ideprobe.{BuildInfo, IntelliJFixture}
 
 object InternalPlugins {
-  val probePlugin: Plugin = bundle("ideprobe")
 
-  val all = Seq(probePlugin)
+  def bundleCross(name: String, intelliJVersion: IntelliJVersion): Plugin =
+    Plugin.BundledCrossVersion(name, intelliJVersion.compatibleScalaVersion, BuildInfo.version)
 
-  def bundle(name: String): Plugin = Plugin.Bundled(s"$name-${BuildInfo.version}.zip")
+  def probePluginForIntelliJ(intelliJVersion: IntelliJVersion): Plugin = bundleCross("ideprobe", intelliJVersion)
+
+  def installCrossVersionPlugin(name: String): IntelliJFixture => IntelliJFixture = { fixture =>
+    fixture.withPlugin(bundleCross(name, fixture.version))
+  }
 }

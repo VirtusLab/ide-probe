@@ -1,8 +1,9 @@
 package org.virtuslab.ideprobe.bazel
 
-import org.virtuslab.ideprobe.dependencies.Plugin
 import org.virtuslab.ideprobe.robot.{RobotPluginExtension, RobotProbeDriver}
-import org.virtuslab.ideprobe.{BuildInfo, IdeProbeFixture, ProbeDriver, error}
+import org.virtuslab.ideprobe.{IdeProbeFixture, ProbeDriver, error}
+import org.virtuslab.ideprobe.dependencies.InternalPlugins
+
 import scala.language.implicitConversions
 
 trait BazelPluginExtension extends BazelOpenProjectFixture with RobotPluginExtension {
@@ -17,10 +18,7 @@ trait BazelPluginExtension extends BazelOpenProjectFixture with RobotPluginExten
       )
     }
   }
-
-  val bazelProbePlugin: Plugin = Plugin.Bundled(s"ideprobe-bazel-${BuildInfo.version}.zip")
-
-  registerFixtureTransformer(_.withPlugin(bazelProbePlugin))
+  registerFixtureTransformer(InternalPlugins.installCrossVersionPlugin("ideprobe-bazel"))
 
   registerFixtureTransformer(_.withAfterWorkspaceSetup { (intelliJ, ws) =>
     installBazelisk(bazelPath(ws), intelliJ.config)

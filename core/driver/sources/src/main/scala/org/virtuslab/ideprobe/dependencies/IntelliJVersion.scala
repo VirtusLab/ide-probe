@@ -18,6 +18,9 @@ final case class IntelliJVersion(build: String, release: Option[String]) {
     }
   }
 
+  def compatibleScalaVersion: String =
+    if(inferredMajor.toDouble < 2020.3) "2.12" else "2.13"
+
   override def toString: String = {
     val version = release.fold(build)(r => s"$r, $build")
     s"IntelliJ($version)"

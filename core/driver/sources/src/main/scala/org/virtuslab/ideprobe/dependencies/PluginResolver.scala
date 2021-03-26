@@ -1,7 +1,7 @@
 package org.virtuslab.ideprobe.dependencies
 
 import org.virtuslab.ideprobe.config.DependenciesConfig
-import org.virtuslab.ideprobe.dependencies.Plugin.Bundled
+import org.virtuslab.ideprobe.dependencies.Plugin.{Bundled, BundledCrossVersion}
 
 object PluginResolver {
   val Official = PluginResolver("https://plugins.jetbrains.com/plugin/download")
@@ -15,6 +15,16 @@ object PluginResolver {
   }
 
   private final class Resolver(uri: String) extends DependencyResolver[Plugin] {
+
+    private def getBundled(path: String) = {
+      val resource = getClass.getResource(path)
+      if (resource == null) {
+        throw new Error(s"Bundle $path is not available on classpath")
+      } else {
+        Dependency.Artifact(resource.toURI)
+      }
+    }
+
     override def resolve(plugin: Plugin): Dependency = {
       plugin match {
         case Plugin.Direct(uri) =>
@@ -29,13 +39,11 @@ object PluginResolver {
         case Plugin.Versioned(id, version, None) =>
           Dependency(s"$uri?pluginId=$id&version=$version")
 
+        case BundledCrossVersion(name, scalaVersion, version) =>
+          getBundled(s"/${name}_$scalaVersion-$version.zip")
+
         case Bundled(bundle) =>
-          val resource = getClass.getResource("/" + bundle)
-          if (resource == null) {
-            throw new Error(s"Bundle $bundle is not available on classpath")
-          } else {
-            Dependency.Artifact(resource.toURI)
-          }
+          getBundled(s"/$bundle")
       }
     }
   }
