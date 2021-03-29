@@ -48,9 +48,7 @@ final class PantsProbeDriver(val driver: ProbeDriver) extends AnyVal {
   }
 
   def compileAllTargets(timeout: Duration = 10.minutes): PantsBuildResult = {
-    driver.invokeActionAsync(
-      "com.twitter.intellij.pants.compiler.actions.PantsCompileAllTargetsAction"
-    )
+    driver.invokeActionAsync("com.twitter.intellij.pants.compiler.actions.PantsCompileAllTargetsAction")
     val compiledNotification = Try(driver.awaitNotification("Compile message", timeout))
     val robot = RobotProbeDriver(driver).robot
 

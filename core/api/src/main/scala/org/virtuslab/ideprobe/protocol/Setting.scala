@@ -15,9 +15,9 @@ object Setting {
 
   implicit class OptionalSetting[A](val s: Setting[Option[A]]) extends AnyVal {
     def flatten: Setting[A] = s match {
-      case Unchanged => Unchanged
+      case Unchanged            => Unchanged
       case Changed(Some(value)) => Changed(value)
-      case Changed(None) => Unchanged
+      case Changed(None)        => Unchanged
     }
   }
 }

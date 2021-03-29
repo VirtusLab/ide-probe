@@ -30,13 +30,14 @@ trait RunningIntelliJPerSuiteBase {
     this.installed = Some(installed)
     val running = baseFixture.startIntelliJ(workspace, installed)
     this.running = Some(running)
-    val runningIntelliJFixture = new RunningIntelliJFixture(workspace, running.probe, baseFixture.config, installed.paths)
+    val runningIntelliJFixture =
+      new RunningIntelliJFixture(workspace, running.probe, baseFixture.config, installed.paths)
     this.runningIntelliJFixture = Some(runningIntelliJFixture)
     beforeAll()
   }
 
   def teardown(): Unit = {
-    try runningIntelliJFixture.foreach( r => AfterTestChecks(baseFixture.factory.config.check, r.probe))
+    try runningIntelliJFixture.foreach(r => AfterTestChecks(baseFixture.factory.config.check, r.probe))
     finally {
       try afterAll()
       finally {
@@ -54,7 +55,7 @@ trait WorkspacePerSuiteBase {
   private var installed: Option[InstalledIntelliJ] = None
   private var runnableIntelliJFixture: Option[RunnableIntelliJFixture] = None
 
-  final def workspace: RunnableIntelliJFixture =  runnableIntelliJFixture.getOrElse(
+  final def workspace: RunnableIntelliJFixture = runnableIntelliJFixture.getOrElse(
     error("Intellij Fixture not initialized")
   )
 
