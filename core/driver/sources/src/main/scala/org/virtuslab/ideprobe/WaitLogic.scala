@@ -11,16 +11,24 @@ trait WaitLogic {
 
   def or(waitCondition: WaitCondition): WaitLogic
 
+  def doWhileWaiting(code: ProbeDriver => Unit): WaitLogic = {
+    doWhileWaiting(5.seconds, code)
+  }
+
   def doWhileWaiting(maxFrequency: FiniteDuration)(code: => Unit): WaitLogic = {
-    val throttle = new Throttle(maxFrequency)
-    and { _ =>
-      throttle.execute { code }
-      WaitDecision.Done
-    }
+    doWhileWaiting(maxFrequency, _ => code)
   }
 
   def doWhileWaiting(code: => Unit): WaitLogic = {
     doWhileWaiting(5.seconds)(code)
+  }
+
+  def doWhileWaiting(maxFrequency: FiniteDuration, code: ProbeDriver => Unit): WaitLogic = {
+    val throttle = new Throttle(maxFrequency)
+    and { driver =>
+      throttle.execute { code(driver) }
+      WaitDecision.Done
+    }
   }
 }
 

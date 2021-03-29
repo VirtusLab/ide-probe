@@ -18,6 +18,8 @@ package org.virtuslab.ideprobe.wait
 class DoOnlyOnce(action: => Unit) {
   private var doneSuccessfully = false
 
+  def isSuccessful: Boolean = doneSuccessfully
+
   def attempt(): Unit = {
     if (!doneSuccessfully) {
       try {
@@ -32,6 +34,8 @@ class DoOnlyOnce(action: => Unit) {
 
 class DoOnlyOnceLazyInit {
   private var doOnce: DoOnlyOnce = _
+
+  def isSuccessful: Boolean = doOnce.isSuccessful
 
   def attempt(action: => Unit): Unit = {
     if (doOnce == null) {

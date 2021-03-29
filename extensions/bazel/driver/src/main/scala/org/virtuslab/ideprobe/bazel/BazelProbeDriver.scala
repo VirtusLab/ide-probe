@@ -9,6 +9,7 @@ import org.virtuslab.ideprobe.bazel.protocol.BazelEndpoints
 import org.virtuslab.ideprobe.protocol.ProjectRef
 import org.virtuslab.ideprobe.robot.RobotProbeDriver
 import org.virtuslab.ideprobe.robot.RobotSyntax._
+import org.virtuslab.ideprobe.wait.WaitLogicFactory
 import scala.concurrent.duration._
 
 object BazelProbeDriver {
@@ -26,7 +27,10 @@ class BazelProbeDriver(val driver: ProbeDriver) {
     driver.send(BazelEndpoints.SetupBazelExecutable, path)
   }
 
-  def buildBazelProject(): BazelBuildResult = {
+  def buildBazelProject(
+      checkFrequency: FiniteDuration = 1.second,
+      waitLimit: FiniteDuration = WaitLogicFactory.DefaultAtMost
+  ): BazelBuildResult = {
     val robot = robotDriver.robot
 
     def findBuildResult(): Option[BazelBuildResult] = {
@@ -53,7 +57,7 @@ class BazelProbeDriver(val driver: ProbeDriver) {
     driver.invokeActionAsync("MakeBlazeProject")
 
     var result = Option.empty[BazelBuildResult]
-    val buildWait = WaitLogic.basic(checkFrequency = 1.second) {
+    val buildWait = WaitLogic.basic(checkFrequency = checkFrequency, atMost = waitLimit) {
       findBuildResult() match {
         case buildResult @ Some(_) =>
           result = buildResult

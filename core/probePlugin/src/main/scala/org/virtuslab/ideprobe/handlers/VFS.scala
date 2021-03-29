@@ -29,8 +29,12 @@ object VFS extends IntelliJApi {
     }
   }
 
-  def toVirtualFile(path: Path): VirtualFile = {
-    LocalFileSystem.getInstance.findFileByPath(path.toString)
+  def toVirtualFile(path: Path, refresh: Boolean = false): VirtualFile = {
+    if (refresh) {
+      LocalFileSystem.getInstance.refreshAndFindFileByNioFile(path)
+    } else {
+      LocalFileSystem.getInstance.findFileByNioFile(path)
+    }
   }
 
   def toPath(virtualFile: VirtualFile): Path = {
