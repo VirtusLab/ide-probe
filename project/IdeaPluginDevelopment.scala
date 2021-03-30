@@ -29,7 +29,7 @@ object IdeaPluginDevelopment extends AbstractSbtIdeaPlugin {
       .map(id => (id, Some(s"lib/${id.name}.jar"))),
     packageArtifactZipFilter := ((_: File) => true),
     packageOutputDir := crossTarget.value / "dist",
-    packageArtifactZipFile := crossTarget.value / s"${intellijPluginName.value}-${version.value}.zip",
+    packageArtifactZipFile := crossTarget.value / s"${intellijPluginName.value}_${scalaBinaryVersion.value}-${version.value}.zip",
     packageArtifactZip := Def.task {
       implicit val stream: TaskStreams = streams.value
       val distDir = packageArtifact.value

@@ -15,6 +15,11 @@ object Plugin extends ConfigFormat {
       s"Plugin($bundle)"
     }
   }
+  case class BundledCrossVersion(bundle: String, scalaVersion: String, version: String) extends Plugin {
+    override def toString: String = {
+      s"Plugin(${bundle}_$scalaVersion-$version)"
+    }
+  }
 
   case class Versioned(id: String, version: String, channel: Option[String]) extends Plugin {
     override def toString: String = {
@@ -56,6 +61,7 @@ object Plugin extends ConfigFormat {
       deriveReader[Versioned],
       deriveReader[Direct],
       deriveReader[Bundled],
+      deriveReader[BundledCrossVersion],
       fromSourcesReader,
       deriveReader[Empty]
     )
@@ -66,6 +72,7 @@ object Plugin extends ConfigFormat {
       deriveWriter[Versioned],
       deriveWriter[Direct],
       deriveWriter[Bundled],
+      deriveWriter[BundledCrossVersion],
       fromSourcesWriter,
       deriveWriter[Empty]
     )

@@ -21,7 +21,7 @@ final class IntelliJFactory(
   def create(version: IntelliJVersion, plugins: Seq[Plugin]): InstalledIntelliJ = {
     val root = createInstanceDirectory(version)
 
-    val allPlugins = InternalPlugins.all ++ plugins
+    val allPlugins = InternalPlugins.probePluginForIntelliJ(version) +: plugins
 
     installIntelliJ(version, root)
     installPlugins(allPlugins, root)
