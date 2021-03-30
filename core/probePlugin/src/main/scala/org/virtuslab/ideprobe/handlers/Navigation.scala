@@ -22,7 +22,11 @@ object Navigation extends IntelliJApi {
     all.toList
   }
 
-  private def findItems(query: NavigationQuery, project: Project, contributor: ChooseByNameContributor): Array[NavigationItem] = {
+  private def findItems(
+      query: NavigationQuery,
+      project: Project,
+      contributor: ChooseByNameContributor
+  ): Array[NavigationItem] = {
     read {
       contributor.getItemsByName(query.value, "", project, query.includeNonProjectItems)
     }

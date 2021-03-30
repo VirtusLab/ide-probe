@@ -10,8 +10,7 @@ import org.virtuslab.ideprobe.{Config, IdeProbePaths, IntelliJFixture}
 import scala.concurrent.ExecutionContext
 
 class PathsConfigTest {
-  private implicit val ec: ExecutionContext =
-    ExecutionContext.fromExecutorService(Executors.newCachedThreadPool())
+  private implicit val ec: ExecutionContext = ExecutionContext.fromExecutorService(Executors.newCachedThreadPool())
 
   @Test
   def usesProvidedPathsConfig(): Unit = {

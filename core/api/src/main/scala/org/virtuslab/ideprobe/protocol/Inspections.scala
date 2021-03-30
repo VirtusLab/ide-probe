@@ -8,9 +8,9 @@ object RunFixesSpec {
 }
 
 case class InspectionRunParams(
-  className: String,
-  targetFile: FileRef,
-  runFixes: RunFixesSpec
+    className: String,
+    targetFile: FileRef,
+    runFixes: RunFixesSpec
 )
 
 case class ProblemDescriptor(message: String, line: Int, element: String, fixes: Seq[String])

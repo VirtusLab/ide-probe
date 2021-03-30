@@ -5,7 +5,6 @@ import org.junit.BeforeClass
 import org.virtuslab.ideprobe.RunningIntelliJPerSuiteBase
 import org.virtuslab.ideprobe.WorkspacePerSuiteBase
 
-
 trait RunningIntelliJPerSuite extends RunningIntelliJPerSuiteBase {
   @BeforeClass override final def setup(): Unit = super.setup()
   @AfterClass override final def teardown(): Unit = super.teardown()

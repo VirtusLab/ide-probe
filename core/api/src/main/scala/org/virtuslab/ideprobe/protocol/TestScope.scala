@@ -19,7 +19,7 @@ object TestScope extends ConfigFormat {
       deriveReader[Class],
       deriveReader[Package],
       deriveReader[Directory],
-      deriveReader[Module],
+      deriveReader[Module]
     )
   }
 
@@ -29,7 +29,7 @@ object TestScope extends ConfigFormat {
       deriveWriter[Class],
       deriveWriter[Package],
       deriveWriter[Directory],
-      deriveWriter[Module],
+      deriveWriter[Module]
     )
   }
 }

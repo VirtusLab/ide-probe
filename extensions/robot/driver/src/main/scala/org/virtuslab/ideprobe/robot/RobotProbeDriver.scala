@@ -40,10 +40,7 @@ object RobotProbeDriver {
   }
 }
 
-final class RobotProbeDriver(
-    driver: ProbeDriver,
-    val robot: RemoteRobot
-) extends SearchableComponent {
+final class RobotProbeDriver(driver: ProbeDriver, val robot: RemoteRobot) extends SearchableComponent {
 
   override protected def searchContext: SearchContext = robot
   override protected def robotTimeout: FiniteDuration = RobotSyntax.robotTimeout
@@ -58,10 +55,7 @@ final class RobotProbeDriver(
     }
   }
 
-  def openProject(
-      path: Path,
-      waitLogic: WaitLogic = WaitLogic.Default
-  ): ProjectRef = {
+  def openProject(path: Path, waitLogic: WaitLogic = WaitLogic.Default): ProjectRef = {
     driver.openProject(path, extendWaitLogic(waitLogic))
   }
 

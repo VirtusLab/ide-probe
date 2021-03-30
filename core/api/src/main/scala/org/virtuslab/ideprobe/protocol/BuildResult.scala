@@ -25,11 +25,11 @@ case class BuildResult(results: Seq[BuildStepResult]) {
 }
 
 case class BuildStepResult(
-  isAborted: Boolean,
-  errors: Seq[BuildMessage],
-  warnings: Seq[BuildMessage],
-  infos: Seq[BuildMessage],
-  stats: Seq[BuildMessage]
+    isAborted: Boolean,
+    errors: Seq[BuildMessage],
+    warnings: Seq[BuildMessage],
+    infos: Seq[BuildMessage],
+    stats: Seq[BuildMessage]
 ) {
   def hasErrors: Boolean = errors.nonEmpty
 }

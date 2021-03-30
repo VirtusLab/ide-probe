@@ -14,17 +14,21 @@ case class Project(
   def modulesByNames(names: Set[String]): Seq[Module] = modules.filter(m => names.contains(m.name))
 }
 
-case class Module(name: String,
-                  contentRoots: ContentRoots,
-                  dependencies: Set[ModuleRef],
-                  kind: Option[String]) {
+case class Module(
+    name: String,
+    contentRoots: ContentRoots,
+    dependencies: Set[ModuleRef],
+    kind: Option[String]
+) {
   def toRef(project: ProjectRef = ProjectRef.Default): ModuleRef = ModuleRef(name, project)
 }
 
 case class ContentEntry(path: Option[Path], sourceRoots: Set[SourceFolder], excluded: Set[Path])
 
 case class ContentRoots(entries: Set[ContentEntry]) { self =>
-  def byKinds(kinds: SourceFolder.Kind*): Set[SourceFolder] = entries.flatMap(e => e.sourceRoots.filter(s => kinds.contains(s.kind)))
+  def byKinds(kinds: SourceFolder.Kind*): Set[SourceFolder] = {
+    entries.flatMap(e => e.sourceRoots.filter(s => kinds.contains(s.kind)))
+  }
 
   def sources: Set[SourceFolder] = byKinds(Kind.sources)
   def resources: Set[SourceFolder] = byKinds(Kind.resources)

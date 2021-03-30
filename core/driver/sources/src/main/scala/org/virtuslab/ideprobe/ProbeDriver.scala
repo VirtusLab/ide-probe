@@ -17,8 +17,7 @@ class ProbeDriver(
     val config: Config
 )(implicit protected val ec: ExecutionContext)
     extends JsonRpcEndpoint {
-  protected val handler: Handler = (_, _) =>
-    Failure(new Exception("Receiving requests is not supported"))
+  protected val handler: Handler = (_, _) => Failure(new Exception("Receiving requests is not supported"))
 
   def pid(): Long = send(Endpoints.PID)
 
@@ -109,8 +108,7 @@ class ProbeDriver(
   /**
    * Rebuilds the specified files, modules or project
    */
-  def rebuild(scope: BuildScope = BuildScope.project): BuildResult =
-    build(BuildParams(scope, rebuild = true))
+  def rebuild(scope: BuildScope = BuildScope.project): BuildResult = build(BuildParams(scope, rebuild = true))
 
   /**
    * starts the process of shutting down the IDE
@@ -180,8 +178,9 @@ class ProbeDriver(
   /**
    * Runs the specified test configuration with the first available test runner
    */
-  def runTestsFromGenerated(runConfiguration: TestScope): TestsRunResult =
+  def runTestsFromGenerated(runConfiguration: TestScope): TestsRunResult = {
     runTestsFromGenerated(runConfiguration, runnerToSelect = None)
+  }
 
   /**
    * Runs the specified test configuration with a test runner containing provided runnerToSelect substring
@@ -194,30 +193,30 @@ class ProbeDriver(
    * Runs the specified test configuration with a test runner containing provided `runnerToSelect` substring,
    * or the first available test runner if `runnerToSelect` is `None`
    */
-  def runTestsFromGenerated(
-      runConfiguration: TestScope,
-      runnerToSelect: Option[String]
-  ): TestsRunResult = {
+  def runTestsFromGenerated(runConfiguration: TestScope, runnerToSelect: Option[String]): TestsRunResult = {
     send(Endpoints.RunTestsFromGenerated, (runConfiguration, runnerToSelect))
   }
 
   /**
    * Runs the specified application configuration
    */
-  def runApp(runConfiguration: ApplicationRunConfiguration): ProcessResult =
+  def runApp(runConfiguration: ApplicationRunConfiguration): ProcessResult = {
     send(Endpoints.RunApp, runConfiguration)
+  }
 
   /**
    * Runs the specified JUnit configuration
    */
-  def runJUnit(runConfiguration: TestScope): TestsRunResult =
+  def runJUnit(runConfiguration: TestScope): TestsRunResult = {
     send(Endpoints.RunJUnit, runConfiguration)
+  }
 
   /**
    * Runs the tests that have failed during the previous test run
    */
-  def rerunFailedTests(projectRef: ProjectRef = ProjectRef.Default): TestsRunResult =
+  def rerunFailedTests(projectRef: ProjectRef = ProjectRef.Default): TestsRunResult = {
     send(Endpoints.RerunFailedTests, projectRef)
+  }
 
   /**
    * Saves the current view of the IDE alongside the automatically captured screenshots
@@ -228,8 +227,9 @@ class ProbeDriver(
   /**
    * Returns the sdk of the specified project
    */
-  def projectSdk(project: ProjectRef = ProjectRef.Default): Option[Sdk] =
+  def projectSdk(project: ProjectRef = ProjectRef.Default): Option[Sdk] = {
     send(Endpoints.ProjectSdk, project)
+  }
 
   /**
    * Returns the sdk of the specified module
@@ -239,8 +239,9 @@ class ProbeDriver(
   /**
    * Returns the list of VCS roots of the specified project
    */
-  def vcsRoots(project: ProjectRef = ProjectRef.Default): Seq[VcsRoot] =
+  def vcsRoots(project: ProjectRef = ProjectRef.Default): Seq[VcsRoot] = {
     send(Endpoints.VcsRoots, project)
+  }
 
   /**
    * Returns the list of all installed plugins
@@ -263,8 +264,9 @@ class ProbeDriver(
   /**
    *  Expand macro in a given file
    */
-  def expandMacro(macroText: String, fileRef: FileRef): String =
+  def expandMacro(macroText: String, fileRef: FileRef): String = {
     send(Endpoints.ExpandMacro, ExpandMacroData(fileRef, macroText))
+  }
 
   /**
    *  Build artifact
