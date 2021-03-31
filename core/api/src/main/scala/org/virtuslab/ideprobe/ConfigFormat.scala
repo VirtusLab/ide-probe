@@ -67,5 +67,5 @@ trait ConfigFormat {
     }
 
   implicit def hint[T]: ProductHint[T] =
-    ProductHint[T](ConfigFieldMapping(CamelCase, CamelCase), useDefaultArgs = true, allowUnknownKeys = false)
+    ProductHint[T](ConfigFieldMapping(CamelCase, CamelCase), useDefaultArgs = true, allowUnknownKeys = true)
 }
