@@ -15,6 +15,7 @@ object IntellijPrivacyPolicy {
                                      |<map MAP_XML_VERSION="1.0">
                                      |  <entry key="accepted_version" value="2.4"/>
                                      |  <entry key="eua_accepted_version" value="1.2"/>
+                                     |  <entry key="euacommunity_accepted_version" value="1.0"/>
                                      |  <entry key="ij_euaeap_accepted_version" value="3.0"/>
                                      |  <entry key="privacyeap_accepted_version" value="2.4"/>
                                      |</map>
