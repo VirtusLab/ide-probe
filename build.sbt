@@ -294,6 +294,7 @@ lazy val pantsProbeDriver212 = pantsProbeDriver(scala212).usesIdeaPlugins(pantsP
 lazy val bazelProbeApi212 = bazelProbeApi(scala212)
 lazy val bazelProbePlugin212 = bazelProbePlugin(scala212)
 lazy val bazelProbeDriver212 = bazelProbeDriver(scala212).usesIdeaPlugins(bazelProbePlugin212, bazelProbePlugin213)
+lazy val scalaTests212 = scalaTests(scala212).usesIdeaPlugin(scalaProbePlugin212)
 
 def project(id: String, path: String, publish: Boolean): Project = {
   Project(id, sbt.file(path))
