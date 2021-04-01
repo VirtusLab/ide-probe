@@ -26,3 +26,9 @@ jobs:
           SCALA_VERSION: ${{ matrix.scala-version }}
           TEST_SET: ${{ matrix.test-set }}
         run: ci/tests/run $TEST_SET $SCALA_VERSION
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: screenshots-${{ matrix.test-set }}_${{ matrix.scala-version }}
+          path: /tmp/ide-probe/screenshots
