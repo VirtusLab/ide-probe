@@ -3,16 +3,18 @@ package org.virtuslab.ideprobe.ide.intellij
 import java.io.File
 import java.net.ServerSocket
 import java.nio.ByteBuffer
-import java.nio.file.{Path, Paths}
-import com.typesafe.config.ConfigRenderOptions
+import java.nio.file.{Files, Path, StandardCopyOption}
 import com.zaxxer.nuprocess.{NuAbstractProcessHandler, NuProcessBuilder}
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe._
 import org.virtuslab.ideprobe.config.DriverConfig
 import org.virtuslab.ideprobe.jsonrpc.JsonRpcConnection
+
 import scala.concurrent.{ExecutionContext, blocking}
 
-final class InstalledIntelliJ(val root: Path, probePaths: IdeProbePaths, config: DriverConfig) {
+sealed abstract class InstalledIntelliJ(root: Path, probePaths: IdeProbePaths, config: DriverConfig) {
+  def cleanup(): Unit
+
   val paths: IntelliJPaths = new IntelliJPaths(root, config.headless)
 
   private val vmoptions: Path = {
@@ -127,4 +129,25 @@ final class InstalledIntelliJ(val root: Path, probePaths: IdeProbePaths, config:
 
     builder.start()
   }
+}
+
+final class LocalIntelliJ(
+  val root: Path,
+  probePaths: IdeProbePaths,
+  config: DriverConfig,
+  private val pluginsBackup: Path
+) extends InstalledIntelliJ(root, probePaths, config) {
+  override def cleanup(): Unit = {
+    val pluginsDir = root.resolve("plugins")
+    pluginsDir.delete()
+    Files.move(pluginsBackup, pluginsDir, StandardCopyOption.REPLACE_EXISTING)
+  }
+}
+
+final class DownloadedIntelliJ(
+  val root: Path,
+  probePaths: IdeProbePaths,
+  config: DriverConfig
+) extends InstalledIntelliJ(root, probePaths, config) {
+  override def cleanup(): Unit = root.delete()
 }

@@ -10,6 +10,7 @@ import org.junit.{Ignore, Test}
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.virtuslab.ideprobe.Extensions._
+import org.virtuslab.ideprobe.config.IntelliJProvider
 import org.virtuslab.ideprobe.dependencies.{IntelliJVersion, Plugin}
 import org.virtuslab.ideprobe.protocol.TestStatus.Passed
 import org.virtuslab.ideprobe.protocol._
@@ -21,12 +22,11 @@ import scala.util.{Failure, Success, Try}
 
 @RunWith(classOf[JUnit4])
 final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPluginExtension {
-  private val intellijVersion = IntelliJVersion.Latest
+  private val intelliJProvider = IntelliJProvider.Default
   private val scalaPlugin = Plugin("org.intellij.scala", "2020.3.553", Some("nightly"))
-  private val probeTestPlugin = ProbeTestPlugin.bundled(intellijVersion)
+  private val probeTestPlugin = ProbeTestPlugin.bundled(intelliJProvider.version)
 
   private val fixture = IntelliJFixture(
-    version = intellijVersion,
     plugins = List(scalaPlugin, probeTestPlugin)
   ).enableExtensions
 

@@ -1,16 +1,20 @@
 package org.virtuslab.ideprobe.ide.intellij
 
+import com.google.gson.Gson
 import java.nio.file.{Files, Path}
 import java.util.stream.{Collectors, Stream => JStream}
+
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.IdeProbePaths
 import org.virtuslab.ideprobe.config.{DependenciesConfig, DriverConfig}
 import org.virtuslab.ideprobe.dependencies._
 
+import scala.io.Source
+
 final class IntelliJFactory(
-    dependencies: DependencyProvider,
-    val paths: IdeProbePaths,
-    val config: DriverConfig
+  dependencies: DependencyProvider,
+  val paths: IdeProbePaths,
+  val config: DriverConfig
 ) {
   def withConfig(config: DriverConfig): IntelliJFactory = new IntelliJFactory(dependencies, paths, config)
 
@@ -24,16 +28,16 @@ final class IntelliJFactory(
     installIntelliJ(version, root)
     installPlugins(allPlugins, root)
 
-    new InstalledIntelliJ(root, paths, config)
+    new DownloadedIntelliJ(root, paths, config)
   }
 
-  private def createInstanceDirectory(version: IntelliJVersion): Path = {
+  def createInstanceDirectory(version: IntelliJVersion): Path = {
     val path = paths.instances.createTempDirectory(s"intellij-instance-${version.build}-")
 
     Files.createDirectories(path)
   }
 
-  private def installIntelliJ(version: IntelliJVersion, root: Path): Unit = {
+  def installIntelliJ(version: IntelliJVersion, root: Path): Unit = {
     println(s"Installing $version")
     val file = dependencies.fetch(version)
     toArchive(file).extractTo(root)
@@ -44,7 +48,7 @@ final class IntelliJFactory(
   // assuming that plugins with same root entries are the same plugin
   // and only installs last occurrance of such plugin in the list
   // in case of duplicates.
-  private def installPlugins(plugins: Seq[Plugin], root: Path): Unit = {
+  def installPlugins(plugins: Seq[Plugin], root: Path): Unit = {
     case class PluginArchive(plugin: Plugin, archive: Resource.Archive) {
       val rootEntries: Set[String] = archive.rootEntries.toSet
     }
@@ -91,9 +95,9 @@ object IntelliJFactory {
     )
 
   def from(
-      resolversConfig: DependenciesConfig.Resolvers,
-      paths: IdeProbePaths,
-      driverConfig: DriverConfig
+            resolversConfig: DependenciesConfig.Resolvers,
+            paths: IdeProbePaths,
+            driverConfig: DriverConfig
   ): IntelliJFactory = {
     val intelliJResolver = IntelliJZipResolver.from(resolversConfig.intellij)
     val pluginResolver = PluginResolver.from(resolversConfig.plugins)
@@ -102,5 +106,17 @@ object IntelliJFactory {
     val pluginDependencyProvider = new PluginDependencyProvider(Seq(pluginResolver), resourceProvider)
     val dependencyProvider = new DependencyProvider(intelliJDependencyProvider, pluginDependencyProvider)
     new IntelliJFactory(dependencyProvider, paths, driverConfig)
+  }
+
+  def version(root: Path): IntelliJVersion = {
+    case class ProductInfo(version: String, buildNumber: String)
+    val productInfo = root.resolve("product-info.json").toFile
+    val source = Source.fromFile(productInfo)
+    val content = source.mkString
+    source.close
+    val gson = new Gson
+    val ProductInfo(version, buildNumber) = gson.fromJson(content, classOf[ProductInfo])
+
+    IntelliJVersion(version, Some(buildNumber))
   }
 }

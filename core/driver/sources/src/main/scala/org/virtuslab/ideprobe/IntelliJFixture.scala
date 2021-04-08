@@ -2,10 +2,9 @@ package org.virtuslab.ideprobe
 
 import java.nio.file.Path
 
-import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.config.{IdeProbeConfig, PathsConfig}
+import org.virtuslab.ideprobe.config.{IdeProbeConfig, IntelliJProvider}
 import org.virtuslab.ideprobe.dependencies.{IntelliJVersion, Plugin}
-import org.virtuslab.ideprobe.ide.intellij.{InstalledIntelliJ, IntelliJFactory, RunningIde}
+import org.virtuslab.ideprobe.ide.intellij.{InstalledIntelliJ, RunningIde}
 
 import scala.annotation.tailrec
 import scala.concurrent.ExecutionContext
@@ -13,8 +12,7 @@ import scala.concurrent.duration._
 
 final case class IntelliJFixture(
     workspaceProvider: WorkspaceProvider = WorkspaceTemplate.Empty,
-    factory: IntelliJFactory = IntelliJFactory.Default,
-    version: IntelliJVersion = IntelliJVersion.Latest,
+    intelliJProvider: IntelliJProvider = IntelliJProvider.Default,
     plugins: Seq[Plugin] = Nil,
     config: Config = Config.Empty,
     afterWorkspaceSetup: Seq[(IntelliJFixture, Path) => Unit] = Nil,
@@ -23,13 +21,13 @@ final case class IntelliJFixture(
 )(implicit ec: ExecutionContext) {
 
   def withVmOptions(vmOptions: String*): IntelliJFixture = {
-    val newVmOptions = vmOptions ++ factory.config.vmOptions
-    copy(factory = factory.withConfig(factory.config.copy(vmOptions = newVmOptions)))
+    val newVmOptions = vmOptions ++ intelliJProvider.factory.config.vmOptions
+    copy(intelliJProvider = intelliJProvider.withFactory(intelliJProvider.factory.withConfig(config = intelliJProvider.factory.config.copy(vmOptions = newVmOptions))))
   }
 
   def withEnv(env: Map[String, String]): IntelliJFixture = {
-    val newEnv = factory.config.env ++ env
-    copy(factory = factory.withConfig(factory.config.copy(env = newEnv)))
+    val newEnv = intelliJProvider.factory.config.env ++ env
+    copy(intelliJProvider = intelliJProvider.withFactory(intelliJProvider.factory.withConfig(config = intelliJProvider.factory.config.copy(env = newEnv))))
   }
 
   def withConfig(entries: (String, String)*): IntelliJFixture = {
@@ -38,7 +36,7 @@ final case class IntelliJFixture(
   }
 
   def withPaths(probePaths: IdeProbePaths): IntelliJFixture = {
-    copy(factory = factory.withPaths(probePaths))
+    copy(intelliJProvider = intelliJProvider.withFactory(intelliJProvider.factory.withPaths(probePaths)))
   }
 
   def withAfterWorkspaceSetup(action: (IntelliJFixture, Path) => Unit): IntelliJFixture = {
@@ -58,12 +56,14 @@ final case class IntelliJFixture(
   }
 
   def headless: IntelliJFixture = {
-    copy(factory = factory.withConfig(factory.config.copy(headless = true)))
+    copy(intelliJProvider = intelliJProvider.withFactory(intelliJProvider.factory.withConfig(intelliJProvider.factory.config.copy(headless = true))))
   }
 
   def run = new SingleRunIntelliJ(this)
 
   def withWorkspace = new MultipleRunsIntelliJ(this)
+
+  def version: IntelliJVersion = intelliJProvider.version
 
   def setupWorkspace(): Path = {
     val workspace = workspaceProvider.setup(probePaths).toRealPath()
@@ -71,22 +71,20 @@ final case class IntelliJFixture(
     workspace
   }
 
-  def probePaths: IdeProbePaths = {
-    factory.paths
-  }
+  def probePaths: IdeProbePaths = intelliJProvider.factory.paths
 
   def deleteWorkspace(workspace: Path): Unit = {
     workspaceProvider.cleanup(workspace)
   }
 
   def installIntelliJ(): InstalledIntelliJ = {
-    val installedIntelliJ = factory.create(version, plugins)
+    val installedIntelliJ = intelliJProvider.setup()
     afterIntelliJInstall.foreach(_.apply(this, installedIntelliJ))
     installedIntelliJ
   }
 
-  def deleteIntelliJ(installedIntelliJ: InstalledIntelliJ): Unit = {
-    withRetries(maxRetries = 10)(installedIntelliJ.root.delete())
+  def cleanupIntelliJ(installedIntelliJ: InstalledIntelliJ): Unit = {
+    withRetries(maxRetries = 10)(installedIntelliJ.cleanup())
   }
 
   def startIntelliJ(workspace: Path, installedIntelliJ: InstalledIntelliJ): RunningIde = {
@@ -123,12 +121,10 @@ object IntelliJFixture {
 
   def fromConfig(config: Config, path: String = ConfigRoot)(implicit ec: ExecutionContext): IntelliJFixture = {
     val probeConfig = config[IdeProbeConfig](path)
-    val ideProbePaths = IdeProbePaths.from(probeConfig.paths)
 
     new IntelliJFixture(
       workspaceProvider = probeConfig.workspace.map(WorkspaceProvider.from).getOrElse(WorkspaceTemplate.Empty),
-      factory = IntelliJFactory.from(probeConfig.resolvers, ideProbePaths, probeConfig.driver),
-      version = probeConfig.intellij.version,
+      intelliJProvider = IntelliJProvider.from(probeConfig),
       plugins = probeConfig.intellij.plugins.filterNot(_.isInstanceOf[Plugin.Empty]),
       config = config
     )
