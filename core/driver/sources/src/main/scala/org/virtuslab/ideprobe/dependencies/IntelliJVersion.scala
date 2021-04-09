@@ -19,7 +19,7 @@ final case class IntelliJVersion(build: String, release: Option[String]) {
   }
 
   def compatibleScalaVersion: String =
-    if(inferredMajor.toDouble < 2020.3) "2.12" else "2.13"
+    if (inferredMajor.toDouble < 2020.3) "2.12" else "2.13"
 
   override def toString: String = {
     val version = release.fold(build)(r => s"$r, $build")
@@ -30,9 +30,7 @@ final case class IntelliJVersion(build: String, release: Option[String]) {
 object IntelliJVersion {
   implicit val configConvert: ConfigConvert[IntelliJVersion] = deriveConvert[IntelliJVersion]
 
-  val Latest = BuildInfo.intellijVersion
-    .map(IntelliJVersion.release(BuildInfo.intellijBuild, _))
-    .getOrElse(IntelliJVersion.snapshot(BuildInfo.intellijBuild))
+  val Latest = release("2020.3.3", "203.7717.56")
 
   def snapshot(build: String): IntelliJVersion = {
     IntelliJVersion(build, None)
