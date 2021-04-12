@@ -5,6 +5,7 @@
 
     <depends>com.intellij.modules.lang</depends>
     <depends>com.intellij.modules.java</depends>
+    <depends>org.virtuslab.ideprobe</depends>
     <idea-version since-build="191.*"/>
 
     <actions>

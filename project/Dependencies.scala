@@ -1,4 +1,3 @@
-import net.aichler.jupiter.sbt.Import.JupiterKeys
 import sbt._
 
 object Dependencies {
@@ -6,6 +5,14 @@ object Dependencies {
   val junit = Seq(
     "junit" % "junit" % "4.12" % Test,
     ("com.novocode" % "junit-interface" % "0.11" % Test).exclude("junit", "junit-dep")
+  )
+
+  val junitCompile = Seq(
+    "junit" % "junit" % "4.12" % Compile
+  )
+
+  def scalaLib(version: String) = Seq(
+    "org.scala-lang" % "scala-library" % version
   )
 
   val nuProcess = "com.zaxxer" % "nuprocess" % "1.2.6"
@@ -28,11 +35,6 @@ object Dependencies {
       "com.github.pureconfig" %% module % "0.12.2"
     } ++ Seq(typesafeConfig, shapeless)
   }
-
-  val junit5 = Seq(
-    "org.junit.jupiter" % "junit-jupiter-params" % "5.4.2",
-    "net.aichler" % "jupiter-interface" % "0.8.3" % Test
-  )
 
   val intellijScala = "org.intellij.scala:2020.2.753:nightly"
 

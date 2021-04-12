@@ -1,7 +1,5 @@
 package org.virtuslab.ideprobe
 
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.ValueSource
 import org.junit.{Assert, Test}
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.protocol._
@@ -17,15 +15,11 @@ class ModuleTest extends IdeProbeFixture with ScalaPluginExtension with RobotPlu
     useSbtShell(intelliJ)
   }))
 
-  @ParameterizedTest
-  @ValueSource(
-    strings = Array(
-      "projects/io.conf",
-      "projects/librarymanagement.conf",
-      "projects/dokka.conf"
-    )
-  )
-  @Test def runTestsInDifferentScopes(configName: String): Unit = fixtureFromConfig(configName).run { intelliJ =>
+  @Test def runTestsInIOScope(): Unit = runTestsInDifferentScopes("projects/io.conf")
+  @Test def runTestsInLibraryManagementScope(): Unit = runTestsInDifferentScopes("projects/librarymanagement.conf")
+  @Test def runTestsInDokkaScope(): Unit = runTestsInDifferentScopes("projects/dokka.conf")
+
+  private def runTestsInDifferentScopes(configName: String): Unit = fixtureFromConfig(configName).run { intelliJ =>
     val runnerToSelect = intelliJ.config.get[String]("runner")
     val modulesToTest = intelliJ.config[Seq[String]]("modules.test")
     intelliJ.probe.build().assertSuccess()
@@ -36,15 +30,11 @@ class ModuleTest extends IdeProbeFixture with ScalaPluginExtension with RobotPlu
     }
   }
 
-  @ParameterizedTest
-  @ValueSource(
-    strings = Array(
-      "projects/io.conf",
-      "projects/librarymanagement.conf",
-      "projects/dokka.conf"
-    )
-  )
-  def verifyModulesPresent(configName: String): Unit = fixtureFromConfig(configName).run { intelliJ =>
+  @Test def verifyModuleIO(): Unit = verifyModulesPresent("projects/io.conf")
+  @Test def verifyModuleLibraryManagement(): Unit = verifyModulesPresent("projects/librarymanagement.conf")
+  @Test def verifyModuleDokka(): Unit = verifyModulesPresent("projects/dokka.conf")
+
+  private def verifyModulesPresent(configName: String): Unit = fixtureFromConfig(configName).run { intelliJ =>
     val project = intelliJ.probe.projectModel()
     val expectedModules = intelliJ.config[Seq[String]]("modules.verify")
     val missingModules = expectedModules.diff(project.moduleNames)

@@ -94,7 +94,7 @@ lazy val robotDriver = module("robot-driver", "extensions/robot/driver")
   .settings(
     resolvers += MavenRepository(
       "jetbrains-3rd",
-      "https://jetbrains.bintray.com/intellij-third-party-dependencies"
+      "https://packages.jetbrains.team/maven/p/ij/intellij-dependencies"
     ),
     libraryDependencies += Dependencies.remoteRobot,
     libraryDependencies += Dependencies.remoteRobotFixtures,
@@ -121,6 +121,7 @@ lazy val probePlugin = ideaPluginModule("probe-plugin", "core/probePlugin", publ
   .dependsOn(api)
 
 lazy val probePlugin213 = probePlugin(scala213)
+  .settings(libraryDependencies ++= Dependencies.scalaLib(scala213))
 
 lazy val driverTestPlugin = ideaPluginModule("probe-test-plugin", "core/driver/test-plugin")
   .settings(intellijPluginName := "driver-test-plugin")
@@ -129,7 +130,10 @@ lazy val driverTestPlugin = ideaPluginModule("probe-test-plugin", "core/driver/t
 lazy val driverTestPlugin213 = driverTestPlugin(scala213)
 
 lazy val junitDriver = module("junit-driver", "core/driver/bindings/junit")
-  .settings(libraryDependencies ++= Dependencies.junit)
+  .settings(
+    libraryDependencies ++= Dependencies.junit,
+    libraryDependencies ++= Dependencies.junitCompile
+  )
   .cross
   .dependsOn(driver, api % "compile->compile;test->test")
 
@@ -261,7 +265,7 @@ lazy val bazelProbeDriver213 = bazelProbeDriver(scala213)
 
 // examples
 lazy val examples = testModule("examples", "examples")
-  .settings(libraryDependencies ++= Dependencies.junit5)
+  .settings(libraryDependencies ++= Dependencies.junit)
   .cross
   .dependsOn(driver, robotDriver, scalaProbeDriver)
 
@@ -281,7 +285,7 @@ lazy val api212 = api(scala212)
 lazy val driver212 = driver(scala212).usesIdeaPlugins(probePlugin212, probePlugin213)
 lazy val robotDriver212 = robotDriver(scala212)
 lazy val driverTests212 = driverTests(scala212).usesIdeaPlugins(driverTestPlugin212, driverTestPlugin213)
-lazy val probePlugin212 = probePlugin(scala212)
+lazy val probePlugin212 = probePlugin(scala212).settings(libraryDependencies ++= Dependencies.scalaLib(scala212))
 lazy val driverTestPlugin212 = driverTestPlugin(scala212)
 lazy val junitDriver212 = junitDriver(scala212)
 lazy val scalaProbeApi212 = scalaProbeApi(scala212)
