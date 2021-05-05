@@ -6,7 +6,7 @@ import org.virtuslab.ideprobe.dependencies.Plugin
 
 trait RobotPluginExtension extends RobotSyntax { this: IdeProbeFixture =>
   def robotPlugin: Plugin = {
-    val repository = "https://jetbrains.bintray.com/intellij-third-party-dependencies"
+    val repository = "https://packages.jetbrains.team/maven/p/ij/intellij-dependencies"
     val group = "org.jetbrains.test".replace(".", "/")
     val artifact = "robot-server-plugin"
     val version = BuildInfo.robotVersion
