@@ -18,9 +18,9 @@ trait IntelliJProvider {
 }
 
 case class ExistingIntelliJ(
-  path: Path,
-  plugins: Seq[Plugin],
-  factory: IntelliJFactory
+    path: Path,
+    plugins: Seq[Plugin],
+    factory: IntelliJFactory
 ) extends IntelliJProvider {
   override def setup(): InstalledIntelliJ = {
     val pluginsDir = path.resolve("plugins")
@@ -32,18 +32,21 @@ case class ExistingIntelliJ(
   }
 
   private def copyFolder(source: Path, target: Path): Unit = {
-    Files.walkFileTree(source, new SimpleFileVisitor[Path] {
+    Files.walkFileTree(
+      source,
+      new SimpleFileVisitor[Path] {
 
-      override def preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult = {
-        Files.createDirectories(target.resolve(source.relativize(dir)))
-        FileVisitResult.CONTINUE
-      }
+        override def preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult = {
+          Files.createDirectories(target.resolve(source.relativize(dir)))
+          FileVisitResult.CONTINUE
+        }
 
-      override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
-        Files.copy(file, target.resolve(source.relativize(file)))
-        FileVisitResult.CONTINUE
+        override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
+          Files.copy(file, target.resolve(source.relativize(file)))
+          FileVisitResult.CONTINUE
+        }
       }
-    })
+    )
   }
 
   override lazy val version: IntelliJVersion = {
@@ -62,9 +65,9 @@ case class ExistingIntelliJ(
 }
 
 case class DefaultIntelliJ(
-  version: IntelliJVersion,
-  plugins: Seq[Plugin],
-  factory: IntelliJFactory
+    version: IntelliJVersion,
+    plugins: Seq[Plugin],
+    factory: IntelliJFactory
 ) extends IntelliJProvider {
 
   override def setup(): InstalledIntelliJ =

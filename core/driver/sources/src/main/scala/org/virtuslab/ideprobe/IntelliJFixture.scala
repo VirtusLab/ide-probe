@@ -22,12 +22,20 @@ final case class IntelliJFixture(
 
   def withVmOptions(vmOptions: String*): IntelliJFixture = {
     val newVmOptions = vmOptions ++ intelliJProvider.factory.config.vmOptions
-    copy(intelliJProvider = intelliJProvider.withFactory(intelliJProvider.factory.withConfig(config = intelliJProvider.factory.config.copy(vmOptions = newVmOptions))))
+    copy(
+      intelliJProvider = intelliJProvider.withFactory(
+        intelliJProvider.factory.withConfig(config = intelliJProvider.factory.config.copy(vmOptions = newVmOptions))
+      )
+    )
   }
 
   def withEnv(env: Map[String, String]): IntelliJFixture = {
     val newEnv = intelliJProvider.factory.config.env ++ env
-    copy(intelliJProvider = intelliJProvider.withFactory(intelliJProvider.factory.withConfig(config = intelliJProvider.factory.config.copy(env = newEnv))))
+    copy(
+      intelliJProvider = intelliJProvider.withFactory(
+        intelliJProvider.factory.withConfig(config = intelliJProvider.factory.config.copy(env = newEnv))
+      )
+    )
   }
 
   def withConfig(entries: (String, String)*): IntelliJFixture = {
@@ -56,7 +64,11 @@ final case class IntelliJFixture(
   }
 
   def headless: IntelliJFixture = {
-    copy(intelliJProvider = intelliJProvider.withFactory(intelliJProvider.factory.withConfig(intelliJProvider.factory.config.copy(headless = true))))
+    copy(
+      intelliJProvider = intelliJProvider.withFactory(
+        intelliJProvider.factory.withConfig(intelliJProvider.factory.config.copy(headless = true))
+      )
+    )
   }
 
   def run = new SingleRunIntelliJ(this)

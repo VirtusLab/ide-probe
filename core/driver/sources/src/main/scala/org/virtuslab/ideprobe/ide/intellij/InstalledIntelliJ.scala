@@ -132,10 +132,10 @@ sealed abstract class InstalledIntelliJ(root: Path, probePaths: IdeProbePaths, c
 }
 
 final class LocalIntelliJ(
-  val root: Path,
-  probePaths: IdeProbePaths,
-  config: DriverConfig,
-  private val pluginsBackup: Path
+    val root: Path,
+    probePaths: IdeProbePaths,
+    config: DriverConfig,
+    private val pluginsBackup: Path
 ) extends InstalledIntelliJ(root, probePaths, config) {
   override def cleanup(): Unit = {
     val pluginsDir = root.resolve("plugins")
@@ -145,9 +145,9 @@ final class LocalIntelliJ(
 }
 
 final class DownloadedIntelliJ(
-  val root: Path,
-  probePaths: IdeProbePaths,
-  config: DriverConfig
+    val root: Path,
+    probePaths: IdeProbePaths,
+    config: DriverConfig
 ) extends InstalledIntelliJ(root, probePaths, config) {
   override def cleanup(): Unit = root.delete()
 }

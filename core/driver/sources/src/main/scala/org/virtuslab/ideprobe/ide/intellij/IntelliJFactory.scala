@@ -12,9 +12,9 @@ import org.virtuslab.ideprobe.dependencies._
 import scala.io.Source
 
 final class IntelliJFactory(
-  dependencies: DependencyProvider,
-  val paths: IdeProbePaths,
-  val config: DriverConfig
+    dependencies: DependencyProvider,
+    val paths: IdeProbePaths,
+    val config: DriverConfig
 ) {
   def withConfig(config: DriverConfig): IntelliJFactory = new IntelliJFactory(dependencies, paths, config)
 
@@ -95,9 +95,9 @@ object IntelliJFactory {
     )
 
   def from(
-            resolversConfig: DependenciesConfig.Resolvers,
-            paths: IdeProbePaths,
-            driverConfig: DriverConfig
+      resolversConfig: DependenciesConfig.Resolvers,
+      paths: IdeProbePaths,
+      driverConfig: DriverConfig
   ): IntelliJFactory = {
     val intelliJResolver = IntelliJZipResolver.from(resolversConfig.intellij)
     val pluginResolver = PluginResolver.from(resolversConfig.plugins)
