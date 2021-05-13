@@ -135,17 +135,17 @@ final class LocalIntelliJ(
     val root: Path,
     probePaths: IdeProbePaths,
     config: DriverConfig,
-    private val pluginsBackup: Path
+    pluginsBackup: Path
 ) extends InstalledIntelliJ(root, probePaths, config) {
   override def cleanup(): Unit = {
     val pluginsDir = root.resolve("plugins")
     pluginsDir.delete()
-    Files.move(pluginsBackup, pluginsDir, StandardCopyOption.REPLACE_EXISTING)
+    pluginsBackup.moveTo(pluginsDir)
   }
 }
 
 final class DownloadedIntelliJ(
-    val root: Path,
+    root: Path,
     probePaths: IdeProbePaths,
     config: DriverConfig
 ) extends InstalledIntelliJ(root, probePaths, config) {

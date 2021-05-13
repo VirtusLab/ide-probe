@@ -3,10 +3,11 @@ package org.virtuslab.ideprobe.dependencies
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.virtuslab.ideprobe.config.{DependenciesConfig, IdeProbeConfig, IntelliJProvider, IntellijConfig, PathsConfig}
-import org.virtuslab.ideprobe.ide.intellij.IntelliJFactory
+import org.virtuslab.ideprobe.config.{DependenciesConfig, IdeProbeConfig, IntellijConfig, PathsConfig}
+import org.virtuslab.ideprobe.ide.intellij.{IntelliJFactory, IntelliJProvider}
 
 import java.nio.file.Path
+import org.virtuslab.ideprobe.Extensions._
 
 @RunWith(classOf[JUnit4])
 final class IntelliJCleanupTest {
@@ -27,7 +28,7 @@ final class IntelliJCleanupTest {
       existingInstalledIntelliJ.cleanup()
 
       //then
-      assert(installationRoot.toFile.exists(), "The provided IntelliJ instance should exist after cleanup, but it was deleted.")
+      assert(installationRoot.isDirectory, "The provided IntelliJ instance should exist after cleanup, but it was deleted.")
     }
 
   @Test
@@ -70,6 +71,7 @@ final class IntelliJCleanupTest {
   private def givenInstalledIntelliJ(test: Path => Unit): Unit = {
     val preInstalledIntelliJ = IntelliJFactory.Default.create(IntelliJVersion.Latest, Seq.empty)
     val installationRoot = preInstalledIntelliJ.paths.plugins.getParent //plugins directory is an arbitrary choice.
+    preInstalledIntelliJ.paths.plugins.resolve("ideprobe").delete() //Removing the ideprobe plugin - to avoid conflicts when installing it in tests.
     try test(installationRoot)
     finally preInstalledIntelliJ.cleanup()
   }

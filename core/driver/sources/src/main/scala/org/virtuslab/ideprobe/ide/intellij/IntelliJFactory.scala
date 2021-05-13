@@ -1,15 +1,13 @@
 package org.virtuslab.ideprobe.ide.intellij
 
-import com.google.gson.Gson
+import com.google.gson.JsonParser
+
 import java.nio.file.{Files, Path}
 import java.util.stream.{Collectors, Stream => JStream}
-
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.IdeProbePaths
 import org.virtuslab.ideprobe.config.{DependenciesConfig, DriverConfig}
 import org.virtuslab.ideprobe.dependencies._
-
-import scala.io.Source
 
 final class IntelliJFactory(
     dependencies: DependencyProvider,
@@ -110,12 +108,10 @@ object IntelliJFactory {
 
   def version(root: Path): IntelliJVersion = {
     case class ProductInfo(version: String, buildNumber: String)
-    val productInfo = root.resolve("product-info.json").toFile
-    val source = Source.fromFile(productInfo)
-    val content = source.mkString
-    source.close
-    val gson = new Gson
-    val ProductInfo(version, buildNumber) = gson.fromJson(content, classOf[ProductInfo])
+    val productInfo = root.resolve("product-info.json").content()
+    val productInfoJsonObject = JsonParser.parseString(productInfo).getAsJsonObject
+    val version = productInfoJsonObject.getAsJsonPrimitive("version").getAsString
+    val buildNumber = productInfoJsonObject.getAsJsonPrimitive("buildNumber").getAsString
 
     IntelliJVersion(version, Some(buildNumber))
   }

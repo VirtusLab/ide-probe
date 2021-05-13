@@ -1,10 +1,9 @@
 package org.virtuslab.ideprobe
 
 import java.nio.file.Path
-
-import org.virtuslab.ideprobe.config.{IdeProbeConfig, IntelliJProvider}
+import org.virtuslab.ideprobe.config.IdeProbeConfig
 import org.virtuslab.ideprobe.dependencies.{IntelliJVersion, Plugin}
-import org.virtuslab.ideprobe.ide.intellij.{InstalledIntelliJ, RunningIde}
+import org.virtuslab.ideprobe.ide.intellij.{InstalledIntelliJ, IntelliJProvider, RunningIde}
 
 import scala.annotation.tailrec
 import scala.concurrent.ExecutionContext
@@ -13,7 +12,6 @@ import scala.concurrent.duration._
 final case class IntelliJFixture(
     workspaceProvider: WorkspaceProvider = WorkspaceTemplate.Empty,
     intelliJProvider: IntelliJProvider = IntelliJProvider.Default,
-    plugins: Seq[Plugin] = Nil,
     config: Config = Config.Empty,
     afterWorkspaceSetup: Seq[(IntelliJFixture, Path) => Unit] = Nil,
     afterIntelliJInstall: Seq[(IntelliJFixture, InstalledIntelliJ) => Unit] = Nil,
@@ -60,7 +58,7 @@ final case class IntelliJFixture(
   }
 
   def withPlugin(plugin: Plugin): IntelliJFixture = {
-    copy(plugins = plugin +: plugins)
+    copy(intelliJProvider = intelliJProvider.withPlugin(plugin))
   }
 
   def headless: IntelliJFixture = {
@@ -137,7 +135,6 @@ object IntelliJFixture {
     new IntelliJFixture(
       workspaceProvider = probeConfig.workspace.map(WorkspaceProvider.from).getOrElse(WorkspaceTemplate.Empty),
       intelliJProvider = IntelliJProvider.from(probeConfig),
-      plugins = probeConfig.intellij.plugins.filterNot(_.isInstanceOf[Plugin.Empty]),
       config = config
     )
   }
