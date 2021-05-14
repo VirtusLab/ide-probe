@@ -2,7 +2,6 @@ package org.virtuslab.ideprobe
 
 import java.net.URL
 import java.nio.charset.Charset
-
 import com.intellij.remoterobot.utils.WaitForConditionTimeoutException
 import org.apache.commons.io.IOUtils
 import org.junit.Assert._
@@ -10,15 +9,15 @@ import org.junit.{Ignore, Test}
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.virtuslab.ideprobe.Extensions._
+import org.virtuslab.ideprobe.dependencies.Plugin
 import org.virtuslab.ideprobe.ide.intellij.IntelliJProvider
-import org.virtuslab.ideprobe.dependencies.{IntelliJVersion, Plugin}
 import org.virtuslab.ideprobe.protocol.TestStatus.Passed
 import org.virtuslab.ideprobe.protocol._
 import org.virtuslab.ideprobe.robot.RobotPluginExtension
 
 import scala.annotation.tailrec
 import scala.concurrent.duration._
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 
 @RunWith(classOf[JUnit4])
 final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPluginExtension {

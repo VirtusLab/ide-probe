@@ -19,20 +19,16 @@ final case class IntelliJFixture(
 )(implicit ec: ExecutionContext) {
 
   def withVmOptions(vmOptions: String*): IntelliJFixture = {
-    val newVmOptions = vmOptions ++ intelliJProvider.factory.config.vmOptions
+    val newVmOptions = vmOptions ++ intelliJProvider.config.vmOptions
     copy(
-      intelliJProvider = intelliJProvider.withFactory(
-        intelliJProvider.factory.withConfig(config = intelliJProvider.factory.config.copy(vmOptions = newVmOptions))
-      )
+      intelliJProvider = intelliJProvider.withConfig(intelliJProvider.config.copy(vmOptions = newVmOptions))
     )
   }
 
   def withEnv(env: Map[String, String]): IntelliJFixture = {
-    val newEnv = intelliJProvider.factory.config.env ++ env
+    val newEnv = intelliJProvider.config.env ++ env
     copy(
-      intelliJProvider = intelliJProvider.withFactory(
-        intelliJProvider.factory.withConfig(config = intelliJProvider.factory.config.copy(env = newEnv))
-      )
+      intelliJProvider = intelliJProvider.withConfig(config = intelliJProvider.config.copy(env = newEnv))
     )
   }
 
@@ -42,7 +38,7 @@ final case class IntelliJFixture(
   }
 
   def withPaths(probePaths: IdeProbePaths): IntelliJFixture = {
-    copy(intelliJProvider = intelliJProvider.withFactory(intelliJProvider.factory.withPaths(probePaths)))
+    copy(intelliJProvider = intelliJProvider.withPaths(probePaths))
   }
 
   def withAfterWorkspaceSetup(action: (IntelliJFixture, Path) => Unit): IntelliJFixture = {
@@ -58,14 +54,12 @@ final case class IntelliJFixture(
   }
 
   def withPlugin(plugin: Plugin): IntelliJFixture = {
-    copy(intelliJProvider = intelliJProvider.withPlugin(plugin))
+    copy(intelliJProvider = intelliJProvider.withPlugins(plugin))
   }
 
   def headless: IntelliJFixture = {
     copy(
-      intelliJProvider = intelliJProvider.withFactory(
-        intelliJProvider.factory.withConfig(intelliJProvider.factory.config.copy(headless = true))
-      )
+      intelliJProvider = intelliJProvider.withConfig(intelliJProvider.config.copy(headless = true))
     )
   }
 
@@ -81,7 +75,7 @@ final case class IntelliJFixture(
     workspace
   }
 
-  def probePaths: IdeProbePaths = intelliJProvider.factory.paths
+  def probePaths: IdeProbePaths = intelliJProvider.paths
 
   def deleteWorkspace(workspace: Path): Unit = {
     workspaceProvider.cleanup(workspace)
@@ -134,7 +128,8 @@ object IntelliJFixture {
 
     new IntelliJFixture(
       workspaceProvider = probeConfig.workspace.map(WorkspaceProvider.from).getOrElse(WorkspaceTemplate.Empty),
-      intelliJProvider = IntelliJProvider.from(probeConfig),
+      intelliJProvider = IntelliJProvider
+        .from(probeConfig.intellij, probeConfig.resolvers, IdeProbePaths.from(probeConfig.paths), probeConfig.driver),
       config = config
     )
   }

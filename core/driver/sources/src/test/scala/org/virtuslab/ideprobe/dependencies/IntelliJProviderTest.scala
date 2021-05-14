@@ -3,53 +3,66 @@ package org.virtuslab.ideprobe.dependencies
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.virtuslab.ideprobe.config.{DependenciesConfig, IdeProbeConfig, IntellijConfig, PathsConfig}
-import org.virtuslab.ideprobe.ide.intellij.{IntelliJFactory, IntelliJProvider}
+import org.virtuslab.ideprobe.ide.intellij.IntelliJProvider
 
 import java.nio.file.Path
 import org.virtuslab.ideprobe.Extensions._
+import org.virtuslab.ideprobe.{Config, IntelliJFixture}
+
+import java.util.concurrent.Executors
+import scala.concurrent.ExecutionContext
 
 @RunWith(classOf[JUnit4])
-final class IntelliJCleanupTest {
+final class IntelliJProviderTest {
+  private implicit val ec: ExecutionContext = ExecutionContext.fromExecutorService(Executors.newCachedThreadPool())
+
+  @Test
+  def intelliJProviderShouldBeAbleToCorrectlyReadTheExistingInstanceVersion: Unit = givenInstalledIntelliJ { installationRoot =>
+    //when trying to read the installed instance's version
+    val intelliJVersion = IntelliJVersionResolver.version(installationRoot)
+
+    //then
+    assert(intelliJVersion == IntelliJProvider.Default.version, s"Expected ${IntelliJProvider.Default.version}, but got $intelliJVersion.")
+  }
+
   @Test
   def existingIntelliJShouldNotBeDeletedDuringCleanup: Unit = givenInstalledIntelliJ { installationRoot =>
-      val intelliJProvider = IntelliJProvider.from(
-        IdeProbeConfig(
-          intellij = IntellijConfig.Existing(installationRoot, Seq.empty),
-          workspace = None,
-          resolvers = DependenciesConfig.Resolvers(),
-          driver = IntelliJFactory.Default.config,
-          paths = PathsConfig()
-        )
-      )
-      val existingInstalledIntelliJ = intelliJProvider.setup()
 
-      //when
-      existingInstalledIntelliJ.cleanup()
+    val config = Config.fromString(s"""
+      |probe.intellij {
+      |    path = $installationRoot
+      |    plugins = []
+      |}
+      |""".stripMargin)
 
-      //then
-      assert(installationRoot.isDirectory, "The provided IntelliJ instance should exist after cleanup, but it was deleted.")
-    }
+    val fixture = IntelliJFixture.fromConfig(config)
+
+    val existingInstalledIntelliJ = fixture.installIntelliJ()
+
+    //when
+    existingInstalledIntelliJ.cleanup()
+
+    //then
+    assert(installationRoot.isDirectory, "The provided IntelliJ instance should exist after cleanup, but it was deleted.")
+  }
 
   @Test
   def existingIntelliJShouldRetainItsOriginalPluginsDuringCleanup: Unit = givenInstalledIntelliJ { installationRoot =>
     //given a pre-installed IntelliJ and an IntelliJProvider
     val preInstalledPlugins = installationRoot.resolve("plugins").toFile.list().toSet
-    val pluginsToInstall = Seq( //Plugins choice is arbitrary.
-      Plugin.Versioned("9667", "1.0.298", None),
-      Plugin.Versioned("8327", "2021.1-1.5.9", None)
-    )
-    val intelliJProvider = IntelliJProvider.from(
-      IdeProbeConfig(
-        intellij = IntellijConfig.Existing(installationRoot, pluginsToInstall),
-        workspace = None,
-        resolvers = DependenciesConfig.Resolvers(),
-        driver = IntelliJFactory.Default.config,
-        paths = PathsConfig()
-      )
-    )
 
-    val existingIntelliJ = intelliJProvider.setup()
+    val config = Config.fromString(s"""
+      |probe.intellij {
+      |    path = $installationRoot
+      |    plugins = [
+      |      { id = "org.intellij.scala", version = "2020.1.27" }
+      |    ]
+      |  }
+      |""".stripMargin)
+
+    val fixture = IntelliJFixture.fromConfig(config)
+
+    val existingIntelliJ = fixture.installIntelliJ()
     val installedPlugins = existingIntelliJ.paths.plugins.toFile.list().toSet
 
     assert((installedPlugins diff preInstalledPlugins).nonEmpty, "No plugins were installed.")
@@ -69,8 +82,8 @@ final class IntelliJCleanupTest {
   }
 
   private def givenInstalledIntelliJ(test: Path => Unit): Unit = {
-    val preInstalledIntelliJ = IntelliJFactory.Default.create(IntelliJVersion.Latest, Seq.empty)
-    val installationRoot = preInstalledIntelliJ.paths.plugins.getParent //plugins directory is an arbitrary choice.
+    val preInstalledIntelliJ = IntelliJProvider.Default.setup()
+    val installationRoot = preInstalledIntelliJ.paths.root
     preInstalledIntelliJ.paths.plugins.resolve("ideprobe").delete() //Removing the ideprobe plugin - to avoid conflicts when installing it in tests.
     try test(installationRoot)
     finally preInstalledIntelliJ.cleanup()

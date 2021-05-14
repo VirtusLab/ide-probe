@@ -25,8 +25,8 @@ object IntellijConfig extends ConfigFormat {
 
   implicit val intelliJConfigReader: ConfigReader[IntellijConfig] = {
     possiblyAmbiguousAdtReader[IntellijConfig](
-      deriveReader[Default],
-      deriveReader[Existing]
+      deriveReader[Existing],
+      deriveReader[Default]
     )
   }
 }

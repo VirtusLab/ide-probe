@@ -30,7 +30,7 @@ final class RunnableIntelliJFixture(
 
     try {
       try action(data)
-      finally AfterTestChecks(fixture.intelliJProvider.factory.config.check, data.probe)
+      finally AfterTestChecks(fixture.intelliJProvider.config.check, data.probe)
     } finally fixture.closeIntellij(running)
   }
 }
@@ -44,7 +44,7 @@ class SingleRunIntelliJ(baseFixture: IntelliJFixture) {
 
     try {
       try action(data)
-      finally reporting.AfterTestChecks(baseFixture.intelliJProvider.factory.config.check, data.probe)
+      finally reporting.AfterTestChecks(baseFixture.intelliJProvider.config.check, data.probe)
     } finally {
       baseFixture.closeIntellij(running)
       baseFixture.cleanupIntelliJ(installed)

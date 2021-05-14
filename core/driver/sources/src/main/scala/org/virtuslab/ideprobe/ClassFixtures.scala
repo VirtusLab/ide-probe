@@ -37,7 +37,7 @@ trait RunningIntelliJPerSuiteBase {
   }
 
   def teardown(): Unit = {
-    try runningIntelliJFixture.foreach(r => AfterTestChecks(baseFixture.intelliJProvider.factory.config.check, r.probe))
+    try runningIntelliJFixture.foreach(r => AfterTestChecks(baseFixture.intelliJProvider.config.check, r.probe))
     finally {
       try afterAll()
       finally {
