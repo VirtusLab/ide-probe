@@ -1,19 +1,21 @@
 package org.virtuslab.ideprobe.ide.intellij
 
+import org.virtuslab.ideprobe.Config
+
 import java.nio.file.Path
 import org.virtuslab.ideprobe.Extensions._
+import org.virtuslab.ideprobe.config.IdeaProperties.IdeaProperties
 
-final class IntelliJPaths(val root: Path, headless: Boolean) {
-  val config: Path = root.createDirectory("config")
-  val system: Path = root.createDirectory("system")
-  val plugins: Path = root.createDirectory("plugins")
-  val logs: Path = system.createDirectory("logs")
+final class IntelliJPaths private (
+  val root: Path,
+  headless: Boolean,
+  val config: Path,
+  val system: Path,
+  val plugins: Path,
+  val logs: Path,
+  val userPrefs: Path
+) {
   val bin: Path = root.resolve("bin")
-  val userPrefs: Path = {
-    val path = root.resolve("prefs")
-    IntellijPrivacyPolicy.installAgreementIn(path)
-    path
-  }
 
   val executable: Path = {
     val content = {
@@ -37,5 +39,33 @@ final class IntelliJPaths(val root: Path, headless: Boolean) {
       .resolve("idea")
       .write(content)
       .makeExecutable()
+  }
+}
+
+object IntelliJPaths {
+  def apply(root: Path, headless: Boolean): IntelliJPaths = {
+    val bin = root.resolve("bin")
+    val ideaProperties = Config.fromFile(bin.resolve("idea.properties"))
+      .getOrElse[IdeaProperties]("", IdeaProperties())
+
+    val configPath = ideaProperties.idea.config.path.getOrElse(root.createDirectory("config"))
+    val systemPath = ideaProperties.idea.system.path.getOrElse(root.createDirectory("system"))
+    val pluginsPath = ideaProperties.idea.plugins.path.getOrElse(root.createDirectory("plugins"))
+    val logsPath = ideaProperties.idea.log.path.getOrElse(root.createDirectory("logs"))
+    val userPrefsPath = ideaProperties.java.util.prefs.userRoot.getOrElse {
+      val path = root.createDirectory("prefs")
+      IntellijPrivacyPolicy.installAgreementIn(path)
+      path
+    }
+
+    new IntelliJPaths(
+      root = root,
+      headless = headless,
+      config = configPath,
+      system = systemPath,
+      plugins = pluginsPath,
+      logs = logsPath,
+      userPrefs = userPrefsPath
+    )
   }
 }

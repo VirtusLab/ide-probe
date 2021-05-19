@@ -3,7 +3,7 @@ package org.virtuslab.ideprobe.ide.intellij
 import java.io.File
 import java.net.ServerSocket
 import java.nio.ByteBuffer
-import java.nio.file.{Files, Path, StandardCopyOption}
+import java.nio.file.{Files, Path}
 import com.zaxxer.nuprocess.{NuAbstractProcessHandler, NuProcessBuilder}
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe._
@@ -15,7 +15,7 @@ import scala.concurrent.{ExecutionContext, blocking}
 sealed abstract class InstalledIntelliJ(root: Path, probePaths: IdeProbePaths, config: DriverConfig) {
   def cleanup(): Unit
 
-  val paths: IntelliJPaths = new IntelliJPaths(root, config.headless)
+  def paths: IntelliJPaths
 
   private val vmoptions: Path = {
     val baseVMOptions = Seq(
@@ -28,16 +28,7 @@ sealed abstract class InstalledIntelliJ(root: Path, probePaths: IdeProbePaths, c
     root.resolve("bin/ideprobe.vmoptions").write(content)
   }
 
-  private val ideaProperties: Path = {
-    val content = s"""|idea.config.path=${paths.config}
-                      |idea.system.path=${paths.system}
-                      |idea.plugins.path=${paths.plugins}
-                      |idea.log.path=${paths.logs}
-                      |java.util.prefs.userRoot=${paths.userPrefs}
-                      |""".stripMargin
-
-    root.resolve("bin/idea.properties").write(content)
-  }
+  protected def ideaProperties: Path
 
   def startIn(workingDir: Path, probeConfig: Config)(implicit ec: ExecutionContext): RunningIde = {
     val server = new ServerSocket(0)
@@ -137,10 +128,37 @@ final class LocalIntelliJ(
     config: DriverConfig,
     pluginsBackup: Path
 ) extends InstalledIntelliJ(root, probePaths, config) {
+  override protected val ideaProperties: Path = root.resolve("bin").resolve("idea.properties")
+
+  private val ideaPropertiesBackup: Option[Path] = if (ideaProperties.isFile) {
+    val tempPath = Files.createTempFile(root, "idea.properties", ".backup")
+    Some(ideaProperties.copyTo(tempPath))
+  } else None
+
+  override val paths: IntelliJPaths = {
+    val paths = IntelliJPaths(root = root, headless = config.headless)
+    val content = s"""|idea.config.path=${paths.config}
+                      |idea.system.path=${paths.system}
+                      |idea.plugins.path=${paths.plugins}
+                      |idea.log.path=${paths.logs}
+                      |java.util.prefs.userRoot=${paths.userPrefs}
+                      |""".stripMargin
+
+    ideaProperties.write(content)
+    paths
+  }
+
   override def cleanup(): Unit = {
+    cleanupIdeaProperties()
     val pluginsDir = root.resolve("plugins")
     pluginsDir.delete()
     pluginsBackup.moveTo(pluginsDir)
+  }
+
+  private def cleanupIdeaProperties(): Unit = ideaPropertiesBackup.foreach { backup =>
+    ideaProperties.delete()
+    backup.copyTo(ideaProperties)
+    backup.delete()
   }
 }
 
@@ -149,5 +167,17 @@ final class DownloadedIntelliJ(
     probePaths: IdeProbePaths,
     config: DriverConfig
 ) extends InstalledIntelliJ(root, probePaths, config) {
+  override val paths: IntelliJPaths = IntelliJPaths(root, config.headless)
+  override val ideaProperties: Path = {
+    val content = s"""|idea.config.path=${paths.config}
+                      |idea.system.path=${paths.system}
+                      |idea.plugins.path=${paths.plugins}
+                      |idea.log.path=${paths.logs}
+                      |java.util.prefs.userRoot=${paths.userPrefs}
+                      |""".stripMargin
+
+    root.resolve("bin").resolve("idea.properties").write(content)
+  }
+
   override def cleanup(): Unit = root.delete()
 }
