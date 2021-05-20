@@ -144,9 +144,9 @@ object IntelliJProvider {
     val dependencyProvider = new DependencyProvider(intelliJDependencyProvider, pluginDependencyProvider)
     intelliJConfig match {
       case IntellijConfig.Default(version, plugins) =>
-        new IntelliJFactory(dependencyProvider, plugins, version, paths, driverConfig)
+        new IntelliJFactory(dependencyProvider, plugins.filterNot(_.isInstanceOf[Plugin.Empty]), version, paths, driverConfig)
       case IntellijConfig.Existing(path, plugins) =>
-        new ExistingIntelliJ(dependencyProvider, path, plugins, paths, driverConfig)
+        new ExistingIntelliJ(dependencyProvider, path, plugins.filterNot(_.isInstanceOf[Plugin.Empty]), paths, driverConfig)
     }
   }
 }
