@@ -22,13 +22,17 @@ sealed trait IntelliJProvider {
   // assuming that plugins with same root entries are the same plugin
   // and only installs last occurrance of such plugin in the list
   // in case of duplicates.
-  protected def installPlugins(dependencies: DependencyProvider, plugins: Seq[Plugin], root: Path): Unit = {
+  protected def installPlugins(
+      dependencies: DependencyProvider,
+      plugins: Seq[Plugin],
+      intelliJ: InstalledIntelliJ
+  ): Unit = {
     val allPlugins = InternalPlugins.probePluginForIntelliJ(version) +: plugins
 
     case class PluginArchive(plugin: Plugin, archive: Resource.Archive) {
       val rootEntries: Set[String] = archive.rootEntries.toSet
     }
-    val targetDir = root.resolve("plugins")
+    val targetDir = intelliJ.paths.plugins
     val archives = withParallel[Plugin, PluginArchive](allPlugins)(_.map { plugin =>
       val file = dependencies.fetch(plugin)
       PluginArchive(plugin, file.toArchive)
@@ -55,8 +59,8 @@ final class ExistingIntelliJ(
     dependencies: DependencyProvider,
     path: Path,
     override val plugins: Seq[Plugin],
-    val paths: IdeProbePaths,
-    val config: DriverConfig
+    override val paths: IdeProbePaths,
+    override val config: DriverConfig
 ) extends IntelliJProvider {
   override val version = IntelliJVersionResolver.version(path)
   override def withConfig(config: DriverConfig): ExistingIntelliJ =
@@ -69,12 +73,14 @@ final class ExistingIntelliJ(
     new ExistingIntelliJ(dependencies, path, this.plugins ++ plugins, paths, config)
 
   override def setup(): InstalledIntelliJ = {
-    val pluginsDir = path.resolve("plugins")
+    val intelliJPaths = IntelliJPaths.fromFile(path)
+    val pluginsDir = intelliJPaths.plugins
     val backupDir = Files.createTempDirectory(path, "plugins")
+    val intelliJ = new LocalIntelliJ(path, paths, config, intelliJPaths, backupDir)
     pluginsDir.copyDir(backupDir)
-    installPlugins(dependencies, plugins, path)
+    installPlugins(dependencies, plugins, intelliJ)
 
-    new LocalIntelliJ(path, paths, config, backupDir)
+    intelliJ
   }
 }
 
@@ -82,8 +88,8 @@ final class IntelliJFactory(
     dependencies: DependencyProvider,
     override val plugins: Seq[Plugin],
     override val version: IntelliJVersion,
-    val paths: IdeProbePaths,
-    val config: DriverConfig
+    override val paths: IdeProbePaths,
+    override val config: DriverConfig
 ) extends IntelliJProvider {
   override def withConfig(config: DriverConfig): IntelliJFactory =
     new IntelliJFactory(dependencies, plugins, version, paths, config)
@@ -97,23 +103,36 @@ final class IntelliJFactory(
   override def setup(): InstalledIntelliJ = {
     val root = createInstanceDirectory(version)
 
+    val intelliJPaths: IntelliJPaths =
+      IntelliJPaths(
+        root = root,
+        config = root.createDirectory("config"),
+        system = root.createDirectory("system"),
+        plugins = root.createDirectory("plugins"),
+        logs = root.createDirectory("logs"),
+        userPrefs = {
+          val path = root.createDirectory("prefs")
+          IntellijPrivacyPolicy.installAgreementIn(path)
+          path
+        }
+      )
+
+    val intelliJ = new DownloadedIntelliJ(root, paths, intelliJPaths, config)
+
     installIntelliJ(version, root)
-    installPlugins(dependencies, plugins, root)
+    installPlugins(dependencies, plugins, intelliJ)
 
-    new DownloadedIntelliJ(root, paths, config)
+    intelliJ
   }
 
-  private def createInstanceDirectory(version: IntelliJVersion): Path = {
-    val path = paths.instances.createTempDirectory(s"intellij-instance-${version.build}-")
-
-    Files.createDirectories(path)
-  }
+  private def createInstanceDirectory(version: IntelliJVersion): Path =
+    paths.instances.createTempDirectory(s"intellij-instance-${version.build}-")
 
   private def installIntelliJ(version: IntelliJVersion, root: Path): Unit = {
     println(s"Installing $version")
     val file = dependencies.fetch(version)
     file.toArchive.extractTo(root)
-    root.resolve("bin/linux/fsnotifier64").makeExecutable()
+    root.resolve("bin").makeExecutableRecursively()
   }
 }
 
@@ -144,9 +163,21 @@ object IntelliJProvider {
     val dependencyProvider = new DependencyProvider(intelliJDependencyProvider, pluginDependencyProvider)
     intelliJConfig match {
       case IntellijConfig.Default(version, plugins) =>
-        new IntelliJFactory(dependencyProvider, plugins.filterNot(_.isInstanceOf[Plugin.Empty]), version, paths, driverConfig)
+        new IntelliJFactory(
+          dependencyProvider,
+          plugins.filterNot(_.isInstanceOf[Plugin.Empty]),
+          version,
+          paths,
+          driverConfig
+        )
       case IntellijConfig.Existing(path, plugins) =>
-        new ExistingIntelliJ(dependencyProvider, path, plugins.filterNot(_.isInstanceOf[Plugin.Empty]), paths, driverConfig)
+        new ExistingIntelliJ(
+          dependencyProvider,
+          path,
+          plugins.filterNot(_.isInstanceOf[Plugin.Empty]),
+          paths,
+          driverConfig
+        )
     }
   }
 }

@@ -1,5 +1,7 @@
 package org.virtuslab.ideprobe
 
+import org.virtuslab.ideprobe.ProbeExtensions.LambdaVisitor
+
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.InputStream
@@ -121,6 +123,9 @@ trait ProbeExtensions {
       Files.setPosixFilePermissions(path, attributes)
     }
 
+    def makeExecutableRecursively(): Path =
+      Files.walkFileTree(path, new LambdaVisitor(path => path.makeExecutable()))
+
     def delete(): Unit = {
       try Files.deleteIfExists(path)
       catch {
@@ -195,6 +200,13 @@ trait ProbeExtensions {
 }
 
 object ProbeExtensions {
+  private class LambdaVisitor(operation: Path => Unit) extends SimpleFileVisitor[Path] {
+    override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
+      operation(file)
+      FileVisitResult.CONTINUE
+    }
+  }
+
   private class DeletingVisitor(root: Path) extends SimpleFileVisitor[Path] {
     override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
       if (!attrs.isDirectory) Files.delete(file)

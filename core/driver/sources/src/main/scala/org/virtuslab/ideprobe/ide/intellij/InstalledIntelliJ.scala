@@ -3,7 +3,7 @@ package org.virtuslab.ideprobe.ide.intellij
 import java.io.File
 import java.net.ServerSocket
 import java.nio.ByteBuffer
-import java.nio.file.{Files, Path}
+import java.nio.file.{Files, Path, StandardOpenOption}
 import com.zaxxer.nuprocess.{NuAbstractProcessHandler, NuProcessBuilder}
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe._
@@ -17,6 +17,14 @@ sealed abstract class InstalledIntelliJ(root: Path, probePaths: IdeProbePaths, c
 
   def paths: IntelliJPaths
 
+  protected final val ideaPropertiesContent: String =
+    s"""|idea.config.path=${paths.config}
+        |idea.system.path=${paths.system}
+        |idea.plugins.path=${paths.plugins}
+        |idea.log.path=${paths.logs}
+        |java.util.prefs.userRoot=${paths.userPrefs}
+        |""".stripMargin
+
   private val vmoptions: Path = {
     val baseVMOptions = Seq(
       s"-Djava.awt.headless=${config.headless}"
@@ -25,7 +33,7 @@ sealed abstract class InstalledIntelliJ(root: Path, probePaths: IdeProbePaths, c
     val vmOptions = baseVMOptions ++ DebugMode.vmOption ++ config.vmOptions
     val content = vmOptions.mkString("\n")
 
-    root.resolve("bin/ideprobe.vmoptions").write(content)
+    root.resolve("bin").resolve("ideprobe.vmoptions").write(content)
   }
 
   protected def ideaProperties: Path
@@ -53,12 +61,36 @@ sealed abstract class InstalledIntelliJ(root: Path, probePaths: IdeProbePaths, c
     }
   }
 
+  private lazy val executable: Path = {
+    val content = {
+      val launcher = paths.bin.resolve("idea.sh").makeExecutable()
+
+      val command =
+        if (config.headless) s"$launcher headless"
+        else {
+          Display.Mode match {
+            case Display.Native => s"$launcher"
+            case Display.Xvfb   => s"xvfb-run --server-num=${Display.XvfbDisplayId} $launcher"
+          }
+        }
+
+      s"""|#!/bin/sh
+          |$command "$$@"
+          |""".stripMargin
+    }
+
+    paths.bin
+      .resolve("idea")
+      .write(content)
+      .makeExecutable()
+  }
+
   private def startProcess(workingDir: Path, server: ServerSocket) = {
     val command = config.launch.command.toList match {
       case Nil =>
-        List(paths.executable.toString)
+        List(executable.toString)
       case "idea" :: tail =>
-        paths.executable.toString :: tail
+        executable.toString :: tail
       case nonEmpty =>
         nonEmpty
     }
@@ -126,6 +158,7 @@ final class LocalIntelliJ(
     val root: Path,
     probePaths: IdeProbePaths,
     config: DriverConfig,
+    val paths: IntelliJPaths,
     pluginsBackup: Path
 ) extends InstalledIntelliJ(root, probePaths, config) {
   override protected val ideaProperties: Path = root.resolve("bin").resolve("idea.properties")
@@ -135,18 +168,7 @@ final class LocalIntelliJ(
     Some(ideaProperties.copyTo(tempPath))
   } else None
 
-  override val paths: IntelliJPaths = {
-    val paths = IntelliJPaths(root = root, headless = config.headless)
-    val content = s"""|idea.config.path=${paths.config}
-                      |idea.system.path=${paths.system}
-                      |idea.plugins.path=${paths.plugins}
-                      |idea.log.path=${paths.logs}
-                      |java.util.prefs.userRoot=${paths.userPrefs}
-                      |""".stripMargin
-
-    ideaProperties.write(content)
-    paths
-  }
+  Files.write(ideaProperties, ideaPropertiesContent.getBytes(), StandardOpenOption.APPEND)
 
   override def cleanup(): Unit = {
     cleanupIdeaProperties()
@@ -165,19 +187,11 @@ final class LocalIntelliJ(
 final class DownloadedIntelliJ(
     root: Path,
     probePaths: IdeProbePaths,
+    val paths: IntelliJPaths,
     config: DriverConfig
 ) extends InstalledIntelliJ(root, probePaths, config) {
-  override val paths: IntelliJPaths = IntelliJPaths(root, config.headless)
-  override val ideaProperties: Path = {
-    val content = s"""|idea.config.path=${paths.config}
-                      |idea.system.path=${paths.system}
-                      |idea.plugins.path=${paths.plugins}
-                      |idea.log.path=${paths.logs}
-                      |java.util.prefs.userRoot=${paths.userPrefs}
-                      |""".stripMargin
-
-    root.resolve("bin").resolve("idea.properties").write(content)
-  }
+  override val ideaProperties: Path =
+    root.resolve("bin").resolve("idea.properties").write(ideaPropertiesContent)
 
   override def cleanup(): Unit = root.delete()
 }
