@@ -69,9 +69,13 @@ trait ProbeExtensions {
       Files.copy(path, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES)
     }
 
-    def moveTo(target: Path): Path = {
+    def moveTo(target: Path, replace: Boolean = false): Path = {
       target.createParentDirectory()
-      Files.move(path, target)
+      if (replace) {
+        Files.move(path, target, StandardCopyOption.REPLACE_EXISTING)
+      } else {
+        Files.move(path, target)
+      }
     }
 
     def write(content: String): Path = {
@@ -86,7 +90,7 @@ trait ProbeExtensions {
     }
 
     def append(content: InputStream): Path = {
-      val out = path.outputStream
+      val out = path.outputStream(append = true)
       try {
         content.writeTo(out)
         path
@@ -104,8 +108,12 @@ trait ProbeExtensions {
       Files.createFile(path)
     }
 
-    def outputStream: OutputStream = {
-      val output = Files.newOutputStream(path)
+    def outputStream(append: Boolean = false): OutputStream = {
+      val output = if (append) {
+        Files.newOutputStream(path, StandardOpenOption.CREATE, StandardOpenOption.APPEND)
+      } else {
+        Files.newOutputStream(path)
+      }
       new BufferedOutputStream(output)
     }
 

@@ -17,7 +17,21 @@ final case class IntelliJPaths(
 }
 
 object IntelliJPaths {
-  def fromFile(root: Path): IntelliJPaths = {
+  def default(root: Path): IntelliJPaths = {
+    IntelliJPaths(
+      root = root,
+      config = root.createDirectory("config"),
+      system = root.createDirectory("system"),
+      plugins = root.createDirectory("plugins"),
+      logs = root.createDirectory("logs"),
+      userPrefs = {
+        val path = root.createDirectory("prefs")
+        IntellijPrivacyPolicy.installAgreementIn(path)
+        path
+      }
+    )
+  }
+  def fromExistingInstance(root: Path): IntelliJPaths = {
     val bin = root.resolve("bin")
     val ideaProperties = Config.fromFile(bin.resolve("idea.properties"))
 

@@ -177,11 +177,8 @@ final class LocalIntelliJ(
     pluginsBackup.moveTo(pluginsDir)
   }
 
-  private def cleanupIdeaProperties(): Unit = ideaPropertiesBackup.foreach { backup =>
-    ideaProperties.delete()
-    backup.copyTo(ideaProperties)
-    backup.delete()
-  }
+  private def cleanupIdeaProperties(): Unit =
+    ideaPropertiesBackup.foreach(_.moveTo(ideaProperties, replace = true))
 }
 
 final class DownloadedIntelliJ(

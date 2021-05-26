@@ -73,7 +73,7 @@ final class ExistingIntelliJ(
     new ExistingIntelliJ(dependencies, path, this.plugins ++ plugins, paths, config)
 
   override def setup(): InstalledIntelliJ = {
-    val intelliJPaths = IntelliJPaths.fromFile(path)
+    val intelliJPaths = IntelliJPaths.fromExistingInstance(path)
     val pluginsDir = intelliJPaths.plugins
     val backupDir = Files.createTempDirectory(path, "plugins")
     val intelliJ = new LocalIntelliJ(path, paths, config, intelliJPaths, backupDir)
@@ -103,20 +103,7 @@ final class IntelliJFactory(
   override def setup(): InstalledIntelliJ = {
     val root = createInstanceDirectory(version)
 
-    val intelliJPaths: IntelliJPaths =
-      IntelliJPaths(
-        root = root,
-        config = root.createDirectory("config"),
-        system = root.createDirectory("system"),
-        plugins = root.createDirectory("plugins"),
-        logs = root.createDirectory("logs"),
-        userPrefs = {
-          val path = root.createDirectory("prefs")
-          IntellijPrivacyPolicy.installAgreementIn(path)
-          path
-        }
-      )
-
+    val intelliJPaths: IntelliJPaths = IntelliJPaths.default(root)
     val intelliJ = new DownloadedIntelliJ(root, paths, intelliJPaths, config)
 
     installIntelliJ(version, root)
