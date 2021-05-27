@@ -83,7 +83,7 @@ Note, that any communication with the probe is synchronous.
 
 To include Probe in your sbt project add following lines: 
 ```scala
-resolvers.in(ThisBuild) += MavenRepository("jetbrains-3rd", "https://jetbrains.bintray.com/intellij-third-party-dependencies")
+resolvers.in(ThisBuild) += MavenRepository("jetbrains-3rd", "https://packages.jetbrains.team/maven/p/ij/intellij-dependencies")
 libraryDependencies += "org.virtuslab.ideprobe" %% "junit-driver" % "0.1.3"
 ```
 
