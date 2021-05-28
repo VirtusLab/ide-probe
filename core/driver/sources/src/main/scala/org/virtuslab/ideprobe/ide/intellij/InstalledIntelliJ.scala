@@ -61,7 +61,7 @@ sealed abstract class InstalledIntelliJ(root: Path, probePaths: IdeProbePaths, c
     }
   }
 
-  private lazy val executable: Path = {
+  private val executable: Path = {
     val content = {
       val launcher = paths.bin.resolve("idea.sh").makeExecutable()
 

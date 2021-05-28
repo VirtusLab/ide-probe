@@ -104,9 +104,8 @@ final class IntelliJFactory(
     val root = createInstanceDirectory(version)
 
     val intelliJPaths: IntelliJPaths = IntelliJPaths.default(root)
-    val intelliJ = new DownloadedIntelliJ(root, paths, intelliJPaths, config)
-
     installIntelliJ(version, root)
+    val intelliJ = new DownloadedIntelliJ(root, paths, intelliJPaths, config)
     installPlugins(dependencies, plugins, intelliJ)
 
     intelliJ
