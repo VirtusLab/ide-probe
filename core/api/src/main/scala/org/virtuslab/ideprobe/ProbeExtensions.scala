@@ -147,6 +147,9 @@ trait ProbeExtensions {
       new String(Files.readAllBytes(path))
     }
 
+    def lines(): Seq[String] =
+      Files.readAllLines(path).asScala.toSeq
+
     def copyDir(targetDir: Path): Unit = {
       copyFiles(Files.walk(path), targetDir)
     }

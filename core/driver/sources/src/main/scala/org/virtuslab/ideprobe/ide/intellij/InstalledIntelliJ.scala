@@ -25,12 +25,14 @@ sealed abstract class InstalledIntelliJ(root: Path, probePaths: IdeProbePaths, c
         |java.util.prefs.userRoot=${paths.userPrefs}
         |""".stripMargin
 
-  private val vmoptions: Path = {
+  protected val implementationSpecificVmOptions: Seq[String] = Seq.empty
+
+  protected lazy val vmoptions: Path = {
     val baseVMOptions = Seq(
       s"-Djava.awt.headless=${config.headless}"
     )
 
-    val vmOptions = baseVMOptions ++ DebugMode.vmOption ++ config.vmOptions
+    val vmOptions = implementationSpecificVmOptions ++ baseVMOptions ++ DebugMode.vmOption ++ config.vmOptions
     val content = vmOptions.mkString("\n")
 
     root.resolve("bin").resolve("ideprobe.vmoptions").write(content)
@@ -170,11 +172,21 @@ final class LocalIntelliJ(
 
   Files.write(ideaProperties, ideaPropertiesContent.getBytes(), StandardOpenOption.APPEND)
 
+  override protected val implementationSpecificVmOptions: Seq[String] = {
+    val idea64VmOptions = root.resolve("bin").resolve("idea64.vmoptions")
+    if (idea64VmOptions.isFile) {
+      idea64VmOptions.lines()
+    } else {
+      Seq.empty
+    }
+  }
+
   override def cleanup(): Unit = {
     cleanupIdeaProperties()
     val pluginsDir = root.resolve("plugins")
     pluginsDir.delete()
     pluginsBackup.moveTo(pluginsDir)
+    vmoptions.delete()
   }
 
   private def cleanupIdeaProperties(): Unit =
