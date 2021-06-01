@@ -39,11 +39,7 @@ object IntelliJPaths {
     val systemPath = ideaProperties.get[Path]("idea.system.path").getOrElse(root.createDirectory("system"))
     val pluginsPath = ideaProperties.get[Path]("idea.plugins.path").getOrElse(root.createDirectory("plugins"))
     val logsPath = ideaProperties.get[Path]("idea.log.path").getOrElse(root.createDirectory("logs"))
-    val userPrefsPath = ideaProperties.get[Path]("java.util.prefs.userRoot").getOrElse {
-      val path = root.createDirectory("prefs")
-      IntellijPrivacyPolicy.installAgreementIn(path)
-      path
-    }
+    val userPrefsPath = ideaProperties.get[Path]("java.util.prefs.userRoot").getOrElse(root.createDirectory("prefs"))
 
     new IntelliJPaths(
       root = root,
