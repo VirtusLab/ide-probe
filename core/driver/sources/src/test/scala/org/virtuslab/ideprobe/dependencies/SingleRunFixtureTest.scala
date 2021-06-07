@@ -49,4 +49,37 @@ final class SingleRunFixtureTest extends IdeProbeFixture with WorkspaceFixture w
     assertFalse("Workspace was not removed", Files.exists(workspace))
     assertFalse("IDE home was not removed", Files.exists(ideHome))
   }
+
+  @Test
+  def removesDirectoriesEvenAfterFailureToRunIntelliJ(): Unit = {
+    val intelliJFixture = IntelliJFixture().withAfterIntelliJInstall((_, intellij) =>
+      Files.delete(intellij.paths.root.resolve("bin").resolve("idea.sh")) //To prevent the IDE from launching.
+    )
+
+    val instancesBefore = Option(intelliJFixture.intelliJProvider.paths.instances.toFile.list().toSet).getOrElse(Set.empty)
+    val workspacesBefore = Option(intelliJFixture.intelliJProvider.paths.workspaces.toFile.list().toSet).getOrElse(Set.empty)
+
+    val fixture = new SingleRunIntelliJ(intelliJFixture)
+
+    try {
+      fixture { _ =>
+        //Empty, as we wouldn't be able to execute anything here.
+      }
+    } catch {
+      case _: Exception => //Pass, we don't care what went wrong specifically.
+    }
+
+    val instancesNotDeleted = intelliJFixture.intelliJProvider.paths.instances.toFile.list().toSet diff instancesBefore
+    val workspacesNotDeleted = intelliJFixture.intelliJProvider.paths.workspaces.toFile.list().toSet diff workspacesBefore
+
+    assertTrue(
+      s"Expected instances directory cleanup, but ${instancesNotDeleted.mkString(",")} were not removed",
+      instancesNotDeleted.isEmpty
+    )
+
+    assertTrue(
+      s"Expected workspaces directory cleanup, but ${workspacesNotDeleted.mkString(",")} were not removed",
+      workspacesNotDeleted.isEmpty
+    )
+  }
 }
