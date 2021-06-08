@@ -1,35 +1,38 @@
 package org.virtuslab.ideprobe.jsonrpc.logging
 
-import java.time.ZonedDateTime
-import java.util.concurrent.{ScheduledFuture, ScheduledThreadPoolExecutor, TimeUnit}
+import java.time.Instant
+import java.util.concurrent.{ScheduledFuture, ScheduledThreadPoolExecutor}
+import scala.concurrent.duration.{Duration, SECONDS}
 
 class RequestResponseLogger {
 
   private val ex = new ScheduledThreadPoolExecutor(1)
-  private val ticker: Runnable = () => flush()
-  private var task: Option[ScheduledFuture[_]] = None
+  private val flushTask: Runnable = () => flush()
+  private var scheduledTask: Option[ScheduledFuture[_]] = None
+
+  private val flushTimeout = Duration(1, SECONDS)
 
   private sealed trait LogEntry
   private case class Request(message: String) extends LogEntry
   private case class Response(message: String) extends LogEntry
   private case class RequestAndResponse(request: String, response: String) extends LogEntry
 
-  private var buffer: List[(LogEntry, ZonedDateTime)] = List.empty
+  private var buffer: List[(LogEntry, Instant)] = List.empty
 
   def logRequest(request: String): Unit = buffer.synchronized {
-    task.foreach(_.cancel(true))
+    scheduledTask.foreach(_.cancel(true))
     buffer match {
       case (head @ (RequestAndResponse(`request`, _), _)) :: tail =>
-        buffer = (Request(request), ZonedDateTime.now()) :: head :: tail
+        buffer = (Request(request), Instant.now()) :: head :: tail
       case _ =>
         flush()
-        buffer = (Request(request), ZonedDateTime.now()) :: Nil
+        buffer = (Request(request), Instant.now()) :: Nil
     }
-    task = Option(ex.schedule(ticker, 1, TimeUnit.SECONDS))
+    scheduledTask = Option(ex.schedule(flushTask, flushTimeout.length, flushTimeout.unit))
   }
 
   def logResponse(response: String): Unit = buffer.synchronized {
-    task.foreach(_.cancel(true))
+    scheduledTask.foreach(_.cancel(true))
     buffer match {
       case (Request(request), timestamp) :: Nil =>
         buffer = (RequestAndResponse(request, response), timestamp) :: Nil
@@ -40,14 +43,14 @@ class RequestResponseLogger {
         flush()
         buffer = (RequestAndResponse(request, response), timestamp) :: Nil
       case _ =>
-        buffer = (Response(response), ZonedDateTime.now()) :: buffer
+        buffer = (Response(response), Instant.now()) :: buffer
         flush()
     }
-    task = Option(ex.schedule(ticker, 1, TimeUnit.SECONDS))
+    scheduledTask = Option(ex.schedule(flushTask, flushTimeout.length, flushTimeout.unit))
   }
 
   private def flush(): Unit = buffer.synchronized {
-    val now = ZonedDateTime.now()
+    val now = Instant.now()
     val firstMessageTimestamp = buffer.reverse.headOption.map(_._2).getOrElse(now)
     collectCountingSubsequent(buffer.map(_._1).reverse).foreach {
       case (RequestAndResponse(request, response), 1) =>

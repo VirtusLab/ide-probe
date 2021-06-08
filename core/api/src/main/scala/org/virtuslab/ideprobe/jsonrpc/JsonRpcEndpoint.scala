@@ -9,7 +9,7 @@ import scala.concurrent.Future
 import scala.reflect.ClassTag
 
 trait JsonRpcEndpoint extends AutoCloseable {
-  private val logger: RequestResponseLogger = new RequestResponseLogger
+  private val logger = new RequestResponseLogger
   protected def connection: JsonRpcConnection
 
   implicit protected def ec: ExecutionContext
