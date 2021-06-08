@@ -1,9 +1,32 @@
 package org.virtuslab.ideprobe.config
 
-import org.virtuslab.ideprobe.dependencies.IntelliJVersion
-import org.virtuslab.ideprobe.dependencies.Plugin
+import java.nio.file.Path
 
-case class IntellijConfig(
-    version: IntelliJVersion = IntelliJVersion.Latest,
-    plugins: Seq[Plugin] = Seq.empty
-)
+import org.virtuslab.ideprobe.ConfigFormat
+import org.virtuslab.ideprobe.dependencies.{IntelliJVersion, Plugin}
+import pureconfig.ConfigReader
+import pureconfig.generic.semiauto.deriveReader
+
+sealed trait IntellijConfig {
+  def plugins: Seq[Plugin]
+}
+
+object IntellijConfig extends ConfigFormat {
+  def apply(): IntellijConfig = Default()
+  case class Default(
+      version: IntelliJVersion = IntelliJVersion.Latest,
+      plugins: Seq[Plugin] = Seq.empty
+  ) extends IntellijConfig
+
+  case class Existing(
+      path: Path,
+      plugins: Seq[Plugin] = Seq.empty
+  ) extends IntellijConfig
+
+  implicit val intelliJConfigReader: ConfigReader[IntellijConfig] = {
+    possiblyAmbiguousAdtReader[IntellijConfig](
+      deriveReader[Existing],
+      deriveReader[Default]
+    )
+  }
+}

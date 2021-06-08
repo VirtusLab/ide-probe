@@ -30,7 +30,7 @@ final class RunnableIntelliJFixture(
 
     try {
       try action(data)
-      finally AfterTestChecks(fixture.factory.config.check, data.probe)
+      finally AfterTestChecks(fixture.intelliJProvider.config.check, data.probe)
     } finally fixture.closeIntellij(running)
   }
 }
@@ -44,10 +44,10 @@ class SingleRunIntelliJ(baseFixture: IntelliJFixture) {
 
     try {
       try action(data)
-      finally reporting.AfterTestChecks(baseFixture.factory.config.check, data.probe)
+      finally reporting.AfterTestChecks(baseFixture.intelliJProvider.config.check, data.probe)
     } finally {
       baseFixture.closeIntellij(running)
-      baseFixture.deleteIntelliJ(installed)
+      baseFixture.cleanupIntelliJ(installed)
       baseFixture.deleteWorkspace(workspace)
     }
   }
@@ -60,7 +60,7 @@ class MultipleRunsIntelliJ(baseFixture: IntelliJFixture) {
     val fixture = new RunnableIntelliJFixture(workspace, installed, baseFixture)
     try action(fixture)
     finally {
-      baseFixture.deleteIntelliJ(installed)
+      baseFixture.cleanupIntelliJ(installed)
       baseFixture.deleteWorkspace(workspace)
     }
   }

@@ -1,41 +1,53 @@
 package org.virtuslab.ideprobe.ide.intellij
 
+import org.virtuslab.ideprobe.Config
+
 import java.nio.file.Path
 import org.virtuslab.ideprobe.Extensions._
 
-final class IntelliJPaths(root: Path, headless: Boolean) {
-  val config: Path = root.createDirectory("config")
-  val system: Path = root.createDirectory("system")
-  val plugins: Path = root.createDirectory("plugins")
-  val logs: Path = system.createDirectory("logs")
+final case class IntelliJPaths(
+    root: Path,
+    config: Path,
+    system: Path,
+    plugins: Path,
+    logs: Path,
+    userPrefs: Path
+) {
   val bin: Path = root.resolve("bin")
-  val userPrefs: Path = {
-    val path = root.resolve("prefs")
-    IntellijPrivacyPolicy.installAgreementIn(path)
-    path
+}
+
+object IntelliJPaths {
+  def default(root: Path): IntelliJPaths = {
+    IntelliJPaths(
+      root = root,
+      config = root.createDirectory("config"),
+      system = root.createDirectory("system"),
+      plugins = root.createDirectory("plugins"),
+      logs = root.createDirectory("logs"),
+      userPrefs = {
+        val path = root.createDirectory("prefs")
+        IntellijPrivacyPolicy.installAgreementIn(path)
+        path
+      }
+    )
   }
+  def fromExistingInstance(root: Path): IntelliJPaths = {
+    val bin = root.resolve("bin")
+    val ideaProperties = Config.fromFile(bin.resolve("idea.properties"))
 
-  val executable: Path = {
-    val content = {
-      val launcher = bin.resolve("idea.sh").makeExecutable()
+    val configPath = ideaProperties.get[Path]("idea.config.path").getOrElse(root.createDirectory("config"))
+    val systemPath = ideaProperties.get[Path]("idea.system.path").getOrElse(root.createDirectory("system"))
+    val pluginsPath = ideaProperties.get[Path]("idea.plugins.path").getOrElse(root.createDirectory("plugins"))
+    val logsPath = ideaProperties.get[Path]("idea.log.path").getOrElse(root.createDirectory("logs"))
+    val userPrefsPath = ideaProperties.get[Path]("java.util.prefs.userRoot").getOrElse(root.createDirectory("prefs"))
 
-      val command =
-        if (headless) s"$launcher headless"
-        else {
-          Display.Mode match {
-            case Display.Native => s"$launcher"
-            case Display.Xvfb   => s"xvfb-run --server-num=${Display.XvfbDisplayId} $launcher"
-          }
-        }
-
-      s"""|#!/bin/sh
-          |$command "$$@"
-          |""".stripMargin
-    }
-
-    bin
-      .resolve("idea")
-      .write(content)
-      .makeExecutable()
+    new IntelliJPaths(
+      root = root,
+      config = configPath,
+      system = systemPath,
+      plugins = pluginsPath,
+      logs = logsPath,
+      userPrefs = userPrefsPath
+    )
   }
 }

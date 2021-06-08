@@ -164,7 +164,7 @@ lazy val scalaProbePlugin =
     .dependsOn(probePlugin, scalaProbeApi)
 
 lazy val scalaProbePlugin213 = scalaProbePlugin(scala213).settings(
-  intellijPlugins += "org.intellij.scala:2020.3.369:nightly".toPlugin
+  intellijPlugins += "org.intellij.scala:2020.2.49".toPlugin
 )
 
 lazy val scalaProbeDriver =

@@ -1,0 +1,26 @@
+{
+  "name": "IntelliJ IDEA",
+  "version": "2020.2.4",
+  "buildNumber": "202.8194.7",
+  "productCode": "IC",
+  "dataDirectoryName": "IdeaIC2020.2",
+  "svgIconPath": "bin/idea.svg",
+  "launch": [
+    {
+      "os": "Windows",
+      "launcherPath": "bin/idea.bat",
+      "vmOptionsFilePath": "bin/win/idea64.exe.vmoptions"
+    },
+    {
+      "os": "Linux",
+      "launcherPath": "bin/idea.sh",
+      "vmOptionsFilePath": "bin/linux/idea64.vmoptions",
+      "startupWmClass": "jetbrains-idea-ce"
+    },
+    {
+      "os": "macOS",
+      "launcherPath": "MacOS/idea",
+      "vmOptionsFilePath": "bin/mac/idea.vmoptions"
+    }
+  ]
+}

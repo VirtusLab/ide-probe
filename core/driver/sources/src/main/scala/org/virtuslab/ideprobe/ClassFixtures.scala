@@ -37,12 +37,12 @@ trait RunningIntelliJPerSuiteBase {
   }
 
   def teardown(): Unit = {
-    try runningIntelliJFixture.foreach(r => AfterTestChecks(baseFixture.factory.config.check, r.probe))
+    try runningIntelliJFixture.foreach(r => AfterTestChecks(baseFixture.intelliJProvider.config.check, r.probe))
     finally {
       try afterAll()
       finally {
         running.foreach(baseFixture.closeIntellij(_))
-        installed.foreach(baseFixture.deleteIntelliJ(_))
+        installed.foreach(baseFixture.cleanupIntelliJ(_))
         workspace.foreach(baseFixture.deleteWorkspace(_))
       }
     }
@@ -78,7 +78,7 @@ trait WorkspacePerSuiteBase {
   def teardown(): Unit = {
     try afterAll()
     finally {
-      installed.foreach(baseFixture.deleteIntelliJ(_))
+      installed.foreach(baseFixture.cleanupIntelliJ(_))
       workspacePath.foreach(baseFixture.deleteWorkspace(_))
     }
   }

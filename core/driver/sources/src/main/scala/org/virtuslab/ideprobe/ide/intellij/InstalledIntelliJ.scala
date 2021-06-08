@@ -3,39 +3,42 @@ package org.virtuslab.ideprobe.ide.intellij
 import java.io.File
 import java.net.ServerSocket
 import java.nio.ByteBuffer
-import java.nio.file.{Path, Paths}
-import com.typesafe.config.ConfigRenderOptions
+import java.nio.file.{Files, Path, StandardOpenOption}
 import com.zaxxer.nuprocess.{NuAbstractProcessHandler, NuProcessBuilder}
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe._
 import org.virtuslab.ideprobe.config.DriverConfig
 import org.virtuslab.ideprobe.jsonrpc.JsonRpcConnection
+
 import scala.concurrent.{ExecutionContext, blocking}
 
-final class InstalledIntelliJ(val root: Path, probePaths: IdeProbePaths, config: DriverConfig) {
-  val paths: IntelliJPaths = new IntelliJPaths(root, config.headless)
+sealed abstract class InstalledIntelliJ(root: Path, probePaths: IdeProbePaths, config: DriverConfig) {
+  def cleanup(): Unit
 
-  private val vmoptions: Path = {
+  def paths: IntelliJPaths
+
+  protected final val ideaPropertiesContent: String =
+    s"""|idea.config.path=${paths.config}
+        |idea.system.path=${paths.system}
+        |idea.plugins.path=${paths.plugins}
+        |idea.log.path=${paths.logs}
+        |java.util.prefs.userRoot=${paths.userPrefs}
+        |""".stripMargin
+
+  protected val implementationSpecificVmOptions: Seq[String] = Seq.empty
+
+  protected lazy val vmoptions: Path = {
     val baseVMOptions = Seq(
       s"-Djava.awt.headless=${config.headless}"
     )
 
-    val vmOptions = baseVMOptions ++ DebugMode.vmOption ++ config.vmOptions
+    val vmOptions = implementationSpecificVmOptions ++ baseVMOptions ++ DebugMode.vmOption ++ config.vmOptions
     val content = vmOptions.mkString("\n")
 
-    root.resolve("bin/ideprobe.vmoptions").write(content)
+    root.resolve("bin").resolve("ideprobe.vmoptions").write(content)
   }
 
-  private val ideaProperties: Path = {
-    val content = s"""|idea.config.path=${paths.config}
-                      |idea.system.path=${paths.system}
-                      |idea.plugins.path=${paths.plugins}
-                      |idea.log.path=${paths.logs}
-                      |java.util.prefs.userRoot=${paths.userPrefs}
-                      |""".stripMargin
-
-    root.resolve("bin/idea.properties").write(content)
-  }
+  protected def ideaProperties: Path
 
   def startIn(workingDir: Path, probeConfig: Config)(implicit ec: ExecutionContext): RunningIde = {
     val server = new ServerSocket(0)
@@ -60,12 +63,36 @@ final class InstalledIntelliJ(val root: Path, probePaths: IdeProbePaths, config:
     }
   }
 
+  private val executable: Path = {
+    val content = {
+      val launcher = paths.bin.resolve("idea.sh").makeExecutable()
+
+      val command =
+        if (config.headless) s"$launcher headless"
+        else {
+          Display.Mode match {
+            case Display.Native => s"$launcher"
+            case Display.Xvfb   => s"xvfb-run --server-num=${Display.XvfbDisplayId} $launcher"
+          }
+        }
+
+      s"""|#!/bin/sh
+          |$command "$$@"
+          |""".stripMargin
+    }
+
+    paths.bin
+      .resolve("idea")
+      .write(content)
+      .makeExecutable()
+  }
+
   private def startProcess(workingDir: Path, server: ServerSocket) = {
     val command = config.launch.command.toList match {
       case Nil =>
-        List(paths.executable.toString)
+        List(executable.toString)
       case "idea" :: tail =>
-        paths.executable.toString :: tail
+        executable.toString :: tail
       case nonEmpty =>
         nonEmpty
     }
@@ -127,4 +154,53 @@ final class InstalledIntelliJ(val root: Path, probePaths: IdeProbePaths, config:
 
     builder.start()
   }
+}
+
+final class LocalIntelliJ(
+    val root: Path,
+    probePaths: IdeProbePaths,
+    config: DriverConfig,
+    val paths: IntelliJPaths,
+    pluginsBackup: Path
+) extends InstalledIntelliJ(root, probePaths, config) {
+  override protected val ideaProperties: Path = root.resolve("bin").resolve("idea.properties")
+
+  private val ideaPropertiesBackup: Option[Path] = if (ideaProperties.isFile) {
+    val tempPath = Files.createTempFile(root, "idea.properties", ".backup")
+    Some(ideaProperties.copyTo(tempPath))
+  } else None
+
+  Files.write(ideaProperties, ideaPropertiesContent.getBytes(), StandardOpenOption.APPEND)
+
+  override protected val implementationSpecificVmOptions: Seq[String] = {
+    val idea64VmOptions = root.resolve("bin").resolve("idea64.vmoptions")
+    if (idea64VmOptions.isFile) {
+      idea64VmOptions.lines()
+    } else {
+      Seq.empty
+    }
+  }
+
+  override def cleanup(): Unit = {
+    cleanupIdeaProperties()
+    val pluginsDir = root.resolve("plugins")
+    pluginsDir.delete()
+    pluginsBackup.moveTo(pluginsDir)
+    vmoptions.delete()
+  }
+
+  private def cleanupIdeaProperties(): Unit =
+    ideaPropertiesBackup.foreach(_.moveTo(ideaProperties, replace = true))
+}
+
+final class DownloadedIntelliJ(
+    root: Path,
+    probePaths: IdeProbePaths,
+    val paths: IntelliJPaths,
+    config: DriverConfig
+) extends InstalledIntelliJ(root, probePaths, config) {
+  override val ideaProperties: Path =
+    root.resolve("bin").resolve("idea.properties").write(ideaPropertiesContent)
+
+  override def cleanup(): Unit = root.delete()
 }

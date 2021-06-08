@@ -1,5 +1,7 @@
 package org.virtuslab.ideprobe
 
+import org.virtuslab.ideprobe.ProbeExtensions.LambdaVisitor
+
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.InputStream
@@ -67,9 +69,13 @@ trait ProbeExtensions {
       Files.copy(path, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES)
     }
 
-    def moveTo(target: Path): Path = {
+    def moveTo(target: Path, replace: Boolean = false): Path = {
       target.createParentDirectory()
-      Files.move(path, target)
+      if (replace) {
+        Files.move(path, target, StandardCopyOption.REPLACE_EXISTING)
+      } else {
+        Files.move(path, target)
+      }
     }
 
     def write(content: String): Path = {
@@ -84,7 +90,7 @@ trait ProbeExtensions {
     }
 
     def append(content: InputStream): Path = {
-      val out = path.outputStream
+      val out = path.outputStream(append = true)
       try {
         content.writeTo(out)
         path
@@ -102,8 +108,12 @@ trait ProbeExtensions {
       Files.createFile(path)
     }
 
-    def outputStream: OutputStream = {
-      val output = Files.newOutputStream(path)
+    def outputStream(append: Boolean = false): OutputStream = {
+      val output = if (append) {
+        Files.newOutputStream(path, StandardOpenOption.CREATE, StandardOpenOption.APPEND)
+      } else {
+        Files.newOutputStream(path)
+      }
       new BufferedOutputStream(output)
     }
 
@@ -121,6 +131,9 @@ trait ProbeExtensions {
       Files.setPosixFilePermissions(path, attributes)
     }
 
+    def makeExecutableRecursively(): Path =
+      Files.walkFileTree(path, new LambdaVisitor(path => path.makeExecutable()))
+
     def delete(): Unit = {
       try Files.deleteIfExists(path)
       catch {
@@ -133,6 +146,9 @@ trait ProbeExtensions {
     def content(): String = {
       new String(Files.readAllBytes(path))
     }
+
+    def lines(): Seq[String] =
+      Files.readAllLines(path).asScala.toSeq
 
     def copyDir(targetDir: Path): Unit = {
       copyFiles(Files.walk(path), targetDir)
@@ -195,6 +211,13 @@ trait ProbeExtensions {
 }
 
 object ProbeExtensions {
+  private class LambdaVisitor(operation: Path => Unit) extends SimpleFileVisitor[Path] {
+    override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
+      operation(file)
+      FileVisitResult.CONTINUE
+    }
+  }
+
   private class DeletingVisitor(root: Path) extends SimpleFileVisitor[Path] {
     override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
       if (!attrs.isDirectory) Files.delete(file)

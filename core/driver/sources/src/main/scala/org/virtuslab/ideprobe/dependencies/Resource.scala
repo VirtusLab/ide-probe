@@ -83,4 +83,11 @@ object Resource extends ConfigFormat {
       }
     }
   }
+
+  implicit class ArchiveExtension(path: Path) {
+    def toArchive: Archive = path match {
+      case Archive(archive) => archive
+      case _                => throw new IllegalStateException(s"Not an archive: $path")
+    }
+  }
 }
