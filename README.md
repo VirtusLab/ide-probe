@@ -1,8 +1,9 @@
-By using this library you implicitly accept the terms of the Jetbrains Privacy Policy.
+By using this library, you implicitly accept the terms of the [JetBrains Privacy Policy](https://www.jetbrains.com/legal/docs/privacy/privacy.html).
 
 #### Description
 
-Ide Probe is a framework for testing IntelliJ platform plugins. It can be used both locally and in the CI pipeline. 
+IDE Probe is a framework for testing plugins for IntelliJ-based IDEs.
+It can be used both locally and in the CI pipeline. 
 
 The framework itself comprises two components: 
 - driver - responsible for controlling the workspace and IDE startup
@@ -10,14 +11,10 @@ The framework itself comprises two components:
 
 #### Motivation
 
-Sometimes, unit tests cannot be used to reliably reproduce a failure or test some specific feature. 
-This happens because the testing environment used by IDEs most often differs from the actual, production-like
-environment experienced by the user. Be it a disabled UI, forced single threaded execution, or just different 
-control flow, the unit tests are just not the right tool to use sometimes. 
+Sometimes, unit tests cannot be used to reproduce a failure or test some specific feature reliably. 
+This happens because the testing environment used by IDEs most often differs from the actual, production-like environment experienced by the user. Be it a disabled UI, forced single-threaded execution, or just a different control flow, the unit tests are just not the right tool to use sometimes. 
 
-Using Probe fixes those problems at the non-avoidable cost of slightly longer execution time 
-when compared to unit tests. With it, not only a proper environment is used 
-but one can also guard against new classes of errors, like:
+Using Probe fixes those problems at the non-avoidable cost of slightly longer execution time when compared to unit tests. With it, not only a proper environment is used, but one can also guard against new classes of errors, like:
 - UI freezes 
 - background plugin errors
 - unexpected behavior after starting or restarting IDE sessions
@@ -56,7 +53,7 @@ private val fixture = IntelliJFixture(
 } 
 ```
 
-Workflow can only be defined programmatically, since it comprises sequence of intertwined:
+Workflow can only be defined programmatically, since it comprises a sequence of intertwined:
 1. probe commands,
 2. IDE state queries,
 3. workspace manipulation,
@@ -74,10 +71,10 @@ Workflow can only be defined programmatically, since it comprises sequence of in
 }
 ``` 
 
-To see the full list of probe endpoints see 
+To see the full list of probe endpoints, see 
 [Commands](docs/endpoints/commands.md) or [Queries](docs/endpoints/queries.md).
 
-Note, that any communication with the probe is synchronous.
+Note that any communication with the probe is synchronous.
 
 #### Usage
 
@@ -106,7 +103,7 @@ Probe is currently being actively used in:
 
 1. [IntelliJ Pants plugin](https://github.com/pantsbuild/intellij-pants-plugin)
 
-It discovered or reproduced following issues:
+It discovered or reproduced the following issues:
 
 1. Failing to import SBT projects without any JDK specified [pull request](https://github.com/JetBrains/intellij-scala/pull/562)
 2. Malfunctioning VCS root detection for pants plugin
