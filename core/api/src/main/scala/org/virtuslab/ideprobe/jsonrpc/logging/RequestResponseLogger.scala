@@ -2,6 +2,7 @@ package org.virtuslab.ideprobe.jsonrpc.logging
 
 import java.time.Instant
 import java.util.concurrent.{ScheduledFuture, ScheduledThreadPoolExecutor}
+import scala.annotation.tailrec
 import scala.concurrent.duration.{Duration, SECONDS}
 
 class RequestResponseLogger {
@@ -50,30 +51,37 @@ class RequestResponseLogger {
   }
 
   private def flush(): Unit = buffer.synchronized {
-    val now = Instant.now()
-    val firstMessageTimestamp = buffer.reverse.headOption.map(_._2).getOrElse(now)
-    collectCountingSubsequent(buffer.map(_._1).reverse).foreach {
-      case (RequestAndResponse(request, response), 1) =>
-        println(request)
-        println(response)
-      case (RequestAndResponse(request, response), count) =>
-        println(s"""Repeated $count times over ${java.time.temporal.ChronoUnit.SECONDS.between(firstMessageTimestamp, now)} seconds: {
-                 |  $request
-                 |  $response
-                 |}""".stripMargin)
-      case (Request(request), _) => //Here and below the count will always be 1 - see the buffering mechanism.
-        println(request)
-      case (Response(response), _) =>
-        println(response)
-    }
-    buffer = Nil
+    if (buffer.nonEmpty) {
+      val now = Instant.now()
+      val firstMessageTimestamp = buffer.last._2
+      collectCountingSubsequent(buffer.map(_._1).reverse).foreach {
+        case (RequestAndResponse(request, response), 1) =>
+          println(request)
+          println(response)
+        case (RequestAndResponse(request, response), count) =>
+          println(s"""Repeated $count times over ${java.time.temporal.ChronoUnit.SECONDS.between(firstMessageTimestamp, now)} seconds: {
+                     |  $request
+                     |  $response
+                     |}""".stripMargin)
+        case (Request(request), _) => //Here and below the count will always be 1 - see the buffering mechanism.
+          println(request)
+        case (Response(response), _) =>
+          println(response)
+      }
+      buffer = Nil
+    } else ()
   }
 
-  private def collectCountingSubsequent[X](xs: List[X]): List[(X, Int)] =
-    xs.foldLeft(List.empty[(X, Int)]) { (acc, elem) =>
-      (acc.reverse match {
-        case (`elem`, count) :: tail => (elem, count + 1) :: tail
-        case other => (elem, 1) :: other
-      }).reverse
+  private def collectCountingSubsequent[A](xs: List[A]): List[(A, Int)] = {
+    @tailrec
+    def collectCountingSubsequentRecursively(xs: List[A], collected: List[(A, Int)]): List[(A, Int)] = {
+      xs match {
+        case Nil => collected
+        case head :: _ =>
+          val (repeated, rest) = xs.span(_ == head)
+          collectCountingSubsequentRecursively(rest, (head, repeated.length) :: collected)
+      }
     }
+    collectCountingSubsequentRecursively(xs, Nil)
+  }
 }
