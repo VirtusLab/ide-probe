@@ -10,6 +10,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.virtuslab.ideprobe.Assertions
+import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.IdeProbeFixture
 import org.virtuslab.ideprobe.IntelliJFixture
 import org.virtuslab.ideprobe.OS
@@ -48,5 +49,41 @@ final class SingleRunFixtureTest extends IdeProbeFixture with WorkspaceFixture w
 
     assertFalse("Workspace was not removed", Files.exists(workspace))
     assertFalse("IDE home was not removed", Files.exists(ideHome))
+  }
+
+  @Test
+  def removesDirectoriesEvenAfterFailureToRunIntelliJ(): Unit = {
+    val intelliJFixture = IntelliJFixture().withAfterIntelliJInstall((_, intellij) =>
+      Files.delete(intellij.paths.root.resolve("bin").resolve("idea.sh")) //To prevent the IDE from launching.
+    )
+
+    val instancesDir = intelliJFixture.intelliJProvider.paths.instances
+    val workspacesDir = intelliJFixture.intelliJProvider.paths.workspaces
+
+    val instancesBefore = if (instancesDir.isDirectory) instancesDir.directChildren() else List.empty
+    val workspacesBefore = if (workspacesDir.isDirectory) workspacesDir.directChildren() else List.empty
+
+    val fixture = new SingleRunIntelliJ(intelliJFixture)
+
+    try {
+      fixture { _ =>
+        //Empty, as we wouldn't be able to execute anything here.
+      }
+    } catch {
+      case _: Exception => //Pass, we don't care what went wrong specifically.
+    }
+
+    val instancesNotDeleted = instancesDir.directChildren() diff instancesBefore
+    val workspacesNotDeleted = workspacesDir.directChildren() diff workspacesBefore
+
+    assertTrue(
+      s"Expected instances directory cleanup, but ${instancesNotDeleted.mkString(",")} were not removed",
+      instancesNotDeleted.isEmpty
+    )
+
+    assertTrue(
+      s"Expected workspaces directory cleanup, but ${workspacesNotDeleted.mkString(",")} were not removed",
+      workspacesNotDeleted.isEmpty
+    )
   }
 }

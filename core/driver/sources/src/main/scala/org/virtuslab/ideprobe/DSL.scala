@@ -39,14 +39,16 @@ class SingleRunIntelliJ(baseFixture: IntelliJFixture) {
   def apply[A](action: RunningIntelliJFixture => A): A = {
     val workspace = baseFixture.setupWorkspace()
     val installed = baseFixture.installIntelliJ()
-    val running = baseFixture.startIntelliJ(workspace, installed)
-    val data = new RunningIntelliJFixture(workspace, running.probe, baseFixture.config, installed.paths)
 
     try {
+      val running = baseFixture.startIntelliJ(workspace, installed)
+      val data = new RunningIntelliJFixture(workspace, running.probe, baseFixture.config, installed.paths)
       try action(data)
-      finally reporting.AfterTestChecks(baseFixture.intelliJProvider.config.check, data.probe)
+      finally {
+        reporting.AfterTestChecks(baseFixture.intelliJProvider.config.check, data.probe)
+        baseFixture.closeIntellij(running)
+      }
     } finally {
-      baseFixture.closeIntellij(running)
       baseFixture.cleanupIntelliJ(installed)
       baseFixture.deleteWorkspace(workspace)
     }
