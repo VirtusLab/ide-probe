@@ -19,7 +19,7 @@ class RequestResponseLoggerTest {
     logger.logResponse(response)
     logger.logRequest(differentRequest)
     Assert.assertEquals(
-      s"""Repeated 2 times over 0 seconds: {
+      s"""Repeated 2 times in less than one second: {
         |  $request
         |  $response
         |}
@@ -40,7 +40,7 @@ class RequestResponseLoggerTest {
     logger.logResponse(differentResponse)
 
     Assert.assertEquals(
-      s"""Repeated 2 times over 0 seconds: {
+      s"""Repeated 2 times in less than one second: {
          |  $request
          |  $response
          |}
@@ -96,7 +96,7 @@ class RequestResponseLoggerTest {
     Thread.sleep(1200L)
 
     Assert.assertEquals(
-      s"""Repeated 2 times over 1 seconds: {
+      s"""Repeated 2 times over one second: {
                    |  $request
                    |  $response
                    |}

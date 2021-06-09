@@ -59,7 +59,7 @@ class RequestResponseLogger {
           println(request)
           println(response)
         case (RequestAndResponse(request, response), count) =>
-          println(s"""Repeated $count times over ${java.time.temporal.ChronoUnit.SECONDS.between(firstMessageTimestamp, now)} seconds: {
+          println(s"""Repeated $count times ${formatSeconds(java.time.temporal.ChronoUnit.SECONDS.between(firstMessageTimestamp, now))}: {
                      |  $request
                      |  $response
                      |}""".stripMargin)
@@ -70,6 +70,12 @@ class RequestResponseLogger {
       }
       buffer = Nil
     } else ()
+  }
+
+  private def formatSeconds(secondsPassed: Long): String = secondsPassed match {
+    case 0L => "in less than one second"
+    case 1L => "over one second"
+    case n => s"over $n seconds"
   }
 
   private def collectCountingSubsequent[A](xs: List[A]): List[(A, Int)] = {
