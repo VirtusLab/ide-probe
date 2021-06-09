@@ -1,6 +1,7 @@
 package org.virtuslab.ideprobe.jsonrpc.logging
 
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.concurrent.{ScheduledFuture, ScheduledThreadPoolExecutor}
 import scala.annotation.tailrec
 import scala.concurrent.duration.{Duration, SECONDS}
@@ -20,7 +21,7 @@ class RequestResponseLogger {
 
   private var buffer: List[(LogEntry, Instant)] = List.empty
 
-  def logRequest(request: String): Unit = buffer.synchronized {
+  def logRequest(request: String): Unit = synchronized {
     scheduledTask.foreach(_.cancel(true))
     buffer match {
       case (head @ (RequestAndResponse(`request`, _), _)) :: tail =>
@@ -32,7 +33,7 @@ class RequestResponseLogger {
     scheduledTask = Option(ex.schedule(flushTask, flushTimeout.length, flushTimeout.unit))
   }
 
-  def logResponse(response: String): Unit = buffer.synchronized {
+  def logResponse(response: String): Unit = synchronized {
     scheduledTask.foreach(_.cancel(true))
     buffer match {
       case (Request(request), timestamp) :: Nil =>
@@ -50,7 +51,7 @@ class RequestResponseLogger {
     scheduledTask = Option(ex.schedule(flushTask, flushTimeout.length, flushTimeout.unit))
   }
 
-  private def flush(): Unit = buffer.synchronized {
+  private def flush(): Unit = synchronized {
     if (buffer.nonEmpty) {
       val now = Instant.now()
       val firstMessageTimestamp = buffer.last._2
@@ -59,7 +60,7 @@ class RequestResponseLogger {
           println(request)
           println(response)
         case (RequestAndResponse(request, response), count) =>
-          println(s"""Repeated $count times ${formatSeconds(java.time.temporal.ChronoUnit.SECONDS.between(firstMessageTimestamp, now))}: {
+          println(s"""Repeated $count times ${formatSeconds(ChronoUnit.SECONDS.between(firstMessageTimestamp, now))}: {
                      |  $request
                      |  $response
                      |}""".stripMargin)
@@ -69,7 +70,7 @@ class RequestResponseLogger {
           println(response)
       }
       buffer = Nil
-    } else ()
+    }
   }
 
   private def formatSeconds(secondsPassed: Long): String = secondsPassed match {
