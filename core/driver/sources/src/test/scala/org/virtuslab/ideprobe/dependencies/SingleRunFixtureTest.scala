@@ -57,11 +57,11 @@ final class SingleRunFixtureTest extends IdeProbeFixture with WorkspaceFixture w
       Files.delete(intellij.paths.root.resolve("bin").resolve("idea.sh")) //To prevent the IDE from launching.
     )
 
-    val instancesDir = intelliJFixture.factory.paths.instances
-    val workspacesDir = intelliJFixture.factory.paths.workspaces
+    val instancesDir = intelliJFixture.intelliJProvider.paths.instances
+    val workspacesDir = intelliJFixture.intelliJProvider.paths.workspaces
 
-    val instancesBefore = instancesDir.directChildren()
-    val workspacesBefore = workspacesDir.directChildren()
+    val instancesBefore = if (instancesDir.isDirectory) instancesDir.directChildren() else List.empty
+    val workspacesBefore = if (workspacesDir.isDirectory) workspacesDir.directChildren() else List.empty
 
     val fixture = new SingleRunIntelliJ(intelliJFixture)
 
