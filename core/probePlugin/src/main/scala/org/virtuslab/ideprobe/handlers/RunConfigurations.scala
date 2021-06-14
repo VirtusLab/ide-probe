@@ -8,12 +8,11 @@ import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.impl.{RunManagerImpl, RunnerAndConfigurationSettingsImpl}
 import com.intellij.execution.junit.JUnitConfiguration
 import com.intellij.execution.runners.ExecutionUtil
-import com.intellij.openapi.actionSystem.{CommonDataKeys, LangDataKeys}
+import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext, DataKey, LangDataKeys}
 import com.intellij.openapi.module.{Module => IntelliJModule}
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaPsiFacade, PsiClass, PsiElement}
-import com.intellij.testFramework.MapDataContext
 import java.util.Collections
 import org.virtuslab.ideprobe.{RunConfigurationTransformer, RunnerSettingsWithProcessOutput, UUIDs}
 import org.virtuslab.ideprobe.protocol._
@@ -21,6 +20,16 @@ import scala.collection.convert.ImplicitConversions.`collection AsScalaIterable`
 import scala.concurrent.ExecutionContext
 
 object RunConfigurations extends IntelliJApi {
+
+  private class MapDataContext() extends DataContext {
+    private val myMap = new java.util.HashMap[String, AnyRef]
+
+    override def getData[T](dataId: DataKey[T]): T = myMap.get(dataId).asInstanceOf[T]
+
+    override def getData(dataId: String): AnyRef = myMap.get(dataId)
+
+    def put[T](dataKey: DataKey[T], data: T): Unit = myMap.put(dataKey.getName, data.asInstanceOf[AnyRef])
+  }
 
   def launch(project: Project, configuration: RunnerAndConfigurationSettings): Unit = {
     val transformedConfiguration = RunConfigurationTransformer.transform(configuration)
