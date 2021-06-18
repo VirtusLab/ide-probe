@@ -57,6 +57,9 @@ final case class IntelliJFixture(
     copy(intelliJProvider = intelliJProvider.withPlugins(plugin))
   }
 
+  def withVersion(intelliJVersion: IntelliJVersion): IntelliJFixture =
+    copy(intelliJProvider = intelliJProvider.withVersion(intelliJVersion))
+
   def headless: IntelliJFixture = {
     copy(
       intelliJProvider = intelliJProvider.withConfig(intelliJProvider.config.copy(headless = true))

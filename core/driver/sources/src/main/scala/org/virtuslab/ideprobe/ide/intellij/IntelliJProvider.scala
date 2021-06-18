@@ -13,6 +13,7 @@ sealed trait IntelliJProvider {
   def plugins: Seq[Plugin]
   def config: DriverConfig
   def paths: IdeProbePaths
+  def withVersion(version: IntelliJVersion): IntelliJProvider
   def withConfig(config: DriverConfig): IntelliJProvider
   def withPaths(paths: IdeProbePaths): IntelliJProvider
   def withPlugins(plugins: Plugin*): IntelliJProvider
@@ -63,6 +64,10 @@ final class ExistingIntelliJ(
     override val config: DriverConfig
 ) extends IntelliJProvider {
   override val version = IntelliJVersionResolver.version(path)
+
+  override def withVersion(version: IntelliJVersion): IntelliJProvider =
+    throw new IllegalStateException("Cannot set version for existing IntelliJ instance")
+
   override def withConfig(config: DriverConfig): ExistingIntelliJ =
     new ExistingIntelliJ(dependencies, path, plugins, paths, config)
 
@@ -91,6 +96,10 @@ final class IntelliJFactory(
     override val paths: IdeProbePaths,
     override val config: DriverConfig
 ) extends IntelliJProvider {
+
+  override def withVersion(version: IntelliJVersion): IntelliJProvider =
+    new IntelliJFactory(dependencies, plugins, version, paths, config)
+
   override def withConfig(config: DriverConfig): IntelliJFactory =
     new IntelliJFactory(dependencies, plugins, version, paths, config)
 
