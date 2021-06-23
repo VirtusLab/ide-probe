@@ -111,8 +111,7 @@ class BazelProbeDriver(val driver: ProbeDriver) {
          |derive_targets_from_directories: true
          |
          |${section("additional_languages", importSpec.languages)}""".stripMargin
-    val dir = workspace.resolve(".ide-probe-bazel-projects").createDirectory()
-    val file = dir.resolve(s"ide-probe${UUID.randomUUID()}.viewconfig")
+    val file = workspace.resolve(s"ide-probe${UUID.randomUUID()}.viewconfig")
     file.write(text)
     file.toFile.deleteOnExit()
     workspace.relativize(file)
