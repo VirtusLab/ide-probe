@@ -72,6 +72,7 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
     }
   }
 
+  @Ignore
   @Test
   def freezeInspector(): Unit = fixture.run { intelliJ =>
     intelliJ.probe.invokeAction("org.virtuslab.ideprobe.test.FreezingAction")
