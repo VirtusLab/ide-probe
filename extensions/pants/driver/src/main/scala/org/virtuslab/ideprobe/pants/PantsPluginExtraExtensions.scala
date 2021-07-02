@@ -7,7 +7,7 @@ trait PantsPluginExtraExtensions { this: IdeProbeFixture =>
 
   registerFixtureTransformer { fixture =>
     fixture.withAfterIntelliJInstall { (_, intelliJ) =>
-      val plugins = intelliJ.paths.plugins
+      val plugins = intelliJ.paths.bundledPlugins
       plugins.resolve("Kotlin").delete()
       plugins.resolve("android").delete()
       intelliJ.paths.bin.resolve("printenv.py").makeExecutable()
