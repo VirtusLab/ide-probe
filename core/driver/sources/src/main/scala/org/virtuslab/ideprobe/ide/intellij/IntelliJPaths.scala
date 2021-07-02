@@ -14,6 +14,7 @@ final case class IntelliJPaths(
     userPrefs: Path
 ) {
   val bin: Path = root.resolve("bin")
+  val bundledPlugins = root.resolve("plugins")
 }
 
 object IntelliJPaths {
@@ -22,7 +23,7 @@ object IntelliJPaths {
       root = root,
       config = root.createDirectory("config"),
       system = root.createDirectory("system"),
-      plugins = root.createDirectory("plugins"),
+      plugins = root.createDirectory("user-plugins"),
       logs = root.createDirectory("logs"),
       userPrefs = {
         val path = root.createDirectory("prefs")

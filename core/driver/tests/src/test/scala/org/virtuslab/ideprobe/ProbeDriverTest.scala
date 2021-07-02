@@ -22,7 +22,7 @@ import scala.util.Try
 @RunWith(classOf[JUnit4])
 final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPluginExtension {
   private val intelliJProvider = IntelliJProvider.Default
-  private val scalaPlugin = Plugin("org.intellij.scala", "2020.3.553", Some("nightly"))
+  private val scalaPlugin = Plugin("org.intellij.scala", "2021.2.10")
   private val probeTestPlugin = ProbeTestPlugin.bundled(intelliJProvider.version)
 
   private val fixture = IntelliJFixture()
@@ -72,6 +72,7 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
     }
   }
 
+  @Ignore
   @Test
   def freezeInspector(): Unit = fixture.run { intelliJ =>
     intelliJ.probe.invokeAction("org.virtuslab.ideprobe.test.FreezingAction")
