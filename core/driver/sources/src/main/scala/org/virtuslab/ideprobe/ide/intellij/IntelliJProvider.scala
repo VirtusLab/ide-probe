@@ -56,12 +56,12 @@ sealed trait IntelliJProvider {
   }
 }
 
-final class ExistingIntelliJ(
+final case class ExistingIntelliJ(
     dependencies: DependencyProvider,
     path: Path,
-    override val plugins: Seq[Plugin],
-    override val paths: IdeProbePaths,
-    override val config: DriverConfig
+    plugins: Seq[Plugin],
+    paths: IdeProbePaths,
+    config: DriverConfig
 ) extends IntelliJProvider {
   override val version = IntelliJVersionResolver.version(path)
 
@@ -89,12 +89,12 @@ final class ExistingIntelliJ(
   }
 }
 
-final class IntelliJFactory(
+final case class IntelliJFactory(
     dependencies: DependencyProvider,
-    override val plugins: Seq[Plugin],
-    override val version: IntelliJVersion,
-    override val paths: IdeProbePaths,
-    override val config: DriverConfig
+    plugins: Seq[Plugin],
+    version: IntelliJVersion,
+    paths: IdeProbePaths,
+    config: DriverConfig
 ) extends IntelliJProvider {
 
   override def withVersion(version: IntelliJVersion): IntelliJProvider =
