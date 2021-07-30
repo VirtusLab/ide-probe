@@ -21,11 +21,13 @@ class WaitLimit(limit: FiniteDuration) {
   }
 
   def check(errorMessage: String): Unit = {
+    if (isExceeded) error(errorMessage)
+  }
+
+  def isExceeded: Boolean = {
     val now = System.currentTimeMillis()
     val duration = (now - startTime).millis
-    if (duration >= limit) {
-      error(errorMessage)
-    }
+    duration >= limit
   }
 
 }

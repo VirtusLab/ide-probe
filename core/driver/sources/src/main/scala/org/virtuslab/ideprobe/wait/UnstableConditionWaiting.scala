@@ -48,8 +48,8 @@ class UnstableConditionWaiting(
     val limit = new WaitLimit(atMost)
 
     @tailrec
-    def makeSureConditionHolds(probingTime: FiniteDuration): Boolean = {
-      if (probingTime <= Duration.Zero) {
+    def makeSureConditionHolds(probingLimit: WaitLimit): Boolean = {
+      if (probingLimit.isExceeded) {
         true
       } else {
         limit.check()
@@ -58,7 +58,7 @@ class UnstableConditionWaiting(
         if (decision.needToWait) {
           false
         } else {
-          makeSureConditionHolds(probingTime - ensureFrequency)
+          makeSureConditionHolds(probingLimit)
         }
       }
     }
@@ -71,7 +71,8 @@ class UnstableConditionWaiting(
         sleep(basicCheckFrequency)
         doWait()
       } else {
-        if (!makeSureConditionHolds(probingTime = ensurePeriod)) {
+        val probingLimit = new WaitLimit(ensurePeriod)
+        if (!makeSureConditionHolds(probingLimit)) {
           doWait()
         }
       }
