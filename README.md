@@ -78,8 +78,7 @@ It is possible to just use `IntelliJFixture.fromConfig` directly, but in such ca
 call `.enableExtensions` method, or extensions will not be applied.
 
 To write a test with JUnit 4 it is convenient to depend on `junit-driver` module, and extend from `IdeProbeTestSuite` in
-the test class. It is the `IdeProbeFixture`
-with @RunWith annotation for convenience.
+the test class. It is the `IdeProbeFixture` with `@RunWith` annotation for convenience.
 
 It is advised to prepare a base trait that extends from `IdeProbeFixture`, all required extensions and that contains
 common fixture transformers to avoid repetition.
@@ -313,6 +312,79 @@ class ExampleRobotTest extends IdeProbeFixture with RobotPluginExtension {
 }
 ```
 
+# Waiting
+
+## Background
+It is frequently required to wait after interacting with IDE, for example after invoking an action 
+or opening the project. 
+
+Let's look closer at project opening. The internal API of IntelliJ returns early, before most of 
+the projects would be imported, it invokes multiple background tasks, to call to the build tool
+and synchronize the project, additionally it performs indexing. Before indexing is complete, a lot
+of actions are disabled. For this reason it is best to wait for all background tasks to be complete.
+
+## Constructing WaitLogic
+
+The below snippet contains a couple of examples of creating a `WaitLogic`. 
+
+```scala
+// Waits till list of background tasks is empty, taking into the account
+// only the tasks that have name and display in the UI properly.
+// In this example it overrides the default 10 minute waiting limit.
+// It is the default waiting method used during most of ide-probe endpoints.
+WaitLogic.emptyNamedBackgroundTasks(atMost = 20.minutes)
+
+// Waits for a background task with name containing "indexing" (case sensitive),
+// to start and finish, i.e. it makes sure the task actually started and completed.
+WaitLogic.backgroundTaskCompletes("indexing")
+
+// Waits until project named "example" exists.
+WaitLogic.projectByName("example")
+
+// It is possible to perform some actions during waiting, which is useful 
+// when it is long, or if some additional condition can be checked.
+// This code tries to close *Tip of the Day*. Calling `DoOnlyOnce.attempt`,
+// ensures that the code will have at most one successful run.
+val closeTip = new DoOnlyOnce(closeTipOfTheDay())
+WaitLogic.emptyNamedBackgroundTasks().doWhileWaiting {
+   closeTip.attempt()
+   checkBuildPanelErrors()
+}
+```
+
+## Using WaitLogic
+All relevant methods that need waiting accept optional parameter of type `WaitLogic` (for example
+`invokeAction`, `openProject`), which is a way to override the default.
+
+```scala
+// Extend waiting limit for opening project and set checking frequency to 10 seconds.
+val waitLogic = WaitLogic.emptyNamedBackgroundTasks(atMost = 30.minutes, basicCheckFrequency = 10.seconds)
+intelliJ.probe.openProject(path, waitLogic)
+```
+
+There is also a special method called `await`, that just executes the provided `WaitLogic`.
+
+The example below is a code from bazel extension that is responsible for building bazel project,
+using its custom action. It invokes the build action, constructs `WaitLogic` that waits for
+the build result (internally implemented as reading bazel console output using `RemoteRobot`),
+and finally, waits using this logic through `await` method.
+
+```scala
+intelliJ.probe.invokeActionAsync("MakeBlazeProject")
+
+var result = Option.empty[BazelBuildResult]
+val buildWait = WaitLogic.basic(checkFrequency = checkFrequency, atMost = waitLimit) {
+  findBuildResult() match {
+    case buildResult @ Some(_) =>
+      result = buildResult
+      WaitDecision.Done
+    case None => 
+       WaitDecision.KeepWaiting("Waiting for bazel build to complete")
+  }
+}
+
+intelliJ.probe.await(buildWait)
+```
 
 # Showcase
 
