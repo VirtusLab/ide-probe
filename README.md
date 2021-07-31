@@ -1,7 +1,7 @@
 By using this library, you implicitly accept the terms of
 the [JetBrains Privacy Policy](https://www.jetbrains.com/legal/docs/privacy/privacy.html).
 
-### Description
+# Description
 
 ide-probe is a framework for testing plugins for IntelliJ-based IDEs. It can be used both locally and in the CI
 pipeline.
@@ -12,7 +12,7 @@ The framework itself comprises three components:
 - probePlugin - a server that runs inside the IDE and executes commands and queries
 - api - a module that contains the definitions of endpoints and their protocol
 
-### Motivation
+# Motivation
 
 Sometimes, unit tests cannot be used to reproduce a failure or test some specific feature reliably. This happens because
 the testing environment used by IDEs most often differs from the actual, production-like environment experienced by the
@@ -27,9 +27,9 @@ With it, not only a proper environment is used, but one can also guard against n
 - unexpected behavior after starting or restarting IDE sessions
 - invalid interactions between multiple IDE sessions running in parallel
 
-### Getting Started
+# Getting Started
 
-#### Adding ide-probe to the project
+## Adding ide-probe to the project
 
 To include ide-probe in your sbt project add following lines:
 
@@ -65,7 +65,7 @@ dependencies {
 }
 ```
 
-#### Base test class setup
+## Base test class setup
 
 The default way to use ide-probe is to inherit from `IdeProbeFixture`. To use it, depend on `driver`
 module (`"org.virtuslab.ideprobe" %% "driver" % version`). This trait provides `fixtureFromConfig` method. It is a
@@ -81,7 +81,10 @@ To write a test with JUnit 4 it is convenient to depend on `junit-driver` module
 the test class. It is the `IdeProbeFixture`
 with @RunWith annotation for convenience.
 
-#### Configuration
+It is advised to prepare a base trait that extends from `IdeProbeFixture`, all required extensions and that contains
+common fixture transformers to avoid repetition.
+
+## Configuration
 
 ide-probe uses [HOCON](https://github.com/lightbend/config) format for configuration. It is also possible to set up
 everything in code, but config files might usually be more convenient. Additionally, using config files allows to easily
@@ -135,12 +138,17 @@ IntelliJFixture(workspaceProvider = WorkspaceTemplate.fromFile(path))
 4. [Display](docs/display.md)
 5. [Debugging](docs/debug.md)
 
-#### Workflow
+## Workflow
 Workflow can only be defined programmatically, since it comprises a sequence of intertwined:
 
 1. probe interactions
-3. workspace manipulation
-4. custom verification logic
+2. workspace manipulation
+3. custom verification logic
+
+Below example shows a test that creates a new sbt file, thus creating a sbt project,
+imports it, and check if the name is correct after the import.
+
+It is composed of 2 files, the `ExampleTest.scala` and `example.conf`.
 
 ```scala
 import org.virtuslab.ideprobe.Extensions._ // for `write` extension method on Path
@@ -182,7 +190,7 @@ probe {
 }
 ```
 
-#### Endpoints
+# Endpoints
 
 To see the list of probe endpoints, see
 [Commands](docs/endpoints/commands.md) or [Queries](docs/endpoints/queries.md). An always up to date list of queries is
@@ -191,7 +199,7 @@ in [Endpoints.scala](https://github.com/VirtusLab/ide-probe/tree/master/core/api
 
 Note that any communication with the probe is synchronous.
 
-#### Extensions
+# Extensions
 
 Extensions exist to implement custom actions specific to a plugin. For example
 to create a ScalaTest run configuration, specific to Scala plugin, 
@@ -202,7 +210,7 @@ in existing endpoints.
 
 To use an extension, add a dependency to your build and extend from appropriate trait.
 
-##### Pants, Bazel and Scala
+## Pants, Bazel and Scala
 
 For dependencies use:
 
@@ -248,7 +256,7 @@ class ExtensionExampleTest extends IdeProbeFixture with ScalaPluginExtension {
 }
 ``` 
 
-##### Robot
+## Robot
 
 The robot is a slightly different extension. It integrates [Jetbrains Remote-Robot](https://github.com/JetBrains/intellij-ui-test-robot)
 with ide-probe. This library can interact with UI of IntelliJ, click on specific components,
@@ -305,9 +313,8 @@ class ExampleRobotTest extends IdeProbeFixture with RobotPluginExtension {
 }
 ```
 
-### Waiting
 
-#### Showcase
+# Showcase
 
 Probe is currently being actively used in:
 
