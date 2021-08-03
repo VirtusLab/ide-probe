@@ -1,9 +1,11 @@
 package org.virtuslab.ideprobe.bazel
 
-import org.virtuslab.ideprobe.robot.{RobotPluginExtension, RobotProbeDriver}
-import org.virtuslab.ideprobe.{IdeProbeFixture, ProbeDriver, error}
+import org.virtuslab.ideprobe.Extensions.PathExtension
+import org.virtuslab.ideprobe.robot.RobotPluginExtension
+import org.virtuslab.ideprobe.{IdeProbeFixture, OS, ProbeDriver, Shell, error}
 import org.virtuslab.ideprobe.dependencies.InternalPlugins
 
+import java.nio.file.Paths
 import scala.language.implicitConversions
 
 trait BazelPluginExtension extends BazelOpenProjectFixture with RobotPluginExtension {
@@ -17,6 +19,10 @@ trait BazelPluginExtension extends BazelOpenProjectFixture with RobotPluginExten
           s"Current java version: $javaVersion and JAVA_HOME: ${sys.env.get("JAVA_VERSION")}"
       )
     }
+    // Hack for disabling setsid call with unsupported --wait on older CentOS
+    if (OS.Current == OS.Unix && Shell.run("/usr/bin/setsid", "--wait", "ls").isFailed) {
+        Paths.get(sys.props("user.home"), ".intellij-experiments").write("blaze.command.process.group=false")
+      }
   }
   registerFixtureTransformer(InternalPlugins.installCrossVersionPlugin("ideprobe-bazel"))
 
