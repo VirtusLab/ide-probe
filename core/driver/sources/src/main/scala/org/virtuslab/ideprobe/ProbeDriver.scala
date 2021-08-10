@@ -3,6 +3,7 @@ package org.virtuslab.ideprobe
 import com.typesafe.config.ConfigRenderOptions
 import java.nio.file.Path
 import org.virtuslab.ideprobe.jsonrpc.JsonRpc.{Handler, Method}
+import org.virtuslab.ideprobe.jsonrpc.logging.{LoggingConfig, ProbeCommunicationLogger, GroupingLogger}
 import org.virtuslab.ideprobe.jsonrpc.{JsonRpcConnection, JsonRpcEndpoint}
 import org.virtuslab.ideprobe.protocol._
 import scala.annotation.tailrec
@@ -17,6 +18,12 @@ class ProbeDriver(
     val config: Config
 )(implicit protected val ec: ExecutionContext)
     extends JsonRpcEndpoint {
+
+  override protected val logger: ProbeCommunicationLogger = {
+    val loggingConfig = config.getOrElse[LoggingConfig]("probe.logging", LoggingConfig())
+    new GroupingLogger(loggingConfig)
+  }
+
   protected val handler: Handler = (_, _) => Failure(new Exception("Receiving requests is not supported"))
 
   def pid(): Long = send(Endpoints.PID)

@@ -4,24 +4,25 @@ import org.junit.{Assert, Test}
 
 import java.io.ByteArrayOutputStream
 
-class RequestResponseLoggerTest {
-  private val request = "request"
+class GroupingLoggerTest {
+  private val endpoint = "endpoint"
   private val response = "response"
-  private val differentRequest = "different request"
+  private val param = "param"
+  private val differentEndpoint = "endpoint/different"
   private val differentResponse = "different response"
 
   @Test
   def firstDifferentRequestShouldCauseTheBufferToBePrinted(): Unit = withStdout { stdout =>
-    val logger = new RequestResponseLogger
-    logger.logRequest(request)
+    val logger = createLogger()
+    logger.logRequest(endpoint, param)
     logger.logResponse(response)
-    logger.logRequest(request)
+    logger.logRequest(endpoint, param)
     logger.logResponse(response)
-    logger.logRequest(differentRequest)
+    logger.logRequest(differentEndpoint, param)
     Assert.assertEquals(
       s"""Repeated 2 times in less than one second: {
-        |  $request
-        |  $response
+        |  request[$endpoint]: $param
+        |  response: $response
         |}
         |""".stripMargin,
       stdout.toString
@@ -30,19 +31,19 @@ class RequestResponseLoggerTest {
 
   @Test
   def firstDifferentResponseShouldCauseTheBufferToBePrinted(): Unit = withStdout { stdout =>
-    val logger = new RequestResponseLogger
+    val logger = createLogger()
 
-    logger.logRequest(request)
+    logger.logRequest(endpoint, param)
     logger.logResponse(response)
-    logger.logRequest(request)
+    logger.logRequest(endpoint, param)
     logger.logResponse(response)
-    logger.logRequest(request)
+    logger.logRequest(endpoint, param)
     logger.logResponse(differentResponse)
 
     Assert.assertEquals(
       s"""Repeated 2 times in less than one second: {
-         |  $request
-         |  $response
+         |  request[$endpoint]: $param
+         |  response: $response
          |}
          |""".stripMargin,
       stdout.toString
@@ -51,89 +52,97 @@ class RequestResponseLoggerTest {
 
   @Test
   def responseWithoutPrecedingRequestShouldBePrintedImmediately(): Unit = withStdout { stdout =>
-    val logger = new RequestResponseLogger
+    val logger = createLogger()
 
     logger.logResponse(response)
 
     Assert.assertEquals(
-      s"$response\n",
+      s"response: $response\n",
       stdout.toString
     )
   }
 
   @Test
   def twoDifferentRequestsWithoutResponseInBetweenShouldCauseTheFirstRequestToBePrinted(): Unit = withStdout { stdout =>
-    val logger = new RequestResponseLogger
+    val logger = createLogger()
 
-    logger.logRequest(request)
-    logger.logRequest(differentRequest)
+    logger.logRequest(endpoint, param)
+    logger.logRequest(differentEndpoint, param)
 
     Assert.assertEquals(
-      s"$request\n",
+      s"request[$endpoint]: $param\n",
       stdout.toString
     )
   }
 
   @Test
   def twoRepeatedRequestsWithoutResponseInBetweenShouldCauseTheFirstRequestToBePrinted(): Unit = withStdout { stdout =>
-    val logger = new RequestResponseLogger
-    logger.logRequest(request)
-    logger.logRequest(request)
+    val logger = createLogger()
+    logger.logRequest(endpoint, param)
+    logger.logRequest(endpoint, param)
 
     Assert.assertEquals(
-      s"$request\n",
+      s"request[$endpoint]: $param\n",
       stdout.toString
     )
   }
 
   @Test
   def messagesShouldBePrintedAfterSpecifiedAmountOfTimePasses(): Unit = withStdout { stdout =>
-    val logger = new RequestResponseLogger
-    logger.logRequest(request)
+    val logger = createLogger()
+    logger.logRequest(endpoint, param)
     logger.logResponse(response)
-    logger.logRequest(request)
+    logger.logRequest(endpoint, param)
     logger.logResponse(response)
     Thread.sleep(1200L)
 
     Assert.assertEquals(
       s"""Repeated 2 times over one second: {
-                   |  $request
-                   |  $response
-                   |}
-                   |""".stripMargin,
-      stdout.toString
-    )
-  }
-
-  @Test
-  def loggingNewRequestShouldResetTheTimer(): Unit = withStdout { stdout =>
-    val logger = new RequestResponseLogger
-
-    logger.logRequest(request)
-    Thread.sleep(500L)
-    logger.logResponse(response)
-    Thread.sleep(500L)
-    logger.logRequest(request)
-    Thread.sleep(500L)
-    logger.logResponse(response)
-    Thread.sleep(500L)
-    logger.logRequest(request)
-    Thread.sleep(500L)
-    logger.logResponse(response)
-    Thread.sleep(1200L)
-
-    Assert.assertEquals(
-      s"""Repeated 3 times over 3 seconds: {
-         |  $request
-         |  $response
+         |  request[$endpoint]: $param
+         |  response: $response
          |}
          |""".stripMargin,
       stdout.toString
     )
   }
 
-  def withStdout(test: ByteArrayOutputStream => Unit): Unit = {
+  @Test
+  def skipLoggingIgnoredMessagesAlongWithResponse(): Unit = withStdout { stdout =>
+    val logger = createLogger(ignore = Seq("request\\[config/set\\]"))
+
+    logger.logRequest("config/set", param)
+    Thread.sleep(500L)
+    logger.logResponse(response)
+    Thread.sleep(1200L)
+
+    Assert.assertEquals(
+      "",
+      stdout.toString
+    )
+  }
+
+  @Test
+  def skipLoggingIgnoredMessagesAlongWithResponseWhenRequestWasFlushed(): Unit = withStdout { stdout =>
+    val logger = createLogger(ignore = Seq("request\\[config/set\\]"))
+
+    logger.logRequest("config/set", param)
+    Thread.sleep(1200L)
+    logger.logResponse("configured")
+    Thread.sleep(1200L)
+
+    Assert.assertEquals(
+      "",
+      stdout.toString
+    )
+  }
+
+  private def withStdout(test: ByteArrayOutputStream => Unit): Unit = {
     val output = new ByteArrayOutputStream
     Console.withOut(output)(test(output))
   }
+
+  private def createLogger(ignore: Seq[String] = Nil) = {
+    new GroupingLogger(LoggingConfig(blockList = ignore))
+  }
+
 }

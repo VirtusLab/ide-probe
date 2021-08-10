@@ -92,7 +92,9 @@ trait WaitLogicFactory {
         !ignorePatterns.exists(pattern => pattern.unapplySeq(task).isDefined)
       val namedCurrentTasks = currentTasks.filter(isNamedTask)
       if (namedCurrentTasks.nonEmpty) {
-        WaitDecision.KeepWaiting(s"Waiting for ${namedCurrentTasks.size} background task(s)...")
+        WaitDecision.KeepWaiting(
+          s"Waiting for ${namedCurrentTasks.size} background task(s)... ${format(namedCurrentTasks)}"
+        )
       } else {
         WaitDecision.Done
       }

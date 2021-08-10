@@ -166,7 +166,6 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
       }
   }
 
-  @Ignore
   @Test
   def buildFilesTest(): Unit = {
     buildTestFixture.run { intelliJ =>
