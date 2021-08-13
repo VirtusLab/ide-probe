@@ -271,6 +271,10 @@ lazy val examples = testModule("examples", "examples")
 
 lazy val examples213 = examples(scala213)
 
+lazy val benchmarks = module("benchmarks", "benchmarks").cross
+
+lazy val benchmarks213 = benchmarks(scala213)
+
 val commonSettings = Seq(
   libraryDependencies ++= Dependencies.junit,
   test in assembly := {},
@@ -299,6 +303,7 @@ lazy val bazelProbeApi212 = bazelProbeApi(scala212)
 lazy val bazelProbePlugin212 = bazelProbePlugin(scala212)
 lazy val bazelProbeDriver212 = bazelProbeDriver(scala212).usesIdeaPlugins(bazelProbePlugin212, bazelProbePlugin213)
 lazy val scalaTests212 = scalaTests(scala212).usesIdeaPlugin(scalaProbePlugin212)
+lazy val benchmarks212 = benchmarks(scala212)
 
 def project(id: String, path: String, publish: Boolean): Project = {
   Project(id, sbt.file(path))

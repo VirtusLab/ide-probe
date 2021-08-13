@@ -1,5 +1,5 @@
 diff --git a/build.sbt b/build.sbt
-index 10f8148..8ff110c 100644
+index 064719b..c16b470 100644
 --- a/build.sbt
 +++ b/build.sbt
 @@ -87,7 +87,7 @@ lazy val driver = module("driver", "core/driver/sources")
@@ -47,7 +47,7 @@ index 10f8148..8ff110c 100644
  
  // examples
  lazy val examples = testModule("examples", "examples")
-@@ -281,24 +281,24 @@ val commonSettings = Seq(
+@@ -285,25 +285,25 @@ val commonSettings = Seq(
  )
  
  // 2.12
@@ -69,6 +69,7 @@ index 10f8148..8ff110c 100644
 -lazy val bazelProbePlugin212 = bazelProbePlugin(scala212)
 -lazy val bazelProbeDriver212 = bazelProbeDriver(scala212).usesIdeaPlugins(bazelProbePlugin212, bazelProbePlugin213)
 -lazy val scalaTests212 = scalaTests(scala212).usesIdeaPlugin(scalaProbePlugin212)
+-lazy val benchmarks212 = benchmarks(scala212)
 +//lazy val api212 = api(scala212)
 +//lazy val driver212 = driver(scala212).usesIdeaPlugins(probePlugin212, probePlugin213)
 +//lazy val robotDriver212 = robotDriver(scala212)
@@ -87,6 +88,7 @@ index 10f8148..8ff110c 100644
 +//lazy val bazelProbePlugin212 = bazelProbePlugin(scala212)
 +//lazy val bazelProbeDriver212 = bazelProbeDriver(scala212).usesIdeaPlugins(bazelProbePlugin212, bazelProbePlugin213)
 +//lazy val scalaTests212 = scalaTests(scala212).usesIdeaPlugin(scalaProbePlugin212)
++//lazy val benchmarks212 = benchmarks(scala212)
  
  def project(id: String, path: String, publish: Boolean): Project = {
    Project(id, sbt.file(path))
