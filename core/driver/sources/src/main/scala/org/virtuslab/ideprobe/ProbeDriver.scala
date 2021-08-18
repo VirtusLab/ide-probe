@@ -23,6 +23,10 @@ class ProbeDriver(
     val loggingConfig = config.getOrElse[LoggingConfig]("probe.logging", LoggingConfig())
     new GroupingLogger(loggingConfig)
   }
+  override def close(): Unit = {
+    super.close()
+    logger.close()
+  }
 
   protected val handler: Handler = (_, _) => Failure(new Exception("Receiving requests is not supported"))
 

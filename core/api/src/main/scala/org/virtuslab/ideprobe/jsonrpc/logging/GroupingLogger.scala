@@ -46,6 +46,10 @@ class GroupingLogger(config: LoggingConfig) extends ProbeCommunicationLogger {
   private var buffer: List[(LogEntry, Instant)] = Nil
   private var skipResponse = false
 
+  override def close(): Unit = {
+    executor.shutdownNow()
+  }
+
   def logRequest(name: String, param: String): Unit = synchronized {
     val request = s"request[$name]: ${decode(param)}"
     cancelScheduledFlush()

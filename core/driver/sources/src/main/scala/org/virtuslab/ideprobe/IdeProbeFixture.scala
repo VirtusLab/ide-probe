@@ -1,11 +1,15 @@
 package org.virtuslab.ideprobe
 
-import java.util.concurrent.Executors
+import java.util.concurrent.{SynchronousQueue, ThreadPoolExecutor, TimeUnit}
 import scala.concurrent.ExecutionContext
 import scala.util.Try
 
 trait IdeProbeFixture {
-  protected implicit val ec: ExecutionContext = ExecutionContext.fromExecutorService(Executors.newCachedThreadPool())
+  protected implicit val ec: ExecutionContext = {
+    val service = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 10L, TimeUnit.SECONDS, new SynchronousQueue[Runnable])
+    service.allowCoreThreadTimeOut(true)
+    ExecutionContext.fromExecutorService(service)
+  }
 
   protected var fixtureTransformers: Seq[IntelliJFixture => IntelliJFixture] = Nil
 
