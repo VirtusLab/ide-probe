@@ -47,7 +47,8 @@ class GroupingLogger(config: LoggingConfig) extends ProbeCommunicationLogger {
   private var skipResponse = false
 
   override def close(): Unit = {
-    executor.shutdownNow()
+    flush()
+    executor.shutdown()
   }
 
   def logRequest(name: String, param: String): Unit = synchronized {
