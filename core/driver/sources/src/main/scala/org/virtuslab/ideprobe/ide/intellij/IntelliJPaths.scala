@@ -25,11 +25,7 @@ object IntelliJPaths {
       system = root.createDirectory("system"),
       plugins = root.createDirectory("user-plugins"),
       logs = root.createDirectory("logs"),
-      userPrefs = {
-        val path = root.createDirectory("prefs")
-        IntellijPrivacyPolicy.installAgreementIn(path)
-        path
-      }
+      userPrefs = root.createDirectory("prefs")
     )
   }
   def fromExistingInstance(root: Path): IntelliJPaths = {
