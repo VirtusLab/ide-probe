@@ -135,7 +135,7 @@ object IntelliJProvider {
   val Default =
     new IntelliJFactory(
       dependencies = new DependencyProvider(
-        new IntelliJDependencyProvider(Seq(IntelliJZipResolver.Community), ResourceProvider.Default),
+        new IntelliJDependencyProvider(Seq(IntelliJZipResolver.community), ResourceProvider.Default),
         new PluginDependencyProvider(Seq(PluginResolver.Official), ResourceProvider.Default)
       ),
       plugins = Seq.empty,

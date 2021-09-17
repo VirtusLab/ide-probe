@@ -29,7 +29,9 @@ sealed abstract class InstalledIntelliJ(root: Path, probePaths: IdeProbePaths, c
 
   protected lazy val vmoptions: Path = {
     val baseVMOptions = Seq(
-      s"-Djava.awt.headless=${config.headless}"
+      s"-Djava.awt.headless=${config.headless}",
+      "-Djb.privacy.policy.text=<!--999.999-->",
+      "-Djb.consents.confirmation.enabled=false"
     )
 
     val vmOptions = implementationSpecificVmOptions ++ baseVMOptions ++ DebugMode.vmOption ++ config.vmOptions

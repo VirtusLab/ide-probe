@@ -2,10 +2,11 @@ package org.virtuslab.ideprobe.scala
 
 import java.net.URL
 import java.nio.file.{Files, Path, Paths}
-import org.junit.Assert
-import org.junit.Test
+import org.junit.{Assert, Ignore, Test}
 import org.virtuslab.ideprobe.{CommandResult, Shell}
 
+// TODO requires using twitter pants as it fails on pystache
+@Ignore
 class PantsBspImportTest extends ScalaPluginTestSuite {
 
   @Test def importTest(): Unit = {
@@ -47,7 +48,7 @@ class PantsBspImportTest extends ScalaPluginTestSuite {
     destination
   }
 
-  // fastpass is as tool that can convert pants project into bsp project
+  // fastpass is a tool that can convert pants project into bsp project
   private def runFastpass(workspace: Path, args: Seq[String]): CommandResult = {
     val fastpassVersion = "1.1.1"
     val command = Seq(

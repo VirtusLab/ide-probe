@@ -3,11 +3,11 @@ package org.virtuslab.ideprobe.dependencies
 import org.virtuslab.ideprobe.config.DependenciesConfig
 import org.virtuslab.ideprobe.dependencies.Dependency.Artifact
 
-object IntelliJZipResolver {
+object IntelliJZipResolver extends IntelliJResolver {
 
-  val Community: DependencyResolver[IntelliJVersion] = official("ideaIC")
+  val community: DependencyResolver[IntelliJVersion] = official("ideaIC")
 
-  val Ultimate: DependencyResolver[IntelliJVersion] = official("ideaIU")
+  val ultimate: DependencyResolver[IntelliJVersion] = official("ideaIU")
 
   private def official(artifact: String): DependencyResolver[IntelliJVersion] = {
     val officialUri = "https://www.jetbrains.com/intellij-repository"
@@ -38,6 +38,6 @@ object IntelliJZipResolver {
   def from(config: DependenciesConfig.IntelliJ): DependencyResolver[IntelliJVersion] = {
     config.repository
       .map(maven => fromMaven(maven.uri, maven.group, maven.artifact))
-      .getOrElse(Community)
+      .getOrElse(community)
   }
 }

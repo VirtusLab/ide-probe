@@ -3,7 +3,7 @@ package org.virtuslab.ideprobe.log
 import scala.collection.mutable
 
 object MessageLog {
-  private var messagesBuffer = mutable.ListBuffer[Message]()
+  private val messagesBuffer = mutable.ListBuffer[Message]()
 
   def all: Seq[Message] = messagesBuffer.toSeq
 
