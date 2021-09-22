@@ -15,13 +15,12 @@ import org.virtuslab.ideprobe.config.DependenciesConfig
 @RunWith(classOf[JUnit4])
 class IntelliJResolverTest extends ConfigFormat {
   private val mavenRepo = getClass.getResource(".").toURI.resolve("intellij/maven").toString
-  private val mavenGroup = "group"
   private val mavenArtifact = "artifact"
-  private val mavenVersion = IntelliJVersion("1.0", None)
+  private val mavenVersion = IntelliJVersion.snapshot("1.0")
 
   @Test
   def resolvesWithinCustomRepository(): Unit = {
-    val repo = IntelliJZipResolver.fromMaven(mavenRepo, mavenGroup, mavenArtifact)
+    val repo = IntelliJZipResolver.fromMaven(mavenRepo, mavenArtifact)
 
     val artifactUri = repo.resolve(mavenVersion)
 
@@ -36,15 +35,13 @@ class IntelliJResolverTest extends ConfigFormat {
     import pureconfig.generic.auto._
 
     val config = Config.fromString(s"""
-        |probe.resolvers.intellij.repository {
-        |  uri = "$mavenRepo"
-        |  group = $mavenGroup
-        |  artifact = $mavenArtifact
-        |}
+        |probe.resolvers.intellij.repositories = [
+        |  "$mavenRepo/com/jetbrains/intellij/idea/$mavenArtifact/${mavenVersion.build}/$mavenArtifact-${mavenVersion.build}.zip"
+        |]
         |""".stripMargin)
     val intelliJConfig = config[DependenciesConfig.IntelliJ]("probe.resolvers.intellij")
 
-    val repo = IntelliJZipResolver.from(intelliJConfig)
+    val repo = IntelliJZipResolver.fromConfig(intelliJConfig).head
     val artifactUri = repo.resolve(mavenVersion)
     assertExists(artifactUri)
   }
