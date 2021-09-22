@@ -150,15 +150,15 @@ object IntelliJProvider {
       paths: IdeProbePaths,
       driverConfig: DriverConfig
   ): IntelliJProvider = {
-    val intelliJResolver = IntelliJZipResolver.from(resolversConfig.intellij)
+    val intelliJResolvers = IntelliJZipResolver.fromConfig(resolversConfig.intellij)
     val pluginResolver = PluginResolver.from(resolversConfig.plugins)
     val resourceProvider = ResourceProvider.from(paths)
-    val intelliJDependencyProvider = new IntelliJDependencyProvider(Seq(intelliJResolver), resourceProvider)
+    val intelliJDependencyProvider = new IntelliJDependencyProvider(intelliJResolvers, resourceProvider)
     val pluginDependencyProvider = new PluginDependencyProvider(Seq(pluginResolver), resourceProvider)
     val dependencyProvider = new DependencyProvider(intelliJDependencyProvider, pluginDependencyProvider)
     intelliJConfig match {
       case IntellijConfig.Default(version, plugins) =>
-        new IntelliJFactory(
+        IntelliJFactory(
           dependencyProvider,
           plugins.filterNot(_.isInstanceOf[Plugin.Empty]),
           version,
@@ -166,7 +166,7 @@ object IntelliJProvider {
           driverConfig
         )
       case IntellijConfig.Existing(path, plugins) =>
-        new ExistingIntelliJ(
+        ExistingIntelliJ(
           dependencyProvider,
           path,
           plugins.filterNot(_.isInstanceOf[Plugin.Empty]),

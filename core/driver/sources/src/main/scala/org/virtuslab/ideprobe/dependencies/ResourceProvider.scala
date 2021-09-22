@@ -35,11 +35,12 @@ object ResourceProvider {
 
     private def cacheUri(
         uri: URI,
-        stream: => InputStream,
+        createStream: => InputStream,
         message: Path => String
     ): Path = {
       val cachedResource = cached(uri)
       if (!cachedResource.isFile) {
+        val stream = createStream
         println(message(cachedResource))
         Files
           .createTempFile("cached-resource", "-tmp")

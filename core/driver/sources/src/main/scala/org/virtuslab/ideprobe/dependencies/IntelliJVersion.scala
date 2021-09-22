@@ -1,10 +1,11 @@
 package org.virtuslab.ideprobe.dependencies
 
-import org.virtuslab.ideprobe.BuildInfo
 import pureconfig.ConfigConvert
 import pureconfig.generic.semiauto.deriveConvert
 
 final case class IntelliJVersion(build: String, release: Option[String]) {
+  def releaseOrBuild: String = release.getOrElse(build)
+
   def major: Option[String] = {
     release.map(_.split("\\.").take(2).mkString("."))
   }
