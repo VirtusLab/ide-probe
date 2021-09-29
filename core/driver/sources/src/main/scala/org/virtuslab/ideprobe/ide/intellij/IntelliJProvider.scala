@@ -3,7 +3,7 @@ package org.virtuslab.ideprobe.ide.intellij
 import java.nio.file.{Files, Path}
 import java.util.stream.{Collectors, Stream => JStream}
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.IdeProbePaths
+import org.virtuslab.ideprobe.{IdeProbePaths, OS, Shell, SilentShell, error}
 import org.virtuslab.ideprobe.config.{DependenciesConfig, DriverConfig, IntellijConfig}
 import org.virtuslab.ideprobe.dependencies._
 import org.virtuslab.ideprobe.dependencies.Resource._
@@ -33,9 +33,10 @@ sealed trait IntelliJProvider {
     case class PluginArchive(plugin: Plugin, archive: Resource.Archive) {
       val rootEntries: Set[String] = archive.rootEntries.toSet
     }
+
     val targetDir = intelliJ.paths.bundledPlugins
     val archives = withParallel[Plugin, PluginArchive](allPlugins)(_.map { plugin =>
-      val file = dependencies.fetch(plugin)
+      val file = dependencies.plugin.fetch(plugin)
       PluginArchive(plugin, file.toArchive)
     })
 
@@ -66,16 +67,16 @@ final case class ExistingIntelliJ(
   override val version = IntelliJVersionResolver.version(path)
 
   override def withVersion(version: IntelliJVersion): IntelliJProvider =
-    throw new IllegalStateException("Cannot set version for existing IntelliJ instance")
+    error("Cannot set version for existing IntelliJ instance")
 
   override def withConfig(config: DriverConfig): ExistingIntelliJ =
-    new ExistingIntelliJ(dependencies, path, plugins, paths, config)
+    copy(config = config)
 
   override def withPaths(paths: IdeProbePaths): ExistingIntelliJ =
-    new ExistingIntelliJ(dependencies, path, plugins, paths, config)
+    copy(paths = paths)
 
   override def withPlugins(plugins: Plugin*): ExistingIntelliJ =
-    new ExistingIntelliJ(dependencies, path, this.plugins ++ plugins, paths, config)
+    copy(plugins = this.plugins ++ plugins)
 
   override def setup(): InstalledIntelliJ = {
     val intelliJPaths = IntelliJPaths.fromExistingInstance(path)
@@ -98,16 +99,16 @@ final case class IntelliJFactory(
 ) extends IntelliJProvider {
 
   override def withVersion(version: IntelliJVersion): IntelliJProvider =
-    new IntelliJFactory(dependencies, plugins, version, paths, config)
+    copy(version = version)
 
   override def withConfig(config: DriverConfig): IntelliJFactory =
-    new IntelliJFactory(dependencies, plugins, version, paths, config)
+    copy(config = config)
 
   override def withPaths(paths: IdeProbePaths): IntelliJFactory =
-    new IntelliJFactory(dependencies, plugins, version, paths, config)
+    copy(paths = paths)
 
   override def withPlugins(plugins: Plugin*): IntelliJProvider =
-    new IntelliJFactory(dependencies, plugins = this.plugins ++ plugins, version, paths, config)
+    copy(plugins = this.plugins ++ plugins)
 
   override def setup(): InstalledIntelliJ = {
     val root = createInstanceDirectory(version)
@@ -115,17 +116,38 @@ final case class IntelliJFactory(
     val intelliJPaths: IntelliJPaths = IntelliJPaths.default(root)
     installIntelliJ(version, root)
     val intelliJ = new DownloadedIntelliJ(root, paths, intelliJPaths, config)
+    installJbr(dependencies, intelliJ)
     installPlugins(dependencies, plugins, intelliJ)
 
     intelliJ
   }
 
-  private def createInstanceDirectory(version: IntelliJVersion): Path =
-    paths.instances.createTempDirectory(s"intellij-instance-${version.build}-")
+  private def installJbr(dependencies: DependencyProvider, intelliJ: DownloadedIntelliJ): Unit = {
+    dependencies.jbr.fetch(intelliJ.paths.root).foreach { jbrArchive =>
+      SilentShell
+        .run(
+          "tar",
+          "-xvzf",
+          jbrArchive.toString,
+          "-C",
+          intelliJ.paths.root.toString
+        )
+        .ok()
+    }
+  }
+
+  private def createInstanceDirectory(version: IntelliJVersion): Path = {
+    val base = paths.instances.createTempDirectory(s"intellij-instance-${version.build}-")
+    if (OS.Current == OS.Mac) {
+      base.createDirectory("Contents")
+    } else {
+      base
+    }
+  }
 
   private def installIntelliJ(version: IntelliJVersion, root: Path): Unit = {
     println(s"Installing $version")
-    val file = dependencies.fetch(version)
+    val file = dependencies.intelliJ.fetch(version)
     file.toArchive.extractTo(root)
     root.resolve("bin").makeExecutableRecursively()
   }
@@ -133,10 +155,11 @@ final case class IntelliJFactory(
 
 object IntelliJProvider {
   val Default =
-    new IntelliJFactory(
+    IntelliJFactory(
       dependencies = new DependencyProvider(
         new IntelliJDependencyProvider(Seq(IntelliJZipResolver.community), ResourceProvider.Default),
-        new PluginDependencyProvider(Seq(PluginResolver.Official), ResourceProvider.Default)
+        new PluginDependencyProvider(Seq(PluginResolver.Official), ResourceProvider.Default),
+        new JbrDependencyProvider(Seq(new JbrResolver), ResourceProvider.Default)
       ),
       plugins = Seq.empty,
       version = IntelliJVersion.Latest,
@@ -155,7 +178,9 @@ object IntelliJProvider {
     val resourceProvider = ResourceProvider.from(paths)
     val intelliJDependencyProvider = new IntelliJDependencyProvider(intelliJResolvers, resourceProvider)
     val pluginDependencyProvider = new PluginDependencyProvider(Seq(pluginResolver), resourceProvider)
-    val dependencyProvider = new DependencyProvider(intelliJDependencyProvider, pluginDependencyProvider)
+    val jbrDependencyProvider = new JbrDependencyProvider(Seq(new JbrResolver), resourceProvider)
+    val dependencyProvider =
+      new DependencyProvider(intelliJDependencyProvider, pluginDependencyProvider, jbrDependencyProvider)
     intelliJConfig match {
       case IntellijConfig.Default(version, plugins) =>
         IntelliJFactory(

@@ -6,13 +6,46 @@ import org.virtuslab.ideprobe.dependencies.Dependency._
 import scala.collection.mutable
 import scala.util.Try
 
+final class JbrDependencyProvider(
+    resolvers: Seq[DependencyResolver[Path]],
+    resources: ResourceProvider
+) {
+
+  def fetch(intelliJPath: Path): Option[Path] = {
+    val noResolversError = Try[Path](error("Dependency resolver list is empty"))
+    if (resolvers.isEmpty) {
+      None
+    } else {
+      Some(
+        resolvers
+          .foldLeft(noResolversError) { (result, resolver) =>
+            result.orElse(Try(resolve(intelliJPath, resolver)))
+          }
+          .get
+      )
+    }
+  }
+
+  private def resolve(
+      intelliJPath: Path,
+      resolver: DependencyResolver[Path]
+  ): Path = {
+    resolver.resolve(intelliJPath) match {
+      case Artifact(uri) =>
+        resources.get(uri)
+      case other =>
+        throw new Exception(s"Couldn't resolve JBR for $intelliJPath using $other")
+    }
+  }
+}
+
 final class IntelliJDependencyProvider(
-    intelliJResolvers: Seq[DependencyResolver[IntelliJVersion]],
+    resolvers: Seq[DependencyResolver[IntelliJVersion]],
     resources: ResourceProvider
 ) {
   def fetch(intelliJ: IntelliJVersion): Path = {
     val noResolversError = Try[Path](error("Dependency resolver list is empty"))
-    intelliJResolvers
+    resolvers
       .foldLeft(noResolversError) { (result, resolver) =>
         result.orElse(Try(resolve(intelliJ, resolver)))
       }
@@ -64,18 +97,11 @@ final class PluginDependencyProvider(
   }
 }
 
-final class DependencyProvider(
-    intelliJDependencyProvider: IntelliJDependencyProvider,
-    pluginDependencyProvider: PluginDependencyProvider
-) {
-  def fetch(intelliJ: IntelliJVersion): Path = {
-    intelliJDependencyProvider.fetch(intelliJ)
-  }
-
-  def fetch(plugin: Plugin): Path = {
-    pluginDependencyProvider.fetch(plugin)
-  }
-}
+final case class DependencyProvider(
+    intelliJ: IntelliJDependencyProvider,
+    plugin: PluginDependencyProvider,
+    jbr: JbrDependencyProvider
+)
 
 object DependencyProvider {
   private[dependencies] val builders = mutable.Map[Id, DependencyBuilder]()
