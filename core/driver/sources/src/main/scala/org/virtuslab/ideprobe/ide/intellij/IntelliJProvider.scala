@@ -3,7 +3,7 @@ package org.virtuslab.ideprobe.ide.intellij
 import java.nio.file.{Files, Path}
 import java.util.stream.{Collectors, Stream => JStream}
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.{IdeProbePaths, OS, Shell, SilentShell, error}
+import org.virtuslab.ideprobe._
 import org.virtuslab.ideprobe.config.{DependenciesConfig, DriverConfig, IntellijConfig}
 import org.virtuslab.ideprobe.dependencies._
 import org.virtuslab.ideprobe.dependencies.Resource._
@@ -123,16 +123,10 @@ final case class IntelliJFactory(
   }
 
   private def installJbr(dependencies: DependencyProvider, intelliJ: DownloadedIntelliJ): Unit = {
-    dependencies.jbr.fetch(intelliJ.paths.root).foreach { jbrArchive =>
-      SilentShell
-        .run(
-          "tar",
-          "-xvzf",
-          jbrArchive.toString,
-          "-C",
-          intelliJ.paths.root.toString
-        )
-        .ok()
+    dependencies.jbr.fetchOpt(intelliJ.paths.root).foreach { jbrArchive =>
+      val archive = jbrArchive.toString
+      val output = intelliJ.paths.root.toString
+      SilentShell.run("tar", "-xvzf", archive, "-C", output).ok()
     }
   }
 
@@ -159,7 +153,7 @@ object IntelliJProvider {
       dependencies = new DependencyProvider(
         new IntelliJDependencyProvider(Seq(IntelliJZipResolver.community), ResourceProvider.Default),
         new PluginDependencyProvider(Seq(PluginResolver.Official), ResourceProvider.Default),
-        new JbrDependencyProvider(Seq(new JbrResolver), ResourceProvider.Default)
+        new JbrDependencyProvider(Seq(JbrResolvers.official), ResourceProvider.Default)
       ),
       plugins = Seq.empty,
       version = IntelliJVersion.Latest,
@@ -174,11 +168,12 @@ object IntelliJProvider {
       driverConfig: DriverConfig
   ): IntelliJProvider = {
     val intelliJResolvers = IntelliJZipResolver.fromConfig(resolversConfig.intellij)
-    val pluginResolver = PluginResolver.from(resolversConfig.plugins)
-    val resourceProvider = ResourceProvider.from(paths)
+    val pluginResolver = PluginResolver.fromConfig(resolversConfig.plugins)
+    val jbrResolvers = JbrResolvers.fromConfig(resolversConfig.jbr)
+    val resourceProvider = ResourceProvider.fromConfig(paths)
     val intelliJDependencyProvider = new IntelliJDependencyProvider(intelliJResolvers, resourceProvider)
     val pluginDependencyProvider = new PluginDependencyProvider(Seq(pluginResolver), resourceProvider)
-    val jbrDependencyProvider = new JbrDependencyProvider(Seq(new JbrResolver), resourceProvider)
+    val jbrDependencyProvider = new JbrDependencyProvider(jbrResolvers, resourceProvider)
     val dependencyProvider =
       new DependencyProvider(intelliJDependencyProvider, pluginDependencyProvider, jbrDependencyProvider)
     intelliJConfig match {

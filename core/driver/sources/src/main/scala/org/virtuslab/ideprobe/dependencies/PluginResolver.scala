@@ -1,7 +1,8 @@
 package org.virtuslab.ideprobe.dependencies
 
 import org.virtuslab.ideprobe.config.DependenciesConfig
-import org.virtuslab.ideprobe.dependencies.Plugin.{Bundled, BundledCrossVersion}
+import org.virtuslab.ideprobe.dependencies.Plugin._
+import org.virtuslab.ideprobe.error
 
 object PluginResolver {
   val Official = PluginResolver("https://plugins.jetbrains.com/plugin/download")
@@ -10,7 +11,7 @@ object PluginResolver {
     new Resolver(uri)
   }
 
-  def from(configuration: DependenciesConfig.Plugins): DependencyResolver[Plugin] = {
+  def fromConfig(configuration: DependenciesConfig.Plugins): DependencyResolver[Plugin] = {
     configuration.repository.map(repo => PluginResolver(repo.uri)).getOrElse(Official)
   }
 
@@ -44,6 +45,9 @@ object PluginResolver {
 
         case Bundled(bundle) =>
           getBundled(s"/$bundle")
+
+        case Empty() =>
+          error("Attempt to resolve an empty plugin")
       }
     }
   }
