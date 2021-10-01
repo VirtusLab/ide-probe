@@ -276,12 +276,7 @@ lazy val benchmarks = module("benchmarks", "benchmarks").cross
 lazy val benchmarks213 = benchmarks(scala213)
 
 val commonSettings = Seq(
-  libraryDependencies ++= Dependencies.junit,
-  test in assembly := {},
-  assemblyExcludedJars in assembly := {
-    val cp = (fullClasspath in assembly).value
-    cp.filter(file => file.data.toString.contains(".ideprobePluginIC"))
-  }
+  libraryDependencies ++= Dependencies.junit
 )
 
 // 2.12
@@ -309,12 +304,7 @@ def project(id: String, path: String, publish: Boolean): Project = {
   Project(id, sbt.file(path))
     .settings(
       skip in Keys.publish := !publish,
-      libraryDependencies ++= Dependencies.junit,
-      test in assembly := {},
-      assemblyExcludedJars in assembly := {
-        val cp = (fullClasspath in assembly).value
-        cp.filter(file => file.data.toString.contains(".ideprobePluginIC"))
-      }
+      libraryDependencies ++= Dependencies.junit
     )
 }
 

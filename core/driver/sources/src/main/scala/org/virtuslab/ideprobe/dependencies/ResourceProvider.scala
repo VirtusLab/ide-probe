@@ -13,7 +13,7 @@ trait ResourceProvider {
 }
 
 object ResourceProvider {
-  def from(paths: IdeProbePaths): ResourceProvider = {
+  def fromConfig(paths: IdeProbePaths): ResourceProvider = {
     new Cached(paths.cache)
   }
 

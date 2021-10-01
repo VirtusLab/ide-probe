@@ -6,46 +6,22 @@ import org.virtuslab.ideprobe.dependencies.Dependency._
 import scala.collection.mutable
 import scala.util.Try
 
-final class IntelliJDependencyProvider(
-    intelliJResolvers: Seq[DependencyResolver[IntelliJVersion]],
+final class JbrDependencyProvider(
+    resolvers: Seq[DependencyResolver[Path]],
     resources: ResourceProvider
-) {
-  def fetch(intelliJ: IntelliJVersion): Path = {
-    val noResolversError = Try[Path](error("Dependency resolver list is empty"))
-    intelliJResolvers
-      .foldLeft(noResolversError) { (result, resolver) =>
-        result.orElse(Try(resolve(intelliJ, resolver)))
-      }
-      .get
-  }
+) extends BaseDependencyProvider[Path](resolvers, resources)
 
-  private def resolve(
-      intelliJ: IntelliJVersion,
-      resolver: DependencyResolver[IntelliJVersion]
-  ): Path = {
-    resolver.resolve(intelliJ) match {
-      case Artifact(uri) =>
-        resources.get(uri)
-      case other =>
-        throw new Exception(s"Couldn't resolve $intelliJ from $other")
-    }
-  }
-}
+final class IntelliJDependencyProvider(
+    resolvers: Seq[DependencyResolver[IntelliJVersion]],
+    resources: ResourceProvider
+) extends BaseDependencyProvider[IntelliJVersion](resolvers, resources)
 
 final class PluginDependencyProvider(
     pluginResolvers: Seq[DependencyResolver[Plugin]],
     resources: ResourceProvider
-) {
-  def fetch(plugin: Plugin): Path = {
-    val noResolversError = Try[Path](error("Dependency resolver list is empty"))
-    pluginResolvers
-      .foldLeft(noResolversError) { (result, resolver) =>
-        result.orElse(Try(resolve(plugin, resolver)))
-      }
-      .get
-  }
+) extends BaseDependencyProvider[Plugin](pluginResolvers, resources) {
 
-  private def resolve(plugin: Plugin, resolver: DependencyResolver[Plugin]): Path = {
+  override protected def resolve(plugin: Plugin, resolver: DependencyResolver[Plugin]): Path = {
     resolver.resolve(plugin) match {
       case Artifact(uri) =>
         resources.get(uri)
@@ -59,28 +35,52 @@ final class PluginDependencyProvider(
             throw new RuntimeException(message)
         }
       case dependency =>
-        throw new Exception(s"Couldn't resolve $plugin from $dependency")
+        error(s"Couldn't resolve $plugin from $dependency")
     }
   }
 }
 
-final class DependencyProvider(
-    intelliJDependencyProvider: IntelliJDependencyProvider,
-    pluginDependencyProvider: PluginDependencyProvider
-) {
-  def fetch(intelliJ: IntelliJVersion): Path = {
-    intelliJDependencyProvider.fetch(intelliJ)
-  }
-
-  def fetch(plugin: Plugin): Path = {
-    pluginDependencyProvider.fetch(plugin)
-  }
-}
+final case class DependencyProvider(
+    intelliJ: IntelliJDependencyProvider,
+    plugin: PluginDependencyProvider,
+    jbr: JbrDependencyProvider
+)
 
 object DependencyProvider {
   private[dependencies] val builders = mutable.Map[Id, DependencyBuilder]()
 
   def registerBuilder(builder: DependencyBuilder): Unit = {
     builders += (builder.id -> builder)
+  }
+}
+
+abstract class BaseDependencyProvider[A](
+    resolvers: Seq[DependencyResolver[A]],
+    resources: ResourceProvider
+) {
+
+  def fetchOpt(key: A): Option[Path] = {
+    if (resolvers.isEmpty) None else Some(fetch(key))
+  }
+
+  def fetch(key: A): Path = {
+    val noResolversError = Try[Path](error("Dependency resolver list is empty"))
+    resolvers
+      .foldLeft(noResolversError) { (result, resolver) =>
+        result.orElse(Try(resolve(key, resolver)))
+      }
+      .get
+  }
+
+  protected def resolve(
+      key: A,
+      resolver: DependencyResolver[A]
+  ): Path = {
+    resolver.resolve(key) match {
+      case Artifact(uri) =>
+        resources.get(uri)
+      case other =>
+        error(s"Couldn't resolve $key from $other")
+    }
   }
 }

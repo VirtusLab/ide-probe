@@ -67,7 +67,12 @@ sealed abstract class InstalledIntelliJ(root: Path, probePaths: IdeProbePaths, c
 
   private val executable: Path = {
     val content = {
-      val launcher = paths.bin.resolve("idea.sh").makeExecutable()
+      val launcher = if (OS.Current == OS.Mac) {
+        paths.root.resolve("MacOS").resolve("idea")
+      } else {
+        paths.bin.resolve("idea.sh")
+      }
+      launcher.makeExecutable()
 
       val command =
         if (config.headless) s"$launcher headless"

@@ -10,6 +10,12 @@ import scala.concurrent.{Await, Future, Promise}
 
 object Shell extends BaseShell
 
+object SilentShell extends BaseShell {
+  override protected def logExecution(cwd: Option[Path], command: Seq[String]): Unit = ()
+
+  override protected def customOutputHandlers(): Seq[NuAbstractProcessHandler] = Seq.empty
+}
+
 case class CommandResult(outSafe: String, err: String, exitCode: Int) {
   def isSuccess: Boolean = exitCode == 0
 
