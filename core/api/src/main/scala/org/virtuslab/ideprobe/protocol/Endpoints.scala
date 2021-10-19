@@ -1,15 +1,13 @@
 package org.virtuslab.ideprobe.protocol
 
 import java.nio.file.Path
-
+import org.virtuslab.ideprobe.ConfigFormat
 import org.virtuslab.ideprobe.jsonrpc.JsonRpc.Method.Notification
 import org.virtuslab.ideprobe.jsonrpc.JsonRpc.Method.Request
-import org.virtuslab.ideprobe.jsonrpc.PayloadJsonFormat._
 import pureconfig.generic.auto._
-
 import scala.concurrent.duration.Duration
 
-object Endpoints {
+object Endpoints extends ConfigFormat {
 
   // commands
   val PreconfigureJdk = Request[Unit, Unit]("jdk/preconfigure")

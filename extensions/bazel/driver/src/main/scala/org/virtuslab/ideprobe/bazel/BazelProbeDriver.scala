@@ -5,8 +5,8 @@ import java.nio.file.Path
 import java.util.UUID
 import org.virtuslab.ideprobe.Extensions.PathExtension
 import org.virtuslab.ideprobe._
-import org.virtuslab.ideprobe.bazel.protocol.BazelEndpoints
-import org.virtuslab.ideprobe.protocol.ProjectRef
+import org.virtuslab.ideprobe.bazel.protocol.{BazelCommandParams, BazelEndpoints}
+import org.virtuslab.ideprobe.protocol.{ProjectRef, TestsRunResult}
 import org.virtuslab.ideprobe.robot.RobotProbeDriver
 import org.virtuslab.ideprobe.robot.RobotSyntax._
 import org.virtuslab.ideprobe.wait.WaitLogicFactory
@@ -22,6 +22,10 @@ object BazelProbeDriver {
 
 class BazelProbeDriver(val driver: ProbeDriver) {
   private val robotDriver = RobotProbeDriver(driver)
+
+  def runBazelTestCommand(params: BazelCommandParams, project: ProjectRef = ProjectRef.Default): TestsRunResult = {
+    driver.send(BazelEndpoints.RunTestCommand, (params, project))
+  }
 
   def setupBazelExec(path: Path): Unit = {
     driver.send(BazelEndpoints.SetupBazelExecutable, path)
