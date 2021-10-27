@@ -10,7 +10,6 @@ trait PantsPluginExtraExtensions { this: IdeProbeFixture =>
       val plugins = intelliJ.paths.bundledPlugins
       plugins.resolve("Kotlin").delete()
       plugins.resolve("android").delete()
-      intelliJ.paths.bin.resolve("printenv.py").makeExecutable()
     }
   }
 

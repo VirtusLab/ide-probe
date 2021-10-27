@@ -17,7 +17,7 @@ object Dependencies {
 
   val nuProcess = "com.zaxxer" % "nuprocess" % "1.2.6"
 
-  val remoteRobot = "com.intellij.remoterobot" % "remote-robot" % "0.11.2"
+  val remoteRobot = "com.intellij.remoterobot" % "remote-robot" % "0.11.7"
 
   val remoteRobotFixtures = "com.intellij.remoterobot" % "remote-fixtures" % "1.1.18"
 
