@@ -16,15 +16,13 @@ object PantsPluginBuilder extends DependencyBuilder(Id("pants")) {
     resources.get(artifact, provider = build(repository, env))
   }
 
-  private def build(repository: GitRepository, env: Map[String, String]): InputStream = {
+  private def build(repository: GitRepository, userEnv: Map[String, String]): InputStream = {
     val localRepo = GitRepository.clone(repository)
-
+    val env = Map("PANTS_SHA" -> "33735fe23228472367dc73f26bb96a755452192f") ++ userEnv
     Shell.run(localRepo, env, "./scripts/setup-ci-environment.sh").ok()
+    Shell.run(localRepo, env, "./gradlew", ":buildPlugin").ok()
 
-    val deployEnv = env ++ Map("TRAVIS_BRANCH" -> "master")
-    Shell.run(localRepo, deployEnv, "./scripts/deploy/deploy.sh", "--skip-publish").ok()
-
-    val files = localRepo.directChildren()
+    val files = localRepo.resolve("build/distributions").directChildren()
     val output = files.find(_.name.matches("pants_.*\\.zip")).getOrElse {
       error(s"Couldn't find pants archive. Existing files:\n${files.mkString("\n")}")
     }

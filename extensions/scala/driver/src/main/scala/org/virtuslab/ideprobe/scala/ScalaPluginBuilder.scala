@@ -14,10 +14,7 @@ object ScalaPluginBuilder extends DependencyBuilder(Id("scala")) {
 
   implicit val paramsReader: ConfigReader[Params] = deriveReader[Params]
 
-  override def build(
-      config: Config,
-      resources: ResourceProvider
-  ): Path = {
+  override def build(config: Config, resources: ResourceProvider): Path = {
     build(config.as[Params], resources)
   }
 
