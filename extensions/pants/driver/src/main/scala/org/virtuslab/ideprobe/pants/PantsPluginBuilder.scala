@@ -23,7 +23,7 @@ object PantsPluginBuilder extends DependencyBuilder(Id("pants")) {
     Shell.run(localRepo, env, "./gradlew", ":buildPlugin").ok()
 
     val files = localRepo.resolve("build/distributions").directChildren()
-    val output = files.find(_.name.matches("pants_.*\\.zip")).getOrElse {
+    val output = files.find(_.name.matches("pants.*\\.zip")).getOrElse {
       error(s"Couldn't find pants archive. Existing files:\n${files.mkString("\n")}")
     }
 
