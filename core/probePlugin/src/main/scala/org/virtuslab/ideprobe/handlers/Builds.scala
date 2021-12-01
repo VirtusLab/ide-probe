@@ -122,7 +122,7 @@ object Builds extends IntelliJApi {
 
   def buildArtifact(projectRef: ProjectRef, artifactName: String): Unit = {
     val defaultProject = Projects.resolve(projectRef)
-    val artifacts = ArtifactUtil.getArtifactWithOutputPaths(defaultProject)
+    val artifacts = read { ArtifactUtil.getArtifactWithOutputPaths(defaultProject) }
     artifacts.asScala.find(_.getName == artifactName).foreach { artifact =>
       ProjectTaskManager.getInstance(defaultProject).build(artifact)
     }
