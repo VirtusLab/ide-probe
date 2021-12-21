@@ -3,6 +3,7 @@ package org.virtuslab.ideprobe
 import java.net.URL
 import java.nio.charset.Charset
 import com.intellij.remoterobot.utils.WaitForConditionTimeoutException
+import java.nio.file.{Files, Paths}
 import org.apache.commons.io.IOUtils
 import org.junit.Assert._
 import org.junit.{Ignore, Test}
@@ -14,7 +15,6 @@ import org.virtuslab.ideprobe.ide.intellij.IntelliJProvider
 import org.virtuslab.ideprobe.protocol.TestStatus.Passed
 import org.virtuslab.ideprobe.protocol._
 import org.virtuslab.ideprobe.robot.RobotPluginExtension
-
 import scala.annotation.tailrec
 import scala.concurrent.duration._
 import scala.util.Try
@@ -182,6 +182,36 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
 
       assertExists(failedResult.errors)(error => error.file.exists(_.endsWith("Incorrect.scala")))
       assertEquals(Nil, successfulResult.errors)
+    }
+  }
+
+  @Test
+  def collectHighlightsTest(): Unit = {
+    buildTestFixture.run { intelliJ =>
+      val projectDir = intelliJ.workspace.resolve("simple-sbt-project")
+      intelliJ.probe.withRobot.openProject(projectDir)
+
+      val file = projectDir.resolve("src/main/scala/Highlighting.scala")
+      file.write("""package wrong
+          |
+          |class NonCorrespondingName {
+          |  val immutable = 4
+          |  immutable = 3
+          |  
+          |  List(1, 2, 3).exists(_ == 3)
+          |}
+          |""".stripMargin)
+      intelliJ.probe.syncFiles()
+
+      val highlighting = intelliJ.probe.highlightInfos(file)
+      assert(highlighting.nonEmpty)
+      assertEquals(2, highlighting.count(_.severity == HighlightInfo.Severity.Error))
+      val packageNameError = highlighting.head
+      assertEquals("Highlighting.scala", packageNameError.origin.name)
+      assertEquals(HighlightInfo.Severity.Error, packageNameError.severity)
+      assertEquals(1, packageNameError.line)
+      assertEquals(8, packageNameError.offsetStart)
+      assertEquals(13, packageNameError.offsetEnd)
     }
   }
 

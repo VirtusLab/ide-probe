@@ -1,7 +1,6 @@
 package org.virtuslab.ideprobe
 
 import org.virtuslab.ideprobe.ProbeExtensions.LambdaVisitor
-
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.InputStream
@@ -20,6 +19,7 @@ import scala.util.Failure
 import scala.util.Try
 import scala.util.control.NonFatal
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 trait ProbeExtensions {
 
@@ -35,6 +35,25 @@ trait ProbeExtensions {
       val stream = Files.list(path)
       try stream.iterator().asScala.toList
       finally stream.close()
+    }
+
+    def recursiveChildren(): List[Path] = {
+      val stream = Files.walk(path)
+      try stream.iterator().asScala.toList
+      finally stream.close()
+    }
+
+    def recursiveFiles(filter: Path => Boolean = _ => true): List[Path] = {
+      val files = mutable.Buffer.empty[Path]
+      Files.walkFileTree(path, new SimpleFileVisitor[Path] {
+        override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
+          if (filter(file)) {
+            files.append(file)
+          }
+          super.visitFile(file, attrs)
+        }
+      })
+      files.toList
     }
 
     def name: String = {

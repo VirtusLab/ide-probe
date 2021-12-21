@@ -136,7 +136,7 @@ class ProbeDriver(
   /**
    * Finds all the files referenced by the specified file
    */
-  def fileReferences(project: ProjectRef = ProjectRef.Default, path: Path): Seq[Reference] = {
+  def fileReferences(path: Path, project: ProjectRef = ProjectRef.Default): Seq[Reference] = {
     send(Endpoints.FileReferences, FileRef(path, project))
   }
 
@@ -157,17 +157,17 @@ class ProbeDriver(
   /**
    * Returns the list of all errors produced by the IDE
    */
-  def errors: Seq[IdeMessage] = send(Endpoints.Messages).filter(_.isError).toList
+  def errors(): Seq[IdeMessage] = send(Endpoints.Messages).filter(_.isError).toList
 
   /**
    * Returns the list of all warnings produced by the IDE
    */
-  def warnings: Seq[IdeMessage] = send(Endpoints.Messages).filter(_.isWarn).toList
+  def warnings(): Seq[IdeMessage] = send(Endpoints.Messages).filter(_.isWarn).toList
 
   /**
    * Returns the list of all messages produced by the IDE
    */
-  def messages: Seq[IdeMessage] = send(Endpoints.Messages).toList
+  def messages(): Seq[IdeMessage] = send(Endpoints.Messages).toList
 
   /**
    * Returns the model of the specified project
@@ -272,6 +272,10 @@ class ProbeDriver(
     send(Endpoints.RunLocalInspection, InspectionRunParams(className, targetFile, runFixesSpec))
   }
 
+  def highlightInfos(path: Path, project: ProjectRef = ProjectRef.Default): Seq[HighlightInfo] = {
+    send(Endpoints.HighlightInfo, FileRef(path, project))
+  }
+
   /**
    *  Expand macro in a given file
    */
@@ -290,7 +294,7 @@ class ProbeDriver(
    * Opens file in editor
    * */
   def openEditor(file: Path, project: ProjectRef = ProjectRef.Default): Unit = {
-    send(Endpoints.OpenEditor, (project, file))
+    send(Endpoints.OpenEditor, FileRef(file, project))
   }
 
   /**
