@@ -45,9 +45,10 @@ class BaseProbeHandlerContributor extends ProbeHandlerContributor {
       .on(Endpoints.VcsRoots)(VCS.roots)
       .on(Endpoints.ExpandMacro)(ExpandMacro.expand)
       .on(Endpoints.BuildArtifact)((Builds.buildArtifact _).tupled)
-      .on(Endpoints.OpenEditor)((Editors.open _).tupled)
+      .on(Endpoints.OpenEditor)(Editors.open)
       .on(Endpoints.GoToLineColumn)((Editors.goToLineColumn _).tupled)
       .on(Endpoints.ListOpenEditors)(Editors.all)
       .on(Endpoints.AddTrustedPath)(TrustedPaths.add)
+      .on(Endpoints.HighlightInfo)(Highlighting.infos)
   }
 }

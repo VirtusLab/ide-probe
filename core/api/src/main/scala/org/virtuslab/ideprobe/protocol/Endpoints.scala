@@ -31,7 +31,7 @@ object Endpoints extends ConfigFormat {
     Request[InspectionRunParams, InspectionRunResult]("inspections/local/run")
   val SetConfig = Request[String, Unit]("config/set")
   val BuildArtifact = Request[(ProjectRef, String), Unit]("buildArtifact")
-  val OpenEditor = Request[(ProjectRef, Path), Unit]("project/editors/open")
+  val OpenEditor = Request[FileRef, Unit]("project/editors/open")
   val GoToLineColumn = Request[(ProjectRef, Int, Int), Unit]("project/editors/current/goto")
   val AddTrustedPath = Request[Path, Unit]("trustedPaths/add")
 
@@ -51,4 +51,5 @@ object Endpoints extends ConfigFormat {
   val ExpandMacro = Request[ExpandMacroData, String](name = "expandMacro")
   val BackgroundTasks = Request[Unit, Seq[String]]("backgroundTasks")
   val ListOpenEditors = Request[ProjectRef, Seq[Path]]("project/editors/all")
+  val HighlightInfo = Request[FileRef, Seq[HighlightInfo]]("project/file/highlightInfo")
 }

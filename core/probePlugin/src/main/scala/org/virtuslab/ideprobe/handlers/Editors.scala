@@ -4,7 +4,7 @@ import com.intellij.openapi.editor.LogicalPosition
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import java.nio.file.{Path, Paths}
 import org.virtuslab.ideprobe.handlers.Projects.resolve
-import org.virtuslab.ideprobe.protocol.ProjectRef
+import org.virtuslab.ideprobe.protocol.{FileRef, ProjectRef}
 
 object Editors extends IntelliJApi {
 
@@ -12,10 +12,10 @@ object Editors extends IntelliJApi {
     editorManager(projectRef).getOpenFiles.map(p => Paths.get(p.getPath))
   }
 
-  def open(projectRef: ProjectRef, file: Path): Unit =
+  def open(fileRef: FileRef): Unit =
     runOnUISync {
-      val vFile = VFS.toVirtualFile(file, refresh = true)
-      val project = resolve(projectRef)
+      val vFile = VFS.toVirtualFile(fileRef.path, refresh = true)
+      val project = resolve(fileRef.project)
       new OpenFileDescriptor(project, vFile).navigate(true)
     }
 

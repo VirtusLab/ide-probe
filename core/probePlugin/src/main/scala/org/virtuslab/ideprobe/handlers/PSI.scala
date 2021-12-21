@@ -1,9 +1,11 @@
 package org.virtuslab.ideprobe.handlers
 
+import com.intellij.openapi.editor.Document
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.impl.file.PsiPackageImpl
-import com.intellij.psi.{PsiDirectory, PsiElement, PsiFile, PsiManager, PsiPackage}
+import com.intellij.psi.{PsiDirectory, PsiDocumentManager, PsiElement, PsiFile, PsiManager, PsiPackage}
+import org.virtuslab.ideprobe.handlers.Highlighting.read
 import org.virtuslab.ideprobe.protocol.FileRef
 import org.virtuslab.ideprobe.protocol.ProjectRef
 import org.virtuslab.ideprobe.protocol.Reference
@@ -22,6 +24,10 @@ object PSI extends IntelliJApi {
     val project = Projects.resolve(ref.project)
     val file = VFS.resolve(ref)
     read { manager(project).findFile(file) }
+  }
+
+  def getDocument(psiFile: PsiFile): Document = {
+    read { PsiDocumentManager.getInstance(psiFile.getProject).getDocument(psiFile) }
   }
 
   def references(file: FileRef): Seq[Reference] = {
