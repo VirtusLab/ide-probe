@@ -37,7 +37,7 @@ object Highlighting extends IntelliJApi {
         document.getLineNumber(info.getStartOffset) + 1,
         info.getStartOffset,
         info.getEndOffset,
-        protocol.HighlightInfo.Severity.withName(info.getSeverity.toString),
+        protocol.HighlightInfo.Severity.from(info.getSeverity.myName, info.getSeverity.myVal),
         info.getDescription
       )
     }
