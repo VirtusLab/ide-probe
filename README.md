@@ -34,7 +34,7 @@ With it, not only a proper environment is used, but one can also guard against n
 To include ide-probe in your sbt project add following lines:
 
 ```scala
-libraryDependencies += "org.virtuslab.ideprobe" %% "driver" % "0.23.0"
+libraryDependencies += "org.virtuslab.ideprobe" %% "driver" % "0.24.0"
 ```
 
 To use snapshots versions, add another repository:
@@ -61,7 +61,7 @@ repositories {
 }
 
 dependencies {
-    implementation group: 'org.virtuslab.ideprobe', name: 'driver_2.13', version: '0.23.0'
+    implementation group: 'org.virtuslab.ideprobe', name: 'driver_2.13', version: '0.24.0'
 }
 ```
 
@@ -217,7 +217,7 @@ For dependencies use:
 libraryDependencies += "org.virtuslab.ideprobe" %% "EXTENSION-probe-driver" % ideProbeVersion
 
 // example
-libraryDependencies += "org.virtuslab.ideprobe" %% "scala-probe-driver" % "0.23.0"
+libraryDependencies += "org.virtuslab.ideprobe" %% "scala-probe-driver" % "0.24.0"
 ```
 
 Additionally extend from `org.virtuslab.ideprobe.EXTENSION.EXTENSIONPluginExtension`, 
