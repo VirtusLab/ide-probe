@@ -19,7 +19,7 @@ object Dependencies {
 
   val remoteRobot = "com.intellij.remoterobot" % "remote-robot" % "0.11.7"
 
-  val remoteRobotFixtures = "com.intellij.remoterobot" % "remote-fixtures" % "1.1.18"
+  val remoteRobotFixtures = "com.intellij.remoterobot" % "remote-fixtures" % "0.11.13"
 
   val gson = "com.google.code.gson" % "gson" % "2.8.6"
 
