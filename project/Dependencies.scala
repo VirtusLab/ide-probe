@@ -15,7 +15,7 @@ object Dependencies {
     "org.scala-lang" % "scala-library" % version
   )
 
-  val nuProcess = "com.zaxxer" % "nuprocess" % "1.2.6"
+  val nuProcess = "com.zaxxer" % "nuprocess" % "2.0.3"
 
   val remoteRobot = "com.intellij.remoterobot" % "remote-robot" % "0.11.7"
 
