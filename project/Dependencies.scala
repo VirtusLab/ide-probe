@@ -28,7 +28,7 @@ object Dependencies {
   // so here are all the dependencies explicitly
   val pureConfig = {
     val typesafeConfig = "com.typesafe" % "config" % "1.4.0"
-    val shapeless = "com.chuusai" %% "shapeless" % "2.3.3"
+    val shapeless = "com.chuusai" %% "shapeless" % "2.3.9"
     val pureConfigModules =
       Seq("pureconfig", "pureconfig-macros", "pureconfig-generic", "pureconfig-generic-base", "pureconfig-core")
     pureConfigModules.map { module =>
