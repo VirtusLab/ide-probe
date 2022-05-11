@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        scala-version: [ "2.12.10", "2.13.1" ]
+        scala-version: [ "2.12.15", "2.13.1" ]
         test-set: [ "probe", "scala" ]
       fail-fast: false
     steps:
