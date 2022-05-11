@@ -12,31 +12,31 @@ final case class Config(source: ConfigObjectSource, fallback: Option[Config] = N
 
   def withFallback(config: Config): Config = copy(fallback = Some(config))
 
-  def as[A: ClassTag](implicit reader: Derivation[ConfigReader[A]]): A = {
+  def as[A: ClassTag](implicit reader: ConfigReader[A]): A = {
     getEither[A](None) match {
       case Right(value) => value
       case Left(value)  => throw new ConfigReaderException[A](value)
     }
   }
 
-  def apply[A: ClassTag](path: String)(implicit reader: Derivation[ConfigReader[A]]): A = {
+  def apply[A: ClassTag](path: String)(implicit reader: ConfigReader[A]): A = {
     getEither[A](Some(path)) match {
       case Right(value) => value
       case Left(value)  => throw new ConfigReaderException[A](value)
     }
   }
 
-  def get[A: ClassTag](path: String)(implicit reader: Derivation[ConfigReader[A]]): Option[A] = {
+  def get[A: ClassTag](path: String)(implicit reader: ConfigReader[A]): Option[A] = {
     getEither[A](Some(path)).toOption
   }
 
-  def getOrElse[A: ClassTag](path: String, fallback: => A)(implicit reader: Derivation[ConfigReader[A]]): A = {
+  def getOrElse[A: ClassTag](path: String, fallback: => A)(implicit reader: ConfigReader[A]): A = {
     getEither[A](Some(path)).getOrElse(fallback)
   }
 
   private def getEither[A: ClassTag](
       path: Option[String]
-  )(implicit reader: Derivation[ConfigReader[A]]): ConfigReader.Result[A] = {
+  )(implicit reader: ConfigReader[A]): ConfigReader.Result[A] = {
     path.fold[ConfigSource](source)(source.at).load[A].left.flatMap { errors =>
       fallback match {
         case Some(fallback) => fallback.getEither[A](path)
