@@ -52,6 +52,29 @@ final class IntelliJProviderTest {
     )
   }
 
+
+  @Test
+  def shouldInstallIntellijFromExtractedRepository: Unit = givenInstalledIntelliJ { installationRoot =>
+
+    val build = IntelliJVersion.Latest.build
+    val installationPattern = installationRoot.toString.replace(build, "[revision]")
+    val config = Config.fromString(s"""
+                                      |probe.intellij {
+                                      |    repositories = [\"$installationPattern\"]
+                                      |}
+                                      |""".stripMargin)
+
+    val fixture = IntelliJFixture.fromConfig(config)
+
+    val existingInstalledIntelliJ = fixture.installIntelliJ()
+
+    //when
+    existingInstalledIntelliJ.cleanup()
+
+    //then
+    assert(!existingInstalledIntelliJ.paths.root.isDirectory, "The provided IntelliJ instance should not exist after cleanup, but it was deleted.")
+  }
+
   @Test
   def existingIntelliJShouldRetainItsOriginalPluginsDuringCleanup: Unit = givenInstalledIntelliJ { installationRoot =>
     //given a pre-installed IntelliJ and an IntelliJProvider
