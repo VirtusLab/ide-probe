@@ -27,7 +27,7 @@ object Dependencies {
   // somehow it fails to see the transitive dependencies (even though the code says it should)
   // so here are all the dependencies explicitly
   val pureConfig = {
-    val typesafeConfig = "com.typesafe" % "config" % "1.4.0"
+    val typesafeConfig = "com.typesafe" % "config" % "1.4.2"
     val shapeless = "com.chuusai" %% "shapeless" % "2.3.3"
     val pureConfigModules =
       Seq("pureconfig", "pureconfig-macros", "pureconfig-generic", "pureconfig-generic-base", "pureconfig-core")
