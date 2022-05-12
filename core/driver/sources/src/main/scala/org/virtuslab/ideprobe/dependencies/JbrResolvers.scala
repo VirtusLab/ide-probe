@@ -29,7 +29,7 @@ case class JbrPatternResolver(pattern: String) extends DependencyResolver[Path] 
 
   override def resolve(path: Path): Dependency = {
     extractVersionFromInstalledIntelliJ(path) match {
-      case Some((minor, major)) =>
+      case Some((major, minor)) =>
         val platform = OS.Current match {
           case OS.Windows => "windows"
           case OS.Unix => "linux"

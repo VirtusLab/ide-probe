@@ -65,12 +65,9 @@ final class IntelliJProviderTest {
                                       |}
                                       |""".stripMargin)
 
-    val fixture = IntelliJFixture.fromConfig(config).headless
+    val fixture = IntelliJFixture.fromConfig(config)
 
     val existingInstalledIntelliJ = fixture.installIntelliJ()
-    val ide = existingInstalledIntelliJ.startIn(IdeProbePaths.Default.workspaces, config)
-    ide.probe.await()
-    ide.probe.shutdown()
 
     //when
     existingInstalledIntelliJ.cleanup()
