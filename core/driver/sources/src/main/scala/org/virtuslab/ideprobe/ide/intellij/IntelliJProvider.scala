@@ -144,6 +144,7 @@ final case class IntelliJFactory(
   }
 
   private def installIntelliJ(version: IntelliJVersion, root: Path): Unit = {
+    println(s"Installing $version")
     val fileOpt = dependencies.intelliJ.fetch(version)
     fileOpt match {
       case Some(file) =>
