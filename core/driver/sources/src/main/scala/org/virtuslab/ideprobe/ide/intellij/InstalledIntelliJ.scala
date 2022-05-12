@@ -69,7 +69,7 @@ sealed abstract class InstalledIntelliJ(root: Path, probePaths: IdeProbePaths, c
     val content = {
       val macOsLauncher = paths.root.resolve("MacOS").resolve("idea")
       val launcher =
-        if(macOsLauncher.toFile.exists())
+        if(OS.Current == OS.Mac && macOsLauncher.toFile.exists())
           macOsLauncher
         else
           paths.bin.resolve("idea.sh")
