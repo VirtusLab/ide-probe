@@ -18,5 +18,4 @@ class ExampleTest {
     throw new OutOfMemoryError()
   }
 
-
 }

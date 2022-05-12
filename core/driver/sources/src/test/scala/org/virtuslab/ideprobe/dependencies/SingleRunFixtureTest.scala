@@ -73,8 +73,8 @@ final class SingleRunFixtureTest extends IdeProbeFixture with WorkspaceFixture w
       case _: Exception => //Pass, we don't care what went wrong specifically.
     }
 
-    val instancesNotDeleted = instancesDir.directChildren() diff instancesBefore
-    val workspacesNotDeleted = workspacesDir.directChildren() diff workspacesBefore
+    val instancesNotDeleted = instancesDir.directChildren().diff(instancesBefore)
+    val workspacesNotDeleted = workspacesDir.directChildren().diff(workspacesBefore)
 
     assertTrue(
       s"Expected instances directory cleanup, but ${instancesNotDeleted.mkString(",")} were not removed",
