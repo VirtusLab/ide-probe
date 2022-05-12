@@ -7,7 +7,8 @@ case class BenchmarkResult(
     numberOfWarmups: Int,
     numberOfRuns: Int,
     results: Seq[FiniteDuration],
-    metadata: Map[String, String]) {
+    metadata: Map[String, String]
+) {
 
   def withMetadata(metadata: Map[String, String]): BenchmarkResult = {
     copy(metadata = this.metadata ++ metadata)
@@ -27,8 +28,8 @@ case class BenchmarkResult(
   val stdev: Option[FiniteDuration] = {
     meanTime.filter(_ => results.size >= 2).map { mean =>
       val squares = results
-          .map(_.toMillis)
-          .map(time => (time - mean.toMillis) * (time - mean.toMillis))
+        .map(_.toMillis)
+        .map(time => (time - mean.toMillis) * (time - mean.toMillis))
         .sum
 
       math.sqrt(squares / (results.size - 1).toDouble).millis
