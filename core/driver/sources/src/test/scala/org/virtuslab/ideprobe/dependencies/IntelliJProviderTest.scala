@@ -7,7 +7,7 @@ import org.virtuslab.ideprobe.ide.intellij.IntelliJProvider
 
 import java.nio.file.Path
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.{Config, IntelliJFixture}
+import org.virtuslab.ideprobe.{Config, IdeProbePaths, IntelliJFixture}
 
 import java.util.concurrent.Executors
 import scala.concurrent.ExecutionContext
@@ -52,21 +52,25 @@ final class IntelliJProviderTest {
     )
   }
 
-
   @Test
   def shouldInstallIntellijFromExtractedRepository: Unit = givenInstalledIntelliJ { installationRoot =>
 
     val build = IntelliJVersion.Latest.build
     val installationPattern = installationRoot.toString.replace(build, "[revision]")
+    installationRoot.resolve("dependencies.txt").delete()
+    installationRoot.resolve("MacOS").delete()
     val config = Config.fromString(s"""
                                       |probe.intellij {
                                       |    repositories = [\"$installationPattern\"]
                                       |}
                                       |""".stripMargin)
 
-    val fixture = IntelliJFixture.fromConfig(config)
+    val fixture = IntelliJFixture.fromConfig(config).headless
 
     val existingInstalledIntelliJ = fixture.installIntelliJ()
+    val ide = existingInstalledIntelliJ.startIn(IdeProbePaths.Default.workspaces, config)
+    ide.probe.await()
+    ide.probe.shutdown()
 
     //when
     existingInstalledIntelliJ.cleanup()

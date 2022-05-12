@@ -6,6 +6,7 @@ import java.util.Properties
 import org.virtuslab.ideprobe.Extensions.PathExtension
 import org.virtuslab.ideprobe.config.DependenciesConfig
 import org.virtuslab.ideprobe._
+import org.virtuslab.ideprobe.dependencies.Dependency.Missing
 
 object JbrResolvers {
   val official =
@@ -27,35 +28,41 @@ object JbrResolvers {
 case class JbrPatternResolver(pattern: String) extends DependencyResolver[Path] {
 
   override def resolve(path: Path): Dependency = {
-    val (major, minor) = extractVersionFromInstalledIntelliJ(path)
+    extractVersionFromInstalledIntelliJ(path) match {
+      case Some((minor, major)) =>
+        val platform = OS.Current match {
+          case OS.Windows => "windows"
+          case OS.Unix => "linux"
+          case OS.Mac => "osx"
+        }
 
-    val platform = OS.Current match {
-      case OS.Windows => "windows"
-      case OS.Unix    => "linux"
-      case OS.Mac     => "osx"
+        val replacements = Map(
+          "major" -> major,
+          "minor" -> minor,
+          "platform" -> platform
+        )
+
+        val replaced = replacements.foldLeft(pattern) {
+          case (path, (pattern, replacement)) => path.replace(s"[$pattern]", replacement)
+        }
+
+        Dependency(replaced)
+      case _ => Missing
     }
-
-    val replacements = Map(
-      "major" -> major,
-      "minor" -> minor,
-      "platform" -> platform
-    )
-
-    val replaced = replacements.foldLeft(pattern) {
-      case (path, (pattern, replacement)) => path.replace(s"[$pattern]", replacement)
-    }
-
-    Dependency(replaced)
   }
 
-  private def extractVersionFromInstalledIntelliJ(ideaInstallationDir: Path) = {
-    val dependenciesFile = ideaInstallationDir.resolve("dependencies.txt").content()
-    val props = new Properties()
-    props.load(new StringReader(dependenciesFile))
-    val version = Option(props.getProperty("jdkBuild"))
-      .getOrElse(error("Failed to extract JBR version from IntelliJ"))
+  private def extractVersionFromInstalledIntelliJ(ideaInstallationDir: Path):Option[(String, String)] = {
+    val dependenciesFile = ideaInstallationDir.resolve("dependencies.txt")
+    if (dependenciesFile.toFile.exists()) {
+      val props = new Properties()
+      props.load(new StringReader(dependenciesFile.content()))
+      val version = Option(props.getProperty("jdkBuild"))
+        .getOrElse(error("Failed to extract JBR version from IntelliJ"))
 
-    toMinorMajor(version)
+      Option(toMinorMajor(version))
+    } else {
+      None
+    }
   }
 
   private def toMinorMajor(version: String): (String, String) = {
