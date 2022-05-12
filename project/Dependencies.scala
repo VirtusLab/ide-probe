@@ -4,7 +4,7 @@ object Dependencies {
 
   val junit = Seq(
     "junit" % "junit" % "4.13.2" % Test,
-    ("com.novocode" % "junit-interface" % "0.11" % Test).exclude("junit", "junit-dep")
+    ("com.github.sbt" % "junit-interface" % "0.13.3" % Test).exclude("junit", "junit-dep")
   )
 
   val junitCompile = Seq(
