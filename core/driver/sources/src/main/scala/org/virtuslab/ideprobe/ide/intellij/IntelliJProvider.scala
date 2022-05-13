@@ -30,20 +30,24 @@ sealed trait IntelliJProvider {
   ): Unit = {
     val allPlugins = InternalPlugins.probePluginForIntelliJ(version) +: plugins
 
-    case class PluginArchive(plugin: Plugin, archive: Resource.Archive) {
+    case class PluginArchive(plugin: Plugin, archive: Resource.IntellijResource) {
       val rootEntries: Set[String] = archive.rootEntries.toSet
     }
 
     val targetDir = intelliJ.paths.bundledPlugins
     val archives = withParallel[Plugin, PluginArchive](allPlugins)(_.map { plugin =>
-      val file = dependencies.plugin.fetch(plugin)
-      PluginArchive(plugin, file.toArchive)
+      val fileOpt = dependencies.plugin.fetch(plugin)
+      fileOpt match {
+        case Some(file) => PluginArchive(plugin, file.toExtracted)
+        case _ => error("Plugin archive not found")
+
+      }
     })
 
     val distinctPlugins = archives.reverse.distinctBy(_.rootEntries).reverse
 
     parallel(distinctPlugins).forEach { pluginArchive =>
-      pluginArchive.archive.extractTo(targetDir)
+      pluginArchive.archive.installTo(targetDir)
       println(s"Installed ${pluginArchive.plugin}")
     }
   }
@@ -141,9 +145,13 @@ final case class IntelliJFactory(
 
   private def installIntelliJ(version: IntelliJVersion, root: Path): Unit = {
     println(s"Installing $version")
-    val file = dependencies.intelliJ.fetch(version)
-    file.toArchive.extractTo(root)
-    root.resolve("bin").makeExecutableRecursively()
+    val fileOpt = dependencies.intelliJ.fetch(version)
+    fileOpt match {
+      case Some(file) =>
+        file.toExtracted.installTo(root)
+        root.resolve("bin").makeExecutableRecursively()
+      case None => error("Intellij artifacts not found")
+    }
   }
 }
 
