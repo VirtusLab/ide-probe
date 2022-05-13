@@ -7,7 +7,7 @@ import org.virtuslab.ideprobe.ide.intellij.IntelliJProvider
 
 import java.nio.file.Path
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.{Config, IntelliJFixture}
+import org.virtuslab.ideprobe.{Config, IdeProbePaths, IntelliJFixture}
 
 import java.util.concurrent.Executors
 import scala.concurrent.ExecutionContext
@@ -50,6 +50,30 @@ final class IntelliJProviderTest {
       installationRoot.isDirectory,
       "The provided IntelliJ instance should exist after cleanup, but it was deleted."
     )
+  }
+
+  @Test
+  def shouldInstallIntellijFromExtractedRepository: Unit = givenInstalledIntelliJ { installationRoot =>
+
+    val build = IntelliJVersion.Latest.build
+    val installationPattern = installationRoot.toString.replace(build, "[revision]")
+    installationRoot.resolve("dependencies.txt").delete()
+    installationRoot.resolve("MacOS").delete()
+    val config = Config.fromString(s"""
+                                      |probe.intellij {
+                                      |    repositories = [\"$installationPattern\"]
+                                      |}
+                                      |""".stripMargin)
+
+    val fixture = IntelliJFixture.fromConfig(config)
+
+    val existingInstalledIntelliJ = fixture.installIntelliJ()
+
+    //when
+    existingInstalledIntelliJ.cleanup()
+
+    //then
+    assert(!existingInstalledIntelliJ.paths.root.isDirectory, "The provided IntelliJ instance should not exist after cleanup, but it was deleted.")
   }
 
   @Test
