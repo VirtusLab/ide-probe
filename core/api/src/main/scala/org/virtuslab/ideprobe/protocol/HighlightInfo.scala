@@ -29,7 +29,6 @@ object HighlightInfo {
     val Warning = create("WARNING", 300)
     val Error = create("ERROR", 400)
 
-
     def from(name: String, value: Int): Severity = {
       values.getOrElse(name, create(name, value))
     }

@@ -45,14 +45,17 @@ trait ProbeExtensions {
 
     def recursiveFiles(filter: Path => Boolean = _ => true): List[Path] = {
       val files = mutable.Buffer.empty[Path]
-      Files.walkFileTree(path, new SimpleFileVisitor[Path] {
-        override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
-          if (filter(file)) {
-            files.append(file)
+      Files.walkFileTree(
+        path,
+        new SimpleFileVisitor[Path] {
+          override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
+            if (filter(file)) {
+              files.append(file)
+            }
+            super.visitFile(file, attrs)
           }
-          super.visitFile(file, attrs)
         }
-      })
+      )
       files.toList
     }
 

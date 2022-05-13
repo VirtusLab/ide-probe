@@ -1,19 +1,19 @@
 name := "ideprobe"
 
-val scala212 = "2.12.10"
-val scala213 = "2.13.1"
+val scala212 = "2.12.15"
+val scala213 = "2.13.8"
 val crossScalaVersions = List(scala212, scala213)
 
-skip in publish := true
+(publish / skip) := true
 
-scalaVersion.in(ThisBuild) := scala213
-intellijBuild.in(ThisBuild) := "202.8194.7"
+(ThisBuild / scalaVersion) := scala213
+(ThisBuild / intellijBuild) := "202.8194.7"
 // provide intellij version in case of the release version
 val intellijVersion = None
-licenses.in(ThisBuild) := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0"))
-organization.in(ThisBuild) := "org.virtuslab.ideprobe"
-homepage.in(ThisBuild) := Some(url("https://github.com/VirtusLab/ide-probe"))
-developers.in(ThisBuild) := List(
+(ThisBuild / licenses) := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0"))
+(ThisBuild / organization) := "org.virtuslab.ideprobe"
+(ThisBuild / homepage) := Some(url("https://github.com/VirtusLab/ide-probe"))
+(ThisBuild / developers) := List(
   Developer(
     "lwawrzyk",
     "Łukasz Wawrzyk",
@@ -36,7 +36,7 @@ developers.in(ThisBuild) := List(
 
 sonatypeProfileName := "org.virtuslab"
 
-resolvers.in(ThisBuild) += Resolver.jcenterRepo
+(ThisBuild / resolvers) += Resolver.jcenterRepo
 
 import IdeaPluginAdapter._
 import IdeaPluginDevelopment.packageArtifactZipFilter
@@ -303,7 +303,7 @@ lazy val benchmarks212 = benchmarks(scala212)
 def project(id: String, path: String, publish: Boolean): Project = {
   Project(id, sbt.file(path))
     .settings(
-      skip in Keys.publish := !publish,
+      (Keys.publish / skip) := !publish,
       libraryDependencies ++= Dependencies.junit
     )
 }
@@ -311,7 +311,7 @@ def project(id: String, path: String, publish: Boolean): Project = {
 def module(id: String, path: String): Project = {
   project(id, path, publish = true).disableIdeaPluginDevelopment
     .settings(
-      skip in Keys.publish := false
+      (Keys.publish / skip) := false
     )
 }
 

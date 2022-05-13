@@ -21,21 +21,23 @@ final class PluginDependencyProvider(
     resources: ResourceProvider
 ) extends BaseDependencyProvider[Plugin](pluginResolvers, resources) {
 
-  override protected def resolve(plugin: Plugin, resolver: DependencyResolver[Plugin]): Path = {
-    resolver.resolve(plugin) match {
-      case Artifact(uri) =>
-        resources.get(uri)
-      case Sources(id, config) =>
-        DependencyProvider.builders.get(id) match {
-          case Some(builder) => builder.build(config, resources)
-          case None =>
-            val message =
-              s"No builder found for id: '$id'. Available builders are ${DependencyProvider.builders.keySet}. " +
-                s"Make sure you registered your builder with org.virtuslab.ideprobe.dependencies.DependencyProvider#registerBuilder"
-            throw new RuntimeException(message)
-        }
-      case dependency =>
-        error(s"Couldn't resolve $plugin from $dependency")
+  override protected def resolve(plugin: Plugin, resolver: DependencyResolver[Plugin]): Option[Path] = {
+    Some {
+      resolver.resolve(plugin) match {
+        case Artifact(uri) =>
+          resources.get(uri)
+        case Sources(id, config) =>
+          DependencyProvider.builders.get(id) match {
+            case Some(builder) => builder.build(config, resources)
+            case None =>
+              val message =
+                s"No builder found for id: '$id'. Available builders are ${DependencyProvider.builders.keySet}. " +
+                  s"Make sure you registered your builder with org.virtuslab.ideprobe.dependencies.DependencyProvider#registerBuilder"
+              throw new RuntimeException(message)
+          }
+        case dependency =>
+          error(s"Couldn't resolve $plugin from $dependency")
+      }
     }
   }
 }
@@ -60,11 +62,11 @@ abstract class BaseDependencyProvider[A](
 ) {
 
   def fetchOpt(key: A): Option[Path] = {
-    if (resolvers.isEmpty) None else Some(fetch(key))
+    if (resolvers.isEmpty) None else fetch(key)
   }
 
-  def fetch(key: A): Path = {
-    val noResolversError = Try[Path](error("Dependency resolver list is empty"))
+  def fetch(key: A): Option[Path] = {
+    val noResolversError = Try[Option[Path]](error("Dependency resolver list is empty"))
     resolvers
       .foldLeft(noResolversError) { (result, resolver) =>
         result.orElse(Try(resolve(key, resolver)))
@@ -75,10 +77,11 @@ abstract class BaseDependencyProvider[A](
   protected def resolve(
       key: A,
       resolver: DependencyResolver[A]
-  ): Path = {
+  ): Option[Path] = {
     resolver.resolve(key) match {
       case Artifact(uri) =>
-        resources.get(uri)
+        Option(resources.get(uri))
+      case Missing => None
       case other =>
         error(s"Couldn't resolve $key from $other")
     }
