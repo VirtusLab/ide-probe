@@ -26,8 +26,10 @@ object ResourceProvider {
           cacheUri(uri, provider, cached => s"Fetching $uri into $cached")
         case Resource.Jar(uri) =>
           cacheUri(uri, provider, cached => s"Extracting $uri from jar into $cached")
-        case file: Resource.File =>
+        case file: Resource.File if file.path.toFile.exists() =>
           file.path
+        case file: Resource.File =>
+          throw new RuntimeException(s"Resource ${file.path} does not exist")
         case Resource.Unresolved(path, cause) =>
           throw new RuntimeException(s"Could not resolve $path due to $cause")
       }
