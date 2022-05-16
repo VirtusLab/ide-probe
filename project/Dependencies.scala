@@ -36,6 +36,6 @@ object Dependencies {
     } ++ Seq(typesafeConfig, shapeless)
   }
 
-  val intellijScala = "org.intellij.scala:2020.2.753:nightly"
+  val intellijScala = "org.intellij.scala:2022.1.14:stable"
 
 }

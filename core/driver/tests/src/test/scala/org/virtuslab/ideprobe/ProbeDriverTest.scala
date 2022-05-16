@@ -22,7 +22,7 @@ import scala.util.Try
 @RunWith(classOf[JUnit4])
 final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPluginExtension {
   private val intelliJProvider = IntelliJProvider.Default
-  private val scalaPlugin = Plugin("org.intellij.scala", "2021.2.10")
+  private val scalaPlugin = Plugin("org.intellij.scala", "2022.1.14")
   private val probeTestPlugin = ProbeTestPlugin.bundled(intelliJProvider.version)
 
   private val fixture = IntelliJFixture()

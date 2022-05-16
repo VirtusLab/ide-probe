@@ -33,7 +33,6 @@ final class HeadlessStarter extends ApplicationStarter with IntelliJApi {
 
   private def open(file: Path): Unit = {
     val openProjectOptions = new OpenProjectTask()
-    openProjectOptions.checkDirectoryForFileBasedProjects = false
 
     val project = ProjectUtil.openOrImport(file, openProjectOptions)
     if (project == null) {
