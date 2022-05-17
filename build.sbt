@@ -165,7 +165,7 @@ lazy val scalaProbePlugin =
     .dependsOn(probePlugin, scalaProbeApi)
 
 lazy val scalaProbePlugin213 = scalaProbePlugin(scala213).settings(
-  intellijPlugins += "org.intellij.scala:2022.1.14".toPlugin
+  intellijPlugins += "org.intellij.scala".toPlugin
 )
 
 lazy val scalaProbeDriver =
@@ -292,7 +292,7 @@ lazy val driverTestPlugin212 = driverTestPlugin(scala212)
 lazy val junitDriver212 = junitDriver(scala212)
 lazy val scalaProbeApi212 = scalaProbeApi(scala212)
 lazy val scalaProbePlugin212 =
-  scalaProbePlugin(scala212).settings(intellijPlugins += "org.intellij.scala:2022.1.14".toPlugin)
+  scalaProbePlugin(scala212).settings(intellijPlugins += "org.intellij.scala".toPlugin)
 lazy val scalaProbeDriver212 = scalaProbeDriver(scala212).usesIdeaPlugins(scalaProbePlugin212, scalaProbePlugin213)
 lazy val pantsProbeApi212 = pantsProbeApi(scala212)
 lazy val pantsProbePlugin212 = pantsProbePlugin(scala212)
@@ -330,7 +330,7 @@ def ideaPluginModule(id: String, path: String, publish: Boolean = false): Projec
     .settings(
       packageMethod := PackagingMethod.Standalone(),
       intellijPlugins ++= Seq(
-        "com.intellij.java".toPlugin,
+//        "com.intellij.java".toPlugin,
         "JUnit".toPlugin
       )
     )

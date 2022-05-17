@@ -1,20 +1,17 @@
 package org.virtuslab.ideprobe.log
 
-import com.intellij.diagnostic.LogEventException
-import com.intellij.openapi.diagnostic.ExceptionWithAttachments
-import com.intellij.openapi.diagnostic.IdeaLoggingEvent
-import com.intellij.openapi.diagnostic.RuntimeExceptionWithAttachments
+import com.intellij.openapi.diagnostic.{ExceptionWithAttachments, IdeaLoggingEvent, RollingFileHandler, RuntimeExceptionWithAttachments}
 import com.intellij.util.ExceptionUtil
-import org.apache.log4j._
-import org.apache.log4j.spi.LoggingEvent
 import org.virtuslab.ideprobe.handlers.IntelliJApi
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.protocol.IdeMessage
 
+import java.util.logging.{Handler, Level, LogManager, LogRecord}
+
 object IdeaLogInterceptor extends IntelliJApi {
 
   def inject(): Unit = {
-    LogManager.getRootLogger.addAppender(new IdeaLogInterceptor)
+    LogManager.getLogManager.getLogger("").addHandler(new IdeaLogInterceptor)
 
     val errors = readInitialErrorsFromLogFile()
     errors.foreach(MessageLog.add)
@@ -32,24 +29,22 @@ object IdeaLogInterceptor extends IntelliJApi {
   }
 
   private def flushFileLogger(): Unit = {
-    val rootLogger = LogManager.getRootLogger
-    val appenders = rootLogger.getAllAppenders.asInstanceOf[java.util.Enumeration[Appender]]
+    val rootLogger = LogManager.getLogManager.getLogger("")
+    val appenders = rootLogger.getHandlers.asInstanceOf[java.util.Enumeration[Handler]]
     appenders.asScala.collect {
-      case fileAppender: FileAppender =>
-        val originalFlush = fileAppender.getImmediateFlush
-        fileAppender.setImmediateFlush(true)
+      case fileAppender: RollingFileHandler =>
+        fileAppender.flush()
         rootLogger.info("Flush logs")
-        fileAppender.setImmediateFlush(originalFlush)
     }
   }
 }
 
-class IdeaLogInterceptor extends AppenderSkeleton {
+class IdeaLogInterceptor extends Handler {
 
-  override def append(loggingEvent: LoggingEvent): Unit = {
-    if (loggingEvent.getLevel.isGreaterOrEqual(Level.ERROR)) {
+  override def publish(loggingEvent: LogRecord): Unit = {
+    if (loggingEvent.getLevel.equals(Level.SEVERE)) {
       messageFromIdeaLoggingEvent(loggingEvent, IdeMessage.Level.Error).foreach(MessageLog.add)
-    } else if (loggingEvent.getLevel.equals(Level.WARN)) {
+    } else if (loggingEvent.getLevel.equals(Level.WARNING)) {
       val msg = extractAnyMessage(loggingEvent, IdeMessage.Level.Warn)
       MessageLog.add(msg)
     } else if (loggingEvent.getLevel.equals(Level.INFO)) {
@@ -58,12 +53,12 @@ class IdeaLogInterceptor extends AppenderSkeleton {
     }
   }
 
-  private def extractAnyMessage(loggingEvent: LoggingEvent, level: IdeMessage.Level) = {
+  private def extractAnyMessage(loggingEvent: LogRecord, level: IdeMessage.Level) = {
     messageFromIdeaLoggingEvent(loggingEvent, level)
       .getOrElse(simpleMessage(loggingEvent, level))
   }
 
-  private def messageFromIdeaLoggingEvent(loggingEvent: LoggingEvent, level: IdeMessage.Level): Option[Message] = {
+  private def messageFromIdeaLoggingEvent(loggingEvent: LogRecord, level: IdeMessage.Level): Option[Message] = {
     extractIdeaLoggingEvent(loggingEvent).map { ideaLoggingEvent =>
       val message = anyToString(ideaLoggingEvent)
       Message(message, Option(ideaLoggingEvent.getThrowable), level)
@@ -71,16 +66,15 @@ class IdeaLogInterceptor extends AppenderSkeleton {
   }
 
   // logic here roughly matches com.intellij.diagnostic.DialogAppender that is disabled in headless mode
-  private def extractIdeaLoggingEvent(loggingEvent: LoggingEvent): Option[IdeaLoggingEvent] = {
-    loggingEvent.getMessage match {
-      case e: IdeaLoggingEvent => Some(e)
+  private def extractIdeaLoggingEvent(loggingEvent: LogRecord): Option[IdeaLoggingEvent] = {
+    val parameters: Seq[AnyRef] = loggingEvent.getParameters
+    parameters match {
+      case (a: IdeaLoggingEvent) :: _ => Some(a)
       case otherMessage =>
         for {
-          info <- Option(loggingEvent.getThrowableInformation)
-          throwable <- Option(info.getThrowable)
+          throwable <- Option(loggingEvent.getThrown)
         } yield {
           ExceptionUtil.getRootCause(throwable) match {
-            case logEventEx: LogEventException => logEventEx.getLogMessage
             case _ =>
               val msg =
                 ExceptionUtil.findCause(throwable, classOf[ExceptionWithAttachments]) match {
@@ -94,7 +88,7 @@ class IdeaLogInterceptor extends AppenderSkeleton {
     }
   }
 
-  private def simpleMessage(loggingEvent: LoggingEvent, level: IdeMessage.Level): Message = {
+  private def simpleMessage(loggingEvent: LogRecord, level: IdeMessage.Level): Message = {
     Message(anyToString(loggingEvent.getMessage), throwable = None, level)
   }
 
@@ -102,7 +96,9 @@ class IdeaLogInterceptor extends AppenderSkeleton {
     Option(any).map(_.toString).map(_.trim).filter(_.nonEmpty)
   }
 
+
+
   override def close(): Unit = ()
 
-  override def requiresLayout(): Boolean = false
+  override def flush(): Unit = ()
 }

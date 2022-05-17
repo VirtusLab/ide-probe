@@ -135,12 +135,6 @@ public abstract class RunnerAndConfigurationSettingsDelegate implements RunnerAn
     }
 
     @Override
-    @Deprecated
-    public boolean canRunOn(@NotNull ExecutionTarget target) {
-        return next.canRunOn(target);
-    }
-
-    @Override
     @NotNull
     public Factory<RunnerAndConfigurationSettings> createFactory() {
         return next.createFactory();
