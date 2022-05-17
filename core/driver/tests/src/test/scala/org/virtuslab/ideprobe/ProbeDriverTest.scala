@@ -72,7 +72,7 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
     }
   }
 
-//  @Ignore
+  @Ignore
   @Test
   def freezeInspector(): Unit = fixture.run { intelliJ =>
     intelliJ.probe.invokeAction("org.virtuslab.ideprobe.test.FreezingAction")
@@ -102,7 +102,7 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
   }
 
   @Test
-//  @Ignore
+  @Ignore
   def expandsMacro(): Unit =
     fixture.copy(workspaceProvider = WorkspaceTemplate.FromResource("gradle-project")).run { intelliJ =>
       val projectRef = intelliJ.probe.withRobot.openProject(intelliJ.workspace)
@@ -132,7 +132,7 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
   }
 
   @Test
-//  @Ignore
+  @Ignore
   def listsModuleDependencies(): Unit = {
     fixture.copy(workspaceProvider = WorkspaceTemplate.FromResource("gradle-project")).run { intelliJ =>
       val projectDir = intelliJ.workspace.resolve("build.gradle")
@@ -143,7 +143,7 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
     }
   }
 
-//  @Ignore
+  @Ignore
   @Test
   def buildProjectTest(): Unit = {
     buildTestFixture
@@ -215,39 +215,20 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
     }
   }
 
-//  @Ignore
+  @Ignore
   @Test
   def runJUnitTests(): Unit = {
     buildTestFixture
       .run { intelliJ =>
         val projectDir = intelliJ.workspace.resolve("simple-sbt-project")
 
-//        intelliJ.probe.withRobot.openProject(projectDir, WaitLogic.none)
         intelliJ.probe.withRobot.openProject(projectDir)
 
-//        val selectProjectOpenProcessorDialog =
-//          intelliJ.probe.withRobot.findOpt(query.dialog("Open or Import Project"))
-//        selectProjectOpenProcessorDialog.foreach{ dialog =>
-//          println(s"selectProjectOpenProcessorDialog:$dialog")
-//          val button = dialog.button("OK")
-//          println(s"selectProjectOpenProcessorButton:$button")
-//          button.doClick()
-//          intelliJ.probe.await(WaitLogic.emptyBackgroundTasks())
-//        }
-//        intelliJ.probe.await(WaitLogic.emptyBackgroundTasks())
         intelliJ.probe.build()
         val configuration = TestScope.Module(ModuleRef("simple-sbt-project"))
         val result = intelliJ.probe.runTestsFromGenerated(configuration)
 
-
-//        intelliJ.probe.await(WaitLogic.constant(1.second))
-//
-//        val errorsInitial = intelliJ.probe.errors
-//        assertEquals(s"number of test suites", 1, result.suites.size)
-//        assertEquals(
-//          "initial test results",
-//          Set("Tests failed: 2, passed: 1, ignored: 1"),
-//          errorsInitial.map(_.content).toSet)
+        assertFalse(result.isSuccess)
 
         assertEquals("Unexpected number of suites", 1, result.suites.size)
 
@@ -310,7 +291,7 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
   }
 
   @Test
-//  @Ignore
+  @Ignore
   def runTestsInDifferentScopes(): Unit = {
     fixture.copy(workspaceProvider = WorkspaceTemplate.FromResource("gradle-project")).run { intelliJ =>
       intelliJ.probe.withRobot.openProject(intelliJ.workspace)
