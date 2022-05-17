@@ -2,7 +2,7 @@ package org.virtuslab.ideprobe.handlers
 
 import com.intellij.ide.`macro`.MacroManager
 import com.intellij.openapi.actionSystem.impl.SimpleDataContext
-import com.intellij.openapi.actionSystem.{CommonDataKeys, PlatformDataKeys}
+import com.intellij.openapi.actionSystem.{CommonDataKeys, PlatformCoreDataKeys}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
 import gnu.trove.THashMap
@@ -27,7 +27,7 @@ object ExpandMacro {
     val data = new THashMap[String, Object]()
     data.put(CommonDataKeys.PROJECT.getName, fileRef.project)
     data.put(CommonDataKeys.VIRTUAL_FILE.getName, file)
-    data.put(PlatformDataKeys.PROJECT_FILE_DIRECTORY.getName, project.getBaseDir)
+    data.put(PlatformCoreDataKeys.PROJECT_FILE_DIRECTORY.getName, project.getBaseDir)
     SimpleDataContext.getSimpleContext(data, null)
   }
 }

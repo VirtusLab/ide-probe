@@ -8,7 +8,7 @@ import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.impl.{RunManagerImpl, RunnerAndConfigurationSettingsImpl}
 import com.intellij.execution.junit.JUnitConfiguration
 import com.intellij.execution.runners.ExecutionUtil
-import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext, DataKey, LangDataKeys}
+import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext, DataKey, PlatformCoreDataKeys}
 import com.intellij.openapi.module.{Module => IntelliJModule}
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi.search.GlobalSearchScope
@@ -156,7 +156,7 @@ object RunConfigurations extends IntelliJApi {
 
     val dataContext = new MapDataContext
     dataContext.put(CommonDataKeys.PROJECT, project)
-    dataContext.put(LangDataKeys.MODULE, module)
+    dataContext.put(PlatformCoreDataKeys.MODULE, module)
 
     val psiElement: PsiElement = selectPsiElement(scope, module, project)
 
