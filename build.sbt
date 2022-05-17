@@ -165,7 +165,7 @@ lazy val scalaProbePlugin =
     .dependsOn(probePlugin, scalaProbeApi)
 
 lazy val scalaProbePlugin213 = scalaProbePlugin(scala213).settings(
-  intellijPlugins += "org.intellij.scala:2020.2.49".toPlugin
+  intellijPlugins += "https://plugins.jetbrains.com/plugin/download?rel=true&updateId=100074".toPlugin
 )
 
 lazy val scalaProbeDriver =
@@ -205,7 +205,7 @@ lazy val pantsProbePlugin =
       name := "pants-probe-plugin",
       intellijPlugins ++= Seq(
         "PythonCore".toPlugin,
-        "org.intellij.scala".toPlugin,
+        "https://plugins.jetbrains.com/plugin/download?rel=true&updateId=173038".toPlugin,
         "com.intellij.plugins.pants:1.15.1.42d84c497b639ef81ebdae8328401e3966588b2c:bleedingedge".toPlugin
       )
     )
@@ -290,7 +290,7 @@ lazy val driverTestPlugin212 = driverTestPlugin(scala212)
 lazy val junitDriver212 = junitDriver(scala212)
 lazy val scalaProbeApi212 = scalaProbeApi(scala212)
 lazy val scalaProbePlugin212 =
-  scalaProbePlugin(scala212).settings(intellijPlugins += "org.intellij.scala:2020.2.49".toPlugin)
+  scalaProbePlugin(scala212).settings(intellijPlugins += "https://plugins.jetbrains.com/plugin/download?rel=true&updateId=100074".toPlugin)
 lazy val scalaProbeDriver212 = scalaProbeDriver(scala212).usesIdeaPlugins(scalaProbePlugin212, scalaProbePlugin213)
 lazy val pantsProbeApi212 = pantsProbeApi(scala212)
 lazy val pantsProbePlugin212 = pantsProbePlugin(scala212)
