@@ -71,6 +71,13 @@ lazy val api = project("api", "core/api", publish = true)
   .cross
 
 lazy val api213 = api(scala213)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-compiler" % "2.13.8",
+      "org.scala-lang" % "scala-library" % "2.13.8",
+      "org.scala-lang" % "scala-reflect" %  "2.13.8"
+    )
+  )
 
 lazy val driver = module("driver", "core/driver/sources")
   .enablePlugins(BuildInfoPlugin)
@@ -88,6 +95,13 @@ lazy val driver = module("driver", "core/driver/sources")
   .dependsOn(api)
 
 lazy val driver213 = driver(scala213)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-compiler" % "2.13.8",
+      "org.scala-lang" % "scala-library" % "2.13.8",
+      "org.scala-lang" % "scala-reflect" %  "2.13.8"
+    )
+  )
   .usesIdeaPlugins(probePlugin213, probePlugin212)
 
 lazy val robotDriver = module("robot-driver", "extensions/robot/driver")
@@ -109,11 +123,25 @@ lazy val robotDriver = module("robot-driver", "extensions/robot/driver")
   .dependsOn(driver)
 
 lazy val robotDriver213 = robotDriver(scala213)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-compiler" % "2.13.8",
+      "org.scala-lang" % "scala-library" % "2.13.8",
+      "org.scala-lang" % "scala-reflect" %  "2.13.8"
+    )
+  )
 
 lazy val driverTests = testModule("driver-tests", "core/driver/tests").cross
   .dependsOn(junitDriver, robotDriver, api % "compile->compile;test->test")
 
 lazy val driverTests213 = driverTests(scala213)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-compiler" % "2.13.8",
+      "org.scala-lang" % "scala-library" % "2.13.8",
+      "org.scala-lang" % "scala-reflect" %  "2.13.8"
+    )
+  )
   .usesIdeaPlugins(driverTestPlugin213, driverTestPlugin212)
 
 lazy val probePlugin = ideaPluginModule("probe-plugin", "core/probePlugin", publish = true)
@@ -122,13 +150,26 @@ lazy val probePlugin = ideaPluginModule("probe-plugin", "core/probePlugin", publ
   .dependsOn(api)
 
 lazy val probePlugin213 = probePlugin(scala213)
-  .settings(libraryDependencies ++= Dependencies.scalaLib(scala213))
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-compiler" % "2.13.8",
+      "org.scala-lang" % "scala-library" % "2.13.8",
+      "org.scala-lang" % "scala-reflect" % "2.13.8"
+    )
+  )
 
 lazy val driverTestPlugin = ideaPluginModule("probe-test-plugin", "core/driver/test-plugin")
   .settings(intellijPluginName := "driver-test-plugin")
   .cross
 
 lazy val driverTestPlugin213 = driverTestPlugin(scala213)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-compiler" % "2.13.8",
+      "org.scala-lang" % "scala-library" % "2.13.8",
+      "org.scala-lang" % "scala-reflect" %  "2.13.8"
+    )
+  )
 
 lazy val junitDriver = module("junit-driver", "core/driver/bindings/junit")
   .settings(
@@ -139,6 +180,13 @@ lazy val junitDriver = module("junit-driver", "core/driver/bindings/junit")
   .dependsOn(driver, api % "compile->compile;test->test")
 
 lazy val junitDriver213 = junitDriver(scala213)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-compiler" % "2.13.8",
+      "org.scala-lang" % "scala-library" % "2.13.8",
+      "org.scala-lang" % "scala-reflect" %  "2.13.8"
+    )
+  )
 
 // scala extension
 lazy val scalaProbeApi =
@@ -146,6 +194,13 @@ lazy val scalaProbeApi =
     .dependsOn(api)
 
 lazy val scalaProbeApi213 = scalaProbeApi(scala213)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-compiler" % "2.13.8",
+      "org.scala-lang" % "scala-library" % "2.13.8",
+      "org.scala-lang" % "scala-reflect" %  "2.13.8"
+    )
+  )
 
 lazy val scalaProbePlugin =
   ideaPluginModule(id = "scala-probe-plugin", path = "extensions/scala/probePlugin", publish = true)
@@ -167,6 +222,13 @@ lazy val scalaProbePlugin =
 lazy val scalaProbePlugin213 = scalaProbePlugin(scala213).settings(
   intellijPlugins += "org.intellij.scala".toPlugin
 )
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-compiler" % "2.13.8",
+      "org.scala-lang" % "scala-library" % "2.13.8",
+      "org.scala-lang" % "scala-reflect" %  "2.13.8"
+    )
+  )
 
 lazy val scalaProbeDriver =
   module(id = "scala-probe-driver", path = "extensions/scala/driver")
@@ -175,12 +237,26 @@ lazy val scalaProbeDriver =
     .dependsOn(scalaProbeApi, driver)
 
 lazy val scalaProbeDriver213 = scalaProbeDriver(scala213)
-  .usesIdeaPlugins(scalaProbePlugin213, scalaProbePlugin212)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-compiler" % "2.13.8",
+      "org.scala-lang" % "scala-library" % "2.13.8",
+      "org.scala-lang" % "scala-reflect" %  "2.13.8"
+    )
+  )
+  .usesIdeaPlugin(scalaProbePlugin213)//, scalaProbePlugin212)
 
 lazy val scalaTests = testModule("scala-tests", "extensions/scala/tests").cross
   .dependsOn(junitDriver, robotDriver, scalaProbeDriver)
 
 lazy val scalaTests213 = scalaTests(scala213)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-compiler" % "2.13.8",
+      "org.scala-lang" % "scala-library" % "2.13.8",
+      "org.scala-lang" % "scala-reflect" %  "2.13.8"
+    )
+  )
   .usesIdeaPlugin(scalaProbePlugin213)
 
 // pants extension
@@ -189,6 +265,13 @@ lazy val pantsProbeApi =
     .dependsOn(api)
 
 lazy val pantsProbeApi213 = pantsProbeApi(scala213)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-compiler" % "2.13.8",
+      "org.scala-lang" % "scala-library" % "2.13.8",
+      "org.scala-lang" % "scala-reflect" %  "2.13.8"
+    )
+  )
 
 lazy val pantsProbePlugin =
   ideaPluginModule(id = "pants-probe-plugin", path = "extensions/pants/probePlugin", publish = true)
@@ -213,6 +296,13 @@ lazy val pantsProbePlugin =
     .dependsOn(probePlugin, pantsProbeApi)
 
 lazy val pantsProbePlugin213 = pantsProbePlugin(scala213)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-compiler" % "2.13.8",
+      "org.scala-lang" % "scala-library" % "2.13.8",
+      "org.scala-lang" % "scala-reflect" %  "2.13.8"
+    )
+  )
 
 lazy val pantsProbeDriver =
   module(id = "pants-probe-driver", path = "extensions/pants/driver")
@@ -221,6 +311,13 @@ lazy val pantsProbeDriver =
     .dependsOn(pantsProbeApi, driver, robotDriver)
 
 lazy val pantsProbeDriver213 = pantsProbeDriver(scala213)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-compiler" % "2.13.8",
+      "org.scala-lang" % "scala-library" % "2.13.8",
+      "org.scala-lang" % "scala-reflect" %  "2.13.8"
+    )
+  )
   .usesIdeaPlugins(pantsProbePlugin213, pantsProbePlugin212)
 
 // bazel extension
@@ -229,6 +326,13 @@ lazy val bazelProbeApi =
     .dependsOn(api)
 
 lazy val bazelProbeApi213 = bazelProbeApi(scala213)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-compiler" % "2.13.8",
+      "org.scala-lang" % "scala-library" % "2.13.8",
+      "org.scala-lang" % "scala-reflect" %  "2.13.8"
+    )
+  )
 
 lazy val bazelProbePlugin =
   ideaPluginModule(id = "bazel-probe-plugin", path = "extensions/bazel/probePlugin", publish = true)
@@ -251,6 +355,13 @@ lazy val bazelProbePlugin =
     .dependsOn(probePlugin, bazelProbeApi)
 
 lazy val bazelProbePlugin213 = bazelProbePlugin(scala213)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-compiler" % "2.13.8",
+      "org.scala-lang" % "scala-library" % "2.13.8",
+      "org.scala-lang" % "scala-reflect" %  "2.13.8"
+    )
+  )
 
 lazy val bazelProbeDriver =
   module(id = "bazel-probe-driver", path = "extensions/bazel/driver")
@@ -262,21 +373,49 @@ lazy val bazelProbeDriver =
     .dependsOn(bazelProbeApi, driver, robotDriver)
 
 lazy val bazelProbeDriver213 = bazelProbeDriver(scala213)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-compiler" % "2.13.8",
+      "org.scala-lang" % "scala-library" % "2.13.8",
+      "org.scala-lang" % "scala-reflect" %  "2.13.8"
+    )
+  )
   .usesIdeaPlugins(bazelProbePlugin213, bazelProbePlugin212)
 
 // examples
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-compiler" % "2.13.8",
+      "org.scala-lang" % "scala-library" % "2.13.8",
+      "org.scala-lang" % "scala-reflect" %  "2.13.8"
+    )
+  )
 lazy val examples = testModule("examples", "examples")
   .settings(libraryDependencies ++= Dependencies.junit)
   .cross
   .dependsOn(driver, robotDriver, scalaProbeDriver)
 
 lazy val examples213 = examples(scala213)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-compiler" % "2.13.8",
+      "org.scala-lang" % "scala-library" % "2.13.8",
+      "org.scala-lang" % "scala-reflect" %  "2.13.8"
+    )
+  )
 
 lazy val benchmarks = module("benchmarks", "benchmarks")
   .cross
   .dependsOn(driver)
 
 lazy val benchmarks213 = benchmarks(scala213)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-compiler" % "2.13.8",
+      "org.scala-lang" % "scala-library" % "2.13.8",
+      "org.scala-lang" % "scala-reflect" %  "2.13.8"
+    )
+  )
 
 val commonSettings = Seq(
   libraryDependencies ++= Dependencies.junit
@@ -284,24 +423,206 @@ val commonSettings = Seq(
 
 // 2.12
 lazy val api212 = api(scala212)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-compiler" % "2.12.15",
+      "org.scala-lang" % "scala-library" % "2.12.15",
+      "org.scala-lang" % "scala-reflect" %  "2.12.15"
+    ),
+    libraryDependencies -= "org.scala-lang" % "scala-compiler" % "2.13.8",
+    libraryDependencies -= "org.scala-lang" % "scala-reflect" % "2.13.8",
+    libraryDependencies -= "org.scala-lang" % "scala-library" % "2.13.8"
+  )
 lazy val driver212 = driver(scala212).usesIdeaPlugins(probePlugin212, probePlugin213)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-compiler" % "2.12.15",
+      "org.scala-lang" % "scala-library" % "2.12.15",
+      "org.scala-lang" % "scala-reflect" %  "2.12.15"
+    ),
+    libraryDependencies -= "org.scala-lang" % "scala-compiler" % "2.13.8",
+    libraryDependencies -= "org.scala-lang" % "scala-reflect" % "2.13.8",
+    libraryDependencies -= "org.scala-lang" % "scala-library" % "2.13.8"
+  )
 lazy val robotDriver212 = robotDriver(scala212)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-compiler" % "2.12.15",
+      "org.scala-lang" % "scala-library" % "2.12.15",
+      "org.scala-lang" % "scala-reflect" %  "2.12.15"
+    ),
+    libraryDependencies -= "org.scala-lang" % "scala-compiler" % "2.13.8",
+    libraryDependencies -= "org.scala-lang" % "scala-reflect" % "2.13.8",
+    libraryDependencies -= "org.scala-lang" % "scala-library" % "2.13.8"
+  )
 lazy val driverTests212 = driverTests(scala212).usesIdeaPlugins(driverTestPlugin212, driverTestPlugin213)
-lazy val probePlugin212 = probePlugin(scala212).settings(libraryDependencies ++= Dependencies.scalaLib(scala212))
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-compiler" % "2.12.15",
+      "org.scala-lang" % "scala-library" % "2.12.15",
+      "org.scala-lang" % "scala-reflect" %  "2.12.15"
+    ),
+    libraryDependencies -= "org.scala-lang" % "scala-compiler" % "2.13.8",
+    libraryDependencies -= "org.scala-lang" % "scala-reflect" % "2.13.8",
+    libraryDependencies -= "org.scala-lang" % "scala-library" % "2.13.8"
+  )
+lazy val probePlugin212 = probePlugin(scala212)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-compiler" % "2.12.15",
+      "org.scala-lang" % "scala-library" % "2.12.15",
+      "org.scala-lang" % "scala-reflect" %  "2.12.15"
+    ),
+    libraryDependencies -= "org.scala-lang" % "scala-library" % "2.12.15" % "provided",
+    libraryDependencies -= "org.scala-lang" % "scala-compiler" % "2.13.8",
+    libraryDependencies -= "org.scala-lang" % "scala-reflect" % "2.13.8",
+    libraryDependencies -= "org.scala-lang" % "scala-library" % "2.13.8"
+  )
 lazy val driverTestPlugin212 = driverTestPlugin(scala212)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-compiler" % "2.12.15",
+      "org.scala-lang" % "scala-library" % "2.12.15",
+      "org.scala-lang" % "scala-reflect" %  "2.12.15"
+    ),
+    libraryDependencies -= "org.scala-lang" % "scala-compiler" % "2.13.8",
+    libraryDependencies -= "org.scala-lang" % "scala-reflect" % "2.13.8",
+    libraryDependencies -= "org.scala-lang" % "scala-library" % "2.13.8"
+  )
 lazy val junitDriver212 = junitDriver(scala212)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-compiler" % "2.12.15",
+      "org.scala-lang" % "scala-library" % "2.12.15",
+      "org.scala-lang" % "scala-reflect" %  "2.12.15"
+    ),
+    libraryDependencies -= "org.scala-lang" % "scala-compiler" % "2.13.8",
+    libraryDependencies -= "org.scala-lang" % "scala-reflect" % "2.13.8",
+    libraryDependencies -= "org.scala-lang" % "scala-library" % "2.13.8"
+  )
 lazy val scalaProbeApi212 = scalaProbeApi(scala212)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-compiler" % "2.12.15",
+      "org.scala-lang" % "scala-library" % "2.12.15",
+      "org.scala-lang" % "scala-reflect" %  "2.12.15"
+    ),
+    libraryDependencies -= "org.scala-lang" % "scala-compiler" % "2.13.8",
+    libraryDependencies -= "org.scala-lang" % "scala-reflect" % "2.13.8",
+    libraryDependencies -= "org.scala-lang" % "scala-library" % "2.13.8"
+  )
 lazy val scalaProbePlugin212 =
   scalaProbePlugin(scala212).settings(intellijPlugins += "org.intellij.scala".toPlugin)
+//  scalaProbePlugin(scala212).settings(intellijPlugins += "https://plugins.jetbrains.com/plugin/download?rel=true&updateId=100876".toPlugin)
+    .settings(
+      libraryDependencies ++= Seq(
+        "org.scala-lang" % "scala-compiler" % "2.12.15",
+        "org.scala-lang" % "scala-library" % "2.12.15",
+        "org.scala-lang" % "scala-reflect" %  "2.12.15"
+      ),
+      libraryDependencies -= "org.scala-lang" % "scala-compiler" % "2.13.8",
+      libraryDependencies -= "org.scala-lang" % "scala-reflect" % "2.13.8",
+      libraryDependencies -= "org.scala-lang" % "scala-library" % "2.13.8"
+    )
 lazy val scalaProbeDriver212 = scalaProbeDriver(scala212).usesIdeaPlugins(scalaProbePlugin212, scalaProbePlugin213)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-compiler" % "2.12.15",
+      "org.scala-lang" % "scala-library" % "2.12.15",
+      "org.scala-lang" % "scala-reflect" %  "2.12.15"
+    ),
+    libraryDependencies -= "org.scala-lang" % "scala-compiler" % "2.13.8",
+    libraryDependencies -= "org.scala-lang" % "scala-reflect" % "2.13.8",
+    libraryDependencies -= "org.scala-lang" % "scala-library" % "2.13.8"
+  )
 lazy val pantsProbeApi212 = pantsProbeApi(scala212)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-compiler" % "2.12.15",
+      "org.scala-lang" % "scala-library" % "2.12.15",
+      "org.scala-lang" % "scala-reflect" %  "2.12.15"
+    ),
+    libraryDependencies -= "org.scala-lang" % "scala-compiler" % "2.13.8",
+    libraryDependencies -= "org.scala-lang" % "scala-reflect" % "2.13.8",
+    libraryDependencies -= "org.scala-lang" % "scala-library" % "2.13.8"
+  )
 lazy val pantsProbePlugin212 = pantsProbePlugin(scala212)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-compiler" % "2.12.15",
+      "org.scala-lang" % "scala-library" % "2.12.15",
+      "org.scala-lang" % "scala-reflect" %  "2.12.15"
+    ),
+    libraryDependencies -= "org.scala-lang" % "scala-compiler" % "2.13.8",
+    libraryDependencies -= "org.scala-lang" % "scala-reflect" % "2.13.8",
+    libraryDependencies -= "org.scala-lang" % "scala-library" % "2.13.8"
+  )
 lazy val pantsProbeDriver212 = pantsProbeDriver(scala212).usesIdeaPlugins(pantsProbePlugin212, pantsProbePlugin213)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-compiler" % "2.12.15",
+      "org.scala-lang" % "scala-library" % "2.12.15",
+      "org.scala-lang" % "scala-reflect" %  "2.12.15"
+    ),
+    libraryDependencies -= "org.scala-lang" % "scala-compiler" % "2.13.8",
+    libraryDependencies -= "org.scala-lang" % "scala-reflect" % "2.13.8",
+    libraryDependencies -= "org.scala-lang" % "scala-library" % "2.13.8"
+  )
 lazy val bazelProbeApi212 = bazelProbeApi(scala212)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-compiler" % "2.12.15",
+      "org.scala-lang" % "scala-library" % "2.12.15",
+      "org.scala-lang" % "scala-reflect" %  "2.12.15"
+    ),
+    libraryDependencies -= "org.scala-lang" % "scala-compiler" % "2.13.8",
+    libraryDependencies -= "org.scala-lang" % "scala-reflect" % "2.13.8",
+    libraryDependencies -= "org.scala-lang" % "scala-library" % "2.13.8"
+  )
 lazy val bazelProbePlugin212 = bazelProbePlugin(scala212)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-compiler" % "2.12.15",
+      "org.scala-lang" % "scala-library" % "2.12.15",
+      "org.scala-lang" % "scala-reflect" %  "2.12.15"
+    ),
+    libraryDependencies -= "org.scala-lang" % "scala-compiler" % "2.13.8",
+    libraryDependencies -= "org.scala-lang" % "scala-reflect" % "2.13.8",
+    libraryDependencies -= "org.scala-lang" % "scala-library" % "2.13.8"
+  )
 lazy val bazelProbeDriver212 = bazelProbeDriver(scala212).usesIdeaPlugins(bazelProbePlugin212, bazelProbePlugin213)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-compiler" % "2.12.15",
+      "org.scala-lang" % "scala-library" % "2.12.15",
+      "org.scala-lang" % "scala-reflect" %  "2.12.15"
+    ),
+    libraryDependencies -= "org.scala-lang" % "scala-compiler" % "2.13.8",
+    libraryDependencies -= "org.scala-lang" % "scala-reflect" % "2.13.8",
+    libraryDependencies -= "org.scala-lang" % "scala-library" % "2.13.8"
+  )
 lazy val scalaTests212 = scalaTests(scala212).usesIdeaPlugin(scalaProbePlugin212)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-compiler" % "2.12.15",
+      "org.scala-lang" % "scala-library" % "2.12.15",
+      "org.scala-lang" % "scala-reflect" %  "2.12.15"
+    ),
+    libraryDependencies -= "org.scala-lang" % "scala-compiler" % "2.13.8",
+    libraryDependencies -= "org.scala-lang" % "scala-reflect" % "2.13.8",
+    libraryDependencies -= "org.scala-lang" % "scala-library" % "2.13.8"
+  )
 lazy val benchmarks212 = benchmarks(scala212)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-compiler" % "2.12.15",
+      "org.scala-lang" % "scala-library" % "2.12.15",
+      "org.scala-lang" % "scala-reflect" %  "2.12.15"
+    ),
+    libraryDependencies -= "org.scala-lang" % "scala-compiler" % "2.13.8",
+    libraryDependencies -= "org.scala-lang" % "scala-reflect" % "2.13.8",
+    libraryDependencies -= "org.scala-lang" % "scala-library" % "2.13.8"
+  )
 
 def project(id: String, path: String, publish: Boolean): Project = {
   Project(id, sbt.file(path))
@@ -330,8 +651,8 @@ def ideaPluginModule(id: String, path: String, publish: Boolean = false): Projec
     .settings(
       packageMethod := PackagingMethod.Standalone(),
       intellijPlugins ++= Seq(
-//        "com.intellij.java".toPlugin,
-        "JUnit".toPlugin
+        "com.intellij.java".toPlugin,
+        "JUnit".toPlugin(excludedIds = Set("com.intellij.java"))
       )
     )
 }

@@ -42,7 +42,7 @@ object ScalaPluginBuilder extends DependencyBuilder(Id("scala")) {
       jdk: JdkInstaller
   ): Unit = {
     val jdkPath = jdk.install(resources)
-    val env = Map("PATH" -> (jdkPath + File.pathSeparator + sys.env("PATH")))
+    val env = Map("PATH" -> (s"$jdkPath${File.pathSeparator}${sys.env("PATH")}"))
     val command = List("sbt", "packageArtifactZip")
     val result = Shell.run(localRepo, env, command: _*)
     if (result.isFailed) error(s"Couldn't build scala plugin")

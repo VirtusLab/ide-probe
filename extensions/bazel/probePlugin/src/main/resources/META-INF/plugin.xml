@@ -4,7 +4,8 @@
     <vendor email="info@virtuslab.com" url="http://www.virtuslab.com">VirtusLab</vendor>
 
     <depends>com.intellij.modules.lang</depends>
-    <depends>com.intellij.modules.java</depends>
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.java</depends>
     <depends>org.virtuslab.ideprobe</depends>
     <depends>com.google.idea.bazel.ijwb</depends>
     <idea-version since-build="191.*"/>
