@@ -1,0 +1,10 @@
+image: gitpod/workspace-java-11:latest
+
+tasks:
+  - before: sh ./scripts/setup.sh
+
+jetbrains:
+  intellij:
+    plugins:
+      - Scala
+    prebuilds: stable
