@@ -19,8 +19,3 @@ tasks:
         # store the tailscale state into gitpod user
         gp env TAILSCALE_STATE_MYPROJECT="$(sudo cat /var/lib/tailscale/tailscaled.state)"
       fi
-
-jetbrains:
-  intellij:
-    plugins:
-      - Scala
