@@ -24,4 +24,3 @@ jetbrains:
   intellij:
     plugins:
       - Scala
-    prebuilds: stable
