@@ -2,6 +2,12 @@ image:
   file: .gitpod.Dockerfile
 
 tasks:
+  - name: coursier
+    command: |
+      curl -fL https://github.com/coursier/launchers/raw/master/cs-x86_64-pc-linux.gz | gzip -d > cs
+      chmod +x cs
+      ./cs setup -y
+      rm -f ./cs
   - name: tailscaled
     command: |
       if [ -n "${TAILSCALE_STATE_MYPROJECT}" ]; then
