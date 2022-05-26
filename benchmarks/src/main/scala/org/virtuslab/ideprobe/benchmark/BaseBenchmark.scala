@@ -1,23 +1,23 @@
 package org.virtuslab.ideprobe.benchmark
 
-abstract class BaseBenchmark(val name: String, val numberOfWarmups: Int, val numberOfRuns: Int) {
+abstract class BaseBenchmark[A](val name: String, val numberOfWarmups: Int, val numberOfRuns: Int) {
 
-  final def runOpt(): Option[BenchmarkResult] = {
+  final def runOpt(): Option[BenchmarkResult[A]] = {
     runOpt(new BenchmarkRunner(name, numberOfWarmups, numberOfRuns))
   }
 
-  protected def runOpt(runner: BenchmarkRunner): Option[BenchmarkResult]
+  protected def runOpt(runner: BenchmarkRunner): Option[BenchmarkResult[A]]
 }
 
-abstract class Benchmark(
+abstract class Benchmark[A](
     name: String,
     numberOfWarmups: Int,
     numberOfRuns: Int
-) extends BaseBenchmark(name, numberOfWarmups, numberOfRuns) {
+) extends BaseBenchmark[A](name, numberOfWarmups, numberOfRuns) {
 
-  protected final def runOpt(runner: BenchmarkRunner): Option[BenchmarkResult] = {
+  protected final def runOpt(runner: BenchmarkRunner): Option[BenchmarkResult[A]] = {
     Some(run(runner))
   }
 
-  protected def run(runner: BenchmarkRunner): BenchmarkResult
+  protected def run(runner: BenchmarkRunner): BenchmarkResult[A]
 }
