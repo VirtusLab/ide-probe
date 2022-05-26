@@ -36,7 +36,7 @@ case class BenchmarkResult(
     }
   }
 
-  private def optionWhen[T](condition: Boolean)(code: => T): Option[T] = {
+  private def optionWhen[A](condition: Boolean)(code: => A): Option[A] = {
     if (condition) Some(code) else None
   }
 }
