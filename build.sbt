@@ -8,6 +8,7 @@ val crossScalaVersions = List(scala212, scala213)
 
 (ThisBuild / scalaVersion) := scala213
 (ThisBuild / intellijBuild) := "202.8194.7"
+(ThisBuild / bundleScalaLibrary) := true
 // provide intellij version in case of the release version
 val intellijVersion = None
 (ThisBuild / licenses) := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0"))
