@@ -6,7 +6,7 @@ import scala.concurrent.duration._
 
 class CSVBenchmarkReporter extends BenchmarkReporter {
 
-  def report[A](suite: String, results: Seq[BenchmarkResult[A]]): Unit = {
+  def report(suite: String, results: Seq[BenchmarkResult]): Unit = {
     val output = Paths.get(s"$suite.csv")
 
     val headers = Seq(
@@ -31,7 +31,7 @@ class CSVBenchmarkReporter extends BenchmarkReporter {
         toSecondsOpt(result.meanTime),
         toSecondsOpt(result.medianTime),
         toSecondsOpt(result.stdev)
-      ) ++ result.measures.map(toSeconds)
+      ) ++ result.results.map(toSeconds)
     }
 
     val content = (headers +: rows).map(_.mkString(",")).mkString("\n")

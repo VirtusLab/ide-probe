@@ -2,37 +2,37 @@ package org.virtuslab.ideprobe.benchmark
 
 import scala.concurrent.duration._
 
-case class BenchmarkResult[A](
+case class BenchmarkResult(
     name: String,
     numberOfWarmups: Int,
     numberOfRuns: Int,
-    measures: Seq[FiniteDuration],
+    results: Seq[FiniteDuration],
     metadata: Map[String, String],
-    customData: Seq[A]) {
+    customData: Seq[Any]) {
 
-  def withMetadata(metadata: Map[String, String]): BenchmarkResult[A] = {
+  def withMetadata(metadata: Map[String, String]): BenchmarkResult = {
     copy(metadata = this.metadata ++ metadata)
   }
 
   val meanTime: Option[FiniteDuration] = {
-    optionWhen(measures.nonEmpty) {
-      measures.fold(Duration.Zero)(_ + _) / measures.size
+    optionWhen(results.nonEmpty) {
+      results.fold(Duration.Zero)(_ + _) / results.size
     }
   }
 
-  val medianTime: Option[Duration] = optionWhen(measures.nonEmpty) {
-    val (lower, upper) = measures.sorted.splitAt(measures.size / 2)
-    if (measures.size % 2 == 0) (lower.last + upper.head) / 2.0 else upper.head
+  val medianTime: Option[Duration] = optionWhen(results.nonEmpty) {
+    val (lower, upper) = results.sorted.splitAt(results.size / 2)
+    if (results.size % 2 == 0) (lower.last + upper.head) / 2.0 else upper.head
   }
 
   val stdev: Option[FiniteDuration] = {
-    meanTime.filter(_ => measures.size >= 2).map { mean =>
-      val squares = measures
-          .map(_.toMillis)
-          .map(time => (time - mean.toMillis) * (time - mean.toMillis))
+    meanTime.filter(_ => results.size >= 2).map { mean =>
+      val squares = results
+        .map(_.toMillis)
+        .map(time => (time - mean.toMillis) * (time - mean.toMillis))
         .sum
 
-      math.sqrt(squares / (measures.size - 1).toDouble).millis
+      math.sqrt(squares / (results.size - 1).toDouble).millis
     }
   }
 
