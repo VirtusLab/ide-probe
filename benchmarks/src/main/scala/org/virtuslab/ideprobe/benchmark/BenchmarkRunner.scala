@@ -24,7 +24,8 @@ class BenchmarkRunner(name: String, numberOfWarmups: Int, numberOfRuns: Int) {
     }
   }
 
-  def run(run: Measure => Any): BenchmarkResult = {
+  def run[A](run: Measure => A): BenchmarkResult[A] = {
+
     for (_ <- 1 to numberOfWarmups) {
       val measure = new Measure
       run(measure)
