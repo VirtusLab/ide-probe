@@ -6,4 +6,6 @@ RUN echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | tee -a /etc/apt/so
     && curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/focal.gpg | sudo apt-key add - \
     && curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/focal.list | sudo tee /etc/apt/sources.list.d/tailscale.list \
     && apt-get update \
-    && apt-get install -y tailscale sbt
+    && apt-get install -y tailscale sbt \
+       libxtst6 libx11-6 libxrender1 xvfb openssh-server python3 \
+       python3-pip sbt libssl-dev pkg-config x11-apps imagemagick
