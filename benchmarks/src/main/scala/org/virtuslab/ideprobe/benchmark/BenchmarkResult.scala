@@ -8,7 +8,7 @@ case class BenchmarkResult[A](
     numberOfRuns: Int,
     measures: Seq[FiniteDuration],
     metadata: Map[String, String],
-    customData: Seq[A]) {
+    customData: Seq[A] = Seq.empty) {
 
   def withMetadata(metadata: Map[String, String]): BenchmarkResult[A] = {
     copy(metadata = this.metadata ++ metadata)

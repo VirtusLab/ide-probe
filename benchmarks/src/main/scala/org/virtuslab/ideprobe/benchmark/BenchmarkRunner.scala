@@ -39,8 +39,7 @@ class BenchmarkRunner(name: String, numberOfWarmups: Int, numberOfRuns: Int) {
         (measure.measuredTime, data)
       }
     }.unzip
-
-    BenchmarkResult(name, numberOfWarmups, numberOfRuns, results, Map.empty, customData)
+    BenchmarkResult(name, numberOfWarmups, numberOfRuns, results, Map.empty, customData.filterNot(_.isInstanceOf[Unit]))
   }
 
   private def withRetry[A](tries: Int)(action: => A): A = {

@@ -273,7 +273,7 @@ lazy val examples213 = examples(scala213)
 
 lazy val benchmarks = module("benchmarks", "benchmarks")
   .cross
-  .dependsOn(driver % "compile->test")
+  .dependsOn(driver)
 
 lazy val benchmarks213 = benchmarks(scala213)
 
