@@ -38,6 +38,7 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
     assertExists(plugins)(plugin => plugin.id == ProbeTestPlugin.id)
   }
 
+  //@Ignore  // TODO: fix log interceptor
   @Test
   def collectErrors(): Unit = fixture.run { intelliJ =>
     intelliJ.probe.invokeActionAsync("org.virtuslab.ideprobe.test.ThrowingAction")
@@ -166,6 +167,7 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
       }
   }
 
+  //@Ignore
   @Test
   def buildFilesTest(): Unit = {
     buildTestFixture.run { intelliJ =>
@@ -185,6 +187,7 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
     }
   }
 
+  //@Ignore // TODO: fix log interceptor
   @Test
   def goToLineTest(): Unit = {
     buildTestFixture.run { intelliJ =>
@@ -289,6 +292,7 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
     }
   }
 
+  //@Ignore // TODO: NoClassDefFoundError: com/intellij/ui/components/labels/ActionLink changed to com.intellij.ui.components.AnActionLink
   @Test
   def robotTest(): Unit = fixture.run { intelliJ =>
     val version = fixture.version.inferredMajor

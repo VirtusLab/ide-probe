@@ -30,11 +30,10 @@ object IdeaLogInterceptor extends IntelliJApi {
 
   private def flushFileLogger(): Unit = {
     val rootLogger = LogManager.getLogManager.getLogger("")
-    val appenders = rootLogger.getHandlers.asInstanceOf[java.util.Enumeration[Handler]]
-    appenders.asScala.collect {
-      case fileAppender: RollingFileHandler =>
-        fileAppender.flush()
-        rootLogger.info("Flush logs")
+    val appenders: Array[Handler] = rootLogger.getHandlers
+    appenders.foreach { handler =>
+      handler.flush()
+      rootLogger.info("Flush logs")
     }
   }
 }
