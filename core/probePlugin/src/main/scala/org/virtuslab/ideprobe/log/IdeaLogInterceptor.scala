@@ -1,6 +1,6 @@
 package org.virtuslab.ideprobe.log
 
-import com.intellij.openapi.diagnostic.{ExceptionWithAttachments, IdeaLoggingEvent, RollingFileHandler, RuntimeExceptionWithAttachments}
+import com.intellij.openapi.diagnostic.{ExceptionWithAttachments, IdeaLoggingEvent, RuntimeExceptionWithAttachments}
 import com.intellij.util.ExceptionUtil
 import org.virtuslab.ideprobe.handlers.IntelliJApi
 import org.virtuslab.ideprobe.Extensions._

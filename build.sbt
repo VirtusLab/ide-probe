@@ -7,6 +7,7 @@ val crossScalaVersions = List(scala212, scala213)
 (publish / skip) := true
 
 (ThisBuild / scalaVersion) := scala213
+//(ThisBuild / intellijBuild) := "202.8194.7"
 (ThisBuild / intellijBuild) := "221.5591.52"
 (ThisBuild / bundleScalaLibrary) := true
 // provide intellij version in case of the release version
@@ -116,13 +117,25 @@ lazy val driverTests = testModule("driver-tests", "core/driver/tests").cross
 lazy val driverTests213 = driverTests(scala213)
   .usesIdeaPlugins(driverTestPlugin213, driverTestPlugin212)
 
+lazy val wrapper = project("wrapper", "core/wrapper", publish = true)
+  .cross
+
+lazy val wrapper213 = wrapper(scala213)
+
+val CompileTime = config("compile-time").hide
+
+
 lazy val probePlugin = ideaPluginModule("probe-plugin", "core/probePlugin", publish = true)
   .settings(intellijPluginName := "ideprobe")
   .cross
-  .dependsOn(api)
+  .dependsOn(api, wrapper % "compile->compile")
 
 lazy val probePlugin213 = probePlugin(scala213)
-  .settings(libraryDependencies ++= Dependencies.scalaLib(scala213))
+  .settings(
+    libraryDependencies ++= Dependencies.scalaLib(scala213),
+    ivyConfigurations += CompileTime,
+    Compile / unmanagedClasspath ++= update.value.select(configurationFilter(CompileTime.name))
+  )
 
 lazy val driverTestPlugin = ideaPluginModule("probe-test-plugin", "core/driver/test-plugin")
   .settings(intellijPluginName := "driver-test-plugin")
@@ -287,7 +300,13 @@ lazy val api212 = api(scala212)
 lazy val driver212 = driver(scala212).usesIdeaPlugins(probePlugin212, probePlugin213)
 lazy val robotDriver212 = robotDriver(scala212)
 lazy val driverTests212 = driverTests(scala212).usesIdeaPlugins(driverTestPlugin212, driverTestPlugin213)
-lazy val probePlugin212 = probePlugin(scala212).settings(libraryDependencies ++= Dependencies.scalaLib(scala212))
+lazy val wrapper212 = wrapper(scala212)
+lazy val probePlugin212 = probePlugin(scala212)
+  .settings(
+    libraryDependencies ++= Dependencies.scalaLib(scala213),
+    ivyConfigurations += CompileTime,
+    Compile / unmanagedClasspath ++= update.value.select(configurationFilter(CompileTime.name))
+  )
 lazy val driverTestPlugin212 = driverTestPlugin(scala212)
 lazy val junitDriver212 = junitDriver(scala212)
 lazy val scalaProbeApi212 = scalaProbeApi(scala212)
