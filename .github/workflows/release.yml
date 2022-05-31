@@ -4,6 +4,7 @@ on:
   workflow_run:
     workflows: ["Run Tests"]
     branches: [master]
+    tags: ["v*"]
     types:
       - completed
 
