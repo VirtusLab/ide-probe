@@ -1,47 +1,43 @@
 package org.virtuslab.ideprobe
 
-import java.net.URL
-import java.nio.charset.Charset
 import com.intellij.remoterobot.utils.WaitForConditionTimeoutException
-
 import org.apache.commons.io.IOUtils
 import org.junit.Assert._
-import org.junit.{Ignore, Test}
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import org.junit.runners.Parameterized
+import org.junit.{Ignore, Test}
 import org.virtuslab.ideprobe.Extensions._
+import org.virtuslab.ideprobe.dependencies.IntelliJVersion.release
 import org.virtuslab.ideprobe.dependencies.{IntelliJVersion, Plugin}
-import org.virtuslab.ideprobe.ide.intellij.IntelliJProvider
 import org.virtuslab.ideprobe.protocol.TestStatus.Passed
 import org.virtuslab.ideprobe.protocol._
 import org.virtuslab.ideprobe.robot.RobotPluginExtension
 
+import java.net.URL
+import java.nio.charset.Charset
 import scala.annotation.tailrec
 import scala.concurrent.duration._
 import scala.util.Try
 
-@RunWith(classOf[JUnit4])
-final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPluginExtension {
-  private val intelliJProvider = IntelliJProvider.Default
-  private val scalaPlugin = Plugin("org.intellij.scala", "2021.2.10")
-//  private val scalaPlugin = Plugin("org.intellij.scala", "2022.1.15")
-  private val probeTestPlugin = ProbeTestPlugin.bundled(intelliJProvider.version)
+@RunWith(classOf[Parameterized])
+final class ProbeDriverTest(val scalaPlugin: Plugin.Versioned, val intellijVersion: IntelliJVersion) extends IdeProbeFixture with Assertions with RobotPluginExtension {
 
-  private val fixture = IntelliJFixture()
+  private val probeTestPlugin = ProbeTestPlugin.bundled(intellijVersion)
+
+  private val fixture = IntelliJFixture(intellijVersion = intellijVersion)
     .withPlugin(scalaPlugin)
     .withPlugin(probeTestPlugin)
     .enableExtensions
 
-  @Ignore
   @Test
-  def listsPlugins(): Unit = fixture.run { intelliJ =>
-    val plugins = intelliJ.probe.plugins
+  def listsPlugins(): Unit =
+    fixture
+      .run { intelliJ =>
+        val plugins = intelliJ.probe.plugins
+        assertContains(plugins)(InstalledPlugin(scalaPlugin.id, scalaPlugin.version))
+        assertExists(plugins)(plugin => plugin.id == ProbeTestPlugin.id)
+    }
 
-    assertContains(plugins)(InstalledPlugin(scalaPlugin.id, scalaPlugin.version))
-    assertExists(plugins)(plugin => plugin.id == ProbeTestPlugin.id)
-  }
-
-  @Ignore  // TODO: fix log interceptor
   @Test
   def collectErrors(): Unit = fixture.run { intelliJ =>
     intelliJ.probe.invokeActionAsync("org.virtuslab.ideprobe.test.ThrowingAction")
@@ -52,7 +48,6 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
     )
   }
 
-  @Ignore
   @Test
   def projectOpen(): Unit =
     fixture
@@ -64,7 +59,6 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
         assertEquals(ProjectRef(expectedProjectName), actualProjectRef)
       }
 
-  @Ignore
   @Test
   def backgroundTask(): Unit = fixture.run { intelliJ =>
     // time it takes to verify that IDE is actually idle
@@ -78,7 +72,6 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
     }
   }
 
-  @Ignore
   @Test
   def freezeInspector(): Unit = fixture.run { intelliJ =>
     intelliJ.probe.invokeAction("org.virtuslab.ideprobe.test.FreezingAction")
@@ -92,7 +85,6 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
 
   private val buildTestFixture = fixture.copy(workspaceProvider = WorkspaceTemplate.FromResource("BuildTest"))
 
-  @Ignore
   @Test
   def vcsDetection(): Unit = {
     fixture
@@ -109,8 +101,7 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
   }
 
   @Test
-  @Ignore
-  def expandsMacro(): Unit = {
+  def expandsMacro(): Unit =
     fixture.copy(workspaceProvider = WorkspaceTemplate.FromResource("gradle-project")).run { intelliJ =>
       val projectRef = intelliJ.probe.withRobot.openProject(intelliJ.workspace)
       val fileExtension =
@@ -118,9 +109,7 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
           .expandMacro("$FileExt$", FileRef(intelliJ.workspace.resolve("build.gradle"), projectRef))
       assertEquals("gradle", fileExtension)
     }
-  }
 
-  @Ignore
   @Test
   def listsAllSourceRoots(): Unit = {
     fixture.copy(workspaceProvider = WorkspaceTemplate.FromResource("gradle-project")).run { intelliJ =>
@@ -141,7 +130,6 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
   }
 
   @Test
-  @Ignore
   def listsModuleDependencies(): Unit = {
     fixture.copy(workspaceProvider = WorkspaceTemplate.FromResource("gradle-project")).run { intelliJ =>
       val projectDir = intelliJ.workspace.resolve("build.gradle")
@@ -152,7 +140,6 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
     }
   }
 
-  @Ignore
   @Test
   def buildProjectTest(): Unit = {
     buildTestFixture
@@ -175,7 +162,6 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
       }
   }
 
-  @Ignore
   @Test
   def buildFilesTest(): Unit = {
     buildTestFixture.run { intelliJ =>
@@ -195,7 +181,6 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
     }
   }
 
-//  @Ignore // TODO: fix log interceptor
   @Test
   def goToLineTest(): Unit = {
     buildTestFixture.run { intelliJ =>
@@ -240,7 +225,7 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
 
       val highlighting = intelliJ.probe.highlightInfos(file)
       assert(highlighting.nonEmpty)
-      intelliJProvider.version match {
+      intellijVersion match {
         case IntelliJVersion(_, Some(release)) if release == "2021.2.1" =>
           assertEquals(2, highlighting.count(_.severity == HighlightInfo.Severity.Error))
           val packageNameError = highlighting.head
@@ -261,7 +246,6 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
     }
   }
 
-  @Ignore
   @Test
   def runJUnitTests(): Unit = {
     buildTestFixture
@@ -303,7 +287,6 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
       }
   }
 
-  @Ignore
   @Test
   def startsUsingCustomCommand(): Unit = {
     IntelliJFixture.fromConfig(Config.fromClasspath("CustomCommand/ideprobe.conf")).run { intelliJ =>
@@ -339,7 +322,6 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
   }
 
   @Test
-  @Ignore
   def runTestsInDifferentScopes(): Unit = {
     fixture.copy(workspaceProvider = WorkspaceTemplate.FromResource("gradle-project")).run { intelliJ =>
       intelliJ.probe.withRobot.openProject(intelliJ.workspace)
@@ -394,4 +376,16 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
         }
     }
   }
+}
+
+object ProbeDriverTest {
+
+  private val v: List[Array[Any]] =
+    List(
+      Array(Plugin("org.intellij.scala", "2022.1.15"), release("2022.1.1", "221.5591.52")),
+      Array(Plugin("org.intellij.scala", "2021.2.10"), release("2021.2.1", "212.5080.55"))
+    )
+
+  @Parameterized.Parameters
+  def versions() = v.asJavaCollection
 }

@@ -77,7 +77,7 @@ trait IntelliJApi {
       using(field)(_.get(obj).asInstanceOf[B])
     }
 
-    def using[B <: AccessibleObject, C](accessible: B)(f: B => C): C = {
+    private def using[B <: AccessibleObject, C](accessible: B)(f: B => C): C = {
       val isAccessible = accessible.isAccessible
       try {
         accessible.setAccessible(true)

@@ -10,7 +10,7 @@ import com.intellij.execution.impl.RunManagerImpl
 import org.virtuslab.ideprobe.bazel.protocol.BazelCommandParams
 import org.virtuslab.ideprobe.handlers.{IntelliJApi, Projects, RunConfigurations, Tests}
 import org.virtuslab.ideprobe.protocol.{ProjectRef, TestsRunResult}
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 object BazelCommands extends IntelliJApi {
   def runTest(command: BazelCommandParams, ref: ProjectRef): TestsRunResult = {

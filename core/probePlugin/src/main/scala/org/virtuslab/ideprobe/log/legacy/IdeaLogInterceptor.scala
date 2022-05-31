@@ -1,6 +1,5 @@
 package org.virtuslab.ideprobe.log.legacy
 
-import com.intellij.diagnostic.LogEventException
 import com.intellij.openapi.diagnostic.{ExceptionWithAttachments, IdeaLoggingEvent, RuntimeExceptionWithAttachments}
 import com.intellij.util.ExceptionUtil
 import org.apache.log4j._
@@ -10,13 +9,12 @@ import org.virtuslab.ideprobe.handlers.IntelliJApi
 import org.virtuslab.ideprobe.log.{IdeaLogParser, Message, MessageLog}
 import org.virtuslab.ideprobe.protocol.IdeMessage
 import org.virtuslab.ideprobe.handlers.App.ReflectionOps
+import org.virtuslab.ideprobe.log.legacy.IdeaLogInterceptor.getMethod
 
 import java.lang.reflect._
 import scala.annotation.tailrec
 
 object IdeaLogInterceptor extends IntelliJApi {
-
-  private val logger: Logger = LogManager.getLogger(classOf[IdeaLogInterceptor])
 
   @tailrec
   final def getMethod(cl: Class[_], name: String, parameters: Class[_]*): Method = {
@@ -28,23 +26,12 @@ object IdeaLogInterceptor extends IntelliJApi {
     }
   }
 
-  @tailrec
-  private def getMethods(methods: List[Method], cl: Class[_]): List[Method] = {
-    val newMethods = cl.getDeclaredMethods.toList ++ methods
-      if (cl.getSuperclass == null) methods
-      else getMethods(newMethods, cl.getSuperclass)
-  }
-
   def inject(): Unit = {
-    println("> inject")
-    logger.info("> inject")
     val rootLogger = LogManager.getRootLogger
     val method = getMethod(rootLogger.getClass, "addAppender", classOf[Appender])
-    logger.error(s"logger methods:${getMethods(Nil, rootLogger.getClass)}, $method")
     method.invoke(rootLogger, new IdeaLogInterceptor)
     val errors = readInitialErrorsFromLogFile()
     errors.foreach(MessageLog.add)
-    logger.info("< inject")
   }
 
   private def readInitialErrorsFromLogFile(): Seq[Message] = {
@@ -63,10 +50,12 @@ object IdeaLogInterceptor extends IntelliJApi {
     val appenders = rootLogger.getAllAppenders.asInstanceOf[java.util.Enumeration[Appender]]
     appenders.asScala.collect {
       case fileAppender: FileAppender =>
-        val originalFlush = fileAppender.getImmediateFlush
-        fileAppender.setImmediateFlush(true)
+        val getImmediateFlush = getMethod(fileAppender.getClass,"getImmediateFlush")
+        val setImmediateFlush = getMethod(fileAppender.getClass,"setImmediateFlush")
+        val originalFlush = getImmediateFlush.invoke(fileAppender)
+        setImmediateFlush.invoke(fileAppender, Boolean.box(true))
         rootLogger.info("Flush logs")
-        fileAppender.setImmediateFlush(originalFlush)
+        setImmediateFlush.invoke(fileAppender, originalFlush)
     }
   }
 }
@@ -74,12 +63,13 @@ object IdeaLogInterceptor extends IntelliJApi {
 class IdeaLogInterceptor extends AppenderSkeleton {
 
   def append(loggingEvent: LoggingEvent): Unit = {
-    if (loggingEvent.getLevel.equals(Level.ERROR)) { // TODO: rever to `isGreaterOrEqual`
+    val getLevel = getMethod(loggingEvent.getClass,"getLevel")
+    if (getLevel.invoke(loggingEvent).equals(Level.ERROR)) { // TODO: rever to `isGreaterOrEqual`
       messageFromIdeaLoggingEvent(loggingEvent, IdeMessage.Level.Error).foreach(MessageLog.add)
-    } else if (loggingEvent.getLevel.equals(Level.WARN)) {
+    } else if (getLevel.invoke(loggingEvent).equals(Level.WARN)) {
       val msg = extractAnyMessage(loggingEvent, IdeMessage.Level.Warn)
       MessageLog.add(msg)
-    } else if (loggingEvent.getLevel.equals(Level.INFO)) {
+    } else if (getLevel.invoke(loggingEvent).equals(Level.INFO)) {
       val msg = extractAnyMessage(loggingEvent, IdeMessage.Level.Info)
       MessageLog.add(msg)
     }
@@ -99,30 +89,36 @@ class IdeaLogInterceptor extends AppenderSkeleton {
 
   // logic here roughly matches com.intellij.diagnostic.DialogAppender that is disabled in headless mode
   private def extractIdeaLoggingEvent(loggingEvent: LoggingEvent): Option[IdeaLoggingEvent] = {
-    loggingEvent.getMessage match {
+    val getMessage = getMethod(loggingEvent.getClass,"getMessage")
+    getMessage.invoke(loggingEvent) match {
       case e: IdeaLoggingEvent => Some(e)
       case otherMessage =>
+        val getThrowableInformation = getMethod(loggingEvent.getClass,"getThrowableInformation")
         for {
-          info <- Option(loggingEvent.getThrowableInformation)
-          throwable <- Option(info.getThrowable)
+          info <- Option(getThrowableInformation.invoke(loggingEvent))
+          throwable <- Option(getMethod(info.getClass,"getThrowable").invoke(info))
         } yield {
-          ExceptionUtil.getRootCause(throwable) match {
-            case logEventEx: LogEventException => logEventEx.getLogMessage.asInstanceOf[IdeaLoggingEvent]
+          ExceptionUtil.getRootCause(throwable.asInstanceOf[Throwable]) match {
+            case logEventEx if logEventEx.getClass.getName == "com.intellij.diagnostic.LogEventException" =>
+              val getLogMessage = getMethod(logEventEx.getClass,"getLogMessage")
+              getLogMessage.invoke(logEventEx).asInstanceOf[IdeaLoggingEvent]
             case _ =>
               val msg =
-                ExceptionUtil.findCause(throwable, classOf[ExceptionWithAttachments]) match {
+                ExceptionUtil.findCause(throwable.asInstanceOf[Throwable], classOf[ExceptionWithAttachments]) match {
                   case re: RuntimeExceptionWithAttachments =>
-                    re.getUserMessage
+                    val getUserMessage = getMethod(re.getClass,"getUserMessage")
+                    getUserMessage.invoke(re).asInstanceOf[String]
                   case _ => Option(otherMessage).fold("")(_.toString)
                 }
-              new IdeaLoggingEvent(msg, throwable)
+              new IdeaLoggingEvent(msg, throwable.asInstanceOf[Throwable])
           }
         }
     }
   }
 
   private def simpleMessage(loggingEvent: LoggingEvent, level: IdeMessage.Level): Message = {
-    Message(anyToString(loggingEvent.getMessage), throwable = None, level)
+    val getMessage = getMethod(loggingEvent.getClass,"getMessage")
+    Message(anyToString(getMessage.invoke(loggingEvent)), throwable = None, level)
   }
 
   private def anyToString(any: Any): Option[String] = {

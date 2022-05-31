@@ -117,24 +117,14 @@ lazy val driverTests = testModule("driver-tests", "core/driver/tests").cross
 lazy val driverTests213 = driverTests(scala213)
   .usesIdeaPlugins(driverTestPlugin213, driverTestPlugin212)
 
-lazy val wrapper = project("wrapper", "core/wrapper", publish = true)
-  .cross
-
-lazy val wrapper213 = wrapper(scala213)
-
-val CompileTime = config("compile-time").hide
-
-
 lazy val probePlugin = ideaPluginModule("probe-plugin", "core/probePlugin", publish = true)
   .settings(intellijPluginName := "ideprobe")
   .cross
-  .dependsOn(api, wrapper % "compile->compile")
+  .dependsOn(api)
 
 lazy val probePlugin213 = probePlugin(scala213)
   .settings(
-    libraryDependencies ++= Dependencies.scalaLib(scala213),
-    ivyConfigurations += CompileTime,
-    Compile / unmanagedClasspath ++= update.value.select(configurationFilter(CompileTime.name))
+    libraryDependencies ++= Dependencies.scalaLib(scala213)
   )
 
 lazy val driverTestPlugin = ideaPluginModule("probe-test-plugin", "core/driver/test-plugin")
@@ -300,12 +290,9 @@ lazy val api212 = api(scala212)
 lazy val driver212 = driver(scala212).usesIdeaPlugins(probePlugin212, probePlugin213)
 lazy val robotDriver212 = robotDriver(scala212)
 lazy val driverTests212 = driverTests(scala212).usesIdeaPlugins(driverTestPlugin212, driverTestPlugin213)
-lazy val wrapper212 = wrapper(scala212)
 lazy val probePlugin212 = probePlugin(scala212)
   .settings(
-    libraryDependencies ++= Dependencies.scalaLib(scala213),
-    ivyConfigurations += CompileTime,
-    Compile / unmanagedClasspath ++= update.value.select(configurationFilter(CompileTime.name))
+    libraryDependencies ++= Dependencies.scalaLib(scala213)
   )
 lazy val driverTestPlugin212 = driverTestPlugin(scala212)
 lazy val junitDriver212 = junitDriver(scala212)
