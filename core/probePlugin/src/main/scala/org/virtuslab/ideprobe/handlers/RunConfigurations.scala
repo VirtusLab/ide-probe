@@ -13,12 +13,14 @@ import com.intellij.openapi.module.{Module => IntelliJModule}
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaPsiFacade, PsiClass, PsiElement}
+
 import java.util.Collections
 import org.virtuslab.ideprobe.{RunConfigurationTransformer, RunnerSettingsWithProcessOutput, UUIDs}
 import org.virtuslab.ideprobe.protocol._
+
 import scala.collection.convert.ImplicitConversions.`collection AsScalaIterable`
 import scala.concurrent.ExecutionContext
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 object RunConfigurations extends IntelliJApi {
 
@@ -157,12 +159,14 @@ object RunConfigurations extends IntelliJApi {
 
     val dataContext = new MapDataContext
     dataContext.put(CommonDataKeys.PROJECT, project)
-    val projectFileDirectory: Class[_] =
-      Try(Class.forName("com.intellij.openapi.actionSystem.LangDataKeys"))
-        .recover{case e: ClassNotFoundException => Class.forName("com.intellij.openapi.actionSystem.PlatformCoreDataKeys")}
-        .get
-    dataContext.put(projectFileDirectory.getField("MODULE").get().asInstanceOf[DataKey[IntelliJModule]], module)
-
+    Try(Class.forName("com.intellij.openapi.actionSystem.LangDataKeys"))
+      .recover{case _: ClassNotFoundException => Class.forName("com.intellij.openapi.actionSystem.PlatformCoreDataKeys")}
+        match {
+          case Success(projectFileDirectory) =>
+            dataContext.put(projectFileDirectory.getField("MODULE").get().asInstanceOf[DataKey[IntelliJModule]], module)
+          case Failure(_: ClassNotFoundException) =>
+            throw new RuntimeException("Cannot find neither `LangDataKeys` nor `PlatformCoreDataKeys` class")
+        }
     val psiElement: PsiElement = selectPsiElement(scope, module, project)
 
     val location = read { PsiLocation.fromPsiElement(psiElement) }

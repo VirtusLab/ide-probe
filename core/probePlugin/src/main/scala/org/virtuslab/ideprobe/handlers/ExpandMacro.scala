@@ -8,7 +8,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import gnu.trove.THashMap
 import org.virtuslab.ideprobe.protocol.{ExpandMacroData, FileRef}
 
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 object ExpandMacro {
   def expand(macroRequest: ExpandMacroData): String = {
@@ -29,12 +29,14 @@ object ExpandMacro {
     val data = new THashMap[String, Object]()
     data.put(CommonDataKeys.PROJECT.getName, fileRef.project)
     data.put(CommonDataKeys.VIRTUAL_FILE.getName, file)
-    // TODO: Use `ApplicationInfo.getInstance().getMajorVersion`
-    val projectFileDirectory: Class[_] =
-      Try(Class.forName("com.intellij.openapi.actionSystem.PlatformCoreDataKeys"))
-        .recover{case e: ClassNotFoundException => Class.forName("com.intellij.openapi.actionSystem.PlatformDataKeys")}
-        .get
-    data.put(projectFileDirectory.getField("PROJECT_FILE_DIRECTORY").getName, project.getBaseDir)
+    Try(Class.forName("com.intellij.openapi.actionSystem.PlatformCoreDataKeys"))
+      .recover{case _: ClassNotFoundException => Class.forName("com.intellij.openapi.actionSystem.PlatformDataKeys")}
+      match {
+        case Success(projectFileDirectory) =>
+          data.put(projectFileDirectory.getField("PROJECT_FILE_DIRECTORY").getName, project.getBaseDir)
+        case Failure(_: ClassNotFoundException) =>
+          throw new RuntimeException("Cannot find neither `PlatformCoreDataKeys` nor `PlatformDataKeys` class")
+      }
     SimpleDataContext.getSimpleContext(data, null)
   }
 }

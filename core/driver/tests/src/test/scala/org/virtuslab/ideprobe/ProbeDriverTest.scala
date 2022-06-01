@@ -7,7 +7,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import org.junit.{Ignore, Test}
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.dependencies.IntelliJVersion.release
 import org.virtuslab.ideprobe.dependencies.{IntelliJVersion, Plugin}
 import org.virtuslab.ideprobe.protocol.TestStatus.Passed
 import org.virtuslab.ideprobe.protocol._
@@ -24,7 +23,8 @@ final class ProbeDriverTest(val scalaPlugin: Plugin.Versioned, val intellijVersi
 
   private val probeTestPlugin = ProbeTestPlugin.bundled(intellijVersion)
 
-  private val fixture = IntelliJFixture(intellijVersion = intellijVersion)
+  private val fixture = IntelliJFixture( )
+    .withVersion(intellijVersion)
     .withPlugin(scalaPlugin)
     .withPlugin(probeTestPlugin)
     .enableExtensions
@@ -378,14 +378,6 @@ final class ProbeDriverTest(val scalaPlugin: Plugin.Versioned, val intellijVersi
   }
 }
 
-object ProbeDriverTest {
+object ProbeDriverTest extends ProbeDriverTestParamsProvider {
 
-  private val v: List[Array[Any]] =
-    List(
-      Array(Plugin("org.intellij.scala", "2022.1.15"), release("2022.1.1", "221.5591.52")),
-      Array(Plugin("org.intellij.scala", "2021.2.10"), release("2021.2.1", "212.5080.55"))
-    )
-
-  @Parameterized.Parameters
-  def versions() = v.asJavaCollection
 }
