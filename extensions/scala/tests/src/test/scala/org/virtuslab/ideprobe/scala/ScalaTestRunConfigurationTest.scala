@@ -1,10 +1,12 @@
 package org.virtuslab.ideprobe.scala
 
 import org.junit.Test
+import org.virtuslab.ideprobe.dependencies.{IntelliJVersion, Plugin}
 import org.virtuslab.ideprobe.protocol.{ModuleRef, Setting}
 import org.virtuslab.ideprobe.scala.protocol.{SbtProjectSettingsChangeRequest, ScalaTestRunConfiguration}
 
-class ScalaTestRunConfigurationTest extends ScalaPluginTestSuite {
+class ScalaTestRunConfigurationTest(val scalaPlugin: Plugin.Versioned, val intellijVersion: IntelliJVersion)
+  extends ScalaPluginTestSuite {
   @Test
   def runTestsInDifferentScopes: Unit = fixtureFromConfig("TestConfigurationProject/ideprobe.conf").run { intelliJ =>
     intelliJ.probe.openProject(intelliJ.workspace.resolve("root"))
@@ -40,3 +42,5 @@ class ScalaTestRunConfigurationTest extends ScalaPluginTestSuite {
     assert(methodRunResult.suites.head.tests.size == 1)
   }
 }
+
+object ScalaTestRunConfigurationTest extends ProbeDriverTestParamsProvider

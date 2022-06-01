@@ -8,3 +8,5 @@ class ScalaPluginTestSuite
     with ScalaPluginExtension
     with BloopExtension
     with RobotPluginExtension
+
+object ScalaPluginTestSuite extends ProbeDriverTestParamsProvider

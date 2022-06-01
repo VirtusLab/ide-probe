@@ -2,14 +2,19 @@ package org.virtuslab.ideprobe.scala
 
 import org.junit.Assert
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 import org.virtuslab.ideprobe.Config
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.IntelliJFixture
 import org.virtuslab.ideprobe.Shell
+import org.virtuslab.ideprobe.dependencies.{IntelliJVersion, Plugin}
 
 import scala.util.Try
 
-final class ScalaImportTest extends ScalaPluginTestSuite {
+@RunWith(classOf[Parameterized])
+final class ScalaImportTest(val scalaPlugin: Plugin.Versioned, val intellijVersion: IntelliJVersion)
+  extends ScalaPluginTestSuite {
 
   private val config = Config.fromClasspath("SbtProject/ideprobe.conf")
 
@@ -36,21 +41,21 @@ final class ScalaImportTest extends ScalaPluginTestSuite {
 
       root
         .resolve("project/plugins.sbt")
-        .write("""addSbtPlugin("ch.epfl.scala" % "sbt-bloop" % "1.4.0-RC1")""")
+        .write("""addSbtPlugin("ch.epfl.scala" % "sbt-bloop" % "1.5.0")""")
 
       root
         .resolve(".bsp/bloop.json")
         .write(s"""|{
               |  "name": "Bloop",
-              |  "version": "1.4.0-RC1",
+              |  "version": "1.5.0",
               |  "bspVersion": "2.0.0-M4+10-61e61e87",
               |  "languages": ["scala", "java"],
               |  "argv": [
               |    "${intellij.workspace.resolve("bin/coursier")}",
               |    "launch",
-              |    "ch.epfl.scala:bloop-launcher-core_2.12:1.4.0-RC1",
+              |    "ch.epfl.scala:bloop-launcher-core_2.13:1.5.0",
               |    "--",
-              |    "1.4.0-RC1"
+              |    "1.5.0"
               |  ]
               |}
               |""".stripMargin)
@@ -73,3 +78,5 @@ final class ScalaImportTest extends ScalaPluginTestSuite {
     }
   }
 }
+
+object ScalaImportTest extends ProbeDriverTestParamsProvider

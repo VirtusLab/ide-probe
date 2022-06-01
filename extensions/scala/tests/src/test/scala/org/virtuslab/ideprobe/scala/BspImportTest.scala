@@ -2,13 +2,17 @@ package org.virtuslab.ideprobe.scala
 
 import org.junit.Assert
 import org.junit.Ignore
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 import org.virtuslab.ideprobe.Config
+import org.virtuslab.ideprobe.dependencies.{IntelliJVersion, Plugin}
 
-final class BspImportTest extends ScalaPluginTestSuite {
+@RunWith(classOf[Parameterized])
+final class BspImportTest(val scalaPlugin: Plugin.Versioned, val intellijVersion: IntelliJVersion)
+  extends ScalaPluginTestSuite {
 
   private val config = Config.fromClasspath("SbtProject/ideprobe.conf")
 
-  @Ignore
   def importSbtProject(): Unit = {
     fixtureFromConfig(config).run { intellij =>
       val projectRef = intellij.probe.importBspProject(intellij.workspace.resolve("root"))
@@ -20,3 +24,5 @@ final class BspImportTest extends ScalaPluginTestSuite {
   }
 
 }
+
+object BspImportTest extends ProbeDriverTestParamsProvider

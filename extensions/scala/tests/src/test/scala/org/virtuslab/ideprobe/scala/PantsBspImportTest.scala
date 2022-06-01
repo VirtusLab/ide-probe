@@ -1,13 +1,19 @@
 package org.virtuslab.ideprobe.scala
 
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
+
 import java.net.URL
 import java.nio.file.{Files, Path, Paths}
 import org.junit.{Assert, Ignore, Test}
+import org.virtuslab.ideprobe.dependencies.{IntelliJVersion, Plugin}
 import org.virtuslab.ideprobe.{CommandResult, Shell}
 
 // TODO requires using twitter pants as it fails on pystache
 @Ignore
-class PantsBspImportTest extends ScalaPluginTestSuite {
+@RunWith(classOf[Parameterized])
+class PantsBspImportTest(val scalaPlugin: Plugin.Versioned, val intellijVersion: IntelliJVersion)
+  extends ScalaPluginTestSuite {
 
   @Test def importTest(): Unit = {
     fixtureFromConfig().run { intelliJ =>
@@ -65,3 +71,5 @@ class PantsBspImportTest extends ScalaPluginTestSuite {
   }
 
 }
+
+object PantsBspImportTest extends ProbeDriverTestParamsProvider

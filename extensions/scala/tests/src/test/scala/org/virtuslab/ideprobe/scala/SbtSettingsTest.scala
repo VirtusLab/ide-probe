@@ -2,11 +2,16 @@ package org.virtuslab.ideprobe.scala
 
 import org.junit.Assert
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
+import org.virtuslab.ideprobe.dependencies.{IntelliJVersion, Plugin}
 import org.virtuslab.ideprobe.protocol.Setting
 import org.virtuslab.ideprobe.scala.protocol.SbtProjectSettings
 import org.virtuslab.ideprobe.scala.protocol.SbtProjectSettingsChangeRequest
 
-class SbtSettingsTest extends ScalaPluginTestSuite {
+@RunWith(classOf[Parameterized])
+class SbtSettingsTest(val scalaPlugin: Plugin.Versioned, val intellijVersion: IntelliJVersion)
+  extends ScalaPluginTestSuite {
 
   @Test
   def setSbtSettings(): Unit = {
@@ -34,3 +39,5 @@ class SbtSettingsTest extends ScalaPluginTestSuite {
     }
   }
 }
+
+object SbtSettingsTest extends ProbeDriverTestParamsProvider
