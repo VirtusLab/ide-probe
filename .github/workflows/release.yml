@@ -1,17 +1,14 @@
 name: Release
 
 on:
-  workflow_run:
-    workflows: ["Run Tests"]
-    branches: [master]
-    tags: ["v*"]
-    types:
-      - completed
+  push:
+    tags:
+      - 'v*'
 
 jobs:
   publish:
+    if: github.event.base_ref == 'refs/heads/master'
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - uses: actions/checkout@v2.3.4
         with:
