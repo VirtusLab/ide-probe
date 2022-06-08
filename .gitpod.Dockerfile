@@ -8,4 +8,6 @@ RUN echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | tee -a /etc/apt/so
     && apt-get update \
     && apt-get install -y tailscale sbt \
        libxtst6 libx11-6 libxrender1 xvfb openssh-server python3 \
-       python3-pip sbt libssl-dev pkg-config x11-apps imagemagick
+       python3-pip libssl-dev pkg-config x11-apps imagemagick \
+    && echo "nohup /usr/bin/Xvfb :99 -screen 0 1024x768x24 &" > /etc/init.d/xvfb \
+    && sudo update-rc.d xvfb defaults
