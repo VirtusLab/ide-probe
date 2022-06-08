@@ -9,9 +9,11 @@ jetbrains:
 tasks:
   - name: base init
     init: |
-      sbt "Test / compile"
+      set -e
       gp env IDEPROBE_DISPLAY=xvfb
+      sbt "Test / compile"
       /ide-desktop/backend/bin/remote-dev-server.sh warm-up --help
+      set +e
   - name: tailscale
     command: |
       if [ -n "${TAILSCALE_STATE_MYPROJECT}" ]; then
