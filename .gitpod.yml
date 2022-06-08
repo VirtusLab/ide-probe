@@ -1,15 +1,15 @@
 image:
   file: .gitpod.Dockerfile
 
+jetbrains:
+  intellij:
+    plugins:
+      - org.intellij.scala
+
 tasks:
-  - name: tailscaled
-    command: |
-      if [ -n "${TAILSCALE_STATE_MYPROJECT}" ]; then
-        # restore the tailscale state from gitpod user's env vars
-        sudo mkdir -p /var/lib/tailscale
-        echo "${TAILSCALE_STATE_MYPROJECT}" | sudo tee /var/lib/tailscale/tailscaled.state > /dev/null
-      fi
-      sudo tailscaled
+  - name: base init
+    init: |
+      sbt "Test / compile"
   - name: tailscale
     command: |
       if [ -n "${TAILSCALE_STATE_MYPROJECT}" ]; then
