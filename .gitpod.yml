@@ -10,6 +10,7 @@ tasks:
   - name: base init
     init: |
       sbt "Test / compile"
+      gp env IDEPROBE_DISPLAY=xvfb
   - name: tailscale
     command: |
       if [ -n "${TAILSCALE_STATE_MYPROJECT}" ]; then
