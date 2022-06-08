@@ -11,6 +11,7 @@ tasks:
     init: |
       sbt "Test / compile"
       gp env IDEPROBE_DISPLAY=xvfb
+      /ide-desktop/backend/bin/remote-dev-server.sh warm-up --help
   - name: tailscale
     command: |
       if [ -n "${TAILSCALE_STATE_MYPROJECT}" ]; then
