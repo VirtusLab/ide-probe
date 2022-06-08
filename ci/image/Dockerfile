@@ -9,7 +9,7 @@ RUN echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | tee -a /etc/apt/so
 
 WORKDIR /tmp/prefetch
 
-RUN --mount=type=bind,rw,source=.,target=. set -x && sbt test:compile
+RUN --mount=type=bind,rw,source=.,target=. set -x && sbt "Test / compile"
 
 WORKDIR /root
 RUN rmdir /tmp/prefetch

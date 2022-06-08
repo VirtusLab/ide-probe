@@ -12,7 +12,9 @@ object Dependencies {
   )
 
   def scalaLib(version: String) = Seq(
-    "org.scala-lang" % "scala-library" % version
+    "org.scala-lang" % "scala-library" % version,
+    "org.scala-lang" % "scala-reflect" % version,
+    "org.scala-lang.modules" %% "scala-collection-compat" % "2.7.0"
   )
 
   val nuProcess = "com.zaxxer" % "nuprocess" % "2.0.3"

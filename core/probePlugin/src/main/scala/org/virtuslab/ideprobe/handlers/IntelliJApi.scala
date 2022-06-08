@@ -15,6 +15,7 @@ import scala.reflect.ClassTag
 object IntelliJApi extends IntelliJApi
 
 trait IntelliJApi {
+
   def runOnUIAsync(block: => Unit): Unit = {
     application.invokeLater(() => block)
   }
@@ -98,6 +99,7 @@ trait IntelliJApi {
 
     @tailrec
     private def getMethod(cl: Class[_], name: String, parameters: Class[_]*): Method = {
+      log.error(s"methods for class:$cl-> ${cl.getMethods.mkString(",")}")
       try cl.getDeclaredMethod(name, parameters: _*)
       catch {
         case e: NoSuchMethodException =>

@@ -4,11 +4,11 @@
 
 NAME=ide-probe-tests
 read -p "Username: " USERNAME
-IJ_VERSION=202.6397.20
+IJ_VERSION=221.5591.52
 IMAGE="${USERNAME}/${NAME}:${IJ_VERSION}"
 
 rm -f Dockerfile || true && cp ci/image/Dockerfile Dockerfile || exit 1
 
-docker login --username="$USERNAME"
+#docker login --username="$USERNAME"
 DOCKER_BUILDKIT=1 BUILDKIT_PROGRESS=plain docker build --tag "$IMAGE" .
-docker push "$IMAGE"
+#docker push "$IMAGE"

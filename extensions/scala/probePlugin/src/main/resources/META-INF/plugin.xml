@@ -11,6 +11,6 @@
 
     <extensions defaultExtensionNs="org.virtuslab.ideprobe">
         <probeHandlerContributor implementation="org.virtuslab.ideprobe.scala.ScalaProbeHandlerContributor"/>
-        <runConfigurationTransformer implementation="org.virtuslab.ideprobe.scala.ScalaTestRunConfigurationTransformer"/>
+        <runConfigurationTransformer implementation="org.virtuslab.ideprobe.scala.ScalaTestRunConfigurationTransformerWrong"/>
     </extensions>
 </idea-plugin>

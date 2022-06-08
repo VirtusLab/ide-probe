@@ -7,8 +7,8 @@ import org.junit.runners.Parameterized
 import org.virtuslab.ideprobe.Config
 import org.virtuslab.ideprobe.dependencies.{IntelliJVersion, Plugin}
 
-@RunWith(classOf[Parameterized])
-final class BspImportTest(val scalaPlugin: Plugin.Versioned, val intellijVersion: IntelliJVersion)
+//@RunWith(classOf[Parameterized])
+final class BspImportTest//(val scalaPlugin: Plugin.Versioned, val intellijVersion: IntelliJVersion)
   extends ScalaPluginTestSuite {
 
   private val config = Config.fromClasspath("SbtProject/ideprobe.conf")
