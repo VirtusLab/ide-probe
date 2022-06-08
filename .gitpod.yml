@@ -12,7 +12,7 @@ tasks:
       set -e
       gp env IDEPROBE_DISPLAY=xvfb
       sbt "Test / compile"
-      /ide-desktop/backend/bin/remote-dev-server.sh warm-up --help
+      /ide-desktop/backend/bin/remote-dev-server.sh warm-up /workspace/ide-probe
       set +e
   - name: tailscale
     command: |
