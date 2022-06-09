@@ -12,4 +12,5 @@ RUN echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | tee -a /etc/apt/so
        libxtst6 libx11-6 libxrender1 xvfb openssh-server python3 \
        python3-pip libssl-dev pkg-config x11-apps imagemagick xorg scala-cli \
     && echo "nohup /usr/bin/Xvfb :0.0 -screen 0 1024x768x24 &" > /etc/init.d/xvfb \
+    && echo "nohup /usr/sbin/tailscaled &" > /etc/init.d/tailscaled \
     && sudo update-rc.d xvfb defaults
