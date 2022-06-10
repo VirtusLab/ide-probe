@@ -13,11 +13,9 @@ import com.intellij.openapi.module.{Module => IntelliJModule}
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaPsiFacade, PsiClass, PsiElement}
-
 import java.util.Collections
 import org.virtuslab.ideprobe.{RunConfigurationTransformer, RunnerSettingsWithProcessOutput, UUIDs}
 import org.virtuslab.ideprobe.protocol._
-
 import scala.collection.convert.ImplicitConversions.`collection AsScalaIterable`
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success, Try}

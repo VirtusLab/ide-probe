@@ -2,25 +2,23 @@ package org.virtuslab.ideprobe.scala.handlers
 
 import com.intellij.openapi.externalSystem.settings.ExternalProjectSettings
 import com.intellij.openapi.project.Project
-//import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration
-//import org.jetbrains.sbt.project.settings.{SbtProjectSettings => SbtProjectSettingsFromPlugin}
-import org.virtuslab.ideprobe.handlers.{BackgroundTasks, IntelliJApi, Projects}
+
+import scala.reflect.runtime.universe._
+import org.virtuslab.ideprobe.handlers.{IntelliJApi, Projects, ScalaReflectionApi}
 import org.virtuslab.ideprobe.protocol.{ProjectRef, Setting}
-import org.virtuslab.ideprobe.scala.handlers.SbtSettings.getMethod
 import org.virtuslab.ideprobe.scala.protocol.{SbtProjectSettings, SbtProjectSettingsChangeRequest}
 
-import java.lang.reflect.Method
-import scala.annotation.tailrec
 
-object SbtSettings extends IntelliJApi {
-  @tailrec
-  final def getMethod(cl: Class[_], name: String, parameters: Class[_]*): Method = {
-    try cl.getDeclaredMethod(name, parameters: _*)
-    catch {
-      case e: NoSuchMethodException =>
-        if (cl.getSuperclass == null) throw e
-        else getMethod(cl.getSuperclass, name, parameters: _*)
-    }
+object SbtSettings extends IntelliJApi with ScalaReflectionApi {
+
+  private final def getInstanceMethod(instance: Any, methodName: String): MethodMirror = {
+    import scala.reflect.runtime.universe
+
+    val runtimeMirror = universe.runtimeMirror(getClass.getClassLoader)
+    val objReflect = runtimeMirror.reflect(instance)
+    val methodSymbol = objReflect.symbol.info.member(universe.TermName(methodName)).alternatives.head.asMethod
+    val method = objReflect.reflectMethod(methodSymbol)
+    method
   }
 
   def getProjectSettings(ref: ProjectRef): SbtProjectSettings = {
@@ -28,9 +26,9 @@ object SbtSettings extends IntelliJApi {
     val sbtSettings = getSbtSettings(project)
 
     SbtProjectSettings(
-      useSbtShellForImport = getMethod(sbtSettings.getClass, "getUseSbtShellForImport").invoke(sbtSettings).asInstanceOf[Boolean],
-      useSbtShellForBuild = getMethod(sbtSettings.getClass, "getUseSbtShellForBuild").invoke(sbtSettings).asInstanceOf[Boolean],
-      allowSbtVersionOverride = getMethod(sbtSettings.getClass, "getAllowSbtVersionOverride").invoke(sbtSettings).asInstanceOf[Boolean]
+      useSbtShellForImport = sbtSettings.withScalaReflection.method( "getUseSbtShellForImport", sbtSettings)(sbtSettings).asInstanceOf[Boolean],
+      useSbtShellForBuild = sbtSettings.withScalaReflection.method( "getUseSbtShellForBuild", sbtSettings)(sbtSettings).asInstanceOf[Boolean],
+      allowSbtVersionOverride = sbtSettings.withScalaReflection.method( "getAllowSbtVersionOverride", sbtSettings)(sbtSettings).asInstanceOf[Boolean]
     )
   }
 
@@ -38,34 +36,44 @@ object SbtSettings extends IntelliJApi {
     val project = Projects.resolve(ref)
     val sbtSettings = getSbtSettings(project)
 
-    def setSetting[A](setting: Setting[A])(f: (ExternalProjectSettings, A) => Unit): Unit = {
-      setting.foreach(value => f(sbtSettings.asInstanceOf, value))
+    def setSetting(setting: Setting[Boolean])(f: (ExternalProjectSettings, Boolean) => Unit): Unit = {
+      setting.foreach(value => f(sbtSettings.asInstanceOf[ExternalProjectSettings], value))
     }
 
     setSetting(toSet.useSbtShellForImport){
       (sbtProjectSettings, value) =>
-        getMethod(Class.forName("org.jetbrains.sbt.project.settings.SbtProjectSettings"), "setUseSbtShellForImport", classOf[Boolean])
-          .invoke(sbtProjectSettings, value.asInstanceOf[java.lang.Boolean])
+        getInstanceMethod(sbtProjectSettings, "setUseSbtShellForImport")
+          .apply(value)
     }
     setSetting(toSet.useSbtShellForBuild){
       (sbtProjectSettings, value) =>
-        getMethod(Class.forName("org.jetbrains.sbt.project.settings.SbtProjectSettings"), "setUseSbtShellForBuild", classOf[Boolean])
-          .invoke(sbtProjectSettings, value.asInstanceOf[java.lang.Boolean])
+        getInstanceMethod(sbtProjectSettings, "setUseSbtShellForBuild")
+          .apply(value)
     }
     setSetting(toSet.allowSbtVersionOverride){
       (sbtProjectSettings, value) =>
-        getMethod(Class.forName("org.jetbrains.sbt.project.settings.SbtProjectSettings"), "setAllowSbtVersionOverride", classOf[Boolean])
-          .invoke(sbtProjectSettings, value.asInstanceOf[java.lang.Boolean])
+        getInstanceMethod(sbtProjectSettings, "setAllowSbtVersionOverride")
+          .apply(value)
     }
   }
 
-  private def getSbtSettings[A](project: Project) = {
-    import scala.reflect.runtime.{currentMirror => cm}
-    val cmp = cm.classSymbol(Class.forName("org.jetbrains.sbt.project.settings.SbtProjectSettings"))
-      .companion
-    log.error(cmp.getClass.getDeclaredMethods.mkString(","))
-      cmp.invoke("forProject")(project.asInstanceOf[Project])
-      .asInstanceOf[Option[A]]
+  def getSbtProjectSettings() = {
+    import scala.reflect.runtime.universe
+
+    val runtimeMirror = universe.runtimeMirror(getClass.getClassLoader)
+
+    val module = runtimeMirror.staticModule("org.jetbrains.sbt.project.settings.SbtProjectSettings")
+    val method = module.typeSignature.member(TermName("forProject")).asMethod
+    val obj = runtimeMirror.reflectModule(module)
+    obj.instance
+  }
+
+  private def getSbtSettings(project: Project) = {
+    val sbtSettingsObj = getSbtProjectSettings()
+    sbtSettingsObj.getClass.getMethod("forProject", classOf[Project])
+      .invoke(sbtSettingsObj, project)
+      .asInstanceOf[Option[_]]
       .getOrElse(error(s"No settings for ${project.getName}, probably not an sbt project."))
   }
+
 }

@@ -11,6 +11,7 @@ import org.virtuslab.ideprobe.scala.protocol.{SbtProjectSettingsChangeRequest, S
 class ScalaTestRunConfigurationTest(val scalaPlugin: Plugin.Versioned, val intellijVersion: IntelliJVersion)
   extends ScalaPluginTestSuite {
   @Test
+//  @Ignore // Temporarily disable
   def runTestsInDifferentScopes: Unit = fixtureFromConfig("TestConfigurationProject/ideprobe.conf")
     .withVersion(intellijVersion)
     .withPlugin(scalaPlugin)
