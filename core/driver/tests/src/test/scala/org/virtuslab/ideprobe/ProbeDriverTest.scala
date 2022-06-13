@@ -186,6 +186,30 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
   }
 
   @Test
+  def goToLineTest(): Unit = {
+    buildTestFixture.run { intelliJ =>
+      val projectDir = intelliJ.workspace.resolve("simple-sbt-project")
+      intelliJ.probe.withRobot.openProject(projectDir)
+
+      val file = projectDir.resolve("src/main/scala/Highlighting.scala")
+      file.write("""package wrong
+                   |
+                   |class NonCorrespondingName {
+                   |  val immutable = 4
+                   |  immutable = 3
+                   |
+                   |  List(1, 2, 3).exists(_ == 3)
+                   |}
+                   |""".stripMargin)
+      intelliJ.probe.syncFiles()
+
+      intelliJ.probe.openEditor(file)
+      intelliJ.probe.goToLineColumn(ProjectRef.Default, 5, 4)
+      val result = intelliJ.probe.runLocalInspection("LanguageDetectionInspection", FileRef(file), RunFixesSpec.All)
+      intelliJ.probe.invokeAction("ShowIntentionActions")
+    }
+  }
+  @Test
   def collectHighlightsTest(): Unit = {
     buildTestFixture.run { intelliJ =>
       val projectDir = intelliJ.workspace.resolve("simple-sbt-project")
@@ -222,32 +246,32 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
       .run { intelliJ =>
         val projectDir = intelliJ.workspace.resolve("simple-sbt-project")
 
-//        intelliJ.probe.withRobot.openProject(projectDir, WaitLogic.none)
+        intelliJ.probe.withRobot.openProject(projectDir, WaitLogic.none)
         intelliJ.probe.withRobot.openProject(projectDir)
 
-//        val selectProjectOpenProcessorDialog =
-//          intelliJ.probe.withRobot.findOpt(query.dialog("Open or Import Project"))
-//        selectProjectOpenProcessorDialog.foreach{ dialog =>
-//          println(s"selectProjectOpenProcessorDialog:$dialog")
-//          val button = dialog.button("OK")
-//          println(s"selectProjectOpenProcessorButton:$button")
-//          button.doClick()
-//          intelliJ.probe.await(WaitLogic.emptyBackgroundTasks())
-//        }
-//        intelliJ.probe.await(WaitLogic.emptyBackgroundTasks())
+        val selectProjectOpenProcessorDialog =
+          intelliJ.probe.withRobot.findOpt(query.dialog("Open or Import Project"))
+        selectProjectOpenProcessorDialog.foreach{ dialog =>
+          println(s"selectProjectOpenProcessorDialog:$dialog")
+          val button = dialog.button("OK")
+          println(s"selectProjectOpenProcessorButton:$button")
+          button.doClick()
+          intelliJ.probe.await(WaitLogic.emptyBackgroundTasks())
+        }
+        intelliJ.probe.await(WaitLogic.emptyBackgroundTasks())
         intelliJ.probe.build()
         val configuration = TestScope.Module(ModuleRef("simple-sbt-project"))
         val result = intelliJ.probe.runTestsFromGenerated(configuration)
 
 
-//        intelliJ.probe.await(WaitLogic.constant(1.second))
-//
-//        val errorsInitial = intelliJ.probe.errors
-//        assertEquals(s"number of test suites", 1, result.suites.size)
-//        assertEquals(
-//          "initial test results",
-//          Set("Tests failed: 2, passed: 1, ignored: 1"),
-//          errorsInitial.map(_.content).toSet)
+        intelliJ.probe.await(WaitLogic.constant(1.second))
+
+        val errorsInitial = intelliJ.probe.errors
+        assertEquals(s"number of test suites", 1, result.suites.size)
+        assertEquals(
+          "initial test results",
+          Set("Tests failed: 2, passed: 1, ignored: 1"),
+          errorsInitial.map(_.content).toSet)
 
         assertEquals("Unexpected number of suites", 1, result.suites.size)
 
