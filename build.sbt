@@ -150,8 +150,8 @@ lazy val scalaProbeApi =
 
 lazy val scalaProbeApi213 = scalaProbeApi(scala213)
 
-lazy val scalaProbePlugin =
-  ideaPluginModule(id = "scala-probe-plugin", path = "extensions/scala/probePlugin", publish = true)
+def scalaProbePlugin(version: String) =
+  ideaPluginModule(id = "scala-probe-plugin", path = s"extensions/scala/probePlugin$version", publish = true)
     .settings(
       intellijPluginName := "ideprobe-scala",
       packageArtifactZipFilter := { file: File =>
@@ -167,7 +167,7 @@ lazy val scalaProbePlugin =
     .cross
     .dependsOn(probePlugin, scalaProbeApi)
 
-lazy val scalaProbePlugin213 = scalaProbePlugin(scala213).settings(
+lazy val scalaProbePlugin213 = scalaProbePlugin("213")(scala213).settings(
   intellijPlugins += "org.intellij.scala:2022.1.15".toPlugin(transitive = true),
   libraryDependencies ++= Dependencies.scalaLib(scala213)
 )
@@ -299,7 +299,7 @@ lazy val driverTestPlugin212 = driverTestPlugin(scala212)
 lazy val junitDriver212 = junitDriver(scala212)
 lazy val scalaProbeApi212 = scalaProbeApi(scala212)
 lazy val scalaProbePlugin212 =
-  scalaProbePlugin(scala212)
+  scalaProbePlugin("212")(scala212)
     .settings(
       intellijPlugins += "org.intellij.scala:2022.1.15".toPlugin(transitive = true),
       libraryDependencies ++= Dependencies.scalaLib(scala212),
