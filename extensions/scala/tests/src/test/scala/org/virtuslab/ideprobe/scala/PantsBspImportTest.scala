@@ -16,21 +16,24 @@ class PantsBspImportTest(val scalaPlugin: Plugin.Versioned, val intellijVersion:
   extends ScalaPluginTestSuite {
 
   @Test def importTest(): Unit = {
-    fixtureFromConfig().run { intelliJ =>
-      val projectPath = createBspProjectWithFastpass(intelliJ.workspace, "java_app::", "scala_tests::")
+    fixtureFromConfig()
+      .withVersion(intellijVersion)
+      .withPlugin(scalaPlugin)
+      .run { intelliJ =>
+        val projectPath = createBspProjectWithFastpass(intelliJ.workspace, "java_app::", "scala_tests::")
 
-      intelliJ.probe.withRobot.openProject(projectPath)
+        intelliJ.probe.withRobot.openProject(projectPath)
 
-      val project = intelliJ.probe.projectModel()
+        val project = intelliJ.probe.projectModel()
 
-      Assert.assertEquals("Project name is incorrect", "java_app__scala_tests", project.name)
-      val expectedModules = Set(
-        "java_app:main-bin",
-        "scala_tests:scala_tests",
-        "java_app__scala_tests-root"
-      )
-      Assert.assertEquals("Module set is incorrect", expectedModules, project.modules.map(_.name).toSet)
-    }
+        Assert.assertEquals("Project name is incorrect", "java_app__scala_tests", project.name)
+        val expectedModules = Set(
+          "java_app:main-bin",
+          "scala_tests:scala_tests",
+          "java_app__scala_tests-root"
+        )
+        Assert.assertEquals("Module set is incorrect", expectedModules, project.modules.map(_.name).toSet)
+      }
   }
 
   private def createBspProjectWithFastpass(workspace: Path, targets: String*): Path = {

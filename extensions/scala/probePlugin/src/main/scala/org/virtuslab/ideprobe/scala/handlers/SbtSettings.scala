@@ -63,7 +63,6 @@ object SbtSettings extends IntelliJApi with ScalaReflectionApi {
     val runtimeMirror = universe.runtimeMirror(getClass.getClassLoader)
 
     val module = runtimeMirror.staticModule("org.jetbrains.sbt.project.settings.SbtProjectSettings")
-    val method = module.typeSignature.member(TermName("forProject")).asMethod
     val obj = runtimeMirror.reflectModule(module)
     obj.instance
   }

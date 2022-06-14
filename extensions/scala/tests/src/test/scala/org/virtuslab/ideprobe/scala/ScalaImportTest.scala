@@ -20,16 +20,19 @@ final class ScalaImportTest(val scalaPlugin: Plugin.Versioned, val intellijVersi
 
   @Test
   def importSbtProject(): Unit = {
-    fixtureFromConfig(config).run { intellij =>
-      val projectRef = intellij.probe.withRobot.openProject(intellij.workspace.resolve("root"))
-      val project = intellij.probe.projectModel(projectRef)
-      val modules = project.modules.map(_.name).toSet
-      val sdk = intellij.probe.projectSdk()
+    fixtureFromConfig(config)
+      .withVersion(intellijVersion)
+      .withPlugin(scalaPlugin)
+      .run { intellij =>
+        val projectRef = intellij.probe.withRobot.openProject(intellij.workspace.resolve("root"))
+        val project = intellij.probe.projectModel(projectRef)
+        val modules = project.modules.map(_.name).toSet
+        val sdk = intellij.probe.projectSdk()
 
-      Assert.assertTrue("SDK is empty", sdk.nonEmpty)
-      Assert.assertEquals(Set("hello-world-build", "hello-world", "foo", "bar"), modules)
-      Assert.assertEquals(project.name, "hello-world")
-    }
+        Assert.assertTrue("SDK is empty", sdk.nonEmpty)
+        Assert.assertEquals(Set("hello-world-build", "hello-world", "foo", "bar"), modules)
+        Assert.assertEquals(project.name, "hello-world")
+      }
   }
 
   @Test

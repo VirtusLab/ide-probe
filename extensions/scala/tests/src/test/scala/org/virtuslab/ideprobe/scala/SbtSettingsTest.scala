@@ -15,16 +15,19 @@ class SbtSettingsTest(val scalaPlugin: Plugin.Versioned, val intellijVersion: In
 
   @Test
   def setSbtSettings(): Unit = {
-    fixtureFromConfig("SbtProject/ideprobe.conf").run { intelliJ =>
-      intelliJ.probe.withRobot.openProject(intelliJ.workspace.resolve("root"))
+    fixtureFromConfig("SbtProject/ideprobe.conf")
+      .withVersion(intellijVersion)
+      .withPlugin(scalaPlugin)
+      .run { intelliJ =>
+        intelliJ.probe.withRobot.openProject(intelliJ.workspace.resolve("root"))
 
-      intelliJ.probe.setSbtProjectSettings(
-        SbtProjectSettingsChangeRequest(
-          useSbtShellForImport = Setting.Changed(true),
-          useSbtShellForBuild = Setting.Changed(true),
-          allowSbtVersionOverride = Setting.Changed(false)
+        intelliJ.probe.setSbtProjectSettings(
+          SbtProjectSettingsChangeRequest(
+            useSbtShellForImport = Setting.Changed(true),
+            useSbtShellForBuild = Setting.Changed(true),
+            allowSbtVersionOverride = Setting.Changed(false)
+          )
         )
-      )
 
       val expectedSettings =
         SbtProjectSettings(

@@ -2,6 +2,7 @@ package org.virtuslab.ideprobe.handlers
 
 import java.util.logging.Logger
 import scala.reflect.ClassTag
+import scala.collection.compat.immutable.ArraySeq.ofRef
 
 trait ScalaReflectionApi {
 
@@ -68,10 +69,10 @@ trait ScalaReflectionApi {
 
   private def findMethod(symbol: ru.Symbol, args: Any*): ru.MethodSymbol = {
     logger.severe(s"logger:$symbol,args:$args")
-    if (args.head.asInstanceOf[List[_]].isEmpty)
-      symbol.alternatives.head.asMethod
-    else
-      symbol.alternatives.find{m => m.isMethod && m.info.typeArgs == args.map(getTypeTag)}.getOrElse(symbol.alternatives.head).asMethod
+    args.head match {
+      case value: List[_] if value.isEmpty => symbol.alternatives.head.asMethod
+      case _ => symbol.alternatives.find { m => m.isMethod && m.info.typeArgs == args.map(getTypeTag) }.getOrElse(symbol.alternatives.head).asMethod
+    }
   }
 
   private def getTypeTag[T: ru.TypeTag](obj: T): ru.TypeTag[T] = ru.typeTag[T]
