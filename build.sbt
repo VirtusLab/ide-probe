@@ -80,6 +80,7 @@ lazy val driver = module("driver", "core/driver/sources")
   .enablePlugins(BuildInfoPlugin)
   .settings(
     libraryDependencies += Dependencies.nuProcess,
+    libraryDependencies += Dependencies.jGit,
     buildInfoKeys := Seq[BuildInfoKey](
       version,
       intellijBuild,

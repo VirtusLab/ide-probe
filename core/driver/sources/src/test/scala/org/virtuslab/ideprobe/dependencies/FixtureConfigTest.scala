@@ -81,7 +81,7 @@ final class FixtureConfigTest extends WorkspaceFixture {
 
     IntelliJFixture.fromConfig(config).withWorkspace { workspace =>
       val HEAD = workspace.path.resolve(".git/HEAD").content().trim
-      assertEquals(HEAD, s"ref: refs/heads/$branch")
+      assertEquals(s"ref: refs/heads/$branch", HEAD)
     }
   }
 

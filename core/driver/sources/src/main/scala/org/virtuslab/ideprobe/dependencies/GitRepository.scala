@@ -7,6 +7,7 @@ import java.nio.file.Path
 
 import pureconfig.ConfigConvert
 import pureconfig.generic.semiauto.deriveConvert
+import org.virtuslab.ideprobe.dependencies.git.GitHandler
 
 final case class GitRepository(path: URI, ref: Option[String])
 
@@ -14,9 +15,9 @@ object GitRepository extends ConfigFormat {
   implicit val convert: ConfigConvert[GitRepository] = deriveConvert[GitRepository]
 
   def clone(repository: GitRepository, name: String = "git-repository"): Path = {
+    import GitHandler._
     val localRepo = Files.createTempDirectory(name)
-    val cloned = Shell.run("git", "clone", repository.path.toString, localRepo.toString)
-    if (cloned.exitCode != 0) throw new IllegalStateException(s"Could not clone git $repository")
+    val git = repository.path.clone(localRepo)
     repository.ref.foreach { ref =>
       val checkout = Shell.run(in = localRepo, "git", "checkout", ref)
       if (checkout.exitCode != 0) throw new IllegalStateException(s"Could not checkout $ref in $repository")

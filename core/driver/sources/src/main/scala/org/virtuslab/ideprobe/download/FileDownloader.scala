@@ -210,7 +210,7 @@ object FileDownloader {
 
   case class ProgressInfo(percent: Int, speed: Double, downloaded: Long, total: Long) {
     def renderBar: String = {
-      val width = 100 // calculate it somehow
+      val width = 60 // calculate it somehow
       renderBar(width, '=', '.')
     }
 

@@ -73,8 +73,8 @@ object PantsSetup extends ConfigFormat {
     val targetPath =
       Paths.get(System.getProperty("java.io.tmpdir"), "ideprobe-pants-from-src", hash)
     if (Files.notExists(targetPath)) {
-      val cloned = Shell.run("git", "clone", git.path, targetPath.toString)
-      if (cloned.exitCode != 0) throw new IllegalStateException(s"Could not clone git ${git.path}")
+      import org.virtuslab.ideprobe.dependencies.git.GitHandler._
+      val repo = git.path.clone(targetPath)
       git.ref.foreach { ref =>
         val checkout = Shell.run(in = targetPath, "git", "checkout", ref)
         if (checkout.exitCode != 0)
