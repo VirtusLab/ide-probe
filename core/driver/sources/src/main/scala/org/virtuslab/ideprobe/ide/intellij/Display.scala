@@ -12,7 +12,7 @@ object Display {
 
   val XvfbDisplayId = "7" // doesn't really matter as long as it is not 0
 
-  println(s"Display modee: $Mode")
+  println(s"Display mode: $Mode")
 
   private def fromName(name: String): Display = {
     name.toLowerCase() match {

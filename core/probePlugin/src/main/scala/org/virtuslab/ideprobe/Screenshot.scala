@@ -27,10 +27,6 @@ object Screenshot {
         val stream = process.getInputStream
         while (stream.available() > 0) System.err.write(stream.read())
       }
-      println("screenshotsDir " + sys.env.get("IDEPROBE_SCREENSHOTS_DIR"))
-      println("testSuite " + sys.env.get("IDEPROBE_TEST_SUITE"))
-      println("testCase " + sys.env.get("IDEPROBE_TEST_CASE"))
-      println("file abs " + file.toAbsolutePath)
     }
   }
 
