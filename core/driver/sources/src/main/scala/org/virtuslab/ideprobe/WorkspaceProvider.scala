@@ -1,13 +1,11 @@
 package org.virtuslab.ideprobe
 
-import org.eclipse.jgit.api.Git
-
 import java.net.URI
 import java.nio.file._
 import java.util.Collections
+
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.config.WorkspaceConfig
-import org.virtuslab.ideprobe.dependencies.git.GitHandler
 
 trait WorkspaceProvider {
   def setup(paths: IdeProbePaths): Path
@@ -116,7 +114,7 @@ object WorkspaceTemplate {
 
   case class FromGit(repository: String, ref: Option[String]) extends WorkspaceTemplate {
     override def setupIn(workspace: Path): Unit = {
-      import GitHandler._
+      import org.virtuslab.ideprobe.dependencies.git.GitHandler._
       val git = repository.clone(workspace)
       ref.foreach{
         ref => git.checkout(ref)

@@ -1,6 +1,5 @@
 package org.virtuslab.ideprobe.dependencies.git
 
-import org.eclipse.jgit.api.ListBranchCommand.ListMode
 import org.eclipse.jgit.api.{CloneCommand, CreateBranchCommand, Git}
 import org.eclipse.jgit.lib.{Constants, ProgressMonitor, Ref}
 
@@ -33,12 +32,16 @@ object GitHandler {
 
   implicit class GitCheckout( git: Git) {
     def checkout(ref: String): Ref = {
-
-      val checkoutCmd = git.checkout()
-        .setCreateBranch(true)
-        .setName(ref)
-        .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
-        .setStartPoint(s"origin/$ref")
+      val checkoutBase = git.checkout()
+      val checkoutCmd =
+        if(git.getRepository.resolve(ref) != null)
+          checkoutBase.setName(ref)
+        else
+          checkoutBase
+            .setCreateBranch(true)
+            .setName(ref)
+            .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+            .setStartPoint(s"origin/$ref")
       val res = Try(checkoutCmd.call())
         .recover{
           case e: Exception => throw new IllegalStateException(s"Could not checkout $ref in ${git.getRepository}: ${e.getMessage}")
@@ -91,7 +94,4 @@ object GitHandler {
 
     override def isCancelled: Boolean = cancelled.get()
   }
-
-
-
 }

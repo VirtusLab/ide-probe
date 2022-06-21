@@ -8,6 +8,7 @@ import java.nio.ByteBuffer
 import java.nio.channels.{Channels, ReadableByteChannel}
 import java.nio.file.{Files, Path, Paths}
 import javax.net.ssl.SSLException
+import scala.annotation.tailrec
 import scala.concurrent.duration.{Duration, DurationInt, DurationLong}
 
 
@@ -51,7 +52,7 @@ class FileDownloader(private val baseDirectory: Path) {
   private def SocketConnectionTimeoutMs = getPositiveLongProperty("download.socket.connection.timeout.ms", 5.seconds.toMillis).ensuring(_ <= Int.MaxValue).toInt
   private def SocketReadTimeoutMs = getPositiveLongProperty("download.socket.read.timeout.ms", 15.seconds.toMillis).ensuring(_ <= Int.MaxValue).toInt
 
-  // This retry is required e.g. when build server (which contain IDEA artifact) is down for some reason (e.g. it's being restarted)
+  // This retry is required e.g. when build server is down for some reason (e.g. it's being restarted)
   // we need a longer timeout in order server has time to restart (FileDownloader supports resuming previous download)
   private def DownloadRetryConnectionTimeoutCount = getPositiveLongProperty("download.retry.connection.timeout.count", 3)
   private def DownloadRetryConnectionTimeoutWait = getPositiveLongProperty("download.retry.connection.timeout.wait.ms", 1.minute.toMillis).millis
@@ -77,7 +78,6 @@ class FileDownloader(private val baseDirectory: Path) {
           println(s"Error occurred during download: ${exception.getMessage}, retry in $retry1Timeout ...")
           Thread.sleep(retry1Timeout.toMillis)
           inner(retries1 - 1, retries2)
-
         case downloadException: DownloadException if retries2 > 0 =>
           println(s"Error occurred during download: ${downloadException.getMessage}, retry in $retry2Timeout ...")
           Thread.sleep(retry2Timeout.toMillis)
