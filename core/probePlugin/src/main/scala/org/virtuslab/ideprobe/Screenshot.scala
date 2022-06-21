@@ -9,9 +9,9 @@ object Screenshot {
   private val id = new AtomicInteger(0)
 
   private val probeDisplay = sys.env.get("DISPLAY")
-  private val testSuiteName = getEnvOrDefault("IDEPROBE_TEST_SUITE")
-  private val testCaseName = getEnvOrDefault("IDEPROBE_TEST_CASE")
-  private val screenshotsDir = getEnvOrDefault("IDEPROBE_SCREENSHOTS_DIR")
+  private val testSuiteName = sys.env.getOrElse("IDEPROBE_TEST_SUITE", "")
+  private val testCaseName = sys.env.getOrElse("IDEPROBE_TEST_CASE", "")
+  private val screenshotsDir = sys.env.getOrElse("IDEPROBE_SCREENSHOTS_DIR", "")
   private val outputDirectory = Files.createDirectories(Paths.get(screenshotsDir).resolve(testSuiteName).resolve(testCaseName))
 
   def take(nameSuffix: String = ""): Unit = {
@@ -29,12 +29,5 @@ object Screenshot {
 
   private def command(display: String, outputFile: Path): Array[String] = {
     Array("/bin/sh", "-c", s"xwd -display $display -root -silent | convert xwd:- png:${outputFile.toAbsolutePath}")
-  }
-
-  private def getEnvOrDefault(env: String): String = {
-    sys.env.get(env) match {
-      case None => ""
-      case Some(value) => value
-    }
   }
 }
