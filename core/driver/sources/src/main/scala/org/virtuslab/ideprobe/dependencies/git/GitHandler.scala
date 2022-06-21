@@ -1,7 +1,7 @@
 package org.virtuslab.ideprobe.dependencies.git
 
 import org.eclipse.jgit.api.ListBranchCommand.ListMode
-import org.eclipse.jgit.api.{CloneCommand, Git}
+import org.eclipse.jgit.api.{CloneCommand, CreateBranchCommand, Git}
 import org.eclipse.jgit.lib.{Constants, ProgressMonitor, Ref}
 
 import java.net.URI
@@ -33,14 +33,13 @@ object GitHandler {
 
   implicit class GitCheckout( git: Git) {
     def checkout(ref: String): Ref = {
-      val fetch = git.branchList().setListMode(ListMode.ALL).call().asScala.find(_.getName.contains(ref))
-       .map{
-          _ =>
-            git.fetch().setRefSpecs(s"+${Constants.R_HEADS}$ref:$ref").call()
-        }.get
 
-      val command = git.checkout().setName(ref)
-      val res = Try(command.call())
+      val checkoutCmd = git.checkout()
+        .setCreateBranch(true)
+        .setName(ref)
+        .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+        .setStartPoint(s"origin/$ref")
+      val res = Try(checkoutCmd.call())
         .recover{
           case e: Exception => throw new IllegalStateException(s"Could not checkout $ref in ${git.getRepository}: ${e.getMessage}")
         }.get

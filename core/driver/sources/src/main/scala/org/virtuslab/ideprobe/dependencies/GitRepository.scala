@@ -18,9 +18,8 @@ object GitRepository extends ConfigFormat {
     import GitHandler._
     val localRepo = Files.createTempDirectory(name)
     val git = repository.path.clone(localRepo)
-    repository.ref.foreach { ref =>
-      val checkout = Shell.run(in = localRepo, "git", "checkout", ref)
-      if (checkout.exitCode != 0) throw new IllegalStateException(s"Could not checkout $ref in $repository")
+    repository.ref.foreach{
+      ref => git.checkout(ref)
     }
     println(s"Cloned $repository")
     localRepo

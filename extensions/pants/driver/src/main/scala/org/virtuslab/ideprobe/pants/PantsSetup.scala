@@ -75,10 +75,8 @@ object PantsSetup extends ConfigFormat {
     if (Files.notExists(targetPath)) {
       import org.virtuslab.ideprobe.dependencies.git.GitHandler._
       val repo = git.path.clone(targetPath)
-      git.ref.foreach { ref =>
-        val checkout = Shell.run(in = targetPath, "git", "checkout", ref)
-        if (checkout.exitCode != 0)
-          throw new IllegalStateException(s"Could not checkout $ref in ${git.path}")
+      git.ref.foreach{
+        ref => repo.checkout(ref)
       }
     }
     targetPath

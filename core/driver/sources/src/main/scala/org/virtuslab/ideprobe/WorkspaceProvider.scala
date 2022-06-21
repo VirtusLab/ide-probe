@@ -118,9 +118,8 @@ object WorkspaceTemplate {
     override def setupIn(workspace: Path): Unit = {
       import GitHandler._
       val git = repository.clone(workspace)
-      ref.foreach { ref =>
-        val checkout = Shell.run(in = workspace, "git", "checkout", ref)
-        if (checkout.exitCode != 0) throw new IllegalStateException(s"Could not checkout $ref in $repository")
+      ref.foreach{
+        ref => git.checkout(ref)
       }
     }
   }
