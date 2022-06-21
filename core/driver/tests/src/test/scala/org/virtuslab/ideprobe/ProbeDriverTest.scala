@@ -206,8 +206,6 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
       intelliJ.probe.invokeAction("GotoDeclaration")
       val files = intelliJ.probe.listOpenEditors()
       assertEquals(List(bClass, aClass), files)
-
-      intelliJ.probe.goToLineColumn(3, 16)
     }
   }
 
