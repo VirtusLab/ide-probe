@@ -24,22 +24,22 @@ class BenchmarkRunner(name: String, numberOfWarmups: Int, numberOfRuns: Int) {
     }
   }
 
-  def run(run: Measure => Unit): BenchmarkResult = {
+  def run[A](run: Measure => A): BenchmarkResult[A] = {
+
     for (_ <- 1 to numberOfWarmups) {
       val measure = new Measure
       run(measure)
     }
 
-    val results = (1 to numberOfRuns).map { iteration =>
+    val (results, customData) = (1 to numberOfRuns).map { iteration =>
       withRetry(2) {
         println(s"Running iteration: $iteration")
         val measure = new Measure
-        run(measure)
-        measure.measuredTime
+        val data = run(measure)
+        (measure.measuredTime, data)
       }
-    }
-
-    BenchmarkResult(name, numberOfWarmups, numberOfRuns, results, Map.empty)
+    }.unzip
+    BenchmarkResult(name, numberOfWarmups, numberOfRuns, results, Map.empty, customData.filterNot(_.isInstanceOf[Unit]))
   }
 
   private def withRetry[A](tries: Int)(action: => A): A = {
