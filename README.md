@@ -198,6 +198,20 @@ in [Endpoints.scala](https://github.com/VirtusLab/ide-probe/tree/master/core/api
 
 Note that any communication with the probe is synchronous.
 
+## Screenshots
+
+Screenshots are saved in `{IDEPROBE_SCREENSHOTS_DIR}/{IDEPROBE_TEST_SUITE}/{IDEPROBE_TEST_CASE}` directory.
+`IDEPROBE_SCREENSHOTS_DIR` is set to `/tmp/ide-probe/screenshots` by default. It is possible to override this variable by
+setting some additional environment variable and pass them later into `.conf` file. 
+```
+probe {
+   // ...
+   paths.screenshots = ${?MY_IDEPROBE_SCREENSHOTS_DIR}
+}`
+```
+For non `.conf` scenario, you can pass environment variable directly into constructed instance.
+When the variables `IDEPROBE_TEST_SUITE` and `IDEPROBE_TEST_CASE` are not set, screenshots are saved directly into `IDEPROBE_SCREENSHOTS_DIR`.
+
 # Extensions
 
 Extensions exist to implement custom actions specific to a plugin. For example
