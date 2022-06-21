@@ -1,0 +1,7 @@
+#!/bin/sh
+
+export IDEPROBE_DISPLAY=xvfb
+export JAVA_HOME=/usr/local/openjdk-11
+export IDEPROBE_SCREENSHOTS_DIR=/tmp/ideprobe/screenshots
+
+sbt "; clean ; bazel-probe-api_2_13 / test; bazel-probe-driver_2_13 / test; bazel-probe-plugin_2_13 / test"

@@ -20,10 +20,11 @@ object GitHandler {
         .setMirror(false)
         .setBare(false)
         .setProgressMonitor(new CustomProgressMonitor(repository))
-      val git = Try(command.call())
-        .recover {
-          case e: Exception => throw new IllegalStateException(s"Could not clone git $repository: ${e.getMessage}")
-        }.get
+      val git =
+        try {command.call() }
+        catch {
+            case e: Exception => throw new IllegalStateException(s"Could not clone git $repository: ${e.getMessage}")
+          }
       git
     }
   }
@@ -42,10 +43,11 @@ object GitHandler {
             .setName(ref)
             .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
             .setStartPoint(s"origin/$ref")
-      val res = Try(checkoutCmd.call())
-        .recover{
+      val res =
+        try{checkoutCmd.call()}
+        catch {
           case e: Exception => throw new IllegalStateException(s"Could not checkout $ref in ${git.getRepository}: ${e.getMessage}")
-        }.get
+        }
       res
     }
   }
@@ -55,7 +57,6 @@ object GitHandler {
     private val totalWork: AtomicInteger = new AtomicInteger()
     private val completion: AtomicInteger = new AtomicInteger()
     private val task: AtomicReference[String] = new AtomicReference()
-    private val cancelled: AtomicBoolean = new AtomicBoolean(false)
 
     @inline
      private def renderProgress(completed: Int): String = {
@@ -92,6 +93,6 @@ object GitHandler {
       println("")
     }
 
-    override def isCancelled: Boolean = cancelled.get()
+    override def isCancelled: Boolean = false
   }
 }

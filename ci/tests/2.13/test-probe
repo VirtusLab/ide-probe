@@ -1,0 +1,7 @@
+#!/bin/sh
+
+export IDEPROBE_DISPLAY=xvfb
+export JAVA_HOME=/usr/local/openjdk-11
+export IDEPROBE_SCREENSHOTS_DIR=/tmp/ideprobe/screenshots
+
+sbt "; clean ; junit-driver_2_13 / test; driver-tests_2_13 / test; api_2_13 / test; probe-plugin_2_13 / test; driver_2_13 / test; benchmarks_2_13 / test; probe-test-plugin_2_13 / test"
