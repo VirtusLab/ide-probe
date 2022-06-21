@@ -191,23 +191,23 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
       val projectDir = intelliJ.workspace.resolve("simple-sbt-project")
       intelliJ.probe.withRobot.openProject(projectDir)
 
-      val file = projectDir.resolve("src/main/scala/Highlighting.scala")
-      file.write("""package wrong
+      val bClass = projectDir.resolve("src/main/scala/B.scala")
+      bClass.write("""
+                   |import a.A
                    |
-                   |class NonCorrespondingName {
-                   |  val immutable = 4
-                   |  immutable = 3
-                   |
-                   |  List(1, 2, 3).exists(_ == 3)
+                   |class B extends A {
                    |}
                    |""".stripMargin)
       intelliJ.probe.syncFiles()
+      val aClass = projectDir.resolve("src/main/scala/a/A.scala")
 
-      intelliJ.probe.openEditor(file)
-      intelliJ.probe.goToLineColumn(ProjectRef.Default, 5, 4)
-      val result = intelliJ.probe.runLocalInspection("LanguageDetectionInspection", FileRef(file), RunFixesSpec.All)
-      intelliJ.probe.invokeAction("ShowIntentionActions")
-      // TODO: add assertions
+      intelliJ.probe.openEditor(bClass)
+      intelliJ.probe.goToLineColumn(4, 18)
+      intelliJ.probe.invokeAction("GotoDeclaration")
+      val files = intelliJ.probe.listOpenEditors()
+      assertEquals(List(bClass, aClass), files)
+
+      intelliJ.probe.goToLineColumn(3, 16)
     }
   }
 
