@@ -4,9 +4,6 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 
-import scala.annotation.tailrec
-import scala.collection.mutable
-
 import pureconfig.ConfigReader
 import pureconfig.generic.semiauto.deriveReader
 
@@ -15,6 +12,10 @@ import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.IntelliJFixture
 import org.virtuslab.ideprobe.Shell
 import org.virtuslab.ideprobe.dependencies.Hash
+import org.virtuslab.ideprobe.dependencies.git.GitHandler
+
+import scala.annotation.tailrec
+import scala.collection.mutable
 
 object PantsSetup extends ConfigFormat {
 
@@ -73,8 +74,7 @@ object PantsSetup extends ConfigFormat {
     val targetPath =
       Paths.get(System.getProperty("java.io.tmpdir"), "ideprobe-pants-from-src", hash)
     if (Files.notExists(targetPath)) {
-      import org.virtuslab.ideprobe.dependencies.git.GitHandler._
-      val repo = git.path.clone(targetPath)
+      val repo = GitHandler.clone(git.path, targetPath)
       git.ref.foreach{
         ref => repo.checkout(ref)
       }

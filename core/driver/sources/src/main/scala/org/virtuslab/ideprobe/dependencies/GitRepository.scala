@@ -1,6 +1,8 @@
 package org.virtuslab.ideprobe
 package dependencies
 
+import org.virtuslab.ideprobe.dependencies.git.GitHandler
+
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
@@ -14,9 +16,8 @@ object GitRepository extends ConfigFormat {
   implicit val convert: ConfigConvert[GitRepository] = deriveConvert[GitRepository]
 
   def clone(repository: GitRepository, name: String = "git-repository"): Path = {
-    import org.virtuslab.ideprobe.dependencies.git.GitHandler._
     val localRepo = Files.createTempDirectory(name)
-    val git = repository.path.clone(localRepo)
+    val git = GitHandler.clone(repository.path, localRepo)
     repository.ref.foreach{
       ref => git.checkout(ref)
     }
@@ -26,14 +27,7 @@ object GitRepository extends ConfigFormat {
 
   def commitHash(repository: GitRepository, fallbackRef: String): String = {
     val ref = repository.ref.getOrElse(fallbackRef)
-    val result = Shell.run("git", "ls-remote", repository.path.toString, ref)
-
-    if (result.isFailed) {
-      error(s"Could not fetch hashes from ${repository.path}")
-    }
-    val hash = result.out.linesIterator.map(_.split("\\W+")).collectFirst { case Array(hash, `ref`) =>
-      hash
-    }
+    val hash = GitHandler.commitHash(repository.path, ref)
     hash.orElse(repository.ref).getOrElse(error(s"Ref $ref not found"))
   }
 
