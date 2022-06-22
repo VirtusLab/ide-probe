@@ -186,6 +186,30 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
   }
 
   @Test
+  def goToLineTest(): Unit = {
+    buildTestFixture.run { intelliJ =>
+      val projectDir = intelliJ.workspace.resolve("simple-sbt-project")
+      intelliJ.probe.withRobot.openProject(projectDir)
+
+      val bClass = projectDir.resolve("src/main/scala/B.scala")
+      bClass.write("""
+                   |import a.A
+                   |
+                   |class B extends A {
+                   |}
+                   |""".stripMargin)
+      intelliJ.probe.syncFiles()
+      val aClass = projectDir.resolve("src/main/scala/a/A.scala")
+
+      intelliJ.probe.openEditor(bClass)
+      intelliJ.probe.goToLineColumn(4, 18)
+      intelliJ.probe.invokeAction("GotoDeclaration")
+      val files = intelliJ.probe.listOpenEditors()
+      assertEquals(List(bClass, aClass), files)
+    }
+  }
+
+  @Test
   def collectHighlightsTest(): Unit = {
     buildTestFixture.run { intelliJ =>
       val projectDir = intelliJ.workspace.resolve("simple-sbt-project")

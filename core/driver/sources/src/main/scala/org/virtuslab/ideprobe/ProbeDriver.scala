@@ -298,9 +298,11 @@ class ProbeDriver(
   }
 
   /**
-   * Go to specific location in current editor
+   * Go to specific location in current editor 1-based index
    * */
-  def goToLineColumn(projectRef: ProjectRef, line: Int, column: Int): Unit = {
+  def goToLineColumn(line: Int, column: Int, projectRef: ProjectRef = ProjectRef.Default): Unit = {
+    require(line > 0, "line must be greater than zero: " + line)
+    require(column > 0, "line must be greater than zero: " + line)
     send(Endpoints.GoToLineColumn, (projectRef, line, column))
   }
 
