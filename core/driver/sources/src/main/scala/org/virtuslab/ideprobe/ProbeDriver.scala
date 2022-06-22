@@ -157,7 +157,7 @@ class ProbeDriver(
   /**
    * Returns the list of all errors produced by the IDE
    */
-  def errors(): Seq[IdeMessage] = send(Endpoints.Messages).filter(_.isError).toList
+  def errors(): Seq[IdeMessage] = send(Endpoints.Messages).toList
 
   /**
    * Returns the list of all warnings produced by the IDE

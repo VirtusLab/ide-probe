@@ -129,6 +129,9 @@ object IntelliJFixture {
   def fromConfig(config: Config, path: String = ConfigRoot)(implicit ec: ExecutionContext): IntelliJFixture = {
     val probeConfig = config[IdeProbeConfig](path)
 
+    println("IDE PROBE CONFIG")
+    println(probeConfig)
+
     new IntelliJFixture(
       workspaceProvider = probeConfig.workspace.map(WorkspaceProvider.from).getOrElse(WorkspaceTemplate.Empty),
       intelliJProvider = IntelliJProvider

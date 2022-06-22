@@ -5,11 +5,21 @@ import org.virtuslab.ideprobe.protocol.IdeMessage
 
 object ErrorValidator {
   def apply(config: CheckConfig, errors: Seq[IdeMessage]): Option[Exception] = {
-    if (errors.isEmpty) None
+    println("CHECK CONFIG")
+    println(config)
+    config.errorMessages.foreach(s => println(s))
+    val seq: Seq[String] = Seq("<html>IntelliJ IDEA 2022.1.3 available</html>")
+    errors.foreach(s => println(s.content))
+    val filtered = errors.filter(p=> !seq.contains(p.content))
+    println("FILTERED")
+    filtered.foreach(s => println(s.content))
+    if (filtered.isEmpty) None
     else {
-      println(toString(errors))
+      println(toString(filtered))
       if (!config.errors) None
-      else Some(new Exception(toString(errors)))
+      else {
+        Some(new Exception(toString(filtered)))
+      }
     }
   }
 

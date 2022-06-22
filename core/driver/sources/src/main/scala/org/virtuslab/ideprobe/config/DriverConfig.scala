@@ -8,6 +8,7 @@ case class DriverConfig(
     launch: LaunchParameters = LaunchParameters(),
     check: CheckConfig = CheckConfig(),
     headless: Boolean = false,
+    errorTexts: Seq[String] = Nil,
     vmOptions: Seq[String] = Nil,
     env: Map[String, String] = Map.empty
 )
