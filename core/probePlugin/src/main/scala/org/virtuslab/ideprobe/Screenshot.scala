@@ -24,11 +24,10 @@ object Screenshot {
         val stream = process.getInputStream
         while (stream.available() > 0) System.err.write(stream.read())
       }
-      println("FILE DIR " + file.toAbsolutePath)
     }
   }
 
   private def command(display: String, outputFile: Path): Array[String] = {
-    Array("/bin/sh", "-c", s"xwd -display $display -screen -silent | convert xwd:- png:${outputFile.toAbsolutePath}")
+    Array("/bin/sh", "-c", s"xwd -display $display -root -silent | convert xwd:- png:${outputFile.toAbsolutePath}")
   }
 }
