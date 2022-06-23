@@ -200,17 +200,24 @@ Note that any communication with the probe is synchronous.
 
 ## Screenshots
 
-Screenshots are saved in `{IDEPROBE_SCREENSHOTS_DIR}/{IDEPROBE_TEST_SUITE}/{IDEPROBE_TEST_CASE}` directory.
-`IDEPROBE_SCREENSHOTS_DIR` is set to `/tmp/ide-probe/screenshots` by default. It is possible to override this variable by
-setting some additional environment variable and pass them later into `.conf` file. 
+Screenshots are saved under the path taken from `IDEPROBE_SCREENSHOTS_DIR` environment variable for which the default value is `/tmp/ide-probe/screenshots`. Inside this directory
+screenshots are organised into `test-suite/test-case` subfolders if these values are detectable by the plugin.
+Otherwise, the photos are saved directly into `IDEPROBE_SCREENSHOTS_DIR`. 
+The only way to override `IDEPROBE_SCREENSHOTS_DIR` is by configuring `probe.screenshot.path` in the fixture, either through the `.conf` file or in code.
+Overriding with `.conf` file looks like: 
 ```
 probe {
    // ...
    paths.screenshots = ${?MY_IDEPROBE_SCREENSHOTS_DIR}
 }`
 ```
-For non `.conf` scenario, you can pass environment variable directly into constructed instance.
-When the variables `IDEPROBE_TEST_SUITE` and `IDEPROBE_TEST_CASE` are not set, screenshots are saved directly into `IDEPROBE_SCREENSHOTS_DIR`.
+Thanks to HOCON feature, it is possible to populate any config value from environment variable and additionally make it optional
+with question mark used before the name of the environment variable - if `MY_IDEPROBE_SCREENSHOTS_DIR`  does not exist at runtime
+`probe.screenshot.path` will use default value without any error.
+For non `.conf` scenario, user would call: 
+```
+fixture.withPaths(IdeProbePaths(/*construct the instance passing, among others, a screenshots path that is most suitable for you*/))
+```
 
 # Extensions
 
