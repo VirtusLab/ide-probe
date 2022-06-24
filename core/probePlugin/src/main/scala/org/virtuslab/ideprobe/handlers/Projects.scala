@@ -2,19 +2,28 @@ package org.virtuslab.ideprobe.handlers
 
 import com.intellij.ide.actions.ImportModuleAction
 import com.intellij.ide.impl.ProjectUtil
+import com.intellij.openapi.externalSystem.ExternalSystemManager
+import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
+import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.ex.ProjectManagerEx
 import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.openapi.roots.{CompilerProjectExtension, ProjectRootManager}
 import com.intellij.projectImport.ProjectImportProvider
-import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.ProbePluginExtensions._
 import org.virtuslab.ideprobe.protocol
 import org.virtuslab.ideprobe.protocol.{ProjectRef, Sdk}
+
 import java.nio.file.Path
 import scala.annotation.tailrec
 
 object Projects extends IntelliJApi {
+  def refreshAll(projectRef: ProjectRef): Unit = {
+    val project = resolve(projectRef)
+    ExternalSystemManager.EP_NAME.getExtensions.map(_.getSystemId).foreach{ id =>
+      ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(project, id).forceWhenUptodate(true))
+    }
+  }
 
   def resolve(ref: ProjectRef): Project = {
     ref match {

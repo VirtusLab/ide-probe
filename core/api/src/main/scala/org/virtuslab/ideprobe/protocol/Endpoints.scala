@@ -18,6 +18,7 @@ object Endpoints extends ConfigFormat {
   val InvokeActionAsync = Request[String, Unit]("action/invokeAsync")
   val InvokeAction = Request[String, Unit]("action/invoke")
   val OpenProject = Request[Path, Unit]("project/open")
+  val RefreshAllExternalProjects = Request[ProjectRef, Unit]("project/refreshAll")
   val SetCompilerOutput = Request[(ProjectRef, Path), Unit]("project/setCompilerOutput")
   val RunApp = Request[ApplicationRunConfiguration, ProcessResult]("run/application")
   val RunJUnit = Request[TestScope, TestsRunResult]("run/junit")

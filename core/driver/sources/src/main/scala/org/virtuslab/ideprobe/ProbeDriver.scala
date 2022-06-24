@@ -86,6 +86,10 @@ class ProbeDriver(
     }
   }
 
+  def refreshAllExternalProjectsAsync(project: ProjectRef): Unit = {
+      send(Endpoints.RefreshAllExternalProjects, project)
+  }
+
   /**
    * Only used for developing ide-probe extensions.
    * IntelliJ APIs return prematurely. To make sure
