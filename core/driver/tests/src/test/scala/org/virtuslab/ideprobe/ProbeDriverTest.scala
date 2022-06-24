@@ -1,20 +1,21 @@
 package org.virtuslab.ideprobe
 
-import java.net.URL
-import java.nio.charset.Charset
 import com.intellij.remoterobot.utils.WaitForConditionTimeoutException
-import java.nio.file.{Files, Paths}
 import org.apache.commons.io.IOUtils
 import org.junit.Assert._
-import org.junit.{Ignore, Test}
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.junit.{Ignore, Test}
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.dependencies.Plugin
 import org.virtuslab.ideprobe.ide.intellij.IntelliJProvider
 import org.virtuslab.ideprobe.protocol.TestStatus.Passed
 import org.virtuslab.ideprobe.protocol._
 import org.virtuslab.ideprobe.robot.RobotPluginExtension
+
+import java.net.URL
+import java.nio.charset.Charset
+import java.nio.file.{Files, StandardOpenOption}
 import scala.annotation.tailrec
 import scala.concurrent.duration._
 import scala.util.Try
@@ -100,6 +101,23 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
         }
       }
   }
+
+  @Test
+  def refreshProject(): Unit =
+    fixture.copy(workspaceProvider = WorkspaceTemplate.FromResource("gradle-project")).run { intelliJ =>
+      val projectRef = intelliJ.probe.withRobot.openProject(intelliJ.workspace)
+      val settingsFile = intelliJ.workspace.resolve("settings.gradle")
+
+      Files.writeString(settingsFile, "rootProject.name = 'bar'", StandardOpenOption.WRITE)
+      intelliJ.probe.await()
+
+      assertEquals(intelliJ.probe.listOpenProjects().toList, List(ProjectRef.ByName("foo")))
+      intelliJ.probe.refreshAllExternalProjectsAsync()
+      intelliJ.probe.await()
+
+      assertEquals(intelliJ.probe.listOpenProjects().toList, List(ProjectRef.ByName("bar")))
+
+    }
 
   @Test
   @Ignore
