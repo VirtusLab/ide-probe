@@ -86,6 +86,10 @@ class ProbeDriver(
     }
   }
 
+  def refreshAllExternalProjectsAsync(): Unit = {
+    send(Endpoints.RefreshAllExternalProjects, ProjectRef.Default)
+  }
+
   def refreshAllExternalProjectsAsync(project: ProjectRef): Unit = {
       send(Endpoints.RefreshAllExternalProjects, project)
   }

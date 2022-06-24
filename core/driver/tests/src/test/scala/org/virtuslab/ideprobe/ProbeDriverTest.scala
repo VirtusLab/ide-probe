@@ -112,7 +112,7 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
       intelliJ.probe.await()
 
       assertEquals(intelliJ.probe.listOpenProjects().toList, List(ProjectRef.ByName("foo")))
-      intelliJ.probe.refreshAllExternalProjectsAsync(projectRef)
+      intelliJ.probe.refreshAllExternalProjectsAsync()
       intelliJ.probe.await()
 
       assertEquals(intelliJ.probe.listOpenProjects().toList, List(ProjectRef.ByName("bar")))
