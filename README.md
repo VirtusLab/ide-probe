@@ -218,7 +218,7 @@ For non `.conf` scenario, user would call:
 ```
 fixture.withPaths(IdeProbePaths(/*construct the instance passing, among others, a screenshots path that is most suitable for you*/))
 ```
-Screenshots feature is only available with Xvfb display mode. 
+Screenshots feature is only available with Xvfb display mode. Screenshots are taken on every AWT event, during probe is shutting down (with _on-exit_ in screenshot name) and when explicitly requested via `probe.screenshot()`.
 # Extensions
 
 Extensions exist to implement custom actions specific to a plugin. For example
