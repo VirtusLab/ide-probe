@@ -12,14 +12,15 @@ The command used to launch the IDE. By default, the driver uses the `idea` comma
 By default, the driver waits `30 seconds` for the IDE to connect the probe. After exceeding this time, the whole test fails.  
 #### Automatic checks
 ```
-driver.checks {
+driver.check {
     errors = false
     freezes = false
+    ignoredIdeErrors = []
 }
 ```
 
 By default, the driver doesn't fail the test upon detecting any errors or freezes during the execution.
-  
+Field `ignoredIdeErrors` is an empty list by default. Putting some error messages into this field will cause probe to ignore IDE errors with these messages. 
 
 #### Headless mode
 `driver.headless = false`
