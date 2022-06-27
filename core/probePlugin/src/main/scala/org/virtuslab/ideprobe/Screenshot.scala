@@ -9,18 +9,15 @@ object Screenshot {
   private val id = new AtomicInteger(0)
 
   private val probeDisplay = sys.env.get("DISPLAY")
-  private val outputDirectory = for {
-    screenshotsDir <- sys.env.get("IDEPROBE_SCREENSHOTS_DIR")
-    testSuite <- sys.env.get("IDEPROBE_TEST_SUITE")
-    testCase <- sys.env.get("IDEPROBE_TEST_CASE")
-    path = Paths.get(screenshotsDir).resolve(testSuite).resolve(testCase)
-  } yield Files.createDirectories(path)
+  private val testSuiteName = sys.env.getOrElse("IDEPROBE_TEST_SUITE", "")
+  private val testCaseName = sys.env.getOrElse("IDEPROBE_TEST_CASE", "")
+  private val screenshotsDir = sys.env("IDEPROBE_SCREENSHOTS_DIR")
+  private val outputDirectory = Files.createDirectories(Paths.get(screenshotsDir).resolve(testSuiteName).resolve(testCaseName))
 
   def take(nameSuffix: String = ""): Unit = {
     for {
       display <- probeDisplay
-      directory <- outputDirectory
-      file = directory.resolve(s"${id.incrementAndGet()}$nameSuffix.png")
+      file = outputDirectory.resolve(s"${id.incrementAndGet()}$nameSuffix.png")
     } {
       val process = Runtime.getRuntime.exec(command(display, file))
       if (process.waitFor() != 0) {
