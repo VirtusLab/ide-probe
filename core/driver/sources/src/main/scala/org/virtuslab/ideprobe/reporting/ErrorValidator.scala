@@ -5,7 +5,7 @@ import org.virtuslab.ideprobe.protocol.IdeMessage
 
 object ErrorValidator {
   def apply(config: CheckConfig, errors: Seq[IdeMessage]): Option[Exception] = {
-    val filteredErrors = errors.filterNot(error => config.ignoredIdeErrors.contains(error.content))
+    val filteredErrors = errors.filterNot(error => config.ignoreErrorsWithMessageContaining.exists(error.content.contains(_)))
     if (filteredErrors.isEmpty) None
     else {
       println(toString(filteredErrors))

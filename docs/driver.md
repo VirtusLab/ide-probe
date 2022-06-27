@@ -15,12 +15,12 @@ By default, the driver waits `30 seconds` for the IDE to connect the probe. Afte
 driver.check {
     errors = false
     freezes = false
-    ignoredIdeErrors = []
+    ignoreErrorsWithMessageContaining = []
 }
 ```
 
 By default, the driver doesn't fail the test upon detecting any errors or freezes during the execution.
-Field `ignoredIdeErrors` is an empty list by default. Putting some error messages into this field will cause probe to ignore IDE errors with these messages. 
+Field `ignoreErrorsWithMessageContaining` is an empty list by default. Putting some error messages into this field will cause probe to ignore IDE errors with these messages. 
 
 #### Headless mode
 `driver.headless = false`
