@@ -1,7 +1,10 @@
 package org.virtuslab.ideprobe.handlers
 
-import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
 import java.util
+
+import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.progress.ProgressManager
+
 import org.virtuslab.ideprobe.Extensions._
 
 object BackgroundTasks extends IntelliJApi {

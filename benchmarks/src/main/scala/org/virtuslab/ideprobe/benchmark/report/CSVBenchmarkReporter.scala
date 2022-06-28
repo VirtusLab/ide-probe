@@ -1,7 +1,10 @@
 package org.virtuslab.ideprobe.benchmark
 package report
 
-import java.nio.file.{Files, Paths, StandardOpenOption}
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.StandardOpenOption
+
 import scala.concurrent.duration._
 
 class CSVBenchmarkReporter extends BenchmarkReporter {

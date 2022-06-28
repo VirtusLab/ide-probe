@@ -1,12 +1,16 @@
 package org.virtuslab.ideprobe
 package robot
 
-import com.intellij.remoterobot.SearchContext
-import com.intellij.remoterobot.fixtures.{CommonContainerFixture, Fixture}
-import com.intellij.remoterobot.search.locators.Locators
 import java.time.Duration
-import org.virtuslab.ideprobe.Extensions._
+
 import scala.concurrent.duration._
+
+import com.intellij.remoterobot.SearchContext
+import com.intellij.remoterobot.fixtures.CommonContainerFixture
+import com.intellij.remoterobot.fixtures.Fixture
+import com.intellij.remoterobot.search.locators.Locators
+
+import org.virtuslab.ideprobe.Extensions._
 
 trait SearchableComponent {
   protected def searchContext: SearchContext

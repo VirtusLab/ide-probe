@@ -1,14 +1,15 @@
 package org.virtuslab.ideprobe
 
+import scala.util.Try
+
 import com.intellij.openapi.extensions.ExtensionPointListener
 import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.extensions.PluginDescriptor
+
 import org.virtuslab.ideprobe.ProbeHandlers.ProbeHandler
 import org.virtuslab.ideprobe.jsonrpc.JsonRpc
 import org.virtuslab.ideprobe.jsonrpc.PayloadJsonFormat.SerializedJson
 import org.virtuslab.ideprobe.protocol.Endpoints
-
-import scala.util.Try
 
 trait ProbeHandlerContributor {
   def registerHandlers(handler: ProbeHandler): ProbeHandler

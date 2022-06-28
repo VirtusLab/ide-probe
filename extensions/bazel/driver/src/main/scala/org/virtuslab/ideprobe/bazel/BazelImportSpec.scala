@@ -1,8 +1,9 @@
 package org.virtuslab.ideprobe.bazel
 
-import org.virtuslab.ideprobe.ConfigFormat
 import pureconfig.ConfigConvert
 import pureconfig.generic.semiauto.deriveConvert
+
+import org.virtuslab.ideprobe.ConfigFormat
 
 case class BazelImportSpec(
     directories: Seq[String] = Nil,

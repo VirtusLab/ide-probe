@@ -1,16 +1,18 @@
 package org.virtuslab.ideprobe.dependencies
 
+import java.nio.file.Path
+import java.util.concurrent.Executors
+
+import scala.concurrent.ExecutionContext
+
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.virtuslab.ideprobe.ide.intellij.IntelliJProvider
 
-import java.nio.file.Path
+import org.virtuslab.ideprobe.Config
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.{Config, IdeProbePaths, IntelliJFixture}
-
-import java.util.concurrent.Executors
-import scala.concurrent.ExecutionContext
+import org.virtuslab.ideprobe.IntelliJFixture
+import org.virtuslab.ideprobe.ide.intellij.IntelliJProvider
 
 @RunWith(classOf[JUnit4])
 final class IntelliJProviderTest {
@@ -54,7 +56,6 @@ final class IntelliJProviderTest {
 
   @Test
   def shouldInstallIntellijFromExtractedRepository: Unit = givenInstalledIntelliJ { installationRoot =>
-
     val build = IntelliJVersion.Latest.build
     val installationPattern = installationRoot.toString.replace(build, "[revision]")
     installationRoot.resolve("dependencies.txt").delete()
@@ -73,7 +74,10 @@ final class IntelliJProviderTest {
     existingInstalledIntelliJ.cleanup()
 
     //then
-    assert(!existingInstalledIntelliJ.paths.root.isDirectory, "The provided IntelliJ instance should not exist after cleanup, but it was deleted.")
+    assert(
+      !existingInstalledIntelliJ.paths.root.isDirectory,
+      "The provided IntelliJ instance should not exist after cleanup, but it was deleted."
+    )
   }
 
   @Test

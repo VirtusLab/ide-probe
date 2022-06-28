@@ -1,18 +1,23 @@
 package org.virtuslab.ideprobe.pants
 
 import java.nio.file.Path
-import org.virtuslab.ideprobe.{ProbeDriver, WaitLogic}
-import org.virtuslab.ideprobe.pants.protocol.{
-  PantsEndpoints,
-  PantsProjectSettings,
-  PantsProjectSettingsChangeRequest,
-  PythonFacet
-}
-import org.virtuslab.ideprobe.protocol.{IdeNotification, ModuleRef, ProjectRef}
+
+import scala.concurrent.duration._
+import scala.util.Failure
+import scala.util.Success
+import scala.util.Try
+
+import org.virtuslab.ideprobe.ProbeDriver
+import org.virtuslab.ideprobe.WaitLogic
+import org.virtuslab.ideprobe.pants.protocol.PantsEndpoints
+import org.virtuslab.ideprobe.pants.protocol.PantsProjectSettings
+import org.virtuslab.ideprobe.pants.protocol.PantsProjectSettingsChangeRequest
+import org.virtuslab.ideprobe.pants.protocol.PythonFacet
+import org.virtuslab.ideprobe.protocol.IdeNotification
+import org.virtuslab.ideprobe.protocol.ModuleRef
+import org.virtuslab.ideprobe.protocol.ProjectRef
 import org.virtuslab.ideprobe.robot.RobotProbeDriver
 import org.virtuslab.ideprobe.robot.RobotSyntax._
-import scala.concurrent.duration._
-import scala.util.{Failure, Success, Try}
 
 object PantsProbeDriver {
   val pluginId = "org.virtuslab.ideprobe.pants"

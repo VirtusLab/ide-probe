@@ -14,7 +14,7 @@ package org.virtuslab.ideprobe.wait
  * waiting, until the window is actually closed and after it succeeds, the
  * logic for finding the component will not be executed anymore to avoid
  * wasting time, as queries can be time costly.
- * */
+ */
 class DoOnlyOnce(action: => Unit) {
   private var doneSuccessfully = false
 

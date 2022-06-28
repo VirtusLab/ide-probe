@@ -1,9 +1,12 @@
 package org.virtuslab.ideprobe.protocol
 
 import com.typesafe.config.ConfigValueFactory
+import pureconfig.ConfigReader
+import pureconfig.ConfigWriter
+import pureconfig.generic.semiauto.deriveReader
+import pureconfig.generic.semiauto.deriveWriter
+
 import org.virtuslab.ideprobe.ConfigFormat
-import pureconfig.generic.semiauto.{deriveReader, deriveWriter}
-import pureconfig.{ConfigReader, ConfigWriter}
 
 sealed trait ProjectRef
 

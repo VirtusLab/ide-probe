@@ -6,7 +6,7 @@ import scala.concurrent.duration._
 
 /**
  * Waits for a condition, checking it in equal intervals.
- * */
+ */
 class BasicWaiting(
     checkFrequency: FiniteDuration,
     atMost: FiniteDuration,

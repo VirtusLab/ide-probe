@@ -1,6 +1,7 @@
 package org.virtuslab.ideprobe
 
 import com.intellij.ide.ApplicationInitializedListener
+
 import org.virtuslab.ideprobe.log.IdeaLogInterceptor
 import org.virtuslab.ideprobe.log.NotificationsInterceptor
 

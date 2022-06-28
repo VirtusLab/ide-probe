@@ -1,12 +1,20 @@
 package org.virtuslab.ideprobe
 
-import com.zaxxer.nuprocess.{NuAbstractProcessHandler, NuProcess, NuProcessBuilder, NuProcessHandler}
+import java.nio.Buffer
+import java.nio.ByteBuffer
 import java.nio.channels.Channels
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
-import java.nio.{Buffer, ByteBuffer}
+
+import scala.concurrent.Await
+import scala.concurrent.Future
+import scala.concurrent.Promise
 import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, Future, Promise}
+
+import com.zaxxer.nuprocess.NuAbstractProcessHandler
+import com.zaxxer.nuprocess.NuProcess
+import com.zaxxer.nuprocess.NuProcessBuilder
+import com.zaxxer.nuprocess.NuProcessHandler
 
 object Shell extends BaseShell
 

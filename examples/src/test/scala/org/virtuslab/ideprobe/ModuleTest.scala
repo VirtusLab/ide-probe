@@ -1,6 +1,8 @@
 package org.virtuslab.ideprobe
 
-import org.junit.{Assert, Test}
+import org.junit.Assert
+import org.junit.Test
+
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.protocol._
 import org.virtuslab.ideprobe.robot.RobotPluginExtension

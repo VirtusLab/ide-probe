@@ -1,12 +1,17 @@
 package org.virtuslab.ideprobe.ide.intellij
 
-import java.nio.file.{Files, Path}
-import java.util.stream.{Collectors, Stream => JStream}
+import java.nio.file.Files
+import java.nio.file.Path
+import java.util.stream.Collectors
+import java.util.stream.{Stream => JStream}
+
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe._
-import org.virtuslab.ideprobe.config.{DependenciesConfig, DriverConfig, IntellijConfig}
-import org.virtuslab.ideprobe.dependencies._
+import org.virtuslab.ideprobe.config.DependenciesConfig
+import org.virtuslab.ideprobe.config.DriverConfig
+import org.virtuslab.ideprobe.config.IntellijConfig
 import org.virtuslab.ideprobe.dependencies.Resource._
+import org.virtuslab.ideprobe.dependencies._
 
 sealed trait IntelliJProvider {
   def version: IntelliJVersion
@@ -39,7 +44,7 @@ sealed trait IntelliJProvider {
       val fileOpt = dependencies.plugin.fetch(plugin)
       fileOpt match {
         case Some(file) => PluginArchive(plugin, file.toExtracted)
-        case _ => error("Plugin archive not found")
+        case _          => error("Plugin archive not found")
 
       }
     })

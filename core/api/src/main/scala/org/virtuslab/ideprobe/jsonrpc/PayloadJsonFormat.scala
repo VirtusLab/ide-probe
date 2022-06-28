@@ -1,11 +1,13 @@
 package org.virtuslab.ideprobe.jsonrpc
 
+import scala.util.control.NonFatal
+
 import com.typesafe.config.ConfigRenderOptions
-import org.virtuslab.ideprobe.ConfigFormat
 import pureconfig.ConfigReader
 import pureconfig.ConfigSource
 import pureconfig.ConfigWriter
-import scala.util.control.NonFatal
+
+import org.virtuslab.ideprobe.ConfigFormat
 
 object PayloadJsonFormat extends ConfigFormat {
   type SerializedJson = String

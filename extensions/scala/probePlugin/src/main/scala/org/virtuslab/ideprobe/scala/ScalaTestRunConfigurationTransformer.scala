@@ -4,6 +4,7 @@ import com.intellij.execution.RunnerAndConfigurationSettings
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestRunConfiguration
 import org.jetbrains.sbt.settings.SbtSettings
+
 import org.virtuslab.ideprobe.RunConfigurationTransformer
 
 class ScalaTestRunConfigurationTransformer extends RunConfigurationTransformer {

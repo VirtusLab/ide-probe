@@ -1,11 +1,18 @@
 package org.virtuslab.ideprobe.pants
 
 import java.io.InputStream
-import java.nio.file.{Path, Paths}
+import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.UUID
+
+import org.virtuslab.ideprobe.Config
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.dependencies.{DependencyBuilder, GitRepository, ResourceProvider}
-import org.virtuslab.ideprobe.{Config, Id, Shell, error}
+import org.virtuslab.ideprobe.Id
+import org.virtuslab.ideprobe.Shell
+import org.virtuslab.ideprobe.dependencies.DependencyBuilder
+import org.virtuslab.ideprobe.dependencies.GitRepository
+import org.virtuslab.ideprobe.dependencies.ResourceProvider
+import org.virtuslab.ideprobe.error
 
 object PantsPluginBuilder extends DependencyBuilder(Id("pants")) {
   def build(config: Config, resources: ResourceProvider): Path = {

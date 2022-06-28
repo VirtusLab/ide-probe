@@ -3,10 +3,9 @@ package org.virtuslab.ideprobe.dependencies
 import java.nio.file.Paths
 
 import org.junit.Assert.assertEquals
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.junit.Test
-import org.virtuslab.ideprobe.ide.intellij.IntelliJProvider
 @RunWith(classOf[JUnit4])
 final class IntelliJVersionResolverTest {
   @Test

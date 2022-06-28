@@ -1,7 +1,6 @@
 package org.virtuslab.ideprobe.protocol
 
 import java.nio.file.Path
-import pureconfig.ConfigConvert
 
 import scala.collection.mutable
 

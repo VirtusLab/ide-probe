@@ -38,6 +38,14 @@ val intellijVersion = None
 sonatypeProfileName := "org.virtuslab"
 
 (ThisBuild / resolvers) += Resolver.jcenterRepo
+(ThisBuild / semanticdbEnabled) := true
+(ThisBuild / semanticdbVersion) := {
+  scalaVersion.value match {
+    case "2.13.7" | "2.13.8" => "4.4.32"
+    case _                   => "4.4.28"
+  }
+}
+(ThisBuild / scalafixDependencies) += "com.github.liancheng" %% "organize-imports" % "0.6.0"
 
 import IdeaPluginAdapter._
 import IdeaPluginDevelopment.packageArtifactZipFilter
@@ -303,6 +311,8 @@ lazy val benchmarks212 = benchmarks(scala212)
 
 def project(id: String, path: String, publish: Boolean): Project = {
   Project(id, sbt.file(path))
+    .settings(scalafmtOnCompile := true)
+    .settings(scalacOptions ++= Seq("-Xlint:unused", "-Ywarn-unused"))
     .settings(
       (Keys.publish / skip) := !publish,
       libraryDependencies ++= Dependencies.junit

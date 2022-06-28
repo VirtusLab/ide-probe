@@ -4,7 +4,9 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.virtuslab.ideprobe.protocol.{ModuleRef, TestScope}
+
+import org.virtuslab.ideprobe.protocol.ModuleRef
+import org.virtuslab.ideprobe.protocol.TestScope
 
 @RunWith(classOf[JUnit4])
 final class TestScopeParsingTest {

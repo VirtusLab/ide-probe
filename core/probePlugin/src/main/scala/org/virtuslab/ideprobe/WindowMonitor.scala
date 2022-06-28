@@ -6,11 +6,12 @@ import java.awt.Window
 import java.awt.event.AWTEventListener
 import java.awt.event.WindowEvent
 
+import scala.util.Try
+
 import com.intellij.openapi.wm.IdeFrame
 import javax.swing
-import org.virtuslab.ideprobe.handlers.IntelliJApi
 
-import scala.util.Try
+import org.virtuslab.ideprobe.handlers.IntelliJApi
 
 class WindowMonitor extends AWTEventListener {
   import WindowMonitor._

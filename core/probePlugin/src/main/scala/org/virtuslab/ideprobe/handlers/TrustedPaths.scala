@@ -1,7 +1,9 @@
 package org.virtuslab.ideprobe.handlers
 
-import com.intellij.openapi.components.ServiceManager
 import java.nio.file.Path
+
+import com.intellij.openapi.components.ServiceManager
+
 import org.virtuslab.ideprobe.handlers.App.ReflectionOps
 
 object TrustedPaths {

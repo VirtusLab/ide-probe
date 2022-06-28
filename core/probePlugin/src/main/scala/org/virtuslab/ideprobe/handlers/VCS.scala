@@ -1,8 +1,9 @@
 package org.virtuslab.ideprobe.handlers
 
 import com.intellij.openapi.vcs.ProjectLevelVcsManager
-import org.virtuslab.ideprobe.protocol.ProjectRef
+
 import org.virtuslab.ideprobe.protocol
+import org.virtuslab.ideprobe.protocol.ProjectRef
 
 object VCS {
   def roots(projectRef: ProjectRef): Seq[protocol.VcsRoot] = {

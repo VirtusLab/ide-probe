@@ -1,12 +1,13 @@
 package org.virtuslab.ideprobe.handlers
 
+import scala.collection.mutable
+
 import com.intellij.navigation.ChooseByNameContributor
 import com.intellij.navigation.NavigationItem
 import com.intellij.openapi.project.Project
+
 import org.virtuslab.ideprobe.protocol.NavigationQuery
 import org.virtuslab.ideprobe.protocol.NavigationTarget
-
-import scala.collection.mutable
 
 object Navigation extends IntelliJApi {
   def find(query: NavigationQuery): List[NavigationTarget] = {

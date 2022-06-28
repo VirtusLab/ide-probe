@@ -1,9 +1,13 @@
 package org.virtuslab.ideprobe.dependencies
 
 import java.net.URI
-import java.nio.file.{Path, Paths}
+import java.nio.file.Path
+import java.nio.file.Paths
+
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.{OS, Shell, error}
+import org.virtuslab.ideprobe.OS
+import org.virtuslab.ideprobe.Shell
+import org.virtuslab.ideprobe.error
 
 class JdkInstaller(val name: String, uris: Map[OS, URI]) {
   def install(resources: ResourceProvider): Path = {

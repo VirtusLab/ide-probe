@@ -2,7 +2,7 @@ package org.virtuslab.ideprobe
 package wait
 
 import scala.annotation.tailrec
-import scala.concurrent.duration.{Duration, FiniteDuration}
+import scala.concurrent.duration.FiniteDuration
 
 /**
  * Extension of basic waiting logic for unstable conditions.
@@ -34,7 +34,7 @@ import scala.concurrent.duration.{Duration, FiniteDuration}
  * the chance that some task would "avoid" being noticed. If anything
  * is detected, algorithm goes back to waiting every 5 seconds, otherwise
  * waiting completes.
- * */
+ */
 class UnstableConditionWaiting(
     basicCheckFrequency: FiniteDuration,
     ensurePeriod: FiniteDuration,

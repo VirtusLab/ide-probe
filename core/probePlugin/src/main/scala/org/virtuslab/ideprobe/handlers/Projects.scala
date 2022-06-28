@@ -1,18 +1,23 @@
 package org.virtuslab.ideprobe.handlers
 
+import java.nio.file.Path
+
+import scala.annotation.tailrec
+
 import com.intellij.ide.actions.ImportModuleAction
 import com.intellij.ide.impl.ProjectUtil
 import com.intellij.openapi.module.ModuleManager
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.project.ex.ProjectManagerEx
-import com.intellij.openapi.project.{Project, ProjectManager}
-import com.intellij.openapi.roots.{CompilerProjectExtension, ProjectRootManager}
+import com.intellij.openapi.roots.CompilerProjectExtension
+import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.projectImport.ProjectImportProvider
-import org.virtuslab.ideprobe.Extensions._
+
 import org.virtuslab.ideprobe.ProbePluginExtensions._
 import org.virtuslab.ideprobe.protocol
-import org.virtuslab.ideprobe.protocol.{ProjectRef, Sdk}
-import java.nio.file.Path
-import scala.annotation.tailrec
+import org.virtuslab.ideprobe.protocol.ProjectRef
+import org.virtuslab.ideprobe.protocol.Sdk
 
 object Projects extends IntelliJApi {
 

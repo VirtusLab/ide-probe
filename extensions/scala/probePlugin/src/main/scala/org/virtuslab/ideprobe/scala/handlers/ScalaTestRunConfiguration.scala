@@ -2,19 +2,24 @@ package org.virtuslab.ideprobe.scala.handlers
 
 import java.util.Collections
 
+import scala.concurrent.ExecutionContext
+
 import com.intellij.compiler.options.CompileStepBeforeRun.MakeBeforeRunTask
-import com.intellij.execution.impl.{RunManagerImpl, RunnerAndConfigurationSettingsImpl}
-import org.jetbrains.plugins.scala.testingSupport.test.scalatest.{
-  ScalaTestConfigurationType,
-  ScalaTestRunConfigurationFactory
-}
-import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData, SingleTestData}
-import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, TestKind}
-import org.virtuslab.ideprobe.handlers.{Modules, Tests, RunConfigurations}
+import com.intellij.execution.impl.RunManagerImpl
+import com.intellij.execution.impl.RunnerAndConfigurationSettingsImpl
+import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration
+import org.jetbrains.plugins.scala.testingSupport.test.TestKind
+import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestConfigurationType
+import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestRunConfigurationFactory
+import org.jetbrains.plugins.scala.testingSupport.test.testdata.AllInPackageTestData
+import org.jetbrains.plugins.scala.testingSupport.test.testdata.ClassTestData
+import org.jetbrains.plugins.scala.testingSupport.test.testdata.SingleTestData
+
+import org.virtuslab.ideprobe.handlers.Modules
+import org.virtuslab.ideprobe.handlers.RunConfigurations
+import org.virtuslab.ideprobe.handlers.Tests
 import org.virtuslab.ideprobe.protocol.TestsRunResult
 import org.virtuslab.ideprobe.scala.protocol.{ScalaTestRunConfiguration => RunConfiguration}
-
-import scala.concurrent.ExecutionContext
 
 object ScalaTestRunConfiguration {
   def execute(runConfiguration: RunConfiguration)(implicit ec: ExecutionContext): TestsRunResult = {

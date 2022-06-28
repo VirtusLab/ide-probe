@@ -4,9 +4,9 @@ import java.net.Socket
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
 
-import com.intellij.openapi.components.ServiceManager
-
 import scala.concurrent.ExecutionContext
+
+import com.intellij.openapi.components.ServiceManager
 
 final class IdeProbeService {
   private implicit val executionContext: ExecutionContext = IdeProbeService.executionContext

@@ -4,11 +4,15 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.util.concurrent.TimeUnit
 
+import scala.concurrent.Await
+import scala.concurrent.duration.FiniteDuration
+
 import org.junit.Assert._
 import org.junit.Assume
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+
 import org.virtuslab.ideprobe.Assertions
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.IdeProbeFixture
@@ -16,9 +20,6 @@ import org.virtuslab.ideprobe.IntelliJFixture
 import org.virtuslab.ideprobe.OS
 import org.virtuslab.ideprobe.Shell
 import org.virtuslab.ideprobe.SingleRunIntelliJ
-
-import scala.concurrent.Await
-import scala.concurrent.duration.FiniteDuration
 
 @RunWith(classOf[JUnit4])
 final class SingleRunFixtureTest extends IdeProbeFixture with WorkspaceFixture with Assertions {

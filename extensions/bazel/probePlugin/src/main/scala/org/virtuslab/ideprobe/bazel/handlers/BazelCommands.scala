@@ -1,5 +1,7 @@
 package org.virtuslab.ideprobe.bazel.handlers
 
+import scala.jdk.CollectionConverters._
+
 import com.google.common.collect.ImmutableList
 import com.google.idea.blaze.base.command.BlazeCommandName
 import com.google.idea.blaze.base.model.primitives.TargetExpression
@@ -7,10 +9,14 @@ import com.google.idea.blaze.base.run.BlazeCommandRunConfigurationType
 import com.google.idea.blaze.base.run.state.BlazeCommandRunConfigurationCommonState
 import com.intellij.execution.RunManager
 import com.intellij.execution.impl.RunManagerImpl
+
 import org.virtuslab.ideprobe.bazel.protocol.BazelCommandParams
-import org.virtuslab.ideprobe.handlers.{IntelliJApi, Projects, RunConfigurations, Tests}
-import org.virtuslab.ideprobe.protocol.{ProjectRef, TestsRunResult}
-import scala.jdk.CollectionConverters._
+import org.virtuslab.ideprobe.handlers.IntelliJApi
+import org.virtuslab.ideprobe.handlers.Projects
+import org.virtuslab.ideprobe.handlers.RunConfigurations
+import org.virtuslab.ideprobe.handlers.Tests
+import org.virtuslab.ideprobe.protocol.ProjectRef
+import org.virtuslab.ideprobe.protocol.TestsRunResult
 
 object BazelCommands extends IntelliJApi {
   def runTest(command: BazelCommandParams, ref: ProjectRef): TestsRunResult = {

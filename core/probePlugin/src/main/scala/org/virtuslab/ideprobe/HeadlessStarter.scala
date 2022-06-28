@@ -7,6 +7,7 @@ import com.intellij.ide.impl.OpenProjectTask
 import com.intellij.ide.impl.ProjectUtil
 import com.intellij.openapi.application.ApplicationStarter
 import com.intellij.openapi.diagnostic.Logger
+
 import org.virtuslab.ideprobe.handlers.IntelliJApi
 
 /**

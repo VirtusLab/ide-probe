@@ -1,6 +1,7 @@
 package org.virtuslab.ideprobe.dependencies
 
 import java.net.HttpURLConnection
+
 import org.junit.Assert._
 import org.junit.Test
 import org.junit.runner.RunWith

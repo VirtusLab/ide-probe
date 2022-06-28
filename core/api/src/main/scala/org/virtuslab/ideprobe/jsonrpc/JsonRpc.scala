@@ -1,11 +1,14 @@
 package org.virtuslab.ideprobe.jsonrpc
 
 import java.io.Reader
-import com.google.gson._
-import org.virtuslab.ideprobe.jsonrpc.PayloadJsonFormat._
-import pureconfig.ConfigConvert
+
 import scala.reflect.ClassTag
 import scala.util.Try
+
+import com.google.gson._
+import pureconfig.ConfigConvert
+
+import org.virtuslab.ideprobe.jsonrpc.PayloadJsonFormat._
 
 object JsonRpc {
   private val Version = "2.0"

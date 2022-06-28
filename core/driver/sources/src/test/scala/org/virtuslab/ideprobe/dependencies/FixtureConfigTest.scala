@@ -3,12 +3,14 @@ package org.virtuslab.ideprobe.dependencies
 import java.nio.file.Files
 import java.util.concurrent.Executors
 
+import scala.concurrent.ExecutionContext
+
 import org.junit.Assert._
 import org.junit.Test
-import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.{Config, IntelliJFixture}
 
-import scala.concurrent.ExecutionContext
+import org.virtuslab.ideprobe.Config
+import org.virtuslab.ideprobe.Extensions._
+import org.virtuslab.ideprobe.IntelliJFixture
 
 final class FixtureConfigTest extends WorkspaceFixture {
   private implicit val ec: ExecutionContext = ExecutionContext.fromExecutorService(Executors.newCachedThreadPool())

@@ -8,6 +8,7 @@ import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+
 import org.virtuslab.ideprobe.Config
 import org.virtuslab.ideprobe.ConfigFormat
 import org.virtuslab.ideprobe.config.DependenciesConfig

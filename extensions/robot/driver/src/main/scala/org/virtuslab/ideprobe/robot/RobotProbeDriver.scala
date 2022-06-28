@@ -1,13 +1,19 @@
 package org.virtuslab.ideprobe
 package robot
 
-import com.intellij.remoterobot.{RemoteRobot, SearchContext}
 import java.nio.file.Path
+
+import scala.collection.mutable
+import scala.concurrent.duration.FiniteDuration
+
+import com.intellij.remoterobot.RemoteRobot
+import com.intellij.remoterobot.SearchContext
+
 import org.virtuslab.ideprobe.protocol.ProjectRef
 import org.virtuslab.ideprobe.robot.RobotSyntax._
 import org.virtuslab.ideprobe.wait.DoOnlyOnce
-import scala.collection.mutable
-import scala.concurrent.duration.{DurationInt, FiniteDuration}
+
+import scala.concurrent.duration.DurationInt
 
 object RobotProbeDriver {
   val robotPortProperty = "robot-server.port"
@@ -20,7 +26,8 @@ object RobotProbeDriver {
     robotDrivers.getOrElseUpdate(
       driver, {
         driver.as(
-          pluginId, { driver =>
+          pluginId,
+          { driver =>
             val port = getRobotPort(driver)
             val url = s"http://127.0.0.1:$port"
             println(s"Robot available at $url")

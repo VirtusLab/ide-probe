@@ -1,8 +1,8 @@
 package org.virtuslab.ideprobe.ide.intellij
 
-import org.virtuslab.ideprobe.Config
-
 import java.nio.file.Path
+
+import org.virtuslab.ideprobe.Config
 import org.virtuslab.ideprobe.Extensions._
 
 final case class IntelliJPaths(

@@ -1,8 +1,10 @@
 package org.virtuslab.ideprobe.pants
 
-import org.virtuslab.ideprobe.dependencies.{DependencyProvider, InternalPlugins, Plugin}
+import org.virtuslab.ideprobe.IdeProbeFixture
+import org.virtuslab.ideprobe.ProbeDriver
+import org.virtuslab.ideprobe.dependencies.DependencyProvider
+import org.virtuslab.ideprobe.dependencies.InternalPlugins
 import org.virtuslab.ideprobe.robot.RobotPluginExtension
-import org.virtuslab.ideprobe.{BuildInfo, IdeProbeFixture, ProbeDriver}
 
 import scala.language.implicitConversions
 

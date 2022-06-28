@@ -1,12 +1,15 @@
 package org.virtuslab.ideprobe.handlers
 
 import com.intellij.ide.`macro`.MacroManager
+import com.intellij.openapi.actionSystem.CommonDataKeys
+import com.intellij.openapi.actionSystem.PlatformDataKeys
 import com.intellij.openapi.actionSystem.impl.SimpleDataContext
-import com.intellij.openapi.actionSystem.{CommonDataKeys, PlatformDataKeys}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
+import com.intellij.openapi.vfs.VirtualFile
 import gnu.trove.THashMap
-import org.virtuslab.ideprobe.protocol.{ExpandMacroData, FileRef}
+
+import org.virtuslab.ideprobe.protocol.ExpandMacroData
+import org.virtuslab.ideprobe.protocol.FileRef
 
 object ExpandMacro {
   def expand(macroRequest: ExpandMacroData): String = {

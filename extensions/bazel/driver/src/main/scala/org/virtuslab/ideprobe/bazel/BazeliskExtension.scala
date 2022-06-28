@@ -1,12 +1,18 @@
 package org.virtuslab.ideprobe.bazel
 
 import java.net.URL
-import java.nio.file.{Files, Path}
+import java.nio.file.Files
+import java.nio.file.Path
+
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FileUtils
-import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.{Config, ConfigFormat, OS, error}
 import pureconfig.generic.auto._
+
+import org.virtuslab.ideprobe.Config
+import org.virtuslab.ideprobe.ConfigFormat
+import org.virtuslab.ideprobe.Extensions._
+import org.virtuslab.ideprobe.OS
+import org.virtuslab.ideprobe.error
 
 trait BazeliskExtension extends ConfigFormat {
 

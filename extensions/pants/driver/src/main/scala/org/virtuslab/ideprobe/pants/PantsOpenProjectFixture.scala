@@ -1,6 +1,7 @@
 package org.virtuslab.ideprobe.pants
 
-import org.virtuslab.ideprobe.{RunningIntelliJFixture, WaitLogic}
+import org.virtuslab.ideprobe.RunningIntelliJFixture
+import org.virtuslab.ideprobe.WaitLogic
 import org.virtuslab.ideprobe.protocol.ProjectRef
 import org.virtuslab.ideprobe.robot.RobotPluginExtension
 

@@ -2,6 +2,7 @@ package org.virtuslab.ideprobe.pants.handlers
 
 import com.intellij.facet.FacetManager
 import com.jetbrains.python.facet.PythonFacetSettings
+
 import org.virtuslab.ideprobe.handlers.Modules
 import org.virtuslab.ideprobe.handlers.Sdks
 import org.virtuslab.ideprobe.pants.protocol.PythonFacet
@@ -14,10 +15,9 @@ object PythonProject {
     val facets = FacetManager.getInstance(module).getAllFacets
     facets
       .map(f => f.getName -> f.getConfiguration)
-      .collect {
-        case (name, config: PythonFacetSettings) =>
-          val sdk = Option(config.getSdk).map(Sdks.convert)
-          PythonFacet(name, sdk)
+      .collect { case (name, config: PythonFacetSettings) =>
+        val sdk = Option(config.getSdk).map(Sdks.convert)
+        PythonFacet(name, sdk)
       }
   }
 

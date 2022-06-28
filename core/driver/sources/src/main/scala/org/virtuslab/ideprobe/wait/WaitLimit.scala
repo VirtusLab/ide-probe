@@ -8,7 +8,7 @@ import scala.concurrent.duration._
  * of `WaitLogic`. It starts the clock on object creation.
  * Then the used class calls `check()` periodically.
  * If the time limit exceeds, the method will throw an error.
- * */
+ */
 class WaitLimit(limit: FiniteDuration) {
   private var startTime: Long = System.currentTimeMillis()
 

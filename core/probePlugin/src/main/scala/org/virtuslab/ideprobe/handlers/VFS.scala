@@ -4,14 +4,15 @@ import java.net.URI
 import java.nio.file.Path
 import java.nio.file.Paths
 
+import scala.util.Try
+
 import com.intellij.ide.SaveAndSyncHandler
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
-import org.virtuslab.ideprobe.protocol.FileRef
 
-import scala.util.Try
+import org.virtuslab.ideprobe.protocol.FileRef
 
 object VFS extends IntelliJApi {
 

@@ -1,12 +1,15 @@
 package org.virtuslab.ideprobe
 package scala
 
-import java.io.{File, InputStream}
+import java.io.File
+import java.io.InputStream
 import java.nio.file.Path
-import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.dependencies._
+
 import pureconfig.ConfigReader
 import pureconfig.generic.semiauto.deriveReader
+
+import org.virtuslab.ideprobe.Extensions._
+import org.virtuslab.ideprobe.dependencies._
 
 object ScalaPluginBuilder extends DependencyBuilder(Id("scala")) {
 

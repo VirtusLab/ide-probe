@@ -19,11 +19,10 @@ object CI {
 
     loadedBuild.value.allProjectRefs
       .filterNot { case (_, project) => excludedCross.contains(project.id) }
-      .groupBy {
-        case (_, project) =>
-          val projectPath = project.base.toPath
-          if (projectPath.startsWith(extensionDir)) extensionDir.relativize(projectPath).getName(0).toString
-          else "probe"
+      .groupBy { case (_, project) =>
+        val projectPath = project.base.toPath
+        if (projectPath.startsWith(extensionDir)) extensionDir.relativize(projectPath).getName(0).toString
+        else "probe"
       }
       .mapValues(_.map(_._1))
   }
@@ -34,14 +33,15 @@ object CI {
       .filter(_.project.contains(scalaVersionToModulePostfix(scalaVersion)))
       .map(ref => s"; ${ref.project} / test")
       .mkString
-    val content = s"""|#!/bin/sh
-                      |
-                      |export IDEPROBE_DISPLAY=xvfb
-                      |export JAVA_HOME=/usr/local/openjdk-11
-                      |export IDEPROBE_SCREENSHOTS_DIR=/tmp/ideprobe/screenshots
-                      |
-                      |sbt "; clean $arguments"
-                      |""".stripMargin
+    val content =
+      s"""|#!/bin/sh
+          |
+          |export IDEPROBE_DISPLAY=xvfb
+          |export JAVA_HOME=/usr/local/openjdk-11
+          |export IDEPROBE_SCREENSHOTS_DIR=/tmp/ideprobe/screenshots
+          |
+          |sbt "; clean $arguments"
+          |""".stripMargin
     IO.write(script, content)
     println(s"Generated $script")
     script

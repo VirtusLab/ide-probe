@@ -1,15 +1,21 @@
 package org.virtuslab.ideprobe.handlers
 
+import scala.collection.mutable
+
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.PsiDirectory
+import com.intellij.psi.PsiDocumentManager
+import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiFile
+import com.intellij.psi.PsiManager
+import com.intellij.psi.PsiPackage
 import com.intellij.psi.impl.file.PsiPackageImpl
-import com.intellij.psi.{PsiDirectory, PsiDocumentManager, PsiElement, PsiFile, PsiManager, PsiPackage}
-import org.virtuslab.ideprobe.handlers.Highlighting.read
+
 import org.virtuslab.ideprobe.protocol.FileRef
 import org.virtuslab.ideprobe.protocol.ProjectRef
 import org.virtuslab.ideprobe.protocol.Reference
-import scala.collection.mutable
 
 object PSI extends IntelliJApi {
   def findPackage(project: Project, packageName: String): Option[PsiPackage] = read {

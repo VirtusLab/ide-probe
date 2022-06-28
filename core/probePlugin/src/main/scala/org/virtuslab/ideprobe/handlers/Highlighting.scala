@@ -1,22 +1,32 @@
 package org.virtuslab.ideprobe.handlers
 
+import java.util
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.locks.LockSupport
+
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer.DaemonListener
-import com.intellij.codeInsight.daemon.impl.{DaemonCodeAnalyzerEx, DaemonCodeAnalyzerImpl, HighlightInfo}
-import com.intellij.openapi.editor.{Document, Editor}
+import com.intellij.codeInsight.daemon.impl.DaemonCodeAnalyzerEx
+import com.intellij.codeInsight.daemon.impl.DaemonCodeAnalyzerImpl
+import com.intellij.codeInsight.daemon.impl.HighlightInfo
+import com.intellij.openapi.editor.Document
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.ex.util.EditorUtil
-import com.intellij.openapi.fileEditor.impl.text.{AsyncEditorLoader, TextEditorProvider}
-import com.intellij.openapi.fileEditor.{FileEditor, FileEditorManager, OpenFileDescriptor, TextEditor}
+import com.intellij.openapi.fileEditor.FileEditor
+import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.fileEditor.OpenFileDescriptor
+import com.intellij.openapi.fileEditor.TextEditor
+import com.intellij.openapi.fileEditor.impl.text.AsyncEditorLoader
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.{PsiDocumentManager, PsiFile}
+import com.intellij.psi.PsiDocumentManager
+import com.intellij.psi.PsiFile
 import com.intellij.util.ui.UIUtil
-import java.util
-import java.util.concurrent.{CountDownLatch, TimeUnit}
-import java.util.concurrent.locks.LockSupport
+
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.protocol
-import org.virtuslab.ideprobe.protocol.{FileRef}
+import org.virtuslab.ideprobe.protocol.FileRef
 
 object Highlighting extends IntelliJApi {
 

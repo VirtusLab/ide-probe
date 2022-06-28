@@ -1,6 +1,7 @@
 package org.virtuslab.ideprobe.scala
 
-import org.virtuslab.ideprobe.{IdeProbeFixture, Shell}
+import org.virtuslab.ideprobe.IdeProbeFixture
+import org.virtuslab.ideprobe.Shell
 
 trait BloopExtension { this: IdeProbeFixture =>
 

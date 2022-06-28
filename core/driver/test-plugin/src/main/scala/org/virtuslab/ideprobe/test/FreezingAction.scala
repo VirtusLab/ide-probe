@@ -1,6 +1,7 @@
 package org.virtuslab.ideprobe.test
 
 import java.util.concurrent.TimeUnit
+
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.DumbAware

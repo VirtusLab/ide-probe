@@ -2,6 +2,7 @@ package org.virtuslab.ideprobe.junit4
 
 import org.junit.AfterClass
 import org.junit.BeforeClass
+
 import org.virtuslab.ideprobe.RunningIntelliJPerSuiteBase
 import org.virtuslab.ideprobe.WorkspacePerSuiteBase
 

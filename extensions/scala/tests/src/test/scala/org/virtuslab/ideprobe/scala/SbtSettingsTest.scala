@@ -2,6 +2,7 @@ package org.virtuslab.ideprobe.scala
 
 import org.junit.Assert
 import org.junit.Test
+
 import org.virtuslab.ideprobe.protocol.Setting
 import org.virtuslab.ideprobe.scala.protocol.SbtProjectSettings
 import org.virtuslab.ideprobe.scala.protocol.SbtProjectSettingsChangeRequest

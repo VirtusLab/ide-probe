@@ -1,8 +1,9 @@
 package org.virtuslab.ideprobe.jsonrpc.logging
 
-import org.junit.{Assert, Test}
-
 import java.io.ByteArrayOutputStream
+
+import org.junit.Assert
+import org.junit.Test
 
 class GroupingLoggerTest {
   private val endpoint = "endpoint"

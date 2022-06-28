@@ -1,6 +1,7 @@
 package org.virtuslab.ideprobe
 
 import com.intellij.openapi.module.Module
+
 import org.virtuslab.ideprobe.protocol.ModuleRef
 import org.virtuslab.ideprobe.protocol.ProjectRef
 

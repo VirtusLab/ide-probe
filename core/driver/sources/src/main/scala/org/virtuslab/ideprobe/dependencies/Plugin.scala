@@ -1,10 +1,19 @@
 package org.virtuslab.ideprobe.dependencies
 
-import com.typesafe.config.{ConfigObject, ConfigRenderOptions}
 import java.net.URI
-import org.virtuslab.ideprobe.{Config, ConfigFormat, Id, error}
-import pureconfig.{ConfigReader, ConfigSource, ConfigWriter}
-import pureconfig.generic.semiauto.{deriveReader, deriveWriter}
+
+import com.typesafe.config.ConfigObject
+import com.typesafe.config.ConfigRenderOptions
+import pureconfig.ConfigReader
+import pureconfig.ConfigSource
+import pureconfig.ConfigWriter
+import pureconfig.generic.semiauto.deriveReader
+import pureconfig.generic.semiauto.deriveWriter
+
+import org.virtuslab.ideprobe.Config
+import org.virtuslab.ideprobe.ConfigFormat
+import org.virtuslab.ideprobe.Id
+import org.virtuslab.ideprobe.error
 
 sealed trait Plugin
 

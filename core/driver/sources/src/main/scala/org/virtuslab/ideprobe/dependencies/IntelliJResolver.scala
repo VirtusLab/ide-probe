@@ -20,8 +20,8 @@ case class IntelliJPatternResolver(pattern: String) extends IntelliJResolver {
       "version" -> version.releaseOrBuild,
       "release" -> version.release.getOrElse("snapshot-release")
     )
-    val replaced = replacements.foldLeft(pattern) {
-      case (path, (pattern, replacement)) => path.replace(s"[$pattern]", replacement)
+    val replaced = replacements.foldLeft(pattern) { case (path, (pattern, replacement)) =>
+      path.replace(s"[$pattern]", replacement)
     }
     Dependency(replaced)
   }

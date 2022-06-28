@@ -1,23 +1,37 @@
 package org.virtuslab.ideprobe.handlers
 
+import java.util.Collections
+
+import scala.concurrent.ExecutionContext
+
 import com.intellij.compiler.options.CompileStepBeforeRun.MakeBeforeRunTask
 import com.intellij.execution._
-import com.intellij.execution.actions.{ConfigurationContext, ConfigurationFromContext}
+import com.intellij.execution.actions.ConfigurationContext
+import com.intellij.execution.actions.ConfigurationFromContext
 import com.intellij.execution.application.ApplicationConfiguration
 import com.intellij.execution.executors.DefaultRunExecutor
-import com.intellij.execution.impl.{RunManagerImpl, RunnerAndConfigurationSettingsImpl}
+import com.intellij.execution.impl.RunManagerImpl
+import com.intellij.execution.impl.RunnerAndConfigurationSettingsImpl
 import com.intellij.execution.junit.JUnitConfiguration
 import com.intellij.execution.runners.ExecutionUtil
-import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext, DataKey, LangDataKeys}
+import com.intellij.openapi.actionSystem.CommonDataKeys
+import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.actionSystem.DataKey
+import com.intellij.openapi.actionSystem.LangDataKeys
 import com.intellij.openapi.module.{Module => IntelliJModule}
-import com.intellij.openapi.project.{DumbService, Project}
+import com.intellij.openapi.project.DumbService
+import com.intellij.openapi.project.Project
+import com.intellij.psi.JavaPsiFacade
+import com.intellij.psi.PsiClass
+import com.intellij.psi.PsiElement
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.{JavaPsiFacade, PsiClass, PsiElement}
-import java.util.Collections
-import org.virtuslab.ideprobe.{RunConfigurationTransformer, RunnerSettingsWithProcessOutput, UUIDs}
+
+import org.virtuslab.ideprobe.RunConfigurationTransformer
+import org.virtuslab.ideprobe.RunnerSettingsWithProcessOutput
+import org.virtuslab.ideprobe.UUIDs
 import org.virtuslab.ideprobe.protocol._
+
 import scala.collection.convert.ImplicitConversions.`collection AsScalaIterable`
-import scala.concurrent.ExecutionContext
 
 object RunConfigurations extends IntelliJApi {
 

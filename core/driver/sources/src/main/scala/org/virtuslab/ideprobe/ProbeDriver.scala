@@ -1,17 +1,24 @@
 package org.virtuslab.ideprobe
 
-import com.typesafe.config.ConfigRenderOptions
 import java.nio.file.Path
-import org.virtuslab.ideprobe.jsonrpc.JsonRpc.{Handler, Method}
-import org.virtuslab.ideprobe.jsonrpc.logging.{LoggingConfig, ProbeCommunicationLogger, GroupingLogger}
-import org.virtuslab.ideprobe.jsonrpc.{JsonRpcConnection, JsonRpcEndpoint}
-import org.virtuslab.ideprobe.protocol._
-import scala.annotation.tailrec
+
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 import scala.concurrent.duration._
-import scala.concurrent.{Await, ExecutionContext, Future}
-import scala.language.implicitConversions
 import scala.reflect.ClassTag
 import scala.util.Failure
+
+import com.typesafe.config.ConfigRenderOptions
+
+import org.virtuslab.ideprobe.jsonrpc.JsonRpc.Handler
+import org.virtuslab.ideprobe.jsonrpc.JsonRpc.Method
+import org.virtuslab.ideprobe.jsonrpc.JsonRpcConnection
+import org.virtuslab.ideprobe.jsonrpc.JsonRpcEndpoint
+import org.virtuslab.ideprobe.jsonrpc.logging.GroupingLogger
+import org.virtuslab.ideprobe.jsonrpc.logging.LoggingConfig
+import org.virtuslab.ideprobe.jsonrpc.logging.ProbeCommunicationLogger
+import org.virtuslab.ideprobe.protocol._
 
 class ProbeDriver(
     protected val connection: JsonRpcConnection,
@@ -92,7 +99,7 @@ class ProbeDriver(
    * that project is open, one must wait for background
    * tasks to finish. This is a helper method to do just
    * this.
-   * */
+   */
   def awaitForProjectOpen(waitLogic: WaitLogic = WaitLogic.Default)(open: => Unit): ProjectRef = {
     val previouslyOpened = listOpenProjects()
     open
@@ -292,21 +299,21 @@ class ProbeDriver(
 
   /**
    * Opens file in editor
-   * */
+   */
   def openEditor(file: Path, project: ProjectRef = ProjectRef.Default): Unit = {
     send(Endpoints.OpenEditor, FileRef(file, project))
   }
 
   /**
    * Go to specific location in current editor
-   * */
+   */
   def goToLineColumn(projectRef: ProjectRef, line: Int, column: Int): Unit = {
     send(Endpoints.GoToLineColumn, (projectRef, line, column))
   }
 
   /**
    * List of open editors
-   * */
+   */
   def listOpenEditors(projectRef: ProjectRef = ProjectRef.Default): Seq[Path] = {
     send(Endpoints.ListOpenEditors, projectRef)
   }
@@ -362,8 +369,8 @@ class ProbeDriver(
 }
 
 object ProbeDriver {
-  def start(connection: JsonRpcConnection, config: Config)(
-      implicit ec: ExecutionContext
+  def start(connection: JsonRpcConnection, config: Config)(implicit
+      ec: ExecutionContext
   ): ProbeDriver = {
     import scala.concurrent.Future
     val driver = new ProbeDriver(connection, config)

@@ -2,7 +2,9 @@ package org.virtuslab.ideprobe.ide.intellij
 
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+
 import com.zaxxer.nuprocess.NuProcess
+
 import org.virtuslab.ideprobe.OS
 import org.virtuslab.ideprobe.ProbeDriver
 import org.virtuslab.ideprobe.Shell

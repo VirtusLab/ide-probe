@@ -3,14 +3,20 @@ package org.virtuslab.ideprobe.ide.intellij
 import java.io.File
 import java.net.ServerSocket
 import java.nio.ByteBuffer
-import java.nio.file.{Files, Path, StandardOpenOption}
-import com.zaxxer.nuprocess.{NuAbstractProcessHandler, NuProcessBuilder}
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.StandardOpenOption
+
+import scala.concurrent.ExecutionContext
+import scala.concurrent.blocking
+
+import com.zaxxer.nuprocess.NuAbstractProcessHandler
+import com.zaxxer.nuprocess.NuProcessBuilder
+
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe._
 import org.virtuslab.ideprobe.config.DriverConfig
 import org.virtuslab.ideprobe.jsonrpc.JsonRpcConnection
-
-import scala.concurrent.{ExecutionContext, blocking}
 
 sealed abstract class InstalledIntelliJ(root: Path, probePaths: IdeProbePaths, config: DriverConfig) {
   def cleanup(): Unit
@@ -69,7 +75,7 @@ sealed abstract class InstalledIntelliJ(root: Path, probePaths: IdeProbePaths, c
     val content = {
       val macOsLauncher = paths.root.resolve("MacOS").resolve("idea")
       val launcher =
-        if(OS.Current == OS.Mac && macOsLauncher.toFile.exists())
+        if (OS.Current == OS.Mac && macOsLauncher.toFile.exists())
           macOsLauncher
         else
           paths.bin.resolve("idea.sh")

@@ -1,8 +1,11 @@
 package org.virtuslab.ideprobe.pants
 
-import java.nio.file.{Files, Path}
+import java.nio.file.Files
+import java.nio.file.Path
+
+import org.virtuslab.ideprobe.ConfigFormat
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.{ConfigFormat, IntelliJFixture}
+import org.virtuslab.ideprobe.IntelliJFixture
 
 object FastpassSetup extends ConfigFormat with BspFixture {
 

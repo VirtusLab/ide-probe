@@ -1,8 +1,11 @@
 package org.virtuslab.ideprobe
 
-import org.junit.{Assert, Test}
-import org.virtuslab.ideprobe.log.IdeaLogParser
 import scala.util.Random
+
+import org.junit.Assert
+import org.junit.Test
+
+import org.virtuslab.ideprobe.log.IdeaLogParser
 
 class IdeaLogParserTest extends Assertions {
 

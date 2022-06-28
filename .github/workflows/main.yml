@@ -6,6 +6,11 @@ on:
   pull_request:
 
 jobs:
+  code-style-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check code style
+        run: sbt scalafmtCheckAll scalafmtSbtCheck "scalafixAll --check"
   tests:
     runs-on: ubuntu-latest
     strategy:

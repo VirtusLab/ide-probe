@@ -16,11 +16,10 @@ object ErrorValidator {
   private def toString(errors: Seq[IdeMessage]): String = {
     val sb = new StringBuilder()
 
-    errors.groupBy(_.pluginId.getOrElse("IDEA")).foreach {
-      case (group, errors) =>
-        sb.append(s"Errors caused by $group >>>\n")
-        errors.foreach(msg => sb.append(s"\t${msg.content}\n"))
-        sb.append("<<<")
+    errors.groupBy(_.pluginId.getOrElse("IDEA")).foreach { case (group, errors) =>
+      sb.append(s"Errors caused by $group >>>\n")
+      errors.foreach(msg => sb.append(s"\t${msg.content}\n"))
+      sb.append("<<<")
     }
     sb.toString()
   }

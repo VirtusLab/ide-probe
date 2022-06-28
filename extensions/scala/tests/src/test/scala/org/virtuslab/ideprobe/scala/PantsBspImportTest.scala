@@ -1,9 +1,16 @@
 package org.virtuslab.ideprobe.scala
 
 import java.net.URL
-import java.nio.file.{Files, Path, Paths}
-import org.junit.{Assert, Ignore, Test}
-import org.virtuslab.ideprobe.{CommandResult, Shell}
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+
+import org.junit.Assert
+import org.junit.Ignore
+import org.junit.Test
+
+import org.virtuslab.ideprobe.CommandResult
+import org.virtuslab.ideprobe.Shell
 
 // TODO requires using twitter pants as it fails on pystache
 @Ignore

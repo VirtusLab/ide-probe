@@ -1,18 +1,22 @@
 package org.virtuslab.ideprobe.scala.handlers
 
-import com.intellij.projectImport.{ImportChooserStep, ProjectImportProvider}
-import com.intellij.ui.components.{JBList, JBRadioButton}
 import java.nio.file.Path
+
+import com.intellij.projectImport.ImportChooserStep
+import com.intellij.projectImport.ProjectImportProvider
+import com.intellij.ui.components.JBList
+import com.intellij.ui.components.JBRadioButton
 import org.jetbrains.bsp.project.importing.BspProjectImportProvider
-import org.virtuslab.ideprobe.handlers.{IntelliJApi, Projects}
-import org.virtuslab.ideprobe.protocol.ProjectRef
+
+import org.virtuslab.ideprobe.handlers.IntelliJApi
+import org.virtuslab.ideprobe.handlers.Projects
 
 object ProjectImport extends IntelliJApi {
   def importBspProject(path: Path): Unit = {
     Projects.importFromSources(
-      path, {
-        case step: ImportChooserStep =>
-          selectBspImportModel(step)
+      path,
+      { case step: ImportChooserStep =>
+        selectBspImportModel(step)
       }
     )
   }

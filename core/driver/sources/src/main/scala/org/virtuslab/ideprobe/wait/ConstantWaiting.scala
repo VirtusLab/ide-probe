@@ -5,7 +5,7 @@ import scala.concurrent.duration.FiniteDuration
 
 /**
  * Regardless of the condition it waits for a constant specified `duration` once.
- * */
+ */
 class ConstantWaiting private (
     duration: FiniteDuration,
     waitCondition: WaitCondition
