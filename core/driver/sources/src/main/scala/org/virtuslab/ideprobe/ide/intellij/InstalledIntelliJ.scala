@@ -81,7 +81,7 @@ sealed abstract class InstalledIntelliJ(root: Path, probePaths: IdeProbePaths, c
         else {
           Display.Mode match {
             case Display.Native => s"$launcher"
-            case Display.Xvfb   => s"xvfb-run --server-num=${Display.XvfbDisplayId} $launcher"
+            case Display.Xvfb   => s"""xvfb-run --server-num=${Display.XvfbDisplayId} --server-args="-screen 0 ${config.screen.width}x${config.screen.height}x${config.screen.depth}" $launcher"""
           }
         }
 
