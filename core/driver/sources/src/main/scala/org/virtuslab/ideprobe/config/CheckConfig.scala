@@ -1,7 +1,16 @@
 package org.virtuslab.ideprobe.config
 
-final case class CheckConfig(errors: Boolean = false, ignoreErrorsWithMessageContaining: Seq[String] = Nil, freezes: Boolean = false)
+import org.virtuslab.ideprobe.config.CheckConfig.ErrorConfig
+
+
+final case class CheckConfig(errors: ErrorConfig = ErrorConfig(), freezes: Boolean = false)
 
 object CheckConfig {
-  val Disabled: CheckConfig = CheckConfig(errors = false, freezes = false)
+  val Disabled: CheckConfig = CheckConfig()
+
+  case class ErrorConfig(
+      enabled: Boolean = false,
+      includeMessages: Seq[String] = Seq(".*"),
+      excludeMessages: Seq[String] = Nil
+  )
 }

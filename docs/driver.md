@@ -13,14 +13,19 @@ By default, the driver waits `30 seconds` for the IDE to connect the probe. Afte
 #### Automatic checks
 ```
 driver.check {
-    errors = false
+     errors {
+       enabled = false
+       exclude-messages = []
+       include-messages = [".*"]
+     }
     freezes = false
-    ignore-errors-with-message-containing = []
 }
 ```
 
 By default, the driver doesn't fail the test upon detecting any errors or freezes during the execution.
-Field `ignore-errors-with-message-containing` is an empty list by default. Putting some strings into this field will cause probe to ignore IDE errors whose messages contain any of the given strings, even if `probe.driver.check.errors` is `true`.
+Field `exclude-messages` is an empty list by default. Putting some regular expressions into this field will cause probe to ignore IDE errors whose messages match any of the given expressions, even if `probe.driver.check.errors.enabled` is `true`.
+By default, field `include-messages` contains one regular expression, that matches all IDE errors messages. If you want to include only errors that match certain regular expressions, you have to
+put them into this field. 
 
 #### Headless mode
 `driver.headless = false`
