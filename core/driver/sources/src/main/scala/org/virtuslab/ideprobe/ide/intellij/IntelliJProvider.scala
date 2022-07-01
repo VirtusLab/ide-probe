@@ -1,6 +1,6 @@
 package org.virtuslab.ideprobe.ide.intellij
 
-import java.nio.file.{Files, Path}
+import java.nio.file.{Files, Path, Paths}
 import java.util.stream.{Collectors, Stream => JStream}
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe._
@@ -129,8 +129,9 @@ final case class IntelliJFactory(
   private def installJbr(dependencies: DependencyProvider, intelliJ: DownloadedIntelliJ): Unit = {
     dependencies.jbr.fetchOpt(intelliJ.paths.root).foreach { jbrArchive =>
       val archive = jbrArchive.toString
-      val output = intelliJ.paths.root.toString
-      SilentShell.run("tar", "-xvzf", archive, "-C", output).ok()
+      val output = intelliJ.paths.root.resolve("jbr")
+      Files.createDirectories(output)
+      SilentShell.run("tar", "-xvzf", archive, "-C", output.toString, "--strip-components=1").ok()
     }
   }
 
