@@ -13,12 +13,14 @@ By default, the driver waits `30 seconds` for the IDE to connect the probe. Afte
 #### Automatic checks
 ```
 driver.check {
-     errors {
+    errors {
        enabled = false
        exclude-messages = []
        include-messages = [".*"]
      }
-    freezes = false
+    freezes {
+       enabled = false
+    }
 }
 ```
 

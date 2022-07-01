@@ -8,8 +8,8 @@ import scala.language.postfixOps
 object ErrorValidator {
   def apply(config: CheckConfig, errors: Seq[IdeMessage]): Option[Exception] = {
     val filteredErrors = errors
-      .filterNot(error => config.errors.includeMessages.exists( _.r findFirstIn error.content isEmpty))
-      .filter(error => if (config.errors.excludeMessages.isEmpty) true else config.errors.excludeMessages.exists(_.r findFirstIn error.content isEmpty))
+      .filter(error => config.errors.includeMessages.exists( _.r findFirstIn error.content nonEmpty))
+      .filterNot(error => if (config.errors.excludeMessages.isEmpty) false else config.errors.excludeMessages.exists(_.r findFirstIn error.content nonEmpty))
     if (filteredErrors.isEmpty) None
     else {
       println(toString(filteredErrors))
