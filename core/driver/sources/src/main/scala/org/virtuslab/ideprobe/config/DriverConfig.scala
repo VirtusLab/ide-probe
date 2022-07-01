@@ -19,8 +19,8 @@ object DriverConfig {
       timeout: FiniteDuration = 30.seconds
   )
   case class ScreenConfig(
-      width: Int = 640,
-      height: Int = 480,
-      depth: Int = 8
+      width: Int = 1920,
+      height: Int = 1080,
+      depth: Int = 24
   )
 }
