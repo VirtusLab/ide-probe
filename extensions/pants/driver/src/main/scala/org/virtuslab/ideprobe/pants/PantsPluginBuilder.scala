@@ -19,8 +19,8 @@ object PantsPluginBuilder extends DependencyBuilder(Id("pants")) {
   private def build(repository: GitRepository, userEnv: Map[String, String]): InputStream = {
     val localRepo = GitRepository.clone(repository)
     val env = Map("PANTS_SHA" -> "33735fe23228472367dc73f26bb96a755452192f") ++ userEnv
-    Shell.run(localRepo, env, "./scripts/setup-ci-environment.sh").ok()
-    Shell.run(localRepo, env, "./gradlew", ":buildPlugin").ok()
+    Shell.run(localRepo, env, "./scripts/setup-ci-environment.sh").ensureIsOk()
+    Shell.run(localRepo, env, "./gradlew", ":buildPlugin").ensureIsOk()
 
     val files = localRepo.resolve("build/distributions").directChildren()
     val output = files.find(_.name.matches("pants.*\\.zip")).getOrElse {
