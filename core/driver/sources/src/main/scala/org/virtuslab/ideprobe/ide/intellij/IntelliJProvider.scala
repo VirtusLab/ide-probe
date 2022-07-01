@@ -129,8 +129,7 @@ final case class IntelliJFactory(
   private def installJbr(dependencies: DependencyProvider, intelliJ: DownloadedIntelliJ): Unit = {
     dependencies.jbr.fetchOpt(intelliJ.paths.root).foreach { jbrArchive =>
       val archive = jbrArchive.toString
-      val output = intelliJ.paths.root.resolve("jbr")
-      Files.createDirectories(output)
+      val output = intelliJ.paths.root.createDirectory("jbr")
       SilentShell.run("tar", "-xvzf", archive, "-C", output.toString, "--strip-components=1").ok()
     }
   }
