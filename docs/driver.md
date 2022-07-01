@@ -33,9 +33,9 @@ Empty by default. Used by the driver to further customize the IDE.
 #### Screen size
 ```
 driver {
-  screen {
-    width = 1920,
-    height = 1080,
+  xvfb-screen {
+    width = 1920
+    height = 1080
     depth = 24
   }
 }

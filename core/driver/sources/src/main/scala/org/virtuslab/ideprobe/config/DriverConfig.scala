@@ -7,7 +7,7 @@ import scala.concurrent.duration._
 case class DriverConfig(
     launch: LaunchParameters = LaunchParameters(),
     check: CheckConfig = CheckConfig(),
-    screen: ScreenConfig = ScreenConfig(),
+    xvfbScreen: ScreenConfig = ScreenConfig(),
     headless: Boolean = false,
     vmOptions: Seq[String] = Nil,
     env: Map[String, String] = Map.empty
