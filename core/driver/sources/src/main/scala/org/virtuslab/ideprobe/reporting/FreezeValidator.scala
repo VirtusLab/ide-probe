@@ -8,7 +8,7 @@ object FreezeValidator {
     if (freezes.isEmpty) None
     else {
       println(toString(freezes))
-      if (!config.freezes) None
+      if (!config.freezes.enabled) None
       else Some(new Exception(toString(freezes)))
     }
   }
