@@ -4,18 +4,22 @@ import java.util.concurrent.{SynchronousQueue, ThreadPoolExecutor, TimeUnit}
 import scala.concurrent.ExecutionContext
 import scala.util.Try
 
-trait IdeProbeFixture {
-  protected implicit val ec: ExecutionContext = {
+object IdeProbeFixture {
+  def defaultEC(): ExecutionContext = {
     val service = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 10L, TimeUnit.SECONDS, new SynchronousQueue[Runnable])
     service.allowCoreThreadTimeOut(true)
     ExecutionContext.fromExecutorService(service)
   }
+}
+
+trait IdeProbeFixture {
+  protected implicit val ec: ExecutionContext = IdeProbeFixture.defaultEC()
 
   protected var fixtureTransformers: Seq[IntelliJFixture => IntelliJFixture] = Nil
 
   /**
    * Default logic for resolving configuration based on test class name
-   **/
+   * */
   def resolveConfig(): Config = {
     val className = getClass.getSimpleName.stripSuffix("$")
     val inDirectory = s"$className/ideprobe.conf"
