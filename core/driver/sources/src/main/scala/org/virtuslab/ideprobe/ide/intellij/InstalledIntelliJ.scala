@@ -79,9 +79,10 @@ sealed abstract class InstalledIntelliJ(root: Path, probePaths: IdeProbePaths, c
       val command =
         if (config.headless) s"$launcher headless"
         else {
+          import config.xvfb.screen._
           Display.Mode match {
             case Display.Native => s"$launcher"
-            case Display.Xvfb   => s"xvfb-run --server-num=${Display.XvfbDisplayId} $launcher"
+            case Display.Xvfb   => s"""xvfb-run --server-num=${Display.XvfbDisplayId} --server-args="-screen 0 ${width}x${height}x${depth}" $launcher"""
           }
         }
 

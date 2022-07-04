@@ -36,4 +36,18 @@ By default, the driver launches the IDE in the non-headless mode. Note, that the
 
 #### Virtual Machine options
 `driver.vmOptions = ["-Xmx4096m"]`
-Empty by default. Used by the driver to further customize the IDE. 
+Empty by default. Used by the driver to further customize the IDE.
+
+#### Screen size
+```
+driver {
+  xvfb {
+    screen {
+      width = 1920
+      height = 1080
+      depth = 24
+    }
+  }
+}
+```
+Used to configure screen size in Xvfb display mode. 
