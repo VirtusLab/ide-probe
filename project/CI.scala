@@ -10,6 +10,9 @@ object CI {
   private def scalaVersionToModulePostfix(scalaVersion: String): String =
     scalaVersion.split("\\.").dropRight(1).mkString("_")
 
+  private def scalaBaseVersion(scalaVersion: String): String =
+    scalaVersion.split("\\.").dropRight(1).mkString(".")
+
   def groupedProjects(scalaVersions: List[String]): Def.Initialize[Task[Map[String, Seq[ProjectRef]]]] = Def.task {
     val extensionDir = Paths.get(loadedBuild.value.root).resolve("extensions")
     val excludedCross = for {
@@ -28,7 +31,7 @@ object CI {
   }
 
   def generateTestScript(group: String, projects: Seq[ProjectRef], scalaVersion: String): sbt.File = {
-    val script = file(s"ci/tests/$scalaVersion/test-$group")
+    val script = file(s"ci/tests/${scalaBaseVersion(scalaVersion)}/test-$group")
     val arguments = projects
       .filter(_.project.contains(scalaVersionToModulePostfix(scalaVersion)))
       .map(ref => s"; ${ref.project} / test")

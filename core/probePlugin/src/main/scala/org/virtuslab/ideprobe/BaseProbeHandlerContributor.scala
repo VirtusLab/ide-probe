@@ -25,6 +25,7 @@ class BaseProbeHandlerContributor extends ProbeHandlerContributor {
       .on(Endpoints.FileReferences)(PSI.references)
       .on(Endpoints.Find)(Navigation.find)
       .on(Endpoints.OpenProject)(Projects.open)
+      .on(Endpoints.RefreshAllExternalProjects)(Projects.refreshAll)
       .on(Endpoints.CloseProject)(Projects.close)
       .on(Endpoints.SetCompilerOutput)((Projects.setCompilerOutput _).tupled)
       .on(Endpoints.ProjectModel)(Projects.model)

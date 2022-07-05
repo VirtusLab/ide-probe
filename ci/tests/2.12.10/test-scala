@@ -1,7 +1,0 @@
-#!/bin/sh
-
-export IDEPROBE_DISPLAY=xvfb
-export JAVA_HOME=/usr/local/openjdk-11
-export IDEPROBE_SCREENSHOTS_DIR=/tmp/ideprobe/screenshots
-
-sbt "; clean ; scala-probe-plugin_2_12 / test; scala-probe-api_2_12 / test; scala-tests_2_12 / test; scala-probe-driver_2_12 / test"

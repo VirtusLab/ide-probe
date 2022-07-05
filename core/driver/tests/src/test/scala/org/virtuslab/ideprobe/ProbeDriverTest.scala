@@ -1,26 +1,25 @@
 package org.virtuslab.ideprobe
 
-import java.net.URL
-import java.nio.charset.Charset
-
-import scala.annotation.tailrec
-import scala.concurrent.duration._
-import scala.util.Try
-
 import com.intellij.remoterobot.utils.WaitForConditionTimeoutException
 import org.apache.commons.io.IOUtils
 import org.junit.Assert._
-import org.junit.Ignore
-import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-
+import org.junit.{Ignore, Test}
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.dependencies.Plugin
 import org.virtuslab.ideprobe.ide.intellij.IntelliJProvider
 import org.virtuslab.ideprobe.protocol.TestStatus.Passed
 import org.virtuslab.ideprobe.protocol._
 import org.virtuslab.ideprobe.robot.RobotPluginExtension
+
+import java.net.URL
+import java.nio.charset.Charset
+import java.nio.file.{Files, StandardOpenOption}
+import scala.annotation.tailrec
+import scala.concurrent.duration._
+import scala.util.Try
+
 
 @RunWith(classOf[JUnit4])
 final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPluginExtension {
@@ -105,6 +104,23 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
   }
 
   @Test
+  def refreshProject(): Unit =
+    fixture.copy(workspaceProvider = WorkspaceTemplate.FromResource("gradle-project")).run { intelliJ =>
+      val projectRef = intelliJ.probe.withRobot.openProject(intelliJ.workspace)
+      val settingsFile = intelliJ.workspace.resolve("settings.gradle")
+
+      Files.writeString(settingsFile, "rootProject.name = 'bar'", StandardOpenOption.WRITE)
+      intelliJ.probe.await()
+
+      assertEquals(intelliJ.probe.listOpenProjects().toList, List(ProjectRef.ByName("foo")))
+      intelliJ.probe.refreshAllExternalProjectsAsync()
+      intelliJ.probe.await()
+
+      assertEquals(intelliJ.probe.listOpenProjects().toList, List(ProjectRef.ByName("bar")))
+
+    }
+
+  @Test
   @Ignore
   def expandsMacro(): Unit =
     fixture.copy(workspaceProvider = WorkspaceTemplate.FromResource("gradle-project")).run { intelliJ =>
@@ -185,6 +201,30 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
 
       assertExists(failedResult.errors)(error => error.file.exists(_.endsWith("Incorrect.scala")))
       assertEquals(Nil, successfulResult.errors)
+    }
+  }
+
+  @Test
+  def goToLineTest(): Unit = {
+    buildTestFixture.run { intelliJ =>
+      val projectDir = intelliJ.workspace.resolve("simple-sbt-project")
+      intelliJ.probe.withRobot.openProject(projectDir)
+
+      val bClass = projectDir.resolve("src/main/scala/B.scala")
+      bClass.write("""
+                   |import a.A
+                   |
+                   |class B extends A {
+                   |}
+                   |""".stripMargin)
+      intelliJ.probe.syncFiles()
+      val aClass = projectDir.resolve("src/main/scala/a/A.scala")
+
+      intelliJ.probe.openEditor(bClass)
+      intelliJ.probe.goToLineColumn(4, 18)
+      intelliJ.probe.invokeAction("GotoDeclaration")
+      val files = intelliJ.probe.listOpenEditors()
+      assertEquals(List(bClass, aClass), files)
     }
   }
 

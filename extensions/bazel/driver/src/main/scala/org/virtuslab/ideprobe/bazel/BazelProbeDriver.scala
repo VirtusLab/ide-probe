@@ -107,7 +107,7 @@ class BazelProbeDriver(val driver: ProbeDriver) {
     robot.clickButton("Next")
 
     // complete import wizard
-    robot.clickButton("Finish")
+    robot.clickButton("Create")
 
     driver.await(waitLogic)
 

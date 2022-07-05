@@ -4,7 +4,7 @@ object Dependencies {
 
   val junit = Seq(
     "junit" % "junit" % "4.13.2" % Test,
-    ("com.novocode" % "junit-interface" % "0.11" % Test).exclude("junit", "junit-dep")
+    ("com.github.sbt" % "junit-interface" % "0.13.3" % Test).exclude("junit", "junit-dep")
   )
 
   val junitCompile = Seq(
@@ -17,9 +17,9 @@ object Dependencies {
 
   val nuProcess = "com.zaxxer" % "nuprocess" % "2.0.3"
 
-  val remoteRobot = "com.intellij.remoterobot" % "remote-robot" % "0.11.13"
+  val remoteRobot = "com.intellij.remoterobot" % "remote-robot" % "0.11.14"
 
-  val remoteRobotFixtures = "com.intellij.remoterobot" % "remote-fixtures" % "0.11.13"
+  val remoteRobotFixtures = "com.intellij.remoterobot" % "remote-fixtures" % "0.11.14"
 
   val gson = "com.google.code.gson" % "gson" % "2.9.0"
 

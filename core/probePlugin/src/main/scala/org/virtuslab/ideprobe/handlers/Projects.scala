@@ -6,6 +6,9 @@ import scala.annotation.tailrec
 
 import com.intellij.ide.actions.ImportModuleAction
 import com.intellij.ide.impl.ProjectUtil
+import com.intellij.openapi.externalSystem.ExternalSystemManager
+import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
+import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
@@ -20,6 +23,12 @@ import org.virtuslab.ideprobe.protocol.ProjectRef
 import org.virtuslab.ideprobe.protocol.Sdk
 
 object Projects extends IntelliJApi {
+  def refreshAll(projectRef: ProjectRef): Unit = {
+    val project = resolve(projectRef)
+    ExternalSystemManager.EP_NAME.getExtensions.map(_.getSystemId).foreach{ id =>
+      ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(project, id).forceWhenUptodate(true))
+    }
+  }
 
   def resolve(ref: ProjectRef): Project = {
     ref match {

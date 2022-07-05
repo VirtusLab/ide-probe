@@ -93,6 +93,14 @@ class ProbeDriver(
     }
   }
 
+  def refreshAllExternalProjectsAsync(): Unit = {
+    send(Endpoints.RefreshAllExternalProjects, ProjectRef.Default)
+  }
+
+  def refreshAllExternalProjectsAsync(project: ProjectRef): Unit = {
+      send(Endpoints.RefreshAllExternalProjects, project)
+  }
+
   /**
    * Only used for developing ide-probe extensions.
    * IntelliJ APIs return prematurely. To make sure
@@ -305,9 +313,11 @@ class ProbeDriver(
   }
 
   /**
-   * Go to specific location in current editor
-   */
-  def goToLineColumn(projectRef: ProjectRef, line: Int, column: Int): Unit = {
+   * Go to specific location in current editor 1-based index
+   * /
+  def goToLineColumn(line: Int, column: Int, projectRef: ProjectRef = ProjectRef.Default): Unit = {
+    require(line > 0, "line must be greater than zero: " + line)
+    require(column > 0, "line must be greater than zero: " + line)
     send(Endpoints.GoToLineColumn, (projectRef, line, column))
   }
 

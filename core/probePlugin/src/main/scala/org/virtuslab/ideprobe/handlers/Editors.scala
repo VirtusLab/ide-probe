@@ -27,7 +27,7 @@ object Editors extends IntelliJApi {
   def goToLineColumn(projectRef: ProjectRef, line: Int, column: Int): Unit = {
     runOnUISync {
       val editor = editorManager(projectRef).getSelectedTextEditor
-      val newPosition = new LogicalPosition(line, column)
+      val newPosition = new LogicalPosition(line-1, column-1)
       editor.getCaretModel.moveToLogicalPosition(newPosition)
     }
   }

@@ -198,6 +198,27 @@ in [Endpoints.scala](https://github.com/VirtusLab/ide-probe/tree/master/core/api
 
 Note that any communication with the probe is synchronous.
 
+## Screenshots
+
+The default folder for saving photos is `/tmp/ide-probe/screenshots`. Inside this directory
+screenshots are organised into `test-suite/test-case` subfolders if these values are detectable by the plugin.
+Otherwise, the photos are saved directly into `/tmp/ide-probe/screenshots`. 
+The only way to override this default directory is by configuring `probe.paths.screenshots ` in the fixture, either through the `.conf` file or in code.
+Overriding with `.conf` file looks like: 
+```
+probe {
+   // ...
+   paths.screenshots = ${?MY_IDEPROBE_SCREENSHOTS_DIR}
+}`
+```
+Thanks to HOCON feature, it is possible to populate any config value from environment variable. Additionally, it is achievable to make this value optional
+with question mark used before the name of the environment variable - if `MY_IDEPROBE_SCREENSHOTS_DIR`  does not exist at runtime
+`probe.paths.screenshots` will use default value without any error.
+For non `.conf` scenario, user would call: 
+```
+fixture.withPaths(IdeProbePaths(/*construct the instance passing, among others, a screenshots path that is most suitable for you*/))
+```
+Screenshots feature is only available with Xvfb display mode. They are taken on every AWT event, during probe shutdown (with _on-exit_ in screenshot name) and when explicitly requested via `probe.screenshot()`.
 # Extensions
 
 Extensions exist to implement custom actions specific to a plugin. For example
