@@ -88,7 +88,8 @@ sealed abstract class InstalledIntelliJ(root: Path, probePaths: IdeProbePaths, c
           import config.xvfb.screen._
           Display.Mode match {
             case Display.Native => s"$launcher"
-            case Display.Xvfb   => s"""xvfb-run --server-num=${Display.XvfbDisplayId} --server-args="-screen 0 ${width}x${height}x${depth}" $launcher"""
+            case Display.Xvfb =>
+              s"""xvfb-run --server-num=${Display.XvfbDisplayId} --server-args="-screen 0 ${width}x${height}x${depth}" $launcher"""
           }
         }
 

@@ -25,7 +25,7 @@ import org.virtuslab.ideprobe.protocol.Sdk
 object Projects extends IntelliJApi {
   def refreshAll(projectRef: ProjectRef): Unit = {
     val project = resolve(projectRef)
-    ExternalSystemManager.EP_NAME.getExtensions.map(_.getSystemId).foreach{ id =>
+    ExternalSystemManager.EP_NAME.getExtensions.map(_.getSystemId).foreach { id =>
       ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(project, id).forceWhenUptodate(true))
     }
   }

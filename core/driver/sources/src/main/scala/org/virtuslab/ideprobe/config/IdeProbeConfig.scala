@@ -1,7 +1,9 @@
 package org.virtuslab.ideprobe.config
 
-
-import pureconfig.{CamelCase, ConfigFieldMapping, ConfigReader, KebabCase}
+import pureconfig.CamelCase
+import pureconfig.ConfigFieldMapping
+import pureconfig.ConfigReader
+import pureconfig.KebabCase
 import pureconfig.generic.ProductHint
 import pureconfig.generic.auto._
 

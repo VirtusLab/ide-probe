@@ -39,21 +39,15 @@ sonatypeProfileName := "org.virtuslab"
 
 (ThisBuild / resolvers) += Resolver.jcenterRepo
 (ThisBuild / semanticdbEnabled) := true
-(ThisBuild / semanticdbVersion) := {
-  scalaVersion.value match {
-    case "2.13.7" | "2.13.8" => "4.4.32"
-    case _                   => "4.4.28"
-  }
-}
+(ThisBuild / semanticdbVersion) := "4.5.9"
 (ThisBuild / scalafixDependencies) += "com.github.liancheng" %% "organize-imports" % "0.6.0"
 
 import IdeaPluginAdapter._
 import IdeaPluginDevelopment.packageArtifactZipFilter
 
 /**
- * By default, the sbt-idea-plugin gets applied to all of the projects.
- * We want it only in the plugin projects, so we need to disable it here
- * as well as for each created project separately.
+ * By default, the sbt-idea-plugin gets applied to all of the projects. We want it only in the plugin projects, so we
+ * need to disable it here as well as for each created project separately.
  */
 disableIdeaPluginDevelopment()
 
@@ -68,8 +62,8 @@ lazy val ci = project("ci", "ci", publish = false)
   )
 
 /**
- * Not a [[module]] so it can be bundled with the idea plugin
- * (doesn't work when used disableIdeaPluginDevelopment on a project)
+ * Not a [[module]] so it can be bundled with the idea plugin (doesn't work when used disableIdeaPluginDevelopment on a
+ * project)
  */
 lazy val api = project("api", "core/api", publish = true)
   .settings(
@@ -280,8 +274,7 @@ lazy val examples = testModule("examples", "examples")
 
 lazy val examples213 = examples(scala213)
 
-lazy val benchmarks = module("benchmarks", "benchmarks")
-  .cross
+lazy val benchmarks = module("benchmarks", "benchmarks").cross
   .dependsOn(driver)
 
 lazy val benchmarks213 = benchmarks(scala213)

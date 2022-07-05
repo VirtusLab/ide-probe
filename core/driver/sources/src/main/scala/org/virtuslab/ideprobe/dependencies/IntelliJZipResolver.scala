@@ -25,8 +25,8 @@ object IntelliJZipResolver extends IntelliJResolver {
         val dependency = officialReleases.resolve(version)
         dependency match {
           case Artifact(uri) if Resource.exists(uri) => dependency
-          case Artifact(_)                           => officialSnapshots.resolve(version.copy(build = version.build + "-EAP-SNAPSHOT"))
-          case _                                     => dependency
+          case Artifact(_) => officialSnapshots.resolve(version.copy(build = version.build + "-EAP-SNAPSHOT"))
+          case _           => dependency
         }
       }
     }

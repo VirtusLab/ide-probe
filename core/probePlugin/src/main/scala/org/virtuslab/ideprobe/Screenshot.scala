@@ -12,7 +12,8 @@ object Screenshot {
   private val testSuiteName = sys.env.getOrElse("IDEPROBE_TEST_SUITE", "")
   private val testCaseName = sys.env.getOrElse("IDEPROBE_TEST_CASE", "")
   private val screenshotsDir = sys.env("IDEPROBE_SCREENSHOTS_DIR")
-  private val outputDirectory = Files.createDirectories(Paths.get(screenshotsDir).resolve(testSuiteName).resolve(testCaseName))
+  private val outputDirectory =
+    Files.createDirectories(Paths.get(screenshotsDir).resolve(testSuiteName).resolve(testCaseName))
 
   def take(nameSuffix: String = ""): Unit = {
     for {

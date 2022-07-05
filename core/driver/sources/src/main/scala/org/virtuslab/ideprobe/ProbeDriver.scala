@@ -98,15 +98,12 @@ class ProbeDriver(
   }
 
   def refreshAllExternalProjectsAsync(project: ProjectRef): Unit = {
-      send(Endpoints.RefreshAllExternalProjects, project)
+    send(Endpoints.RefreshAllExternalProjects, project)
   }
 
   /**
-   * Only used for developing ide-probe extensions.
-   * IntelliJ APIs return prematurely. To make sure
-   * that project is open, one must wait for background
-   * tasks to finish. This is a helper method to do just
-   * this.
+   * Only used for developing ide-probe extensions. IntelliJ APIs return prematurely. To make sure that project is open,
+   * one must wait for background tasks to finish. This is a helper method to do just this.
    */
   def awaitForProjectOpen(waitLogic: WaitLogic = WaitLogic.Default)(open: => Unit): ProjectRef = {
     val previouslyOpened = listOpenProjects()
@@ -216,8 +213,8 @@ class ProbeDriver(
   }
 
   /**
-   * Runs the specified test configuration with a test runner containing provided `runnerToSelect` substring,
-   * or the first available test runner if `runnerToSelect` is `None`
+   * Runs the specified test configuration with a test runner containing provided `runnerToSelect` substring, or the
+   * first available test runner if `runnerToSelect` is `None`
    */
   def runTestsFromGenerated(runConfiguration: TestScope, runnerToSelect: Option[String]): TestsRunResult = {
     send(Endpoints.RunTestsFromGenerated, (runConfiguration, runnerToSelect))
@@ -245,8 +242,7 @@ class ProbeDriver(
   }
 
   /**
-   * Saves the current view of the IDE alongside the automatically captured screenshots
-   * with the specified name suffix
+   * Saves the current view of the IDE alongside the automatically captured screenshots with the specified name suffix
    */
   def screenshot(nameSuffix: String = ""): Unit = send(Endpoints.TakeScreenshot, nameSuffix)
 
@@ -275,8 +271,8 @@ class ProbeDriver(
   def plugins: Seq[InstalledPlugin] = send(Endpoints.Plugins).toList
 
   /**
-   * Runs inspection given by fully qualified class name on specified file.
-   * Optionally it can also run some or all of the quick fixes
+   * Runs inspection given by fully qualified class name on specified file. Optionally it can also run some or all of
+   * the quick fixes
    */
   def runLocalInspection(
       className: String,
@@ -292,14 +288,14 @@ class ProbeDriver(
   }
 
   /**
-   *  Expand macro in a given file
+   * Expand macro in a given file
    */
   def expandMacro(macroText: String, fileRef: FileRef): String = {
     send(Endpoints.ExpandMacro, ExpandMacroData(fileRef, macroText))
   }
 
   /**
-   *  Build artifact
+   * Build artifact
    */
   def buildArtifact(projectRef: ProjectRef, artifactName: String): Unit = {
     send(Endpoints.BuildArtifact, (projectRef, artifactName))
@@ -314,7 +310,7 @@ class ProbeDriver(
 
   /**
    * Go to specific location in current editor 1-based index
-   * /
+   */
   def goToLineColumn(line: Int, column: Int, projectRef: ProjectRef = ProjectRef.Default): Unit = {
     require(line > 0, "line must be greater than zero: " + line)
     require(column > 0, "line must be greater than zero: " + line)

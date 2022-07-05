@@ -2,8 +2,8 @@ package org.virtuslab.ideprobe.config
 
 import scala.concurrent.duration._
 
-import org.virtuslab.ideprobe.config.DriverConfig.{LaunchParameters, XvfbConfig}
-
+import org.virtuslab.ideprobe.config.DriverConfig.LaunchParameters
+import org.virtuslab.ideprobe.config.DriverConfig.XvfbConfig
 
 case class DriverConfig(
     launch: LaunchParameters = LaunchParameters(),

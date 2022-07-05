@@ -16,8 +16,8 @@ final class FixtureConfigTest extends WorkspaceFixture {
   private implicit val ec: ExecutionContext = ExecutionContext.fromExecutorService(Executors.newCachedThreadPool())
 
   /**
-   * Note that the validity of the properties cannot be check during creation, nor it should be validated then.
-   * This test check only that a rule can be created with a given set of properties.
+   * Note that the validity of the properties cannot be check during creation, nor it should be validated then. This
+   * test check only that a rule can be created with a given set of properties.
    */
   @Test
   def createsFixtureFromConfFile(): Unit = {

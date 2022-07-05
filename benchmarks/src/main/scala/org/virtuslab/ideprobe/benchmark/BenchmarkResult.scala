@@ -8,7 +8,8 @@ case class BenchmarkResult[A](
     numberOfRuns: Int,
     measures: Seq[FiniteDuration],
     metadata: Map[String, String],
-    customData: Seq[A] = Seq.empty) {
+    customData: Seq[A] = Seq.empty
+) {
 
   def withMetadata(metadata: Map[String, String]): BenchmarkResult[A] = {
     copy(metadata = this.metadata ++ metadata)
@@ -28,8 +29,8 @@ case class BenchmarkResult[A](
   val stdev: Option[FiniteDuration] = {
     meanTime.filter(_ => measures.size >= 2).map { mean =>
       val squares = measures
-          .map(_.toMillis)
-          .map(time => (time - mean.toMillis) * (time - mean.toMillis))
+        .map(_.toMillis)
+        .map(time => (time - mean.toMillis) * (time - mean.toMillis))
         .sum
 
       math.sqrt(squares / (measures.size - 1).toDouble).millis

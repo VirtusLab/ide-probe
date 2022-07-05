@@ -109,7 +109,7 @@ class GroupingLogger(config: LoggingConfig) extends ProbeCommunicationLogger {
                      |  $request
                      |  $response
                      |}""".stripMargin)
-        case (Request(request), _) => //Here and below the count will always be 1 - see the buffering mechanism.
+        case (Request(request), _) => // Here and below the count will always be 1 - see the buffering mechanism.
           if (accept(request)) {
             log(request)
           } else {

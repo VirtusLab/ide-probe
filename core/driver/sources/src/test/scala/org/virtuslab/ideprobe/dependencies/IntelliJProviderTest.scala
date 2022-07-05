@@ -21,10 +21,10 @@ final class IntelliJProviderTest {
   @Test
   def intelliJProviderShouldBeAbleToCorrectlyReadTheExistingInstanceVersion: Unit = givenInstalledIntelliJ {
     installationRoot =>
-      //when trying to read the installed instance's version
+      // when trying to read the installed instance's version
       val intelliJVersion = IntelliJVersionResolver.version(installationRoot)
 
-      //then
+      // then
       assert(
         intelliJVersion.build == IntelliJProvider.Default.version.build,
         s"Expected ${IntelliJProvider.Default.version}, but got $intelliJVersion."
@@ -44,10 +44,10 @@ final class IntelliJProviderTest {
 
     val existingInstalledIntelliJ = fixture.installIntelliJ()
 
-    //when
+    // when
     existingInstalledIntelliJ.cleanup()
 
-    //then
+    // then
     assert(
       installationRoot.isDirectory,
       "The provided IntelliJ instance should exist after cleanup, but it was deleted."
@@ -70,10 +70,10 @@ final class IntelliJProviderTest {
 
     val existingInstalledIntelliJ = fixture.installIntelliJ()
 
-    //when
+    // when
     existingInstalledIntelliJ.cleanup()
 
-    //then
+    // then
     assert(
       !existingInstalledIntelliJ.paths.root.isDirectory,
       "The provided IntelliJ instance should not exist after cleanup, but it was deleted."
@@ -82,7 +82,7 @@ final class IntelliJProviderTest {
 
   @Test
   def existingIntelliJShouldRetainItsOriginalPluginsDuringCleanup: Unit = givenInstalledIntelliJ { installationRoot =>
-    //given a pre-installed IntelliJ and an IntelliJProvider
+    // given a pre-installed IntelliJ and an IntelliJProvider
     val preInstalledPlugins = installationRoot.resolve("plugins").directChildren().toSet
 
     val config = Config.fromString(s"""
@@ -101,10 +101,10 @@ final class IntelliJProviderTest {
 
     assert(installedPlugins.diff(preInstalledPlugins).nonEmpty, "No plugins were installed.")
 
-    //when cleanup is called
+    // when cleanup is called
     existingIntelliJ.cleanup()
 
-    //then plugins after cleanup should be the same as initially
+    // then plugins after cleanup should be the same as initially
     val pluginsAfterCleanup = existingIntelliJ.paths.bundledPlugins.directChildren().toSet
     assert(installedPlugins.diff(pluginsAfterCleanup).nonEmpty, "No plugins were removed during cleanup.")
     assert(
@@ -120,7 +120,7 @@ final class IntelliJProviderTest {
     val installationRoot = preInstalledIntelliJ.paths.root
     preInstalledIntelliJ.paths.bundledPlugins
       .resolve("ideprobe")
-      .delete() //Removing the ideprobe plugin - to avoid conflicts when installing it in tests.
+      .delete() // Removing the ideprobe plugin - to avoid conflicts when installing it in tests.
     try test(installationRoot)
     finally preInstalledIntelliJ.cleanup()
   }

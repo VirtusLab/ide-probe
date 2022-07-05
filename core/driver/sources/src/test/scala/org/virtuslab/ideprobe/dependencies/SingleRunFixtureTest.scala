@@ -55,7 +55,7 @@ final class SingleRunFixtureTest extends IdeProbeFixture with WorkspaceFixture w
   @Test
   def removesDirectoriesEvenAfterFailureToRunIntelliJ(): Unit = {
     val intelliJFixture = IntelliJFixture().withAfterIntelliJInstall((_, intellij) =>
-      Files.delete(intellij.paths.root.resolve("bin").resolve("idea.sh")) //To prevent the IDE from launching.
+      Files.delete(intellij.paths.root.resolve("bin").resolve("idea.sh")) // To prevent the IDE from launching.
     )
 
     val instancesDir = intelliJFixture.intelliJProvider.paths.instances
@@ -68,10 +68,10 @@ final class SingleRunFixtureTest extends IdeProbeFixture with WorkspaceFixture w
 
     try {
       fixture { _ =>
-        //Empty, as we wouldn't be able to execute anything here.
+        // Empty, as we wouldn't be able to execute anything here.
       }
     } catch {
-      case _: Exception => //Pass, we don't care what went wrong specifically.
+      case _: Exception => // Pass, we don't care what went wrong specifically.
     }
 
     val instancesNotDeleted = instancesDir.directChildren().diff(instancesBefore)
