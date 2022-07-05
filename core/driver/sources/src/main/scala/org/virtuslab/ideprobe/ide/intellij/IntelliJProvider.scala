@@ -130,7 +130,7 @@ final case class IntelliJFactory(
     dependencies.jbr.fetchOpt(intelliJ.paths.root).foreach { jbrArchive =>
       val archive = jbrArchive.toString
       val output = intelliJ.paths.root.createDirectory("jbr")
-      SilentShell.run("tar", "-xvzf", archive, "-C", output.toString, "--strip-components=1").ensureIsOk()
+      SilentShell.run("tar", "-xvzf", archive, "-C", output.toString, "--strip-components=1").assertSuccess()
     }
   }
 

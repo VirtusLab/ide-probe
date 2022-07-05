@@ -22,11 +22,11 @@ case class CommandResult(outSafe: String, err: String, exitCode: Int) {
   def isFailed: Boolean = !isSuccess
 
   def out: String = {
-    ensureIsOk()
+    assertSuccess()
     outSafe
   }
 
-  def ensureIsOk(): Unit = {
+  def assertSuccess(): Unit = {
     if (!isSuccess) throw new RuntimeException(s"Command failed with exit code $exitCode")
   }
 }
