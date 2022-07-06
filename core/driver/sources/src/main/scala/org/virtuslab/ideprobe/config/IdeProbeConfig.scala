@@ -1,10 +1,6 @@
 package org.virtuslab.ideprobe.config
 
-import pureconfig.CamelCase
-import pureconfig.ConfigFieldMapping
 import pureconfig.ConfigReader
-import pureconfig.KebabCase
-import pureconfig.generic.ProductHint
 import pureconfig.generic.auto._
 
 import org.virtuslab.ideprobe.ConfigFormat
@@ -19,6 +15,5 @@ case class IdeProbeConfig(
 
 object IdeProbeConfig extends ConfigFormat {
   implicit val format: ConfigReader[IdeProbeConfig] = exportReader[IdeProbeConfig].instance
-  override implicit def hint[A] = ProductHint[A](ConfigFieldMapping(CamelCase, KebabCase))
 
 }
