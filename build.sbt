@@ -4,6 +4,8 @@ val scala212 = "2.12.16"
 val scala213 = "2.13.8"
 val crossScalaVersions = List(scala212, scala213)
 
+Global / onChangedBuildSource := ReloadOnSourceChanges
+
 (publish / skip) := true
 
 (ThisBuild / scalaVersion) := scala213
@@ -112,7 +114,9 @@ lazy val robotDriver = module("robot-driver", "extensions/robot/driver")
 
 lazy val robotDriver213 = robotDriver(scala213)
 
-lazy val driverTests = testModule("driver-tests", "core/driver/tests").cross
+lazy val driverTests = testModule("driver-tests", "core/driver/tests")
+  .settings(libraryDependencies += Dependencies.commonsIO)
+  .cross
   .dependsOn(junitDriver, robotDriver, api % "compile->compile;test->test")
 
 lazy val driverTests213 = driverTests(scala213)
@@ -258,7 +262,7 @@ lazy val bazelProbeDriver =
   module(id = "bazel-probe-driver", path = "extensions/bazel/driver")
     .settings(
       name := "bazel-probe-driver",
-      libraryDependencies += "commons-codec" % "commons-codec" % "1.15"
+      libraryDependencies ++= Seq(Dependencies.commonsCodec, Dependencies.commonsIO)
     )
     .cross
     .dependsOn(bazelProbeApi, driver, robotDriver)
