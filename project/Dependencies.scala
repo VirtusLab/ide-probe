@@ -15,11 +15,14 @@ object Dependencies {
     "org.scala-lang" % "scala-library" % version
   )
 
+  val commonsCodec = "commons-codec" % "commons-codec" % "1.15"
+  val commonsIO = "commons-io" % "commons-io" % "2.11.0"
+
   val nuProcess = "com.zaxxer" % "nuprocess" % "2.0.3"
 
-  val remoteRobot = "com.intellij.remoterobot" % "remote-robot" % "0.11.14"
-
-  val remoteRobotFixtures = "com.intellij.remoterobot" % "remote-fixtures" % "0.11.14"
+  val robotVersion = "0.11.15"
+  val remoteRobot = "com.intellij.remoterobot" % "remote-robot" % robotVersion
+  val remoteRobotFixtures = "com.intellij.remoterobot" % "remote-fixtures" % robotVersion
 
   val gson = "com.google.code.gson" % "gson" % "2.9.0"
 
