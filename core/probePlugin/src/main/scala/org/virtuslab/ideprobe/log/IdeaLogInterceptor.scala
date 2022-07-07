@@ -7,8 +7,9 @@ import com.intellij.openapi.diagnostic.RuntimeExceptionWithAttachments
 import com.intellij.util.ExceptionUtil
 import org.apache.log4j._
 import org.apache.log4j.spi.LoggingEvent
-import org.virtuslab.ideprobe.handlers.IntelliJApi
+
 import org.virtuslab.ideprobe.Extensions._
+import org.virtuslab.ideprobe.handlers.IntelliJApi
 import org.virtuslab.ideprobe.protocol.IdeMessage
 
 object IdeaLogInterceptor extends IntelliJApi {
@@ -34,12 +35,11 @@ object IdeaLogInterceptor extends IntelliJApi {
   private def flushFileLogger(): Unit = {
     val rootLogger = LogManager.getRootLogger
     val appenders = rootLogger.getAllAppenders.asInstanceOf[java.util.Enumeration[Appender]]
-    appenders.asScala.collect {
-      case fileAppender: FileAppender =>
-        val originalFlush = fileAppender.getImmediateFlush
-        fileAppender.setImmediateFlush(true)
-        rootLogger.info("Flush logs")
-        fileAppender.setImmediateFlush(originalFlush)
+    appenders.asScala.collect { case fileAppender: FileAppender =>
+      val originalFlush = fileAppender.getImmediateFlush
+      fileAppender.setImmediateFlush(true)
+      rootLogger.info("Flush logs")
+      fileAppender.setImmediateFlush(originalFlush)
     }
   }
 }

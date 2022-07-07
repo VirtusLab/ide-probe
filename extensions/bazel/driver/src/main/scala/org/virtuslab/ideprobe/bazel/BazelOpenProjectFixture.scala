@@ -1,9 +1,11 @@
 package org.virtuslab.ideprobe.bazel
 
-import org.virtuslab.ideprobe.Extensions.PathExtension
+import org.virtuslab.ideprobe.RunningIntelliJFixture
+import org.virtuslab.ideprobe.WaitLogic
 import org.virtuslab.ideprobe.protocol.ProjectRef
 import org.virtuslab.ideprobe.robot.RobotPluginExtension
-import org.virtuslab.ideprobe.{RunningIntelliJFixture, WaitLogic}
+
+import org.virtuslab.ideprobe.Extensions.PathExtension
 
 trait BazelOpenProjectFixture extends BazeliskExtension { this: RobotPluginExtension =>
 

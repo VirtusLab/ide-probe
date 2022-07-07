@@ -1,7 +1,8 @@
 package org.virtuslab.ideprobe
 
 import java.nio.ByteBuffer
-import java.util.{Base64, UUID}
+import java.util.Base64
+import java.util.UUID
 
 object UUIDs {
 

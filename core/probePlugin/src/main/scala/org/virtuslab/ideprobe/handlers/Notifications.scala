@@ -1,12 +1,13 @@
 package org.virtuslab.ideprobe.handlers
 
+import scala.concurrent.Promise
+import scala.concurrent.duration.Duration
+
 import com.intellij.notification.Notification
 import com.intellij.notification.{Notifications => NotificationListener}
 import com.intellij.openapi.application.ApplicationManager
-import org.virtuslab.ideprobe.protocol.IdeNotification
 
-import scala.concurrent.Promise
-import scala.concurrent.duration.Duration
+import org.virtuslab.ideprobe.protocol.IdeNotification
 
 object Notifications extends IntelliJApi {
   def await(id: String, duration: Duration): IdeNotification = {

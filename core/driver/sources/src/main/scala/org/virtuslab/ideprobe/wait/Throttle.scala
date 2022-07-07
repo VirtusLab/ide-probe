@@ -3,9 +3,8 @@ package org.virtuslab.ideprobe.wait
 import scala.concurrent.duration.FiniteDuration
 
 /**
- * Utility class that allows to execute code not more frequently
- * than `maxFrequency`.
- * */
+ * Utility class that allows to execute code not more frequently than `maxFrequency`.
+ */
 class Throttle(maxFrequency: FiniteDuration) {
 
   private var lastExecutionTime = Option.empty[Long]

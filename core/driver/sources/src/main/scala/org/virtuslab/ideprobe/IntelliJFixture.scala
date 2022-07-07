@@ -1,13 +1,17 @@
 package org.virtuslab.ideprobe
 
 import java.nio.file.Path
-import org.virtuslab.ideprobe.config.IdeProbeConfig
-import org.virtuslab.ideprobe.dependencies.{IntelliJVersion, Plugin}
-import org.virtuslab.ideprobe.ide.intellij.{InstalledIntelliJ, IntelliJProvider, RunningIde}
 
 import scala.annotation.tailrec
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
+
+import org.virtuslab.ideprobe.config.IdeProbeConfig
+import org.virtuslab.ideprobe.dependencies.IntelliJVersion
+import org.virtuslab.ideprobe.dependencies.Plugin
+import org.virtuslab.ideprobe.ide.intellij.InstalledIntelliJ
+import org.virtuslab.ideprobe.ide.intellij.IntelliJProvider
+import org.virtuslab.ideprobe.ide.intellij.RunningIde
 
 final case class IntelliJFixture(
     workspaceProvider: WorkspaceProvider = WorkspaceTemplate.Empty,

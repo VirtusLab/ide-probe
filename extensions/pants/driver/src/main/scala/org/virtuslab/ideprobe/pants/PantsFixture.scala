@@ -1,7 +1,10 @@
 package org.virtuslab.ideprobe.pants
 
-import java.nio.file.{Path, Paths}
-import org.virtuslab.ideprobe.{CommandResult, Shell}
+import java.nio.file.Path
+import java.nio.file.Paths
+
+import org.virtuslab.ideprobe.CommandResult
+import org.virtuslab.ideprobe.Shell
 
 trait PantsFixture {
   def runPants(workspace: Path, command: Seq[String]): CommandResult = {

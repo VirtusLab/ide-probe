@@ -4,11 +4,9 @@ package wait
 import scala.concurrent.duration._
 
 /**
- * Utility class that helps with handling `atMost` parameter
- * of `WaitLogic`. It starts the clock on object creation.
- * Then the used class calls `check()` periodically.
- * If the time limit exceeds, the method will throw an error.
- * */
+ * Utility class that helps with handling `atMost` parameter of `WaitLogic`. It starts the clock on object creation.
+ * Then the used class calls `check()` periodically. If the time limit exceeds, the method will throw an error.
+ */
 class WaitLimit(limit: FiniteDuration) {
   private var startTime: Long = System.currentTimeMillis()
 

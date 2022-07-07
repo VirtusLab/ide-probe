@@ -4,11 +4,15 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.util.concurrent.TimeUnit
 
+import scala.concurrent.Await
+import scala.concurrent.duration.FiniteDuration
+
 import org.junit.Assert._
 import org.junit.Assume
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+
 import org.virtuslab.ideprobe.Assertions
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.IdeProbeFixture
@@ -16,9 +20,6 @@ import org.virtuslab.ideprobe.IntelliJFixture
 import org.virtuslab.ideprobe.OS
 import org.virtuslab.ideprobe.Shell
 import org.virtuslab.ideprobe.SingleRunIntelliJ
-
-import scala.concurrent.Await
-import scala.concurrent.duration.FiniteDuration
 
 @RunWith(classOf[JUnit4])
 final class SingleRunFixtureTest extends IdeProbeFixture with WorkspaceFixture with Assertions {
@@ -54,7 +55,7 @@ final class SingleRunFixtureTest extends IdeProbeFixture with WorkspaceFixture w
   @Test
   def removesDirectoriesEvenAfterFailureToRunIntelliJ(): Unit = {
     val intelliJFixture = IntelliJFixture().withAfterIntelliJInstall((_, intellij) =>
-      Files.delete(intellij.paths.root.resolve("bin").resolve("idea.sh")) //To prevent the IDE from launching.
+      Files.delete(intellij.paths.root.resolve("bin").resolve("idea.sh")) // To prevent the IDE from launching.
     )
 
     val instancesDir = intelliJFixture.intelliJProvider.paths.instances
@@ -67,10 +68,10 @@ final class SingleRunFixtureTest extends IdeProbeFixture with WorkspaceFixture w
 
     try {
       fixture { _ =>
-        //Empty, as we wouldn't be able to execute anything here.
+        // Empty, as we wouldn't be able to execute anything here.
       }
     } catch {
-      case _: Exception => //Pass, we don't care what went wrong specifically.
+      case _: Exception => // Pass, we don't care what went wrong specifically.
     }
 
     val instancesNotDeleted = instancesDir.directChildren().diff(instancesBefore)

@@ -2,6 +2,11 @@ package org.virtuslab.ideprobe
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+
+import scala.reflect.ClassTag
+import scala.util.Success
+import scala.util.Try
+
 import com.typesafe.config.ConfigValueFactory
 import pureconfig.ConfigReader.Result
 import pureconfig._
@@ -9,8 +14,6 @@ import pureconfig.error.CannotConvert
 import pureconfig.error.ConfigReaderFailures
 import pureconfig.error.ConvertFailure
 import pureconfig.generic.ProductHint
-import scala.reflect.ClassTag
-import scala.util.{Success, Try}
 
 // This trait should always be mixed-in to object where we create ConfigReaders
 // so that we use consistent ProductHint that is responsible for prohibiting

@@ -1,6 +1,7 @@
 package org.virtuslab.ideprobe.pants
 
 import java.nio.file.Path
+
 import org.virtuslab.ideprobe.Extensions.PathExtension
 
 object BspWorkspaceMonitor {
@@ -23,9 +24,8 @@ object BspWorkspaceMonitor {
   }
 
   def cleanup(): Unit = {
-    initialBspProjects.foreach {
-      case (workspace, initialProjects) =>
-        cleanup(workspace, initialProjects)
+    initialBspProjects.foreach { case (workspace, initialProjects) =>
+      cleanup(workspace, initialProjects)
     }
   }
 

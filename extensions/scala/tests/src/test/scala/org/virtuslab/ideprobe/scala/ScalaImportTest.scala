@@ -1,13 +1,13 @@
 package org.virtuslab.ideprobe.scala
 
+import scala.util.Try
+
 import org.junit.Assert
 import org.junit.Test
+
 import org.virtuslab.ideprobe.Config
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.IntelliJFixture
 import org.virtuslab.ideprobe.Shell
-
-import scala.util.Try
 
 final class ScalaImportTest extends ScalaPluginTestSuite {
 

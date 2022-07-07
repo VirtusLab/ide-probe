@@ -3,10 +3,12 @@ package org.virtuslab.ideprobe.dependencies
 import java.io.StringReader
 import java.nio.file.Path
 import java.util.Properties
-import org.virtuslab.ideprobe.Extensions.PathExtension
-import org.virtuslab.ideprobe.config.DependenciesConfig
+
 import org.virtuslab.ideprobe._
+import org.virtuslab.ideprobe.config.DependenciesConfig
 import org.virtuslab.ideprobe.dependencies.Dependency.Missing
+
+import org.virtuslab.ideprobe.Extensions.PathExtension
 
 object JbrResolvers {
   val official =
@@ -32,8 +34,8 @@ case class JbrPatternResolver(pattern: String) extends DependencyResolver[Path] 
       case Some((major, minor)) =>
         val platform = OS.Current match {
           case OS.Windows => "windows"
-          case OS.Unix => "linux"
-          case OS.Mac => "osx"
+          case OS.Unix    => "linux"
+          case OS.Mac     => "osx"
         }
 
         val replacements = Map(
@@ -42,8 +44,8 @@ case class JbrPatternResolver(pattern: String) extends DependencyResolver[Path] 
           "platform" -> platform
         )
 
-        val replaced = replacements.foldLeft(pattern) {
-          case (path, (pattern, replacement)) => path.replace(s"[$pattern]", replacement)
+        val replaced = replacements.foldLeft(pattern) { case (path, (pattern, replacement)) =>
+          path.replace(s"[$pattern]", replacement)
         }
 
         Dependency(replaced)
@@ -51,7 +53,7 @@ case class JbrPatternResolver(pattern: String) extends DependencyResolver[Path] 
     }
   }
 
-  private def extractVersionFromInstalledIntelliJ(ideaInstallationDir: Path):Option[(String, String)] = {
+  private def extractVersionFromInstalledIntelliJ(ideaInstallationDir: Path): Option[(String, String)] = {
     val dependenciesFile = ideaInstallationDir.resolve("dependencies.txt")
     if (dependenciesFile.toFile.exists()) {
       val props = new Properties()

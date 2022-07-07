@@ -1,17 +1,18 @@
 package org.virtuslab.ideprobe.pants.handlers
 
 import java.util.Optional
+
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.project.Project
 import com.twitter.intellij.pants.settings.PantsProjectSettings
 import com.twitter.intellij.pants.settings.{PantsSettings => PantsSettingsFromPlugin}
 import com.twitter.intellij.pants.util.PantsConstants
-import org.virtuslab.ideprobe.handlers.BackgroundTasks
+
+import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.handlers.Projects
+import org.virtuslab.ideprobe.pants.protocol
 import org.virtuslab.ideprobe.protocol.ProjectRef
 import org.virtuslab.ideprobe.protocol.Setting
-import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.pants.protocol
 
 object PantsSettings {
   def getProjectSettings(ref: ProjectRef): protocol.PantsProjectSettings = {

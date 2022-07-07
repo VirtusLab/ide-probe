@@ -1,8 +1,12 @@
 package org.virtuslab.ideprobe
 
-import org.virtuslab.ideprobe.wait._
+import scala.concurrent.duration.FiniteDuration
+
 import pureconfig.ConfigReader
-import scala.concurrent.duration.{DurationInt, FiniteDuration}
+
+import org.virtuslab.ideprobe.wait._
+
+import scala.concurrent.duration.DurationInt
 
 trait WaitLogic {
   def await(driver: ProbeDriver): Unit

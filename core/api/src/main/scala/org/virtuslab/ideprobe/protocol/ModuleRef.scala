@@ -1,8 +1,9 @@
 package org.virtuslab.ideprobe.protocol
 
-import org.virtuslab.ideprobe.ConfigFormat
 import pureconfig.ConfigConvert
 import pureconfig.generic.semiauto.deriveConvert
+
+import org.virtuslab.ideprobe.ConfigFormat
 
 final case class ModuleRef(name: String, project: ProjectRef = ProjectRef.Default)
 

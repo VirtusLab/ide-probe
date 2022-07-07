@@ -3,11 +3,14 @@ package org.virtuslab.ideprobe.dependencies
 import java.nio.file.Paths
 import java.util.concurrent.Executors
 
+import scala.concurrent.ExecutionContext
+
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import org.virtuslab.ideprobe.{Config, IdeProbePaths, IntelliJFixture}
 
-import scala.concurrent.ExecutionContext
+import org.virtuslab.ideprobe.Config
+import org.virtuslab.ideprobe.IdeProbePaths
+import org.virtuslab.ideprobe.IntelliJFixture
 
 class PathsConfigTest {
   private implicit val ec: ExecutionContext = ExecutionContext.fromExecutorService(Executors.newCachedThreadPool())

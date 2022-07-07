@@ -2,10 +2,12 @@ package org.virtuslab.ideprobe.config
 
 import java.nio.file.Path
 
-import org.virtuslab.ideprobe.ConfigFormat
-import org.virtuslab.ideprobe.dependencies.{IntelliJVersion, Plugin}
 import pureconfig.ConfigReader
 import pureconfig.generic.semiauto.deriveReader
+
+import org.virtuslab.ideprobe.ConfigFormat
+import org.virtuslab.ideprobe.dependencies.IntelliJVersion
+import org.virtuslab.ideprobe.dependencies.Plugin
 
 sealed trait IntellijConfig {
   def plugins: Seq[Plugin]

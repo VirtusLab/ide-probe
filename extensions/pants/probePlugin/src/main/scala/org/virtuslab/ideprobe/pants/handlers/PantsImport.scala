@@ -1,6 +1,7 @@
 package org.virtuslab.ideprobe.pants.handlers
 
 import java.nio.file.Path
+
 import com.intellij.openapi.externalSystem.service.project.wizard.SelectExternalProjectStep
 import com.intellij.projectImport.ImportChooserStep
 import com.intellij.projectImport.ProjectImportProvider
@@ -12,10 +13,10 @@ import com.twitter.intellij.pants.service.project.wizard.PantsProjectImportProvi
 import com.twitter.intellij.pants.settings.ImportFromPantsControl
 import com.twitter.intellij.pants.settings.PantsProjectSettingsControl
 import javax.swing.JSpinner
+
 import org.virtuslab.ideprobe.handlers.IntelliJApi
 import org.virtuslab.ideprobe.handlers.Projects
 import org.virtuslab.ideprobe.pants.protocol.PantsProjectSettingsChangeRequest
-import org.virtuslab.ideprobe.protocol.ProjectRef
 import org.virtuslab.ideprobe.protocol.Setting
 import org.virtuslab.ideprobe.protocol.Setting.Changed
 import org.virtuslab.ideprobe.protocol.Setting.Unchanged
@@ -24,7 +25,8 @@ object PantsImport extends IntelliJApi {
 
   def importProject(path: Path, settings: PantsProjectSettingsChangeRequest): Unit = {
     Projects.importFromSources(
-      path, {
+      path,
+      {
         case step: ImportChooserStep =>
           selectPantsImportModel(step)
         case step: SelectExternalProjectStep =>

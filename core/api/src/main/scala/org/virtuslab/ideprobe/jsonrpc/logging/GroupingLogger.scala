@@ -3,13 +3,17 @@ package org.virtuslab.ideprobe.jsonrpc.logging
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util
-import java.util.concurrent.{ScheduledFuture, ScheduledThreadPoolExecutor}
-import org.virtuslab.ideprobe.ConfigFormat
-import org.virtuslab.ideprobe.jsonrpc.JsonRpc
-import pureconfig.generic.semiauto.deriveConvert
+import java.util.concurrent.ScheduledFuture
+import java.util.concurrent.ScheduledThreadPoolExecutor
+
 import scala.annotation.tailrec
 import scala.concurrent.duration._
 import scala.util.Try
+
+import pureconfig.generic.semiauto.deriveConvert
+
+import org.virtuslab.ideprobe.ConfigFormat
+import org.virtuslab.ideprobe.jsonrpc.JsonRpc
 
 case class LoggingConfig(
     groupingTimeWindow: FiniteDuration = 1.second,
@@ -105,7 +109,7 @@ class GroupingLogger(config: LoggingConfig) extends ProbeCommunicationLogger {
                      |  $request
                      |  $response
                      |}""".stripMargin)
-        case (Request(request), _) => //Here and below the count will always be 1 - see the buffering mechanism.
+        case (Request(request), _) => // Here and below the count will always be 1 - see the buffering mechanism.
           if (accept(request)) {
             log(request)
           } else {

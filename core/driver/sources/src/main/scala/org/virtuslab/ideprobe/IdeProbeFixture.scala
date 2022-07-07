@@ -1,6 +1,9 @@
 package org.virtuslab.ideprobe
 
-import java.util.concurrent.{SynchronousQueue, ThreadPoolExecutor, TimeUnit}
+import java.util.concurrent.SynchronousQueue
+import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.TimeUnit
+
 import scala.concurrent.ExecutionContext
 import scala.util.Try
 
@@ -19,7 +22,7 @@ trait IdeProbeFixture {
 
   /**
    * Default logic for resolving configuration based on test class name
-   * */
+   */
   def resolveConfig(): Config = {
     val className = getClass.getSimpleName.stripSuffix("$")
     val inDirectory = s"$className/ideprobe.conf"

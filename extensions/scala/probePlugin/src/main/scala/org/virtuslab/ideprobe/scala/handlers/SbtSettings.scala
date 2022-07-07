@@ -2,9 +2,13 @@ package org.virtuslab.ideprobe.scala.handlers
 
 import com.intellij.openapi.project.Project
 import org.jetbrains.sbt.project.settings.{SbtProjectSettings => SbtProjectSettingsFromPlugin}
-import org.virtuslab.ideprobe.handlers.{BackgroundTasks, IntelliJApi, Projects}
-import org.virtuslab.ideprobe.protocol.{ProjectRef, Setting}
-import org.virtuslab.ideprobe.scala.protocol.{SbtProjectSettings, SbtProjectSettingsChangeRequest}
+
+import org.virtuslab.ideprobe.handlers.IntelliJApi
+import org.virtuslab.ideprobe.handlers.Projects
+import org.virtuslab.ideprobe.protocol.ProjectRef
+import org.virtuslab.ideprobe.protocol.Setting
+import org.virtuslab.ideprobe.scala.protocol.SbtProjectSettings
+import org.virtuslab.ideprobe.scala.protocol.SbtProjectSettingsChangeRequest
 
 object SbtSettings extends IntelliJApi {
   def getProjectSettings(ref: ProjectRef): SbtProjectSettings = {

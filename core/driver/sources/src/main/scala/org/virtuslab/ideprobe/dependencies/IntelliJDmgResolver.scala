@@ -1,7 +1,6 @@
 package org.virtuslab.ideprobe.dependencies
 
 import java.net.URI
-import org.virtuslab.ideprobe.Extensions._
 
 class IntelliJDmgResolver(baseUri: URI) extends IntelliJPatternResolver(s"$baseUri/[artifact]-[revision].dmg")
 

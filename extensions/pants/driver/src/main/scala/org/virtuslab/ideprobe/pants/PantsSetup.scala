@@ -1,13 +1,20 @@
 package org.virtuslab.ideprobe.pants
 
-import java.nio.file.{Files, Path, Paths}
-import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.{ConfigFormat, IntelliJFixture, Shell}
-import org.virtuslab.ideprobe.dependencies.Hash
-import pureconfig.ConfigReader
-import pureconfig.generic.semiauto.deriveReader
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+
 import scala.annotation.tailrec
 import scala.collection.mutable
+
+import pureconfig.ConfigReader
+import pureconfig.generic.semiauto.deriveReader
+
+import org.virtuslab.ideprobe.ConfigFormat
+import org.virtuslab.ideprobe.Extensions._
+import org.virtuslab.ideprobe.IntelliJFixture
+import org.virtuslab.ideprobe.Shell
+import org.virtuslab.ideprobe.dependencies.Hash
 
 object PantsSetup extends ConfigFormat {
 

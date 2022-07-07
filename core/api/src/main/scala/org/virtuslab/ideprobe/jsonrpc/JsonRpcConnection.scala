@@ -2,12 +2,14 @@ package org.virtuslab.ideprobe.jsonrpc
 
 import java.net.Socket
 import java.util.concurrent.atomic.AtomicInteger
-import org.virtuslab.ideprobe.Close
-import org.virtuslab.ideprobe.jsonrpc.JsonRpc._
-import org.virtuslab.ideprobe.jsonrpc.PayloadJsonFormat.SerializedJson
+
 import scala.collection.mutable
 import scala.concurrent.Future
 import scala.concurrent.Promise
+
+import org.virtuslab.ideprobe.Close
+import org.virtuslab.ideprobe.jsonrpc.JsonRpc._
+import org.virtuslab.ideprobe.jsonrpc.PayloadJsonFormat.SerializedJson
 
 final class JsonRpcConnection(channel: Channel) extends AutoCloseable {
   private val id = new AtomicInteger(0)

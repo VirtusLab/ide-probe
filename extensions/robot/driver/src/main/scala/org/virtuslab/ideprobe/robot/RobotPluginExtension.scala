@@ -1,7 +1,10 @@
 package org.virtuslab.ideprobe.robot
 
 import java.net.URI
-import org.virtuslab.ideprobe.{IdeProbeFixture, Network, ProbeDriver}
+
+import org.virtuslab.ideprobe.IdeProbeFixture
+import org.virtuslab.ideprobe.Network
+import org.virtuslab.ideprobe.ProbeDriver
 import org.virtuslab.ideprobe.dependencies.Plugin
 
 trait RobotPluginExtension extends RobotSyntax { this: IdeProbeFixture =>

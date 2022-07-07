@@ -1,10 +1,10 @@
 package org.virtuslab.ideprobe
 
+import scala.concurrent.ExecutionContext
+
 import org.virtuslab.ideprobe.ProbeHandlers.ProbeHandler
 import org.virtuslab.ideprobe.handlers._
 import org.virtuslab.ideprobe.protocol.Endpoints
-
-import scala.concurrent.ExecutionContext
 
 class BaseProbeHandlerContributor extends ProbeHandlerContributor {
   private implicit val ec: ExecutionContext = IdeProbeService.executionContext

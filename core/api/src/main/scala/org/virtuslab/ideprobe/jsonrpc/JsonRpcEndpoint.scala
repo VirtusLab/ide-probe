@@ -1,11 +1,12 @@
 package org.virtuslab.ideprobe.jsonrpc
 
-import org.virtuslab.ideprobe.Close
-import org.virtuslab.ideprobe.jsonrpc.JsonRpc._
-import org.virtuslab.ideprobe.jsonrpc.logging.{ProbeCommunicationLogger, GroupingLogger}
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.reflect.ClassTag
+
+import org.virtuslab.ideprobe.Close
+import org.virtuslab.ideprobe.jsonrpc.JsonRpc._
+import org.virtuslab.ideprobe.jsonrpc.logging.ProbeCommunicationLogger
 
 trait JsonRpcEndpoint extends AutoCloseable {
   protected def logger: ProbeCommunicationLogger = ProbeCommunicationLogger.empty

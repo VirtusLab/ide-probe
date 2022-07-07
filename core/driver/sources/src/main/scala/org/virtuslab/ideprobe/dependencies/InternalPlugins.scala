@@ -1,6 +1,7 @@
 package org.virtuslab.ideprobe.dependencies
 
-import org.virtuslab.ideprobe.{BuildInfo, IntelliJFixture}
+import org.virtuslab.ideprobe.BuildInfo
+import org.virtuslab.ideprobe.IntelliJFixture
 
 object InternalPlugins {
 

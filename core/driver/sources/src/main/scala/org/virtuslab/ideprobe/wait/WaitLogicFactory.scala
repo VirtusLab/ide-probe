@@ -1,8 +1,11 @@
 package org.virtuslab.ideprobe
 package wait
 
+import scala.concurrent.duration.FiniteDuration
+
 import org.virtuslab.ideprobe.protocol.ProjectRef
-import scala.concurrent.duration.{DurationInt, FiniteDuration}
+
+import scala.concurrent.duration.DurationInt
 
 object WaitLogicFactory {
   val DefaultCheckFrequency: FiniteDuration = 5.seconds

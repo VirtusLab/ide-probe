@@ -4,8 +4,8 @@ import org.junit.Assert._
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.virtuslab.ideprobe.benchmark.report.BenchmarkReporter
 
+import org.virtuslab.ideprobe.benchmark.report.BenchmarkReporter
 
 @RunWith(classOf[JUnit4])
 final class BenchmarkSuiteTest {
@@ -29,8 +29,7 @@ final class BenchmarkSuiteTest {
       override def report[B](name: String, results: Seq[BenchmarkResult[B]]): Unit = {
         assertEquals(Seq(result), results.head.customData)
       }
-    }
-    )
+    })
   }
 
   @Test
@@ -41,7 +40,6 @@ final class BenchmarkSuiteTest {
       override def report[B](name: String, results: Seq[BenchmarkResult[B]]): Unit = {
         assertEquals(Seq.empty, results.head.customData)
       }
-    }
-    )
+    })
   }
 }

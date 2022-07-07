@@ -1,11 +1,16 @@
 package org.virtuslab.ideprobe.bazel
 
-import org.virtuslab.ideprobe.Extensions.PathExtension
-import org.virtuslab.ideprobe.robot.RobotPluginExtension
-import org.virtuslab.ideprobe.{IdeProbeFixture, OS, ProbeDriver, Shell, error}
-import org.virtuslab.ideprobe.dependencies.InternalPlugins
-
 import java.nio.file.Paths
+
+import org.virtuslab.ideprobe.IdeProbeFixture
+import org.virtuslab.ideprobe.OS
+import org.virtuslab.ideprobe.ProbeDriver
+import org.virtuslab.ideprobe.Shell
+import org.virtuslab.ideprobe.dependencies.InternalPlugins
+import org.virtuslab.ideprobe.error
+import org.virtuslab.ideprobe.robot.RobotPluginExtension
+
+import org.virtuslab.ideprobe.Extensions.PathExtension
 import scala.language.implicitConversions
 
 object BazelPluginExtension {

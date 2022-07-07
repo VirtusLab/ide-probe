@@ -2,10 +2,12 @@ package org.virtuslab.ideprobe.scala.protocol
 
 import java.nio.file.Path
 
-import org.virtuslab.ideprobe.jsonrpc.JsonRpc.Method.Request
-import org.virtuslab.ideprobe.protocol.{ProjectRef, TestsRunResult}
-import org.virtuslab.ideprobe.jsonrpc.PayloadJsonFormat._
 import pureconfig.generic.auto._
+
+import org.virtuslab.ideprobe.jsonrpc.JsonRpc.Method.Request
+import org.virtuslab.ideprobe.jsonrpc.PayloadJsonFormat._
+import org.virtuslab.ideprobe.protocol.ProjectRef
+import org.virtuslab.ideprobe.protocol.TestsRunResult
 
 object ScalaEndpoints {
   val GetSbtProjectSettings =

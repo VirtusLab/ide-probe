@@ -1,9 +1,9 @@
 package org.virtuslab.ideprobe.handlers
 
-import com.intellij.diagnostic.IdeErrorsDialog
 import com.intellij.ide.plugins.PluginUtil
-import org.virtuslab.ideprobe.protocol.IdeMessage
+
 import org.virtuslab.ideprobe.log.MessageLog
+import org.virtuslab.ideprobe.protocol.IdeMessage
 
 object IdeMessages {
   def list: Array[IdeMessage] = {

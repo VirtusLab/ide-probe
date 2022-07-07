@@ -3,7 +3,7 @@ package wait
 
 /**
  * Executes each supplied `WaitLogic` sequentially.
- * */
+ */
 class ChainedWaiting(logics: Seq[WaitLogic]) extends WaitLogic {
   override def await(driver: ProbeDriver): Unit = {
     logics.foreach(_.await(driver))

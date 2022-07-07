@@ -1,7 +1,8 @@
 package org.virtuslab.ideprobe.scala
 
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.{IdeProbeFixture, ProbeDriver}
+import org.virtuslab.ideprobe.IdeProbeFixture
+import org.virtuslab.ideprobe.ProbeDriver
 import org.virtuslab.ideprobe.dependencies.DependencyProvider
 import org.virtuslab.ideprobe.dependencies.InternalPlugins
 

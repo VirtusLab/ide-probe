@@ -2,11 +2,13 @@ package org.virtuslab.ideprobe
 
 import java.nio.file.Path
 
+import scala.reflect.ClassTag
+
 import com.typesafe.config.ConfigFactory
 import pureconfig._
 import pureconfig.error.ConfigReaderException
+
 import org.virtuslab.ideprobe.Extensions._
-import scala.reflect.ClassTag
 
 final case class Config(source: ConfigObjectSource, fallback: Option[Config] = None) {
 

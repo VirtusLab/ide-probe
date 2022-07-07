@@ -1,7 +1,9 @@
 package org.virtuslab.ideprobe.bazel.handlers
 
-import com.google.idea.blaze.base.settings.BlazeUserSettings
 import java.nio.file.Path
+
+import com.google.idea.blaze.base.settings.BlazeUserSettings
+
 import org.virtuslab.ideprobe.handlers.IntelliJApi
 
 object Settings extends IntelliJApi {

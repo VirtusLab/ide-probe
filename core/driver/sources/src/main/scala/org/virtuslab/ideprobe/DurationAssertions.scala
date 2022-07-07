@@ -1,8 +1,12 @@
 package org.virtuslab.ideprobe
 
 import java.util.concurrent.Executors
+
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
+import scala.concurrent.TimeoutException
 import scala.concurrent.duration._
-import scala.concurrent.{Await, ExecutionContext, Future, TimeoutException}
 
 object DurationAssertions {
 

@@ -3,19 +3,21 @@ package org.virtuslab.ideprobe.dependencies
 import java.nio.file.Files
 import java.util.concurrent.Executors
 
+import scala.concurrent.ExecutionContext
+
 import org.junit.Assert._
 import org.junit.Test
-import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.{Config, IntelliJFixture}
 
-import scala.concurrent.ExecutionContext
+import org.virtuslab.ideprobe.Config
+import org.virtuslab.ideprobe.Extensions._
+import org.virtuslab.ideprobe.IntelliJFixture
 
 final class FixtureConfigTest extends WorkspaceFixture {
   private implicit val ec: ExecutionContext = ExecutionContext.fromExecutorService(Executors.newCachedThreadPool())
 
   /**
-   * Note that the validity of the properties cannot be check during creation, nor it should be validated then.
-   * This test check only that a rule can be created with a given set of properties.
+   * Note that the validity of the properties cannot be check during creation, nor it should be validated then. This
+   * test check only that a rule can be created with a given set of properties.
    */
   @Test
   def createsFixtureFromConfFile(): Unit = {

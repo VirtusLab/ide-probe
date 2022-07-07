@@ -4,11 +4,14 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes
+import org.jetbrains.jps.model.java.JavaResourceRootProperties
 import org.jetbrains.jps.model.java.JavaResourceRootType.RESOURCE
 import org.jetbrains.jps.model.java.JavaResourceRootType.TEST_RESOURCE
-import org.jetbrains.jps.model.java.{JavaModuleSourceRootTypes, JavaResourceRootProperties, JavaSourceRootProperties}
+import org.jetbrains.jps.model.java.JavaSourceRootProperties
 import org.jetbrains.jps.model.java.JavaSourceRootType.SOURCE
 import org.jetbrains.jps.model.java.JavaSourceRootType.TEST_SOURCE
+
 import org.virtuslab.ideprobe.protocol.ContentEntry
 import org.virtuslab.ideprobe.protocol.ContentRoots
 import org.virtuslab.ideprobe.protocol.ModuleRef

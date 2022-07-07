@@ -1,7 +1,7 @@
 package org.virtuslab.ideprobe.pants
 
-import org.virtuslab.ideprobe.IdeProbeFixture
 import org.virtuslab.ideprobe.Extensions._
+import org.virtuslab.ideprobe.IdeProbeFixture
 
 trait PantsPluginExtraExtensions { this: IdeProbeFixture =>
 

@@ -1,11 +1,14 @@
 package org.virtuslab.ideprobe.protocol
 
 import java.nio.file.Path
+
+import scala.concurrent.duration.Duration
+
+import pureconfig.generic.auto._
+
 import org.virtuslab.ideprobe.ConfigFormat
 import org.virtuslab.ideprobe.jsonrpc.JsonRpc.Method.Notification
 import org.virtuslab.ideprobe.jsonrpc.JsonRpc.Method.Request
-import pureconfig.generic.auto._
-import scala.concurrent.duration.Duration
 
 object Endpoints extends ConfigFormat {
 

@@ -2,8 +2,9 @@ package org.virtuslab.ideprobe.handlers
 
 import java.nio.file.Paths
 
-import org.virtuslab.ideprobe.protocol
 import com.intellij.openapi.projectRoots.Sdk
+
+import org.virtuslab.ideprobe.protocol
 
 object Sdks {
   def convert(sdk: Sdk): protocol.Sdk = {

@@ -1,7 +1,9 @@
 package org.virtuslab.ideprobe.dependencies
 
 import java.net.URI
-import org.virtuslab.ideprobe.{Config, Id}
+
+import org.virtuslab.ideprobe.Config
+import org.virtuslab.ideprobe.Id
 
 sealed trait Dependency
 object Dependency {

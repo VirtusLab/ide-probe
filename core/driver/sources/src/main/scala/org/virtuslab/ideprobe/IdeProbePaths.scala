@@ -1,6 +1,8 @@
 package org.virtuslab.ideprobe
 
-import java.nio.file.{Path, Paths}
+import java.nio.file.Path
+import java.nio.file.Paths
+
 import org.virtuslab.ideprobe.config.PathsConfig
 
 case class IdeProbePaths(

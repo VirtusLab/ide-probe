@@ -6,9 +6,7 @@ import com.intellij.codeInspection.InspectionManager
 import com.intellij.codeInspection.LocalInspectionEP
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.codeInspection.QuickFix
-import com.intellij.ide.plugins.PluginManager
-import com.intellij.ide.plugins.PluginManagerCore
-import com.intellij.openapi.extensions.PluginId
+
 import org.virtuslab.ideprobe.protocol.InspectionRunParams
 import org.virtuslab.ideprobe.protocol.InspectionRunResult
 import org.virtuslab.ideprobe.protocol.ProblemDescriptor

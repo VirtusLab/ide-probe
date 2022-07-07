@@ -1,25 +1,27 @@
 package org.virtuslab.ideprobe
 
-import org.virtuslab.ideprobe.ProbeExtensions.LambdaVisitor
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
-import java.io.InputStream
 import java.io.IOException
+import java.io.InputStream
 import java.io.OutputStream
 import java.net.URI
+import java.nio.file.FileVisitResult
 import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.FileVisitResult
+import java.nio.file.SimpleFileVisitor
 import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
-import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
 import java.util.zip.ZipInputStream
+
+import scala.collection.JavaConverters._
+import scala.collection.mutable
 import scala.util.Failure
 import scala.util.Try
 import scala.util.control.NonFatal
-import scala.collection.JavaConverters._
-import scala.collection.mutable
+
+import org.virtuslab.ideprobe.ProbeExtensions.LambdaVisitor
 
 trait ProbeExtensions {
 
@@ -262,11 +264,10 @@ object ProbeExtensions {
           Try(Files.delete(dir))
         case Some(e) => Failure(e)
       }
-      deleted.failed.foreach {
-        case NonFatal(e) =>
-          val message = s"[${Thread.currentThread().getId}] Failure while deleting $root at dir  $dir"
-          val exception = new IOException(message, e)
-          exception.printStackTrace()
+      deleted.failed.foreach { case NonFatal(e) =>
+        val message = s"[${Thread.currentThread().getId}] Failure while deleting $root at dir  $dir"
+        val exception = new IOException(message, e)
+        exception.printStackTrace()
       }
       FileVisitResult.CONTINUE
     }

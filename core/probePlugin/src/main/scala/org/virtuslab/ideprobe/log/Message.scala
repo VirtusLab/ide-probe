@@ -1,6 +1,7 @@
 package org.virtuslab.ideprobe.log
 
 import com.intellij.idea.IdeaLogger
+
 import org.virtuslab.ideprobe.protocol.IdeMessage
 
 case class Message(content: Option[String], throwable: Option[Throwable], level: IdeMessage.Level) {

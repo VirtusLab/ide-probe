@@ -2,12 +2,12 @@ package org.virtuslab.ideprobe
 
 import java.net.Socket
 
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
+
 import org.virtuslab.ideprobe.jsonrpc.JsonRpc
 import org.virtuslab.ideprobe.jsonrpc.JsonRpcConnection
 import org.virtuslab.ideprobe.jsonrpc.JsonRpcEndpoint
-
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 
 final class Probe(val connection: JsonRpcConnection)(implicit val ec: ExecutionContext) extends JsonRpcEndpoint {
   protected def handler: JsonRpc.Handler = ProbeHandlers.get()

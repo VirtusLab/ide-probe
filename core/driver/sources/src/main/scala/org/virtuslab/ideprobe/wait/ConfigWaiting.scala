@@ -2,9 +2,8 @@ package org.virtuslab.ideprobe
 package wait
 
 /**
- * Allows to read the `WaitLogic` from config at given config path,
- * and provide a fallback object.
- * */
+ * Allows to read the `WaitLogic` from config at given config path, and provide a fallback object.
+ */
 class ConfigWaiting private (
     configPath: String,
     fallback: WaitLogic,

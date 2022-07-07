@@ -1,17 +1,19 @@
 package org.virtuslab.ideprobe.dependencies
 
-import java.net.{HttpURLConnection, URI}
+import java.net.HttpURLConnection
+import java.net.URI
 import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.zip.ZipInputStream
 
-import org.virtuslab.ideprobe.ConfigFormat
-import org.virtuslab.ideprobe.Extensions._
+import scala.util.control.NonFatal
+
 import pureconfig.ConfigReader
 
-import scala.util.control.NonFatal
+import org.virtuslab.ideprobe.ConfigFormat
+import org.virtuslab.ideprobe.Extensions._
 
 sealed trait Resource
 
@@ -70,7 +72,7 @@ object Resource extends ConfigFormat {
     }
   }
 
-  final class Plain(val path: Path) extends  IntellijResource {
+  final class Plain(val path: Path) extends IntellijResource {
     def installTo(target: Path): Unit = {
       path.copyDir(target)
     }
@@ -97,14 +99,14 @@ object Resource extends ConfigFormat {
 
   object Plain {
     def unapply(path: Path): Option[Plain] = {
-      if(path.isDirectory) Some(new Plain(path)) else None
+      if (path.isDirectory) Some(new Plain(path)) else None
     }
   }
 
   implicit class ExtractorExtension(path: Path) {
     def toExtracted: IntellijResource = path match {
       case Archive(archive) => archive
-      case Plain(archive) => archive
+      case Plain(archive)   => archive
       case _                => throw new IllegalStateException(s"Not an archive: $path")
     }
   }

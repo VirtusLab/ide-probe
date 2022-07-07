@@ -3,7 +3,7 @@ package wait
 
 /**
  * Does not wait.
- * */
+ */
 object NoWaiting extends WaitLogic {
   override def await(driver: ProbeDriver): Unit = ()
 

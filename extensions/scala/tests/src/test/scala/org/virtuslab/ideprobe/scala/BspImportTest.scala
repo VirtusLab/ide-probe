@@ -2,6 +2,7 @@ package org.virtuslab.ideprobe.scala
 
 import org.junit.Assert
 import org.junit.Ignore
+
 import org.virtuslab.ideprobe.Config
 
 final class BspImportTest extends ScalaPluginTestSuite {

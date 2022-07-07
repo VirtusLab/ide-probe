@@ -1,11 +1,11 @@
 package org.virtuslab.ideprobe
 
-import org.virtuslab.ideprobe.handlers.IntelliJApi
-
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Promise
 import scala.util.Try
+
+import org.virtuslab.ideprobe.handlers.IntelliJApi
 
 object CurrentRequest extends IntelliJApi {
   private implicit val ec: ExecutionContext = IdeProbeService.executionContext

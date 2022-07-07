@@ -2,7 +2,9 @@ package org.virtuslab.ideprobe.pants
 
 import org.virtuslab.ideprobe.ProbeHandlerContributor
 import org.virtuslab.ideprobe.ProbeHandlers.ProbeHandler
-import org.virtuslab.ideprobe.pants.handlers.{PantsImport, PantsSettings, PythonProject}
+import org.virtuslab.ideprobe.pants.handlers.PantsImport
+import org.virtuslab.ideprobe.pants.handlers.PantsSettings
+import org.virtuslab.ideprobe.pants.handlers.PythonProject
 import org.virtuslab.ideprobe.pants.protocol.PantsEndpoints
 
 class PantsProbeHandlerContributor extends ProbeHandlerContributor {

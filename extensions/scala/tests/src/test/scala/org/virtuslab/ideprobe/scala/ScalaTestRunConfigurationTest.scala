@@ -1,8 +1,11 @@
 package org.virtuslab.ideprobe.scala
 
 import org.junit.Test
-import org.virtuslab.ideprobe.protocol.{ModuleRef, Setting}
-import org.virtuslab.ideprobe.scala.protocol.{SbtProjectSettingsChangeRequest, ScalaTestRunConfiguration}
+
+import org.virtuslab.ideprobe.protocol.ModuleRef
+import org.virtuslab.ideprobe.protocol.Setting
+import org.virtuslab.ideprobe.scala.protocol.SbtProjectSettingsChangeRequest
+import org.virtuslab.ideprobe.scala.protocol.ScalaTestRunConfiguration
 
 class ScalaTestRunConfigurationTest extends ScalaPluginTestSuite {
   @Test

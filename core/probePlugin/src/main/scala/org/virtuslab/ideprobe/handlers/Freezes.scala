@@ -4,10 +4,12 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.protocol.Freeze
+
 import scala.concurrent.duration._
 import scala.util.Try
+
+import org.virtuslab.ideprobe.Extensions._
+import org.virtuslab.ideprobe.protocol.Freeze
 
 object Freezes extends IntelliJApi {
 
@@ -19,9 +21,12 @@ object Freezes extends IntelliJApi {
 
   private def findFreezeThreadDumpFiles(): Seq[Path] = {
     val fileStream = Files
-      .find(logsPath, /*maxDepth = */ 2, (path, _) => {
-        path.name.startsWith("threadDump") && path.name.endsWith("txt")
-      })
+      .find(
+        logsPath, /*maxDepth = */ 2,
+        (path, _) => {
+          path.name.startsWith("threadDump") && path.name.endsWith("txt")
+        }
+      )
     val paths =
       try fileStream.iterator().asScala.toList
       finally fileStream.close()

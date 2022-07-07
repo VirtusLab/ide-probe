@@ -1,10 +1,12 @@
 package org.virtuslab.ideprobe
 package wait
 
-import org.virtuslab.ideprobe.wait.WaitLogicFactory._
+import scala.concurrent.duration.FiniteDuration
+
 import pureconfig.ConfigReader
 import pureconfig.generic.auto._
-import scala.concurrent.duration.FiniteDuration
+
+import org.virtuslab.ideprobe.wait.WaitLogicFactory._
 
 object WaitLogicConfigFormat extends ConfigFormat {
   private sealed trait WaitLogicConfig

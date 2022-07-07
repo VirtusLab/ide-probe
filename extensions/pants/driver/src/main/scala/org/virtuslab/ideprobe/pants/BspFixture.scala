@@ -1,9 +1,14 @@
 package org.virtuslab.ideprobe.pants
 
 import java.net.URL
-import java.nio.file.{Files, Path, Paths}
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+
+import org.virtuslab.ideprobe.CommandResult
+import org.virtuslab.ideprobe.Config
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.{CommandResult, Config, Shell}
+import org.virtuslab.ideprobe.Shell
 
 trait BspFixture {
   lazy val coursierPath: Path = {

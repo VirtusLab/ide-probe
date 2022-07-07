@@ -1,11 +1,13 @@
 package org.virtuslab.ideprobe.pants.protocol
 
 import java.nio.file.Path
+
+import pureconfig.generic.auto._
+
 import org.virtuslab.ideprobe.ConfigFormat
 import org.virtuslab.ideprobe.jsonrpc.JsonRpc.Method.Request
-import org.virtuslab.ideprobe.protocol.ProjectRef
 import org.virtuslab.ideprobe.protocol.ModuleRef
-import pureconfig.generic.auto._
+import org.virtuslab.ideprobe.protocol.ProjectRef
 
 object PantsEndpoints extends ConfigFormat {
   val ImportPantsProject =

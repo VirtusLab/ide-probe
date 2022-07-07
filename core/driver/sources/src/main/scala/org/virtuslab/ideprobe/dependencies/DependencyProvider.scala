@@ -2,9 +2,11 @@ package org.virtuslab.ideprobe
 package dependencies
 
 import java.nio.file.Path
-import org.virtuslab.ideprobe.dependencies.Dependency._
+
 import scala.collection.mutable
 import scala.util.Try
+
+import org.virtuslab.ideprobe.dependencies.Dependency._
 
 final class JbrDependencyProvider(
     resolvers: Seq[DependencyResolver[Path]],

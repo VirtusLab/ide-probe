@@ -1,8 +1,11 @@
 package org.virtuslab.ideprobe.protocol
 
+import pureconfig.ConfigReader
+import pureconfig.ConfigWriter
+import pureconfig.generic.semiauto.deriveReader
+import pureconfig.generic.semiauto.deriveWriter
+
 import org.virtuslab.ideprobe.ConfigFormat
-import pureconfig.{ConfigReader, ConfigWriter}
-import pureconfig.generic.semiauto.{deriveReader, deriveWriter}
 
 sealed abstract class TestScope(val module: ModuleRef)
 

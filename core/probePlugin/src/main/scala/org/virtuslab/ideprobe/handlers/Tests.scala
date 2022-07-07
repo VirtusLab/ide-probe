@@ -1,11 +1,18 @@
 package org.virtuslab.ideprobe
 package handlers
 
-import com.intellij.execution.testframework.sm.runner.{SMTRunnerEventsAdapter, SMTRunnerEventsListener, SMTestProxy}
-import com.intellij.openapi.project.Project
 import java.util.concurrent.CountDownLatch
+
+import com.intellij.execution.testframework.sm.runner.SMTRunnerEventsAdapter
+import com.intellij.execution.testframework.sm.runner.SMTRunnerEventsListener
+import com.intellij.execution.testframework.sm.runner.SMTestProxy
+import com.intellij.openapi.project.Project
+
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.protocol.{TestRun, TestStatus, TestSuite, TestsRunResult}
+import org.virtuslab.ideprobe.protocol.TestRun
+import org.virtuslab.ideprobe.protocol.TestStatus
+import org.virtuslab.ideprobe.protocol.TestSuite
+import org.virtuslab.ideprobe.protocol.TestsRunResult
 
 object Tests {
   def awaitTestResults(project: Project, launch: () => Unit): TestsRunResult = {

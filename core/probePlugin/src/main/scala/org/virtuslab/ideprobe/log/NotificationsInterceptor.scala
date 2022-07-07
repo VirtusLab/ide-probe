@@ -6,6 +6,7 @@ import com.intellij.notification.Notifications
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.project.ProjectManagerListener
+
 import org.virtuslab.ideprobe.handlers.IntelliJApi
 import org.virtuslab.ideprobe.protocol.IdeMessage
 

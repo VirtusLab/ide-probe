@@ -1,8 +1,9 @@
 package org.virtuslab.ideprobe.config
 
-import org.virtuslab.ideprobe.ConfigFormat
 import pureconfig.ConfigReader
 import pureconfig.generic.auto._
+
+import org.virtuslab.ideprobe.ConfigFormat
 
 case class IdeProbeConfig(
     intellij: IntellijConfig = IntellijConfig(),

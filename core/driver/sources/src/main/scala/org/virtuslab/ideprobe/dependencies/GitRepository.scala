@@ -2,7 +2,9 @@ package org.virtuslab.ideprobe
 package dependencies
 
 import java.net.URI
-import java.nio.file.{Files, Path}
+import java.nio.file.Files
+import java.nio.file.Path
+
 import pureconfig.ConfigConvert
 import pureconfig.generic.semiauto.deriveConvert
 
@@ -30,8 +32,8 @@ object GitRepository extends ConfigFormat {
     if (result.isFailed) {
       error(s"Could not fetch hashes from ${repository.path}")
     }
-    val hash = result.out.linesIterator.map(_.split("\\W+")).collectFirst {
-      case Array(hash, `ref`) => hash
+    val hash = result.out.linesIterator.map(_.split("\\W+")).collectFirst { case Array(hash, `ref`) =>
+      hash
     }
     hash.orElse(repository.ref).getOrElse(error(s"Ref $ref not found"))
   }

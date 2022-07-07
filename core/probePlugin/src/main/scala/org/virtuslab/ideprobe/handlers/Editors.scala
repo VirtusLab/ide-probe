@@ -1,10 +1,15 @@
 package org.virtuslab.ideprobe.handlers
 
+import java.nio.file.Path
+import java.nio.file.Paths
+
 import com.intellij.openapi.editor.LogicalPosition
-import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
-import java.nio.file.{Path, Paths}
+import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.fileEditor.OpenFileDescriptor
+
 import org.virtuslab.ideprobe.handlers.Projects.resolve
-import org.virtuslab.ideprobe.protocol.{FileRef, ProjectRef}
+import org.virtuslab.ideprobe.protocol.FileRef
+import org.virtuslab.ideprobe.protocol.ProjectRef
 
 object Editors extends IntelliJApi {
 
@@ -22,7 +27,7 @@ object Editors extends IntelliJApi {
   def goToLineColumn(projectRef: ProjectRef, line: Int, column: Int): Unit = {
     runOnUISync {
       val editor = editorManager(projectRef).getSelectedTextEditor
-      val newPosition = new LogicalPosition(line-1, column-1)
+      val newPosition = new LogicalPosition(line - 1, column - 1)
       editor.getCaretModel.moveToLogicalPosition(newPosition)
     }
   }

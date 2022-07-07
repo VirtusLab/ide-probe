@@ -1,7 +1,7 @@
 package org.virtuslab.ideprobe.config
 
-import org.virtuslab.ideprobe.config.CheckConfig.{ErrorConfig, FreezeConfig}
-
+import org.virtuslab.ideprobe.config.CheckConfig.ErrorConfig
+import org.virtuslab.ideprobe.config.CheckConfig.FreezeConfig
 
 final case class CheckConfig(errors: ErrorConfig = ErrorConfig(), freezes: FreezeConfig = FreezeConfig())
 
