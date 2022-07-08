@@ -13,7 +13,7 @@ import org.virtuslab.ideprobe.Extensions.PathExtension
 object JbrResolvers {
   val official =
     JbrPatternResolver(
-      "https://cache-redirector.jetbrains.com/intellij-jbr/jbr_dcevm-[major]-[platform]-x64-b[minor].tar.gz"
+      "https://cache-redirector.jetbrains.com/intellij-jbr/jbr-[major]-[platform]-x64-b[minor].tar.gz"
     )
 
   def fromConfig(config: DependenciesConfig.Jbr): Seq[DependencyResolver[Path]] = {
