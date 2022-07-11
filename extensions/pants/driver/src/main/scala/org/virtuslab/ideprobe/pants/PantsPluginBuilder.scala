@@ -20,7 +20,7 @@ object PantsPluginBuilder extends DependencyBuilder(Id("pants")) {
     val env = config.get[Map[String, String]]("env").getOrElse(Map.empty)
     val hash = GitRepository.commitHash(repository, "HEAD")
     val artifact = repository.path.resolveChild(hash)
-    resources.get(artifact, provider = build(repository, env))
+    resources.get(artifact, provider = () => build(repository, env))
   }
 
   private def build(repository: GitRepository, userEnv: Map[String, String]): InputStream = {

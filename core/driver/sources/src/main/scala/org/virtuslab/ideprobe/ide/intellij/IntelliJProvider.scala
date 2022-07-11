@@ -183,7 +183,7 @@ object IntelliJProvider {
     val intelliJResolvers = IntelliJZipResolver.fromConfig(resolversConfig.intellij)
     val pluginResolver = PluginResolver.fromConfig(resolversConfig.plugins)
     val jbrResolvers = JbrResolvers.fromConfig(resolversConfig.jbr)
-    val resourceProvider = ResourceProvider.fromConfig(paths)
+    val resourceProvider = ResourceProvider.fromConfig(paths, resolversConfig.retries)
     val intelliJDependencyProvider = new IntelliJDependencyProvider(intelliJResolvers, resourceProvider)
     val pluginDependencyProvider = new PluginDependencyProvider(Seq(pluginResolver), resourceProvider)
     val jbrDependencyProvider = new JbrDependencyProvider(jbrResolvers, resourceProvider)

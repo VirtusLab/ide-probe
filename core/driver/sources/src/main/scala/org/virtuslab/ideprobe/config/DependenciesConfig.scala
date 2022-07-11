@@ -4,7 +4,8 @@ object DependenciesConfig {
   case class Resolvers(
       intellij: IntelliJ = IntelliJ(Seq.empty),
       plugins: Plugins = Plugins(None),
-      jbr: Jbr = Jbr(Seq.empty)
+      jbr: Jbr = Jbr(Seq.empty),
+      retries: Int = 0
   )
 
   case class IntelliJ(repositories: Seq[String])
