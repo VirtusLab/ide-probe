@@ -26,7 +26,7 @@ object ScalaPluginBuilder extends DependencyBuilder(Id("scala")) {
     val jdkVersion = params.jdk.getOrElse("11")
     val hash = GitRepository.commitHash(repository, "HEAD")
     val artifact = repository.path.resolveChild(hash)
-    resources.get(artifact, provider = build(repository, jdkVersion, resources))
+    resources.get(artifact, provider = () => build(repository, jdkVersion, resources))
   }
 
   private def build(
