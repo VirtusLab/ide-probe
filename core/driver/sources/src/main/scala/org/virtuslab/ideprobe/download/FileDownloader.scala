@@ -1,14 +1,23 @@
 package org.virtuslab.ideprobe.download
 
+import java.io.FileOutputStream
+import java.net.SocketTimeoutException
+import java.net.URL
+import java.nio.ByteBuffer
+import java.nio.channels.Channels
+import java.nio.channels.ReadableByteChannel
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+
+import scala.concurrent.duration.Duration
+
+import javax.net.ssl.SSLException
+
 import org.virtuslab.ideprobe.download.FileDownloader.ProgressInfo
 
-import java.io.FileOutputStream
-import java.net.{SocketTimeoutException, URL}
-import java.nio.ByteBuffer
-import java.nio.channels.{Channels, ReadableByteChannel}
-import java.nio.file.{Files, Path, Paths}
-import javax.net.ssl.SSLException
-import scala.concurrent.duration.{Duration, DurationInt, DurationLong}
+import scala.concurrent.duration.DurationInt
+import scala.concurrent.duration.DurationLong
 
 // Based on `sbt-idea-plugin` plugin [[org.jetbrains.sbtidea.download.idea.FileDownloader]]
 class FileDownloader(private val baseDirectory: Path) {

@@ -1,11 +1,16 @@
 package org.virtuslab.ideprobe.dependencies.git
 
-import org.eclipse.jgit.api.{CloneCommand, CreateBranchCommand, Git}
-import org.eclipse.jgit.lib.{ProgressMonitor, Ref}
-
 import java.net.URI
 import java.nio.file.Path
-import java.util.concurrent.atomic.{AtomicInteger, AtomicReference}
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicReference
+
+import org.eclipse.jgit.api.CloneCommand
+import org.eclipse.jgit.api.CreateBranchCommand
+import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.lib.ProgressMonitor
+import org.eclipse.jgit.lib.Ref
+
 import org.virtuslab.ideprobe.Extensions._
 
 object GitHandler {

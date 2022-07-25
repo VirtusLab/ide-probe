@@ -1,14 +1,14 @@
 package org.virtuslab.ideprobe
 package dependencies
 
-import org.virtuslab.ideprobe.dependencies.git.GitHandler
-
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
 
 import pureconfig.ConfigConvert
 import pureconfig.generic.semiauto.deriveConvert
+
+import org.virtuslab.ideprobe.dependencies.git.GitHandler
 
 final case class GitRepository(path: URI, ref: Option[String])
 

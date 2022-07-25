@@ -1,6 +1,7 @@
 package org.virtuslab.ideprobe
 
-import java.net.{HttpURLConnection, URL}
+import java.net.HttpURLConnection
+import java.net.URL
 
 import scala.concurrent.duration.DurationInt
 

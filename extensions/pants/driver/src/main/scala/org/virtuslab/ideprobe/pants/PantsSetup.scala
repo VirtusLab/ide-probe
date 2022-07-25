@@ -4,6 +4,9 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 
+import scala.annotation.tailrec
+import scala.collection.mutable
+
 import pureconfig.ConfigReader
 import pureconfig.generic.semiauto.deriveReader
 
@@ -12,9 +15,6 @@ import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.IntelliJFixture
 import org.virtuslab.ideprobe.dependencies.Hash
 import org.virtuslab.ideprobe.dependencies.git.GitHandler
-
-import scala.annotation.tailrec
-import scala.collection.mutable
 
 object PantsSetup extends ConfigFormat {
 
