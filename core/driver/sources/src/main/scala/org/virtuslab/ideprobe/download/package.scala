@@ -1,6 +1,5 @@
 package org.virtuslab.ideprobe
 
-
 import java.net.{HttpURLConnection, URL}
 
 import scala.concurrent.duration.DurationInt
@@ -28,13 +27,15 @@ package object download {
     }
   }
 
-  //noinspection MutatorLikeMethodIsParameterless
+  // noinspection MutatorLikeMethodIsParameterless
   implicit class StringUtils(str: String) {
     def removeSpaces: String = str.replaceAll("\\s+", "")
     def escapeSpaces: String = str.replaceAll("\\s", "\\ ")
-    def xmlQuote: String   = s"&quot;$str&quot;"
+    def xmlQuote: String = s"&quot;$str&quot;"
     def isValidFileName: Boolean =
-      str.matches("\\A(?!(?:COM[0-9]|CON|LPT[0-9]|NUL|PRN|AUX|com[0-9]|con|lpt[0-9]|nul|prn|aux)|[\\s\\.])[^\\\\\\/:*\"?<>|]{1,254}\\z")
+      str.matches(
+        "\\A(?!(?:COM[0-9]|CON|LPT[0-9]|NUL|PRN|AUX|com[0-9]|con|lpt[0-9]|nul|prn|aux)|[\\s\\.])[^\\\\\\/:*\"?<>|]{1,254}\\z"
+      )
   }
 
 }

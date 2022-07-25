@@ -109,7 +109,7 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
   @Test
   def refreshProject(): Unit =
     fixture.copy(workspaceProvider = WorkspaceTemplate.FromResource("gradle-project")).run { intelliJ =>
-      val projectRef = intelliJ.probe.withRobot.openProject(intelliJ.workspace)
+      intelliJ.probe.withRobot.openProject(intelliJ.workspace)
       val settingsFile = intelliJ.workspace.resolve("settings.gradle")
 
       Files.writeString(settingsFile, "rootProject.name = 'bar'", StandardOpenOption.WRITE)

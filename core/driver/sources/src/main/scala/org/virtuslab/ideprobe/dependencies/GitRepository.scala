@@ -18,8 +18,8 @@ object GitRepository extends ConfigFormat {
   def clone(repository: GitRepository, name: String = "git-repository"): Path = {
     val localRepo = Files.createTempDirectory(name)
     val git = GitHandler.clone(repository.path, localRepo)
-    repository.ref.foreach{
-      ref => git.checkout(ref)
+    repository.ref.foreach { ref =>
+      git.checkout(ref)
     }
     println(s"Cloned $repository")
     localRepo

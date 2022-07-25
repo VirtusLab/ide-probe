@@ -116,8 +116,8 @@ object WorkspaceTemplate {
   case class FromGit(repository: String, ref: Option[String]) extends WorkspaceTemplate {
     override def setupIn(workspace: Path): Unit = {
       val git = GitHandler.clone(repository, workspace)
-      ref.foreach{
-        ref => git.checkout(ref)
+      ref.foreach { ref =>
+        git.checkout(ref)
       }
     }
   }

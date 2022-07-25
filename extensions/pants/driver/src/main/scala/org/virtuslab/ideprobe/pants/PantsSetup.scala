@@ -10,7 +10,6 @@ import pureconfig.generic.semiauto.deriveReader
 import org.virtuslab.ideprobe.ConfigFormat
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.IntelliJFixture
-import org.virtuslab.ideprobe.Shell
 import org.virtuslab.ideprobe.dependencies.Hash
 import org.virtuslab.ideprobe.dependencies.git.GitHandler
 
@@ -75,8 +74,8 @@ object PantsSetup extends ConfigFormat {
       Paths.get(System.getProperty("java.io.tmpdir"), "ideprobe-pants-from-src", hash)
     if (Files.notExists(targetPath)) {
       val repo = GitHandler.clone(git.path, targetPath)
-      git.ref.foreach{
-        ref => repo.checkout(ref)
+      git.ref.foreach { ref =>
+        repo.checkout(ref)
       }
     }
     targetPath

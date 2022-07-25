@@ -26,8 +26,6 @@ object Dependencies {
 
   val remoteRobotFixtures = "com.intellij.remoterobot" % "remote-fixtures" % "0.11.13"
 
-  val jGit = "org.eclipse.jgit" % "org.eclipse.jgit" % "6.2.0.202206071550-r"
-
   val gson = "com.google.code.gson" % "gson" % "2.9.0"
 
   // because idea plugin packager would only take the root jar which has no classes

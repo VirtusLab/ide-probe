@@ -7,7 +7,6 @@ import java.net.URI
 import java.nio.file.Path
 import java.util.concurrent.atomic.{AtomicInteger, AtomicReference}
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.error
 
 object GitHandler {
 
@@ -19,8 +18,9 @@ object GitHandler {
       .setMirror(false)
       .setBare(false)
       .setProgressMonitor(new CustomProgressMonitor(repository))
-    val res = try {command.call() }
-    catch {
+    val res =
+      try { command.call() }
+      catch {
         case e: Exception => throw new IllegalStateException(s"Could not clone git $repository: ${e.getMessage}")
       }
     new IdeProbeGit(res)
@@ -31,7 +31,7 @@ object GitHandler {
   def checkout(git: Git, ref: String): Ref = {
     val checkoutBase = git.checkout()
     val checkoutCmd =
-      if(git.getRepository.resolve(ref) != null)
+      if (git.getRepository.resolve(ref) != null)
         checkoutBase.setName(ref)
       else
         checkoutBase
@@ -39,16 +39,17 @@ object GitHandler {
           .setName(ref)
           .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
           .setStartPoint(s"origin/$ref")
-    try{checkoutCmd.call()}
+    try { checkoutCmd.call() }
     catch {
-      case e: Exception => throw new IllegalStateException(s"Could not checkout $ref in ${git.getRepository}: ${e.getMessage}")
+      case e: Exception =>
+        throw new IllegalStateException(s"Could not checkout $ref in ${git.getRepository}: ${e.getMessage}")
     }
   }
 
   def commitHash(remote: String, ref: String): Option[String] = {
     val lsRemoteCmd = Git.lsRemoteRepository().setRemote(remote)
     val result =
-      try{
+      try {
         lsRemoteCmd.callAsMap()
       } catch {
         case e: Exception => throw new IllegalStateException(s"Could not fetch hashes from $remote: ${e.getMessage}")
@@ -70,11 +71,11 @@ object GitHandler {
     private val task: AtomicReference[String] = new AtomicReference()
 
     @inline
-     private def renderProgress(completed: Int): String = {
+    private def renderProgress(completed: Int): String = {
       val total = totalWork.get()
       val title = task.get()
       val inner =
-        if(total == 0)
+        if (total == 0)
           ""
         else if (completed == total)
           s"$title 100% ($total/$total)\n"
