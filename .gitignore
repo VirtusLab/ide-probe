@@ -10,6 +10,8 @@ project/plugins/project/
 .cache
 .lib/
 .DS_Store
+ci/test-*
+
 # Dockerfile is selected based on the action to do: either building parent image or running a test suite
 Dockerfile 
 !ci/**/Dockerfile
