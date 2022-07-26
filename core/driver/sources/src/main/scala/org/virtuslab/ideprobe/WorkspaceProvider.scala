@@ -6,6 +6,7 @@ import java.util.Collections
 
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.config.WorkspaceConfig
+import org.virtuslab.ideprobe.dependencies.git.GitHandler
 
 trait WorkspaceProvider {
   def setup(paths: IdeProbePaths): Path
@@ -114,11 +115,9 @@ object WorkspaceTemplate {
 
   case class FromGit(repository: String, ref: Option[String]) extends WorkspaceTemplate {
     override def setupIn(workspace: Path): Unit = {
-      val cloned = Shell.run("git", "clone", repository, workspace.toString)
-      if (cloned.exitCode != 0) throw new IllegalStateException(s"Could not clone git $repository")
+      val git = GitHandler.clone(repository, workspace)
       ref.foreach { ref =>
-        val checkout = Shell.run(in = workspace, "git", "checkout", ref)
-        if (checkout.exitCode != 0) throw new IllegalStateException(s"Could not checkout $ref in $repository")
+        git.checkout(ref)
       }
     }
   }

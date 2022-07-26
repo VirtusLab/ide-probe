@@ -20,9 +20,11 @@ object Dependencies {
 
   val nuProcess = "com.zaxxer" % "nuprocess" % "2.0.3"
 
-  val robotVersion = "0.11.15"
-  val remoteRobot = "com.intellij.remoterobot" % "remote-robot" % robotVersion
-  val remoteRobotFixtures = "com.intellij.remoterobot" % "remote-fixtures" % robotVersion
+  val jGit = "org.eclipse.jgit" % "org.eclipse.jgit" % "6.2.0.202206071550-r"
+
+  val remoteRobot = "com.intellij.remoterobot" % "remote-robot" % "0.11.13"
+
+  val remoteRobotFixtures = "com.intellij.remoterobot" % "remote-fixtures" % "0.11.13"
 
   val gson = "com.google.code.gson" % "gson" % "2.9.0"
 

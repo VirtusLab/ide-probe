@@ -13,8 +13,8 @@ import pureconfig.generic.semiauto.deriveReader
 import org.virtuslab.ideprobe.ConfigFormat
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.IntelliJFixture
-import org.virtuslab.ideprobe.Shell
 import org.virtuslab.ideprobe.dependencies.Hash
+import org.virtuslab.ideprobe.dependencies.git.GitHandler
 
 object PantsSetup extends ConfigFormat {
 
@@ -73,12 +73,9 @@ object PantsSetup extends ConfigFormat {
     val targetPath =
       Paths.get(System.getProperty("java.io.tmpdir"), "ideprobe-pants-from-src", hash)
     if (Files.notExists(targetPath)) {
-      val cloned = Shell.run("git", "clone", git.path, targetPath.toString)
-      if (cloned.exitCode != 0) throw new IllegalStateException(s"Could not clone git ${git.path}")
+      val repo = GitHandler.clone(git.path, targetPath)
       git.ref.foreach { ref =>
-        val checkout = Shell.run(in = targetPath, "git", "checkout", ref)
-        if (checkout.exitCode != 0)
-          throw new IllegalStateException(s"Could not checkout $ref in ${git.path}")
+        repo.checkout(ref)
       }
     }
     targetPath

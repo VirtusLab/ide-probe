@@ -11,7 +11,7 @@ import org.virtuslab.ideprobe.scala.protocol.SbtProjectSettingsChangeRequest
 
 class ModuleTest extends IdeProbeFixture with ScalaPluginExtension with RobotPluginExtension {
 
-  registerFixtureTransformer(_.withAfterIntelliJStartup((fixture, intelliJ) => {
+  registerFixtureTransformer(_.withAfterIntelliJStartup((_, intelliJ) => {
     deleteIdeaSettings(intelliJ)
     intelliJ.probe.withRobot.openProject(intelliJ.workspace)
     useSbtShell(intelliJ)

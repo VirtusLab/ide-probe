@@ -1,0 +1,68 @@
+[error] Test suite org.virtuslab.ideprobe.ProbeDriverTest failed with java.lang.NoClassDefFoundError: com/intellij/ui/components/labels/ActionLink.
+[error] This may be due to the ClassLoaderLayeringStrategy (ScalaLibrary) used by your task.
+[error] To improve performance and reduce memory, sbt attempts to cache the class loaders used to load the project dependencies.
+[error] The project class files are loaded in a separate class loader that is created for each test run.
+[error] The test class loader accesses the project dependency classes using the cached project dependency classloader.
+[error] With this approach, class loading may fail under the following conditions:
+[error] 
+[error]  * Dependencies use reflection to access classes in your project's classpath.
+[error]    Java serialization/deserialization may cause this.
+[error]  * An open package is accessed across layers. If the project's classes access or extend
+[error]    jvm package private classes defined in a project dependency, it may cause an IllegalAccessError
+[error]    because the jvm enforces package private at the classloader level.
+[error] 
+[error] These issues, along with others that were not enumerated above, may be resolved by changing the class loader layering strategy.
+[error] The Flat and ScalaLibrary strategies bundle the full project classpath in the same class loader.
+[error] To use one of these strategies, set the  ClassLoaderLayeringStrategy key
+[error] in your configuration, for example:
+[error] 
+[error] set driver-tests_2_12 / Test / classLoaderLayeringStrategy := ClassLoaderLayeringStrategy.ScalaLibrary
+[error] Failed: Total 23, Failed 1, Errors 0, Passed 22
+[info] Passed: Total 5, Failed 0, Errors 0, Passed 4, Skipped 1
+[error] set driver-tests_2_12 / Test / classLoaderLayeringStrategy := ClassLoaderLayeringStrategy.Flat
+[error] 
+[error] See ClassLoaderLayeringStrategy.scala for the full list of options.
+[error] Failed tests:
+[error]         org.virtuslab.ideprobe.dependencies.SingleRunFixtureTest
+[error] Test suite org.virtuslab.ideprobe.ProbeDriverTest failed with java.lang.NoClassDefFoundError: com/intellij/ui/components/labels/ActionLink.
+[error] This may be due to the ClassLoaderLayeringStrategy (ScalaLibrary) used by your task.
+[error] To improve performance and reduce memory, sbt attempts to cache the class loaders used to load the project dependencies.
+[error] The project class files are loaded in a separate class loader that is created for each test run.
+[error] The test class loader accesses the project dependency classes using the cached project dependency classloader.
+[error] With this approach, class loading may fail under the following conditions:
+[error] 
+[error]  * Dependencies use reflection to access classes in your project's classpath.
+[error]    Java serialization/deserialization may cause this.
+[error]  * An open package is accessed across layers. If the project's classes access or extend
+[error]    jvm package private classes defined in a project dependency, it may cause an IllegalAccessError
+[error]    because the jvm enforces package private at the classloader level.
+[error] 
+[error] These issues, along with others that were not enumerated above, may be resolved by changing the class loader layering strategy.
+[error] The Flat and ScalaLibrary strategies bundle the full project classpath in the same class loader.
+[error] To use one of these strategies, set the  ClassLoaderLayeringStrategy key
+[error] in your configuration, for example:
+[error] 
+[error] set driver-tests_2_13 / Test / classLoaderLayeringStrategy := ClassLoaderLayeringStrategy.ScalaLibrary
+[error] set driver-tests_2_13 / Test / classLoaderLayeringStrategy := ClassLoaderLayeringStrategy.Flat
+[error] 
+[error] See ClassLoaderLayeringStrategy.scala for the full list of options.
+[error] Failed: Total 16, Failed 3, Errors 0, Passed 7, Skipped 6
+[error] Failed: Total 23, Failed 1, Errors 0, Passed 22
+[error] Failed tests:
+[error] Failed: Total 6, Failed 6, Errors 0, Passed 0
+[error]         org.virtuslab.ideprobe.ProbeDriverTest
+[error] Failed tests:
+[error] Failed tests:
+[error]         org.virtuslab.ideprobe.dependencies.SingleRunFixtureTest
+[error]         org.virtuslab.ideprobe.ModuleTest
+[error] Failed: Total 16, Failed 3, Errors 0, Passed 7, Skipped 6
+[error] Failed tests:
+[error]         org.virtuslab.ideprobe.ProbeDriverTest
+[info] Passed: Total 5, Failed 0, Errors 0, Passed 4, Skipped 1
+[error] (driver_2_13 / Test / test) sbt.TestsFailedException: Tests unsuccessful
+[error] (driver_2_12 / Test / test) sbt.TestsFailedException: Tests unsuccessful
+[error] (examples_2_13 / Test / test) sbt.TestsFailedException: Tests unsuccessful
+[error] (driver-tests_2_12 / Test / test) sbt.TestsFailedException: Tests unsuccessful
+[error] (driver-tests_2_13 / Test / test) sbt.TestsFailedException: Tests unsuccessful
+[error] Total time: 4772 s (01:19:32), completed 20 Jun 2022, 23:52:14
+
