@@ -27,7 +27,7 @@ class ModuleTest extends IdeProbeFixture with ScalaPluginExtension with RobotPlu
     intelliJ.probe.build().assertSuccess()
     modulesToTest.foreach { moduleName =>
       val scope = TestScope.Module(ModuleRef(moduleName))
-      val result = intelliJ.probe.runTestsFromGenerated(scope, runnerToSelect)
+      val result = intelliJ.probe.runTestsFromGenerated(scope, runnerToSelect, None)
       Assert.assertTrue(s"Test result $result should not be empty", result.suites.nonEmpty)
     }
   }
