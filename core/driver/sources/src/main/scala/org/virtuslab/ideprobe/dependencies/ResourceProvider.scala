@@ -9,7 +9,6 @@ import scala.annotation.tailrec
 
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.IdeProbePaths
-import org.virtuslab.ideprobe.download.FileDownloader
 
 trait ResourceProvider {
   def get(uri: URI, provider: () => InputStream): Path
@@ -62,10 +61,12 @@ object ResourceProvider {
       val cachedResource = cached(uri)
       if (!cachedResource.isFile) {
         retry(retries) { () =>
+          val stream = createStream()
           println(message(cachedResource))
-          val tempFile: Path = Files.createTempDirectory("cached-resource")
-          val downloader = FileDownloader(tempFile).download(uri.toURL)
-          downloader.moveTo(cachedResource)
+          Files
+            .createTempFile("cached-resource", "-tmp")
+            .append(stream)
+            .moveTo(cachedResource)
         }
       }
       cachedResource
