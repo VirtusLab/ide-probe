@@ -5,7 +5,6 @@ import java.util.Collections
 import scala.concurrent.ExecutionContext
 
 import com.intellij.compiler.options.CompileStepBeforeRun.MakeBeforeRunTask
-import com.intellij.execution._
 import com.intellij.execution.actions.ConfigurationContext
 import com.intellij.execution.actions.ConfigurationFromContext
 import com.intellij.execution.application.ApplicationConfiguration
@@ -14,6 +13,7 @@ import com.intellij.execution.impl.RunManagerImpl
 import com.intellij.execution.impl.RunnerAndConfigurationSettingsImpl
 import com.intellij.execution.junit.JUnitConfiguration
 import com.intellij.execution.runners.ExecutionUtil
+import com.intellij.execution.{ShortenCommandLine => IJShortenCommandLine, _}
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.actionSystem.DataKey
@@ -65,7 +65,8 @@ object RunConfigurations extends IntelliJApi {
 
   def runTestsFromGenerated(
       scope: TestScope,
-      runnerToSelect: Option[String]
+      runnerToSelect: Option[String],
+      shortenCommandLine: Option[ShortenCommandLine]
   )(implicit ec: ExecutionContext): TestsRunResult = {
     val configurations = availableRunConfigurations(scope)
 
@@ -84,6 +85,18 @@ object RunConfigurations extends IntelliJApi {
         configurations.headOption.getOrElse(error("No test configuration available for specified settings."))
     }
     val selectedConfiguration = producer.getConfigurationSettings
+
+    shortenCommandLine.foreach { cmdline =>
+      selectedConfiguration.getConfiguration match {
+        case c: JavaTestConfigurationBase =>
+          c.setShortenCommandLine(cmdline match {
+            case ShortenCommandLine.None          => IJShortenCommandLine.NONE
+            case ShortenCommandLine.Manifest      => IJShortenCommandLine.MANIFEST
+            case ShortenCommandLine.ClasspathFile => IJShortenCommandLine.CLASSPATH_FILE
+            case ShortenCommandLine.ArgsFile      => IJShortenCommandLine.ARGS_FILE
+          })
+      }
+    }
 
     Tests.awaitTestResults(
       project,
