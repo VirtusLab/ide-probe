@@ -95,6 +95,7 @@ object RunConfigurations extends IntelliJApi {
             case ShortenCommandLine.ClasspathFile => IJShortenCommandLine.CLASSPATH_FILE
             case ShortenCommandLine.ArgsFile      => IJShortenCommandLine.ARGS_FILE
           })
+        case _ => ()
       }
     }
 
