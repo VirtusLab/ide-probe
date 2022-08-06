@@ -26,7 +26,7 @@ object Dependencies {
 
   val remoteRobotFixtures = "com.intellij.remoterobot" % "remote-fixtures" % "0.11.15"
 
-  val gson = "com.google.code.gson" % "gson" % "2.9.0"
+  val gson = "com.google.code.gson" % "gson" % "2.9.1"
 
   // because idea plugin packager would only take the root jar which has no classes
   // somehow it fails to see the transitive dependencies (even though the code says it should)
