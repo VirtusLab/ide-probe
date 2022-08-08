@@ -39,7 +39,7 @@ final class RunningIde(val launcher: NuProcess, idePID: Long, val probe: ProbeDr
           case OS.Windows       => Array("taskkill", "/F", "/pid", idePID.toString)
         }
 
-        val result = Shell.run(command: _*)
+        val result = Shell.run(command.toIndexedSeq: _*)
         if (result.exitCode == 0) {
           println("IDE terminated")
         } else if (!result.err.contains("No such process")) {

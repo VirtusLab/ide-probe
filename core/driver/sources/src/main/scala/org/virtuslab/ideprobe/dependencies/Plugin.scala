@@ -44,7 +44,7 @@ object Plugin extends ConfigFormat {
 
   case class FromSources(id: Id, config: Config) extends Plugin {
     override def toString: String = {
-      val conf = config.source.value.fold(_.toString, _.render(ConfigRenderOptions.concise))
+      val conf = config.source.value().fold(_.toString, _.render(ConfigRenderOptions.concise))
       s"Plugin($id, $conf)"
     }
   }
@@ -62,7 +62,7 @@ object Plugin extends ConfigFormat {
   }
 
   implicit val fromSourcesWriter: ConfigWriter[FromSources] = ConfigWriter.fromFunction { fs =>
-    fs.config.source.value.getOrElse(error(s"cannot serialize $fs"))
+    fs.config.source.value().getOrElse(error(s"cannot serialize $fs"))
   }
 
   implicit val pluginReader: ConfigReader[Plugin] = {

@@ -13,7 +13,6 @@ import scala.concurrent.duration.Duration
 
 import com.zaxxer.nuprocess.NuAbstractProcessHandler
 import com.zaxxer.nuprocess.NuProcess
-import com.zaxxer.nuprocess.NuProcessBuilder
 import com.zaxxer.nuprocess.NuProcessHandler
 
 object Shell extends BaseShell
@@ -118,7 +117,7 @@ class BaseShell {
     import com.zaxxer.nuprocess._
     val builder = new NuProcessBuilder(command: _*)
     builder.setCwd(in)
-    customizeBuilder(builder)
+    customizeBuilder()
     env.foreach(e => builder.environment().put(e._1, e._2))
     val finished = Promise[CommandResult]()
     val outputCollector = new ProcessOutputCollector
@@ -172,5 +171,5 @@ class BaseShell {
     Seq(outputForwarder)
   }
 
-  protected def customizeBuilder(builder: NuProcessBuilder): Unit = ()
+  protected def customizeBuilder(): Unit = ()
 }

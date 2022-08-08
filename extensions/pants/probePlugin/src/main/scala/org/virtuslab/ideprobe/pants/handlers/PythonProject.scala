@@ -12,7 +12,7 @@ object PythonProject {
 
   def facets(moduleRef: ModuleRef): Seq[PythonFacet] = {
     val module = Modules.resolve(moduleRef)
-    val facets = FacetManager.getInstance(module).getAllFacets
+    val facets = FacetManager.getInstance(module).getAllFacets.toIndexedSeq
     facets
       .map(f => f.getName -> f.getConfiguration)
       .collect { case (name, config: PythonFacetSettings) =>

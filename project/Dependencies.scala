@@ -2,16 +2,16 @@ import sbt._
 
 object Dependencies {
 
-  val junit = Seq(
+  val junit: Seq[ModuleID] = Seq(
     "junit" % "junit" % "4.13.2" % Test,
     ("com.github.sbt" % "junit-interface" % "0.13.3" % Test).exclude("junit", "junit-dep")
   )
 
-  val junitCompile = Seq(
+  val junitCompile: Seq[ModuleID] = Seq(
     "junit" % "junit" % "4.13.2" % Compile
   )
 
-  def scalaLib(version: String) = Seq(
+  def scalaLib(version: String): Seq[ModuleID] = Seq(
     "org.scala-lang" % "scala-library" % version
   )
 
@@ -28,10 +28,12 @@ object Dependencies {
 
   val gson = "com.google.code.gson" % "gson" % "2.9.0"
 
+  val scalaCollectionCompat = "org.scala-lang.modules" %% "scala-collection-compat" % "2.8.1" % Compile
+
   // because idea plugin packager would only take the root jar which has no classes
   // somehow it fails to see the transitive dependencies (even though the code says it should)
   // so here are all the dependencies explicitly
-  val pureConfig = {
+  val pureConfig: Seq[ModuleID] = {
     val typesafeConfig = "com.typesafe" % "config" % "1.4.2"
     val shapeless = "com.chuusai" %% "shapeless" % "2.3.9"
     val pureConfigModules =

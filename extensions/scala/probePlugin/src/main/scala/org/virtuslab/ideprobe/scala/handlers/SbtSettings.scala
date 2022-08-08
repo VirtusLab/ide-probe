@@ -16,9 +16,9 @@ object SbtSettings extends IntelliJApi {
     val sbtSettings = getSbtSettings(project)
 
     SbtProjectSettings(
-      useSbtShellForImport = sbtSettings.getUseSbtShellForImport,
-      useSbtShellForBuild = sbtSettings.getUseSbtShellForBuild,
-      allowSbtVersionOverride = sbtSettings.getAllowSbtVersionOverride
+      useSbtShellForImport = sbtSettings.getUseSbtShellForImport(),
+      useSbtShellForBuild = sbtSettings.getUseSbtShellForBuild(),
+      allowSbtVersionOverride = sbtSettings.getAllowSbtVersionOverride()
     )
   }
 

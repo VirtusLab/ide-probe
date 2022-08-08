@@ -5,6 +5,7 @@ import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.PlatformDataKeys
 import com.intellij.openapi.actionSystem.impl.SimpleDataContext
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.ProjectUtil
 import com.intellij.openapi.vfs.VirtualFile
 import gnu.trove.THashMap
 
@@ -30,7 +31,7 @@ object ExpandMacro {
     val data = new THashMap[String, Object]()
     data.put(CommonDataKeys.PROJECT.getName, fileRef.project)
     data.put(CommonDataKeys.VIRTUAL_FILE.getName, file)
-    data.put(PlatformDataKeys.PROJECT_FILE_DIRECTORY.getName, project.getBaseDir)
+    data.put(PlatformDataKeys.PROJECT_FILE_DIRECTORY.getName, ProjectUtil.guessProjectDir(project))
     SimpleDataContext.getSimpleContext(data, null)
   }
 }

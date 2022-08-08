@@ -7,19 +7,19 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.zip.ZipInputStream
-
 import scala.util.control.NonFatal
-
 import pureconfig.ConfigReader
-
 import org.virtuslab.ideprobe.ConfigFormat
 import org.virtuslab.ideprobe.Extensions._
+
+import scala.annotation.nowarn
 
 sealed trait Resource
 
 object Resource extends ConfigFormat {
   implicit val resourceConfigReader: ConfigReader[Resource] = ConfigReader[String].map(from)
 
+  @nowarn // as match is not exhaustive - case class Jar is not handled
   def exists(uri: URI): Boolean = from(uri) match {
     case File(path) => Files.exists(path)
     case Http(uri) =>

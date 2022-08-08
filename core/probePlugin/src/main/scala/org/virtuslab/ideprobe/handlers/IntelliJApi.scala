@@ -7,7 +7,6 @@ import scala.annotation.tailrec
 import scala.concurrent.Await
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
-import scala.reflect.ClassTag
 
 import com.intellij.openapi.application.Application
 import com.intellij.openapi.application.ApplicationManager
@@ -70,7 +69,7 @@ trait IntelliJApi {
 
   implicit class ReflectionOps[A](obj: A) {
     import java.lang.reflect._
-    def invoke[B: ClassTag](name: String)(args: Object*): B = {
+    def invoke[B](name: String)(args: Object*): B = {
       val params = args.map(_.getClass)
       val method = getMethod(obj.getClass, name, params: _*)
 
@@ -81,13 +80,13 @@ trait IntelliJApi {
       result.asInstanceOf[B]
     }
 
-    def field[B: ClassTag](name: String): B = {
+    def field[B](name: String): B = {
       val field = getField(obj.getClass, "my" + name.capitalize)
       using(field)(_.get(obj).asInstanceOf[B])
     }
 
     private def using[B <: AccessibleObject, C](accessible: B)(f: B => C): C = {
-      val isAccessible = accessible.isAccessible
+      val isAccessible = accessible.canAccess(null) // isAccessible
       try {
         accessible.setAccessible(true)
         f(accessible)

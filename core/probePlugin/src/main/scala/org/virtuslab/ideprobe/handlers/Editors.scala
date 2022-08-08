@@ -14,7 +14,7 @@ import org.virtuslab.ideprobe.protocol.ProjectRef
 object Editors extends IntelliJApi {
 
   def all(projectRef: ProjectRef): Seq[Path] = runOnUISync {
-    editorManager(projectRef).getOpenFiles.map(p => Paths.get(p.getPath))
+    editorManager(projectRef).getOpenFiles.toIndexedSeq.map(p => Paths.get(p.getPath))
   }
 
   def open(fileRef: FileRef): Unit =
