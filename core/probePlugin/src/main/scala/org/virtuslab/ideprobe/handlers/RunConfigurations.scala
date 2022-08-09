@@ -2,6 +2,8 @@ package org.virtuslab.ideprobe.handlers
 
 import java.util.Collections
 
+import scala.jdk.CollectionConverters._
+
 import com.intellij.compiler.options.CompileStepBeforeRun.MakeBeforeRunTask
 import com.intellij.execution.actions.ConfigurationContext
 import com.intellij.execution.actions.ConfigurationFromContext
@@ -28,8 +30,6 @@ import org.virtuslab.ideprobe.RunConfigurationTransformer
 import org.virtuslab.ideprobe.RunnerSettingsWithProcessOutput
 import org.virtuslab.ideprobe.UUIDs
 import org.virtuslab.ideprobe.protocol._
-
-import scala.jdk.CollectionConverters._
 
 object RunConfigurations extends IntelliJApi {
 

@@ -1,5 +1,7 @@
 package org.virtuslab.ideprobe.log
 
+import scala.annotation.nowarn
+
 import com.intellij.diagnostic.LogEventException
 import com.intellij.openapi.diagnostic.ExceptionWithAttachments
 import com.intellij.openapi.diagnostic.IdeaLoggingEvent
@@ -90,7 +92,7 @@ class IdeaLogInterceptor extends AppenderSkeleton {
                 }
               new IdeaLoggingEvent(msg, throwable)
           }
-        }
+        }: @nowarn // as LogEventException is deprecated (but could be still met for older versions)
     }
   }
 

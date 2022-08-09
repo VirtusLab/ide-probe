@@ -313,7 +313,15 @@ lazy val benchmarks212 = benchmarks(scala212)
 def project(id: String, path: String, publish: Boolean): Project = {
   Project(id, sbt.file(path))
     .settings(scalafmtOnCompile := true)
-    .settings(scalacOptions ++= Seq("-Xlint:unused", "-Ywarn-unused", "-deprecation", "-Ywarn-macros:after"))
+    .settings(
+      scalacOptions ++= Seq(
+        "-Xlint:unused",
+        "-Ywarn-unused",
+        "-deprecation",
+        "-Ywarn-macros:after",
+        "-Wconf:msg=@nowarn annotation does not suppress any warnings:s"
+      )
+    ) // due to false positive for IdeaLogInterceptor.scala
     .settings(
       (Keys.publish / skip) := !publish,
       libraryDependencies ++= Dependencies.junit

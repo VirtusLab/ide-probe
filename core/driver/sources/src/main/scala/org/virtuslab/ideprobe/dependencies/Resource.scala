@@ -7,12 +7,14 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.zip.ZipInputStream
-import scala.util.control.NonFatal
-import pureconfig.ConfigReader
-import org.virtuslab.ideprobe.ConfigFormat
-import org.virtuslab.ideprobe.Extensions._
 
 import scala.annotation.nowarn
+import scala.util.control.NonFatal
+
+import pureconfig.ConfigReader
+
+import org.virtuslab.ideprobe.ConfigFormat
+import org.virtuslab.ideprobe.Extensions._
 
 sealed trait Resource
 

@@ -6,6 +6,8 @@ import java.nio.channels.Channels
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 
+import scala.annotation.nowarn
+import scala.collection.mutable
 import scala.concurrent.Await
 import scala.concurrent.Future
 import scala.concurrent.Promise
@@ -13,6 +15,7 @@ import scala.concurrent.duration.Duration
 
 import com.zaxxer.nuprocess.NuAbstractProcessHandler
 import com.zaxxer.nuprocess.NuProcess
+import com.zaxxer.nuprocess.NuProcessBuilder
 import com.zaxxer.nuprocess.NuProcessHandler
 
 object Shell extends BaseShell
@@ -73,8 +76,8 @@ class BaseShell {
   }
 
   class ProcessOutputCollector extends NuAbstractProcessHandler {
-    private val outputBuilder = new StringBuilder
-    private val errorBuilder = new StringBuilder
+    private val outputBuilder = new mutable.StringBuilder
+    private val errorBuilder = new mutable.StringBuilder
 
     override def onStdout(buffer: ByteBuffer, closed: Boolean): Unit = {
       outputBuilder.append(StandardCharsets.UTF_8.decode(buffer))
@@ -117,7 +120,7 @@ class BaseShell {
     import com.zaxxer.nuprocess._
     val builder = new NuProcessBuilder(command: _*)
     builder.setCwd(in)
-    customizeBuilder()
+    customizeBuilder(builder)
     env.foreach(e => builder.environment().put(e._1, e._2))
     val finished = Promise[CommandResult]()
     val outputCollector = new ProcessOutputCollector
@@ -171,5 +174,6 @@ class BaseShell {
     Seq(outputForwarder)
   }
 
-  protected def customizeBuilder(): Unit = ()
+  @nowarn // `builder` is not used here, but can be used in classes extending `class BaseShell` by extending this method
+  protected def customizeBuilder(builder: NuProcessBuilder): Unit = ()
 }

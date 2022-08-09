@@ -15,8 +15,8 @@ import java.nio.file.StandardOpenOption
 import java.nio.file.attribute.BasicFileAttributes
 import java.util.zip.ZipInputStream
 
-import scala.jdk.CollectionConverters._
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 import scala.util.Failure
 import scala.util.Try
 import scala.util.control.NonFatal
