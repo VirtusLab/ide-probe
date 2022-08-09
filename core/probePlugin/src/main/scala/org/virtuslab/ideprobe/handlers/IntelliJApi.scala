@@ -3,6 +3,7 @@ package org.virtuslab.ideprobe.handlers
 import java.nio.file.Path
 import java.nio.file.Paths
 
+import scala.annotation.nowarn
 import scala.annotation.tailrec
 import scala.concurrent.Await
 import scala.concurrent.Future
@@ -86,7 +87,8 @@ trait IntelliJApi {
     }
 
     private def using[B <: AccessibleObject, C](accessible: B)(f: B => C): C = {
-      val isAccessible = accessible.canAccess(this)
+      @nowarn // `isAccessible` is deprecated but `canAccess(Object obj)` is not obvious to implement - issue #244
+      val isAccessible = accessible.isAccessible
       try {
         accessible.setAccessible(true)
         f(accessible)
