@@ -86,7 +86,7 @@ trait IntelliJApi {
     }
 
     private def using[B <: AccessibleObject, C](accessible: B)(f: B => C): C = {
-      val isAccessible = accessible.canAccess(null)
+      val isAccessible = accessible.canAccess(this)
       try {
         accessible.setAccessible(true)
         f(accessible)
