@@ -8,6 +8,7 @@ import javax.swing.Icon
 
 class OpenWindowAction extends AnAction("Open Window") with DumbAware {
   override def actionPerformed(e: AnActionEvent): Unit = {
+    val p = e.getProject
     val options = Array("opt-1", "opt-2")
     val icon: Icon = null
     val dialog = new MessageDialog("Foo", "Probe Window", options, 0, icon)
