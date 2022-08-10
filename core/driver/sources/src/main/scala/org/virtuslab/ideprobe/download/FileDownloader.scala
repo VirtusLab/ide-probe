@@ -210,7 +210,7 @@ class FileDownloader(private val baseDirectory: Path) {
     override def isOpen: Boolean = rbc.isOpen
     override def close(): Unit = rbc.close()
     override def read(bb: ByteBuffer): Int = {
-      var numRead = rbc.read(bb)
+      val numRead = rbc.read(bb)
       if (numRead > 0) {
         readSoFar += numRead
         readLastSecond += numRead

@@ -44,13 +44,13 @@ object Inspections extends IntelliJApi {
     }
 
     InspectionRunResult(
-      descriptors.map(desc =>
+      descriptors.toIndexedSeq.map(desc =>
         read {
           ProblemDescriptor(
             desc.getDescriptionTemplate,
             desc.getLineNumber,
             desc.getPsiElement.getText,
-            desc.getFixes.map(_.getName)
+            desc.getFixes.toIndexedSeq.map(_.getName)
           )
         }
       )

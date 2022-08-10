@@ -2,8 +2,6 @@ package org.virtuslab.ideprobe.scala.handlers
 
 import java.util.Collections
 
-import scala.concurrent.ExecutionContext
-
 import com.intellij.compiler.options.CompileStepBeforeRun.MakeBeforeRunTask
 import com.intellij.execution.impl.RunManagerImpl
 import com.intellij.execution.impl.RunnerAndConfigurationSettingsImpl
@@ -22,7 +20,7 @@ import org.virtuslab.ideprobe.protocol.TestsRunResult
 import org.virtuslab.ideprobe.scala.protocol.{ScalaTestRunConfiguration => RunConfiguration}
 
 object ScalaTestRunConfiguration {
-  def execute(runConfiguration: RunConfiguration)(implicit ec: ExecutionContext): TestsRunResult = {
+  def execute(runConfiguration: RunConfiguration): TestsRunResult = {
     val module = Modules.resolve(runConfiguration.module)
     val project = module.getProject
 

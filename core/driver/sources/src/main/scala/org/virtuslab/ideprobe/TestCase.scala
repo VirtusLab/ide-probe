@@ -16,7 +16,7 @@ object TestCase {
 
   def matchingMethods(trace: StackTraceElement): Seq[Method] =
     try {
-      Class.forName(trace.getClassName).getMethods.filter(_.getName == trace.getMethodName)
+      Class.forName(trace.getClassName).getMethods.toIndexedSeq.filter(_.getName == trace.getMethodName)
     } catch {
       case _: ReflectiveOperationException => Nil
     }

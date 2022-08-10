@@ -2,7 +2,6 @@ package org.virtuslab.ideprobe.jsonrpc
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import scala.reflect.ClassTag
 
 import org.virtuslab.ideprobe.Close
 import org.virtuslab.ideprobe.jsonrpc.JsonRpc._
@@ -16,7 +15,7 @@ trait JsonRpcEndpoint extends AutoCloseable {
 
   protected def handler: Handler
 
-  protected def sendRequest[A: ClassTag, B: ClassTag](method: Method[A, B], parameters: A): Future[B] = {
+  protected def sendRequest[A, B](method: Method[A, B], parameters: A): Future[B] = {
     Future(method.encode(parameters)).flatMap { json =>
       method match {
         case Method.Notification(name) =>

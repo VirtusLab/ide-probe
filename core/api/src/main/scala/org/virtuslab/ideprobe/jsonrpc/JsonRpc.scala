@@ -2,7 +2,6 @@ package org.virtuslab.ideprobe.jsonrpc
 
 import java.io.Reader
 
-import scala.reflect.ClassTag
 import scala.util.Try
 
 import com.google.gson._
@@ -69,7 +68,7 @@ object JsonRpc {
     }
   }
 
-  sealed abstract class Method[Parameters: ClassTag: ConfigConvert, Result: ClassTag: ConfigConvert] {
+  sealed abstract class Method[Parameters: ConfigConvert, Result: ConfigConvert] {
     def name: String
 
     def apply(f: Parameters => Result): SerializedJson => SerializedJson = { json =>
@@ -93,8 +92,8 @@ object JsonRpc {
   }
 
   object Method {
-    case class Notification[Parameters: ClassTag: ConfigConvert](name: String) extends Method[Parameters, Unit]
-    case class Request[Parameters: ClassTag: ConfigConvert, Result: ClassTag: ConfigConvert](name: String)
+    case class Notification[Parameters: ConfigConvert](name: String) extends Method[Parameters, Unit]
+    case class Request[Parameters: ConfigConvert, Result: ConfigConvert](name: String)
         extends Method[Parameters, Result]
   }
 

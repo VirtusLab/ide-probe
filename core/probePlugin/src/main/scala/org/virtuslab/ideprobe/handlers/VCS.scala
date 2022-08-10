@@ -10,6 +10,6 @@ object VCS {
     val project = Projects.resolve(projectRef)
     val vcsManager = ProjectLevelVcsManager.getInstance(project)
     val currentVcsRoots = vcsManager.getAllVcsRoots
-    currentVcsRoots.map(root => protocol.VcsRoot(root.getVcs.toString, VFS.toPath(root.getPath)))
+    currentVcsRoots.toIndexedSeq.map(root => protocol.VcsRoot(root.getVcs.toString, VFS.toPath(root.getPath)))
   }
 }

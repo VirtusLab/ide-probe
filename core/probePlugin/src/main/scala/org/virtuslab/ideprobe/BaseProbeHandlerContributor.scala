@@ -1,13 +1,10 @@
 package org.virtuslab.ideprobe
 
-import scala.concurrent.ExecutionContext
-
 import org.virtuslab.ideprobe.ProbeHandlers.ProbeHandler
 import org.virtuslab.ideprobe.handlers._
 import org.virtuslab.ideprobe.protocol.Endpoints
 
 class BaseProbeHandlerContributor extends ProbeHandlerContributor {
-  private implicit val ec: ExecutionContext = IdeProbeService.executionContext
 
   override def registerHandlers(handler: ProbeHandler): ProbeHandler = {
     handler
@@ -18,7 +15,7 @@ class BaseProbeHandlerContributor extends ProbeHandlerContributor {
       .on(Endpoints.Ping)(_ => ())
       .on(Endpoints.Plugins)(_ => Plugins.list)
       .on(Endpoints.Shutdown)(_ => App.shutdown())
-      .on(Endpoints.Messages)(_ => IdeMessages.list)
+      .on(Endpoints.Messages)(_ => IdeMessages.list.toIndexedSeq)
       .on(Endpoints.Freezes)(_ => Freezes.list)
       .on(Endpoints.InvokeAction)(Actions.invokeSync)
       .on(Endpoints.InvokeActionAsync)(Actions.invokeAsync)

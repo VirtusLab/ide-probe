@@ -6,7 +6,6 @@ import scala.concurrent.Await
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.duration._
-import scala.reflect.ClassTag
 import scala.util.Failure
 
 import com.typesafe.config.ConfigRenderOptions
@@ -338,7 +337,8 @@ class ProbeDriver(
    * Saves the config for the further use
    */
   def setConfig(config: Config): Unit = {
-    val stringFromConfig = config.source.value
+    val stringFromConfig = config.source
+      .value()
       .fold(e => error(e.prettyPrint()), value => value.render(ConfigRenderOptions.concise()))
     send(Endpoints.SetConfig, stringFromConfig)
   }
@@ -359,19 +359,19 @@ class ProbeDriver(
     else throw new IllegalStateException(s"Extension plugin $extensionPluginId is not loaded")
   }
 
-  def send[R: ClassTag](method: Method[Unit, R]): R = {
+  def send[R](method: Method[Unit, R]): R = {
     send(method, ())
   }
 
-  def send[T: ClassTag, R: ClassTag](method: Method[T, R], parameters: T): R = {
+  def send[T, R](method: Method[T, R], parameters: T): R = {
     Await.result(sendAsync(method, parameters), 2.hours)
   }
 
-  def sendAsync[R: ClassTag](method: Method[Unit, R]): Future[R] = {
+  def sendAsync[R](method: Method[Unit, R]): Future[R] = {
     sendAsync(method, ())
   }
 
-  def sendAsync[T: ClassTag, R: ClassTag](method: Method[T, R], parameters: T): Future[R] = {
+  def sendAsync[T, R](method: Method[T, R], parameters: T): Future[R] = {
     sendRequest(method, parameters)
   }
 

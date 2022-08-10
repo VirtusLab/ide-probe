@@ -6,6 +6,8 @@ import java.nio.channels.Channels
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 
+import scala.annotation.nowarn
+import scala.collection.mutable
 import scala.concurrent.Await
 import scala.concurrent.Future
 import scala.concurrent.Promise
@@ -74,8 +76,8 @@ class BaseShell {
   }
 
   class ProcessOutputCollector extends NuAbstractProcessHandler {
-    private val outputBuilder = new StringBuilder
-    private val errorBuilder = new StringBuilder
+    private val outputBuilder = new mutable.StringBuilder
+    private val errorBuilder = new mutable.StringBuilder
 
     override def onStdout(buffer: ByteBuffer, closed: Boolean): Unit = {
       outputBuilder.append(StandardCharsets.UTF_8.decode(buffer))
@@ -172,5 +174,6 @@ class BaseShell {
     Seq(outputForwarder)
   }
 
+  @nowarn // `builder` is not used here, but can be used in classes extending `class BaseShell` by extending this method
   protected def customizeBuilder(builder: NuProcessBuilder): Unit = ()
 }

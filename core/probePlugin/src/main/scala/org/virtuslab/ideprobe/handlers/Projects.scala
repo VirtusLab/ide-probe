@@ -101,7 +101,7 @@ object Projects extends IntelliJApi {
       protocol.Module(module.getName, contentRoots, dependencies, Option(module.getModuleTypeName))
     }
 
-    protocol.Project(project.getName, project.getBasePath, mappedModules)
+    protocol.Project(project.getName, project.getBasePath, mappedModules.toIndexedSeq)
   }
 
   def sdk(ref: ProjectRef): Option[Sdk] = read {

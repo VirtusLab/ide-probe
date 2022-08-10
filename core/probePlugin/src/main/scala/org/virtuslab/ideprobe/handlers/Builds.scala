@@ -4,7 +4,7 @@ import java.nio.file.Paths
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import com.intellij.openapi.compiler.CompilationStatusListener
 import com.intellij.openapi.compiler.CompileContext
@@ -109,7 +109,7 @@ object Builds extends IntelliJApi {
         compileContext: CompileContext
     ): Unit = {
       def messages(category: CompilerMessageCategory): Seq[BuildMessage] = {
-        compileContext.getMessages(category).map { msg =>
+        compileContext.getMessages(category).toIndexedSeq.map { msg =>
           BuildMessage(Option(msg.getVirtualFile).map(_.toString), msg.getMessage)
         }
       }

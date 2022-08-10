@@ -2,7 +2,7 @@ package org.virtuslab.ideprobe.handlers
 
 import java.util.Collections
 
-import scala.concurrent.ExecutionContext
+import scala.jdk.CollectionConverters._
 
 import com.intellij.compiler.options.CompileStepBeforeRun.MakeBeforeRunTask
 import com.intellij.execution.actions.ConfigurationContext
@@ -31,8 +31,6 @@ import org.virtuslab.ideprobe.RunnerSettingsWithProcessOutput
 import org.virtuslab.ideprobe.UUIDs
 import org.virtuslab.ideprobe.protocol._
 
-import scala.collection.convert.ImplicitConversions.`collection AsScalaIterable`
-
 object RunConfigurations extends IntelliJApi {
 
   private class MapDataContext() extends DataContext {
@@ -58,7 +56,7 @@ object RunConfigurations extends IntelliJApi {
 
   def testConfigurations(
       scope: TestScope
-  )(implicit ec: ExecutionContext): Seq[String] = {
+  ): Seq[String] = {
     val configurations = availableRunConfigurations(scope)
     configurations.map(_.getConfigurationSettings.getName)
   }
@@ -67,7 +65,7 @@ object RunConfigurations extends IntelliJApi {
       scope: TestScope,
       runnerToSelect: Option[String],
       shortenCommandLine: Option[ShortenCommandLine]
-  )(implicit ec: ExecutionContext): TestsRunResult = {
+  ): TestsRunResult = {
     val configurations = availableRunConfigurations(scope)
 
     val module = Modules.resolve(scope.module)
@@ -105,7 +103,7 @@ object RunConfigurations extends IntelliJApi {
     )
   }
 
-  def rerunFailedTests(projectRef: ProjectRef)(implicit ec: ExecutionContext): TestsRunResult = {
+  def rerunFailedTests(projectRef: ProjectRef): TestsRunResult = {
     val project = Projects.resolve(projectRef)
     Tests.awaitTestResults(
       project,
@@ -113,7 +111,7 @@ object RunConfigurations extends IntelliJApi {
     )
   }
 
-  def runJUnit(scope: TestScope)(implicit ec: ExecutionContext): TestsRunResult = {
+  def runJUnit(scope: TestScope): TestsRunResult = {
     val module = Modules.resolve(scope.module)
     val project = module.getProject
 
@@ -147,7 +145,7 @@ object RunConfigurations extends IntelliJApi {
     Tests.awaitTestResults(project, () => launch(project, settings))
   }
 
-  def runApp(runConfiguration: ApplicationRunConfiguration)(implicit ec: ExecutionContext): ProcessResult = {
+  def runApp(runConfiguration: ApplicationRunConfiguration): ProcessResult = {
     val configuration = registerObservableConfiguration(runConfiguration)
     val project = Projects.resolve(runConfiguration.module.project)
 
@@ -200,7 +198,7 @@ object RunConfigurations extends IntelliJApi {
 
     waitForSmartMode(project)
     val configurations = read { configurationContext.getConfigurationsFromContext }
-    configurations.toSeq
+    configurations.asScala.toSeq
   }
 
   private def selectPsiElement(scope: TestScope, module: IntelliJModule, project: Project) = {
