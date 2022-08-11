@@ -8,7 +8,6 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.zip.ZipInputStream
 
-import scala.annotation.nowarn
 import scala.util.control.NonFatal
 
 import pureconfig.ConfigReader
@@ -21,7 +20,6 @@ sealed trait Resource
 object Resource extends ConfigFormat {
   implicit val resourceConfigReader: ConfigReader[Resource] = ConfigReader[String].map(from)
 
-  @nowarn // as match is not exhaustive - case class Jar is not handled
   def exists(uri: URI): Boolean = from(uri) match {
     case File(path) => Files.exists(path)
     case Http(uri) =>
@@ -30,6 +28,10 @@ object Resource extends ConfigFormat {
       val responseCode = connection.asInstanceOf[HttpURLConnection].getResponseCode
       responseCode == 200
     case Unresolved(_, _) => true // can't verify, assume it exists
+    case Jar(uri) =>
+      throw new UnsupportedOperationException(
+        s"Resolved URI: $uri points to a JAR file, which should not happen for a release of IntelliJ"
+      )
   }
 
   def from(value: String): Resource = {
