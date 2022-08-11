@@ -319,7 +319,8 @@ def project(id: String, path: String, publish: Boolean): Project = {
         "-Ywarn-unused",
         "-deprecation",
         "-Ywarn-macros:after",
-        "-Wconf:msg=@nowarn annotation does not suppress any warnings:s" // due to false positive for IdeaLogInterceptor.scala
+        "-Wconf:msg=@nowarn annotation does not suppress any warnings:s", // due to false positive for IdeaLogInterceptor.scala
+        "-Xfatal-warnings"
       )
     )
     .settings(
