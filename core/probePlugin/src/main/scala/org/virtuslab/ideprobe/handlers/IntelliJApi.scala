@@ -87,7 +87,12 @@ trait IntelliJApi {
     }
 
     private def using[B <: AccessibleObject, C](accessible: B)(f: B => C): C = {
-      @nowarn // `isAccessible` is deprecated but `canAccess(Object obj)` is not obvious to implement - issue #244
+      /*
+      `isAccessible` is deprecated since jdk 9 but proposed `canAccess(Object obj)` exists since jdk 9.
+      In order to maintain compatibility for both jdk 1.8 and all newer versions of java and to NOT have
+      deprecation warning - @nowarn annotation has to be used.
+       */
+      @nowarn // as `isAccessible` is deprecated since jdk 9
       val isAccessible = accessible.isAccessible
       try {
         accessible.setAccessible(true)
