@@ -6,8 +6,12 @@ import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.nio.file.ProviderNotFoundException
 import java.util.zip.ZipInputStream
 
+import scala.util.Failure
+import scala.util.Success
+import scala.util.Try
 import scala.util.control.NonFatal
 
 import pureconfig.ConfigReader
@@ -64,8 +68,18 @@ object Resource extends ConfigFormat {
     def installTo(target: Path): Unit
 
     def rootEntries: List[String] = {
-      val fs = FileSystems.newFileSystem(path, this.getClass.getClassLoader)
-      Files.list(fs.getPath("/")).iterator.asScala.map(_.toString).toList
+      Try(FileSystems.newFileSystem(path, this.getClass.getClassLoader)) match {
+        case Success(fs) =>
+          Files.list(fs.getPath("/")).iterator.asScala.map(_.toString).toList
+        case Failure(_: ProviderNotFoundException) =>
+          throw new IllegalArgumentException(
+            s"""
+               |The path provided as the plugin path: $path is not valid.
+               |Make sure it points to the plugin file (or .zip archive) and NOT to a directory.""".stripMargin
+          )
+        case Failure(exception: Throwable) =>
+          throw new Exception(exception)
+      }
     }
   }
 
