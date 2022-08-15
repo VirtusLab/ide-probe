@@ -5,10 +5,18 @@ import java.nio.file.Path
 import java.util.stream.Collectors
 import java.util.stream.{Stream => JStream}
 
+import scala.concurrent.duration._
+
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe._
+import org.virtuslab.ideprobe.config.CheckConfig
+import org.virtuslab.ideprobe.config.CheckConfig.ErrorConfig
+import org.virtuslab.ideprobe.config.CheckConfig.FreezeConfig
 import org.virtuslab.ideprobe.config.DependenciesConfig
 import org.virtuslab.ideprobe.config.DriverConfig
+import org.virtuslab.ideprobe.config.DriverConfig.LaunchParameters
+import org.virtuslab.ideprobe.config.DriverConfig.ScreenConfig
+import org.virtuslab.ideprobe.config.DriverConfig.XvfbConfig
 import org.virtuslab.ideprobe.config.IntellijConfig
 import org.virtuslab.ideprobe.dependencies.Resource._
 import org.virtuslab.ideprobe.dependencies._
@@ -26,7 +34,7 @@ sealed trait IntelliJProvider {
 
   // This method differentiates plugins by their root entries in zip
   // assuming that plugins with same root entries are the same plugin
-  // and only installs last occurrance of such plugin in the list
+  // and only installs last occurrence of such plugin in the list
   // in case of duplicates.
   protected def installPlugins(
       dependencies: DependencyProvider,
@@ -69,7 +77,7 @@ final case class ExistingIntelliJ(
     paths: IdeProbePaths,
     config: DriverConfig
 ) extends IntelliJProvider {
-  override val version = IntelliJVersionResolver.version(path)
+  override val version: IntelliJVersion = IntelliJVersionResolver.version(path)
 
   override def withVersion(version: IntelliJVersion): IntelliJProvider =
     error("Cannot set version for existing IntelliJ instance")
@@ -153,7 +161,7 @@ final case class IntelliJFactory(
 }
 
 object IntelliJProvider {
-  val Default =
+  val Default: IntelliJFactory =
     IntelliJFactory(
       dependencies = new DependencyProvider(
         new IntelliJDependencyProvider(Seq(IntelliJZipResolver.community), ResourceProvider.Default),
@@ -163,7 +171,14 @@ object IntelliJProvider {
       plugins = Seq.empty,
       version = IntelliJVersion.Latest,
       paths = IdeProbePaths.Default,
-      config = DriverConfig()
+      config = DriverConfig( // TODO: replace DriverConfig parameters with loading defaults from reference.conf
+        launch = LaunchParameters(Seq.empty, 30.seconds),
+        check = CheckConfig(ErrorConfig(enabled = false, Seq(".*"), Seq.empty), FreezeConfig(false)),
+        xvfb = XvfbConfig(ScreenConfig(1920, 1080, 24)),
+        headless = false,
+        vmOptions = Seq.empty,
+        env = Map.empty
+      )
     )
 
   def from(

@@ -14,15 +14,14 @@ sealed trait IntellijConfig {
 }
 
 object IntellijConfig extends ConfigFormat {
-  def apply(): IntellijConfig = Default()
   case class Default(
-      version: IntelliJVersion = IntelliJVersion.Latest,
-      plugins: Seq[Plugin] = Seq.empty
+      version: IntelliJVersion,
+      plugins: Seq[Plugin]
   ) extends IntellijConfig
 
   case class Existing(
       path: Path,
-      plugins: Seq[Plugin] = Seq.empty
+      plugins: Seq[Plugin]
   ) extends IntellijConfig
 
   implicit val intelliJConfigReader: ConfigReader[IntellijConfig] = {

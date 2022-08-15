@@ -6,11 +6,11 @@ import pureconfig.generic.auto._
 import org.virtuslab.ideprobe.ConfigFormat
 
 case class IdeProbeConfig(
-    intellij: IntellijConfig = IntellijConfig(),
-    workspace: Option[WorkspaceConfig] = None,
-    resolvers: DependenciesConfig.Resolvers = DependenciesConfig.Resolvers(),
-    driver: DriverConfig = DriverConfig(),
-    paths: PathsConfig = PathsConfig()
+    intellij: IntellijConfig,
+    workspace: Option[WorkspaceConfig],
+    resolvers: DependenciesConfig.Resolvers,
+    driver: DriverConfig,
+    paths: PathsConfig
 )
 
 object IdeProbeConfig extends ConfigFormat {
