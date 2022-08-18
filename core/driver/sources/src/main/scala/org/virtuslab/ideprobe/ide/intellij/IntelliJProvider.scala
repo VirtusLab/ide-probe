@@ -153,12 +153,12 @@ final case class IntelliJFactory(
 }
 
 object IntelliJProvider {
-  val Default =
+  val Default: IntelliJFactory =
     IntelliJFactory(
       dependencies = new DependencyProvider(
         new IntelliJDependencyProvider(Seq(IntelliJZipResolver.community), ResourceProvider.Default),
         new PluginDependencyProvider(Seq(PluginResolver.Official), ResourceProvider.Default),
-        new JbrDependencyProvider(Seq(JbrResolvers.official), ResourceProvider.Default)
+        new JbrDependencyProvider(JbrResolvers.officialResolvers, ResourceProvider.Default)
       ),
       plugins = Seq.empty,
       version = IntelliJVersion.Latest,

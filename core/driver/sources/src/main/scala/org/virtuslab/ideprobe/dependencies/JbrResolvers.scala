@@ -11,19 +11,22 @@ import org.virtuslab.ideprobe.dependencies.Dependency.Missing
 import org.virtuslab.ideprobe.Extensions.PathExtension
 
 object JbrResolvers {
-  val official =
-    JbrPatternResolver(
-      "https://cache-redirector.jetbrains.com/intellij-jbr/jbr_dcevm-[major]-[platform]-x64-b[minor].tar.gz"
-    )
+  // The `jbr_dcevm` pattern applies only to versions of IntelliJ older than 2022.2 release, whereas
+  // `jbr` pattern applies to newer versions where DCEVM is bundled by default.
+  private val officialJbrVersionPatterns = Seq(
+    "https://cache-redirector.jetbrains.com/intellij-jbr/jbr_dcevm-[major]-[platform]-x64-b[minor].tar.gz",
+    "https://cache-redirector.jetbrains.com/intellij-jbr/jbr-[major]-[platform]-x64-b[minor].tar.gz"
+  )
+
+  val officialResolvers: Seq[JbrPatternResolver] = officialJbrVersionPatterns.map(JbrPatternResolver)
 
   def fromConfig(config: DependenciesConfig.Jbr): Seq[DependencyResolver[Path]] = {
-    val official = Seq(JbrResolvers.official)
     val fromConfig = config.repositories
       .flatMap(pattern =>
-        if (Set("official", "default").contains(pattern.toLowerCase)) official
+        if (Set("official", "default").contains(pattern.toLowerCase)) officialResolvers
         else Seq(JbrPatternResolver(pattern))
       )
-    if (fromConfig.isEmpty) official else fromConfig
+    if (fromConfig.isEmpty) officialResolvers else fromConfig
   }
 }
 
