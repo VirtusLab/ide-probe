@@ -247,7 +247,15 @@ class ProbeDriver(
   /**
    * Saves the current view of the IDE alongside the automatically captured screenshots with the specified name suffix
    */
-  def screenshot(nameSuffix: String = ""): Unit = send(Endpoints.TakeScreenshot, nameSuffix)
+  def screenshot(nameSuffix: String = ""): Unit = {
+    try {
+      send(Endpoints.TakeScreenshot, nameSuffix)
+    } catch {
+      case e: Exception =>
+        println("Failed to take a screenshot.")
+        e.printStackTrace()
+    }
+  }
 
   /**
    * Returns the sdk of the specified project
