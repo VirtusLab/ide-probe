@@ -8,8 +8,8 @@ import org.virtuslab.ideprobe.protocol.IdeMessage
 object ErrorValidator {
   def apply(config: CheckConfig, errors: Seq[IdeMessage]): Option[Exception] = {
     val filteredErrors = errors
-      .filter(ideMessageMatchesMessagesFromConfig(_, config.errors.includeMessages))
-      .filterNot(ideMessageMatchesMessagesFromConfig(_, config.errors.excludeMessages))
+      .filter(error => ideMessageMatchesMessagesFromConfig(error, config.errors.includeMessages))
+      .filterNot(error => ideMessageMatchesMessagesFromConfig(error, config.errors.excludeMessages))
     if (filteredErrors.isEmpty) None
     else {
       println(toString(filteredErrors))
@@ -21,9 +21,9 @@ object ErrorValidator {
   }
 
   private def ideMessageMatchesMessagesFromConfig(ideMessage: IdeMessage, messagesFromConfig: Seq[String]): Boolean =
-    messagesFromConfig.exists(configMessage => trimMultiLine(ideMessage.content).contains(trimMultiLine(configMessage)))
+    messagesFromConfig.exists(configMessage => trimEachLine(ideMessage.content).contains(trimEachLine(configMessage)))
 
-  private def trimMultiLine(s: String): String = s.split('\n').map(_.trim).mkString("\n")
+  private def trimEachLine(s: String): String = s.split('\n').map(_.trim).mkString("\n")
 
   private def toString(errors: Seq[IdeMessage]): String = {
     val sb = new mutable.StringBuilder()
