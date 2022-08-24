@@ -3,8 +3,8 @@ package report
 
 import scala.concurrent.duration._
 
-class ConsoleBenchmarkReporter[A] extends BenchmarkReporter[A] {
-  def report(suite: String, results: Seq[BenchmarkResult[A]]): Unit = {
+class ConsoleBenchmarkReporter extends BenchmarkReporter {
+  def report[A](suite: String, results: Seq[BenchmarkResult[A]]): Unit = {
     def toSeconds(time: Duration): String = (time.toMillis / 1e3).toString
     def toSecondsOpt(time: Option[Duration]): String = time.fold("None")(toSeconds)
 

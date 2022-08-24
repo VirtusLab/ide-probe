@@ -7,9 +7,9 @@ import java.nio.file.StandardOpenOption
 
 import scala.concurrent.duration._
 
-class CSVBenchmarkReporter[A] extends BenchmarkReporter[A] {
+class CSVBenchmarkReporter extends BenchmarkReporter {
 
-  def report(suite: String, results: Seq[BenchmarkResult[A]]): Unit = {
+  def report[A](suite: String, results: Seq[BenchmarkResult[A]]): Unit = {
     val output = Paths.get(s"$suite.csv")
 
     val headers = Seq(
