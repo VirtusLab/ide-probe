@@ -22,9 +22,9 @@ object Dependencies {
 
   val jGit = "org.eclipse.jgit" % "org.eclipse.jgit" % "6.2.0.202206071550-r"
 
-  val remoteRobot = "com.intellij.remoterobot" % "remote-robot" % "0.11.15"
+  val remoteRobot = "com.intellij.remoterobot" % "remote-robot" % "0.11.16"
 
-  val remoteRobotFixtures = "com.intellij.remoterobot" % "remote-fixtures" % "0.11.15"
+  val remoteRobotFixtures = "com.intellij.remoterobot" % "remote-fixtures" % "0.11.16"
 
   val gson = "com.google.code.gson" % "gson" % "2.9.1"
 
