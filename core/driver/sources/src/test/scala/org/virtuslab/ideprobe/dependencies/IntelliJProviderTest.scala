@@ -19,7 +19,7 @@ final class IntelliJProviderTest {
   private implicit val ec: ExecutionContext = ExecutionContext.fromExecutorService(Executors.newCachedThreadPool())
 
   @Test
-  def intelliJProviderShouldBeAbleToCorrectlyReadTheExistingInstanceVersion: Unit = givenInstalledIntelliJ {
+  def intelliJProviderShouldBeAbleToCorrectlyReadTheExistingInstanceVersion(): Unit = givenInstalledIntelliJ {
     installationRoot =>
       // when trying to read the installed instance's version
       val intelliJVersion = IntelliJVersionResolver.version(installationRoot)
@@ -32,7 +32,7 @@ final class IntelliJProviderTest {
   }
 
   @Test
-  def existingIntelliJShouldNotBeDeletedDuringCleanup: Unit = givenInstalledIntelliJ { installationRoot =>
+  def existingIntelliJShouldNotBeDeletedDuringCleanup(): Unit = givenInstalledIntelliJ { installationRoot =>
     val config = Config.fromString(s"""
       |probe.intellij {
       |    path = $installationRoot
@@ -55,7 +55,7 @@ final class IntelliJProviderTest {
   }
 
   @Test
-  def shouldInstallIntellijFromExtractedRepository: Unit = givenInstalledIntelliJ { installationRoot =>
+  def shouldInstallIntellijFromExtractedRepository(): Unit = givenInstalledIntelliJ { installationRoot =>
     val build = IntelliJVersion.Latest.build
     val installationPattern = installationRoot.toString.replace(build, "[revision]")
     installationRoot.resolve("dependencies.txt").delete()
@@ -81,7 +81,7 @@ final class IntelliJProviderTest {
   }
 
   @Test
-  def existingIntelliJShouldRetainItsOriginalPluginsDuringCleanup: Unit = givenInstalledIntelliJ { installationRoot =>
+  def existingIntelliJShouldRetainItsOriginalPluginsDuringCleanup(): Unit = givenInstalledIntelliJ { installationRoot =>
     // given a pre-installed IntelliJ and an IntelliJProvider
     val preInstalledPlugins = installationRoot.resolve("plugins").directChildren().toSet
 

@@ -6,23 +6,23 @@ import org.virtuslab.ideprobe.config.DriverConfig.LaunchParameters
 import org.virtuslab.ideprobe.config.DriverConfig.XvfbConfig
 
 case class DriverConfig(
-    launch: LaunchParameters = LaunchParameters(),
-    check: CheckConfig = CheckConfig(),
-    xvfb: XvfbConfig = XvfbConfig(),
-    headless: Boolean = false,
-    vmOptions: Seq[String] = Nil,
-    env: Map[String, String] = Map.empty
+    launch: LaunchParameters,
+    check: CheckConfig,
+    xvfb: XvfbConfig,
+    headless: Boolean,
+    vmOptions: Seq[String],
+    env: Map[String, String]
 )
 
 object DriverConfig {
   case class LaunchParameters(
-      command: Seq[String] = Nil,
-      timeout: FiniteDuration = 30.seconds
+      command: Seq[String],
+      timeout: FiniteDuration
   )
-  case class XvfbConfig(screen: ScreenConfig = ScreenConfig())
+  case class XvfbConfig(screen: ScreenConfig)
   case class ScreenConfig(
-      width: Int = 1920,
-      height: Int = 1080,
-      depth: Int = 24
+      width: Int,
+      height: Int,
+      depth: Int
   )
 }

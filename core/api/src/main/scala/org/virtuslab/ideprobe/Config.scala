@@ -52,17 +52,17 @@ final case class Config(source: ConfigObjectSource, fallback: Option[Config] = N
 object Config {
   val Empty = new Config(ConfigSource.empty)
 
-  def fromString(str: String) = new Config(ConfigSource.string(str))
+  def fromString(str: String) = new Config(ConfigSource.default(ConfigSource.string(str)))
 
   def fromFile(path: Path): Config = {
-    new Config(ConfigSource.file(path))
+    new Config(ConfigSource.default(ConfigSource.file(path)))
   }
 
   def fromClasspath(resourcePath: String): Config = {
-    new Config(ConfigSource.resources(resourcePath))
+    new Config(ConfigSource.default(ConfigSource.resources(resourcePath)))
   }
 
   def fromMap(properties: Map[String, String]): Config = {
-    new Config(ConfigSource.fromConfig(ConfigFactory.parseMap(properties.asJava)))
+    new Config(ConfigSource.default(ConfigSource.fromConfig(ConfigFactory.parseMap(properties.asJava))))
   }
 }

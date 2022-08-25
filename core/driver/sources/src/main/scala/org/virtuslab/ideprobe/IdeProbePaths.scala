@@ -16,7 +16,8 @@ case class IdeProbePaths(
 
 object IdeProbePaths {
   val Default: IdeProbePaths = {
-    from(PathsConfig())
+    // TODO: replace None parameters with loading defaults from reference.conf
+    from(PathsConfig(None, None, None, None, None, None))
   }
 
   def from(config: PathsConfig): IdeProbePaths = {
