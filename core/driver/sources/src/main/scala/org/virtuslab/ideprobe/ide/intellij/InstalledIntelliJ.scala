@@ -159,7 +159,7 @@ sealed abstract class InstalledIntelliJ(root: Path, probePaths: IdeProbePaths, c
           printBuffer(buffer, "intellij-stdout")
       }
 
-      private def printBuffer(buffer: ByteBuffer, tag: String) = {
+      private def printBuffer(buffer: ByteBuffer, tag: String): Unit = {
         val bytes = new Array[Byte](buffer.remaining)
         buffer.get(bytes)
         val output = new String(bytes)
@@ -219,5 +219,20 @@ final class DownloadedIntelliJ(
   override val ideaProperties: Path =
     root.resolve("bin").resolve("idea.properties").write(ideaPropertiesContent)
 
-  override def cleanup(): Unit = root.delete()
+  override def cleanup(): Unit = {
+    probePaths.diagnostics match {
+      case Some(path) =>
+        root
+          .resolve("logs")
+          .copyDir(path.resolve(getPathWithVersionNumber(root).getFileName).resolve("logs"))
+        root.delete()
+      case None =>
+        root.delete()
+    }
+    root.delete()
+  }
+
+  private def getPathWithVersionNumber(intellijRootPath: Path): Path =
+    if (intellijRootPath.getFileName.toString == "Contents") intellijRootPath.getParent else intellijRootPath
+
 }

@@ -8,5 +8,6 @@ case class PathsConfig(
     workspaces: Option[Path],
     screenshots: Option[Path],
     cache: Option[Path],
-    trusted: Option[Path]
+    trusted: Option[Path],
+    diagnostics: Option[Path]
 )

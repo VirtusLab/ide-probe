@@ -11,13 +11,14 @@ case class IdeProbePaths(
     workspaces: Path,
     screenshots: Path,
     cache: Path,
-    trusted: Path
+    trusted: Path,
+    diagnostics: Option[Path]
 )
 
 object IdeProbePaths {
   val Default: IdeProbePaths = {
     // TODO: replace None parameters with loading defaults from reference.conf
-    from(PathsConfig(None, None, None, None, None, None))
+    from(PathsConfig(None, None, None, None, None, None, None))
   }
 
   def from(config: PathsConfig): IdeProbePaths = {
@@ -27,7 +28,8 @@ object IdeProbePaths {
     val screenshotsPath = config.screenshots.getOrElse(basePath.resolve("screenshots"))
     val cachePath = config.cache.getOrElse(basePath.resolve("cache"))
     val trustedPath = config.trusted.getOrElse(Paths.get("/"))
+    val diagnosticsOption = config.diagnostics
 
-    IdeProbePaths(basePath, instancesPath, workspacesPath, screenshotsPath, cachePath, trustedPath)
+    IdeProbePaths(basePath, instancesPath, workspacesPath, screenshotsPath, cachePath, trustedPath, diagnosticsOption)
   }
 }
