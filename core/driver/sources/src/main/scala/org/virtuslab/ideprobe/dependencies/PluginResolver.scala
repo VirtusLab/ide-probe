@@ -5,7 +5,8 @@ import org.virtuslab.ideprobe.dependencies.Plugin._
 import org.virtuslab.ideprobe.error
 
 object PluginResolver {
-  val Official = PluginResolver("https://plugins.jetbrains.com/plugin/download")
+  // TODO (#253): replace Official with a default value in reference.conf - `probe.resolvers.plugins.repository.uri`
+  val Official: DependencyResolver[Plugin] = PluginResolver("https://plugins.jetbrains.com/plugin/download")
 
   def apply(uri: String): DependencyResolver[Plugin] = {
     new Resolver(uri)

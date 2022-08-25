@@ -2,10 +2,10 @@ package org.virtuslab.ideprobe.config
 
 object DependenciesConfig {
   case class Resolvers(
-      intellij: IntelliJ = IntelliJ(Seq.empty),
-      plugins: Plugins = Plugins(None),
-      jbr: Jbr = Jbr(Seq.empty),
-      retries: Int = 0
+      intellij: IntelliJ,
+      plugins: Plugins,
+      jbr: Jbr,
+      retries: Int
   )
 
   case class IntelliJ(repositories: Seq[String])
