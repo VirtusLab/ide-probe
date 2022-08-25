@@ -23,7 +23,7 @@ object ErrorValidator {
   private def ideMessageMatchesMessagesFromConfig(ideMessage: IdeMessage, messagesFromConfig: Seq[String]): Boolean =
     messagesFromConfig.exists { configMessage =>
       trimEachLine(ideMessage.content).contains(trimEachLine(configMessage)) ||
-        configMessage.r.findFirstIn(ideMessage.content).nonEmpty
+      configMessage.r.findFirstIn(ideMessage.content).nonEmpty
     }
 
   private def trimEachLine(s: String): String = s.split('\n').map(_.trim).mkString("\n")
