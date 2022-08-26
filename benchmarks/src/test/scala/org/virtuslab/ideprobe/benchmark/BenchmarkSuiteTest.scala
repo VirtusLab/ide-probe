@@ -25,8 +25,8 @@ final class BenchmarkSuiteTest {
 
     val result = "test result"
     val benchmarks = List(new TestBenchmark("test", result))
-    BenchmarkSuite("open-project", benchmarks).run(new BenchmarkReporter {
-      override def report[B](name: String, results: Seq[BenchmarkResult[B]]): Unit = {
+    BenchmarkSuite("open-project", benchmarks).run(new BenchmarkReporter[String] {
+      override def report(name: String, results: Seq[BenchmarkResult[String]]): Unit = {
         assertEquals(Seq(result), results.head.customData)
       }
     })
@@ -35,9 +35,9 @@ final class BenchmarkSuiteTest {
   @Test
   def simpleBenchmarkWithoutCustomData(): Unit = {
 
-    val benchmarks = List(new TestBenchmark("test", ()))
-    BenchmarkSuite("open-project", benchmarks).run(new BenchmarkReporter {
-      override def report[B](name: String, results: Seq[BenchmarkResult[B]]): Unit = {
+    val benchmarks = List(new TestBenchmark[String]("test", ""))
+    BenchmarkSuite[String]("open-project", benchmarks).run(new BenchmarkReporter[String] {
+      override def report(name: String, results: Seq[BenchmarkResult[String]]): Unit = {
         assertEquals(Seq.empty, results.head.customData)
       }
     })

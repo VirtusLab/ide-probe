@@ -2,20 +2,16 @@ package org.virtuslab.ideprobe.dependencies
 
 import java.nio.file.Path
 import java.util.concurrent.Executors
-
 import scala.concurrent.ExecutionContext
-
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-
-import org.virtuslab.ideprobe.Config
+import org.virtuslab.ideprobe.{Config, IdeProbeFixture, IntelliJFixture}
 import org.virtuslab.ideprobe.Extensions._
-import org.virtuslab.ideprobe.IntelliJFixture
 import org.virtuslab.ideprobe.ide.intellij.IntelliJProvider
 
 @RunWith(classOf[JUnit4])
-final class IntelliJProviderTest {
+final class IntelliJProviderTest extends IdeProbeFixture {
   private implicit val ec: ExecutionContext = ExecutionContext.fromExecutorService(Executors.newCachedThreadPool())
 
   @Test
@@ -41,6 +37,8 @@ final class IntelliJProviderTest {
       |""".stripMargin)
 
     val fixture = IntelliJFixture.fromConfig(config)
+      .withPlugin(Plugin("org.intellij.scala", "2020.2.7"))
+      .enableExtensions
 
     val existingInstalledIntelliJ = fixture.installIntelliJ()
 
@@ -89,7 +87,7 @@ final class IntelliJProviderTest {
       |probe.intellij {
       |    path = $installationRoot
       |    plugins = [
-      |      { id = "org.intellij.scala", version = "2020.1.27" }
+      |      { id = "org.intellij.scala", version = "2020.3.369", channel = "nightly" }
       |    ]
       |  }
       |""".stripMargin)

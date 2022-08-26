@@ -64,14 +64,18 @@ abstract class BaseDependencyProvider[A](
 ) {
 
   def fetchOpt(key: A): Option[Path] = {
-    if (resolvers.isEmpty) None else fetch(key)
+    val noResolvers = Option.empty[Path]
+    resolvers
+      .foldLeft(noResolvers) { (result, resolver) =>
+        result.orElse(Try(resolve(key, resolver)).toOption.flatten)
+      }
   }
 
-  def fetch(key: A): Option[Path] = {
-    val noResolversError = Try[Option[Path]](error("Dependency resolver list is empty"))
+  def fetch(key: A): Path = {
+    val noResolversError = Try[Path](error("Dependency resolver list is empty"))
     resolvers
       .foldLeft(noResolversError) { (result, resolver) =>
-        result.orElse(Try(resolve(key, resolver)))
+        result.orElse(Try(resolve(key, resolver).get))
       }
       .get
   }

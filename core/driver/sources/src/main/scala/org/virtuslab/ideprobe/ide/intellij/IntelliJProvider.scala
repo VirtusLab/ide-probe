@@ -41,7 +41,7 @@ sealed trait IntelliJProvider {
 
     val targetDir = intelliJ.paths.bundledPlugins
     val archives = withParallel[Plugin, PluginArchive](allPlugins)(_.map { plugin =>
-      val fileOpt = dependencies.plugin.fetch(plugin)
+      val fileOpt = dependencies.plugin.fetchOpt(plugin)
       fileOpt match {
         case Some(file) => PluginArchive(plugin, file.toExtracted)
         case _          => error("Plugin archive not found")
@@ -150,7 +150,7 @@ final case class IntelliJFactory(
 
   private def installIntelliJ(version: IntelliJVersion, root: Path): Unit = {
     println(s"Installing $version")
-    val fileOpt = dependencies.intelliJ.fetch(version)
+    val fileOpt = dependencies.intelliJ.fetchOpt(version)
     fileOpt match {
       case Some(file) =>
         file.toExtracted.installTo(root)
