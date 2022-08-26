@@ -230,6 +230,14 @@ final class DownloadedIntelliJ(
         root.delete()
     }
 
+  /*
+  Method below helps receive the path of the intellij instance directory which contains intellij version number
+  int its string representation. It might be useful for scenarios, where tests run on multiple intellij versions.
+  In such cases users will have diagnostics data grouped by intellij versions. The `if` expression is needed as
+  for now the `intellijRootPath` might have different structure, like in examples below:
+  a) /.../intellij-instance-2022.2.1--T3ySdgShSvyr87HNoJq-oQ/    -> for Linux-based OS
+  b) /.../intellij-instance-2022.2.1--T3ySdgShSvyr87HNoJq-oQ/Contents    -> for macOs
+   */
   private def getPathWithVersionNumber(intellijRootPath: Path): Path =
     if (intellijRootPath.getFileName.toString == "Contents") intellijRootPath.getParent else intellijRootPath
 
