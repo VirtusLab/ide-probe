@@ -28,8 +28,8 @@ object IdeProbePaths {
     val screenshotsPath = config.screenshots.getOrElse(basePath.resolve("screenshots"))
     val cachePath = config.cache.getOrElse(basePath.resolve("cache"))
     val trustedPath = config.trusted.getOrElse(Paths.get("/"))
-    val diagnosticsOption = config.diagnostics
+    val diagnosticsPath = config.diagnostics
 
-    IdeProbePaths(basePath, instancesPath, workspacesPath, screenshotsPath, cachePath, trustedPath, diagnosticsOption)
+    IdeProbePaths(basePath, instancesPath, workspacesPath, screenshotsPath, cachePath, trustedPath, diagnosticsPath)
   }
 }

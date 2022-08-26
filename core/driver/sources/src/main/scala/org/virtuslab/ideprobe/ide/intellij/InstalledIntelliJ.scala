@@ -219,7 +219,7 @@ final class DownloadedIntelliJ(
   override val ideaProperties: Path =
     root.resolve("bin").resolve("idea.properties").write(ideaPropertiesContent)
 
-  override def cleanup(): Unit = {
+  override def cleanup(): Unit =
     probePaths.diagnostics match {
       case Some(path) =>
         root
@@ -229,8 +229,6 @@ final class DownloadedIntelliJ(
       case None =>
         root.delete()
     }
-    root.delete()
-  }
 
   private def getPathWithVersionNumber(intellijRootPath: Path): Path =
     if (intellijRootPath.getFileName.toString == "Contents") intellijRootPath.getParent else intellijRootPath

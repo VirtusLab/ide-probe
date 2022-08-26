@@ -92,14 +92,23 @@ final class SingleRunFixtureTest extends IdeProbeFixture with WorkspaceFixture w
 
   @Test
   def copiesDiagnosticsDataIntoConfiguredDirectoryBeforeCleanup(): Unit = {
-    val config = Config.fromString("""probe.paths.diagnostics = "/tmp/ide-probe-test"""")
+    val tmpDirString = "/tmp/ide-probe-test"
+    val config = Config.fromString(s"""probe.paths.diagnostics = $tmpDirString""")
     val fixtureFromConfig = IntelliJFixture.fromConfig(config)
     val diagnosticsFixture = new SingleRunIntelliJ(fixtureFromConfig)
 
-    diagnosticsFixture { runningIntellijFixture =>
-      // nothing special to be done here
+    diagnosticsFixture { _ =>
+      // nothing special to be done here, invoked just for cleanup
     }
 
-    assertTrue(Paths.get(s"/tmp/ide-probe-test").directChildren().nonEmpty)
+    val filesAndDirsFromDiagnosticsDirectory = Paths.get(tmpDirString).recursiveChildren()
+
+    assertTrue(filesAndDirsFromDiagnosticsDirectory.exists { path =>
+      path.getFileName.toString == "logs" && path.isDirectory && path.directChildren().nonEmpty
+    })
+    assertTrue(filesAndDirsFromDiagnosticsDirectory.exists { path =>
+      path.getFileName.toString == "idea.log" && path.content().nonEmpty
+    })
   }
+
 }
