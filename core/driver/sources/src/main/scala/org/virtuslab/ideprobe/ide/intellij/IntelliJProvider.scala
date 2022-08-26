@@ -158,7 +158,7 @@ object IntelliJProvider {
       dependencies = new DependencyProvider(
         new IntelliJDependencyProvider(Seq(IntelliJZipResolver.community), ResourceProvider.Default),
         new PluginDependencyProvider(Seq(PluginResolver.Official), ResourceProvider.Default),
-        new JbrDependencyProvider(JbrResolvers.officialResolvers, ResourceProvider.Default)
+        new JbrDependencyProvider(JbrResolvers.official, ResourceProvider.Default)
       ),
       plugins = Seq.empty,
       version = IntelliJVersion.Latest,

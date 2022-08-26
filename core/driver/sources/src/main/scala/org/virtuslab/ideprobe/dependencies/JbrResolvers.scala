@@ -24,15 +24,15 @@ object JbrResolvers {
     "https://cache-redirector.jetbrains.com/intellij-jbr/jbr-[major]-[platform]-x64-b[minor].tar.gz"
   )
 
-  val officialResolvers: Seq[JbrPatternResolver] = officialJbrVersionPatterns.map(JbrPatternResolver)
+  val official: Seq[JbrPatternResolver] = officialJbrVersionPatterns.map(JbrPatternResolver)
 
   def fromConfig(config: DependenciesConfig.Jbr): Seq[DependencyResolver[Path]] = {
     val fromConfig = config.repositories
       .flatMap(pattern =>
-        if (Set("official", "default").contains(pattern.toLowerCase)) officialResolvers
+        if (Set("official", "default").contains(pattern.toLowerCase)) official
         else Seq(JbrPatternResolver(pattern))
       )
-    if (fromConfig.isEmpty) officialResolvers else fromConfig
+    if (fromConfig.isEmpty) official else fromConfig
   }
 }
 
