@@ -2,6 +2,7 @@ package org.virtuslab.ideprobe.dependencies
 
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
 
 import scala.concurrent.Await
@@ -14,6 +15,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 import org.virtuslab.ideprobe.Assertions
+import org.virtuslab.ideprobe.Config
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.IdeProbeFixture
 import org.virtuslab.ideprobe.IntelliJFixture
@@ -86,5 +88,18 @@ final class SingleRunFixtureTest extends IdeProbeFixture with WorkspaceFixture w
       s"Expected workspaces directory cleanup, but ${workspacesNotDeleted.mkString(",")} were not removed",
       workspacesNotDeleted.isEmpty
     )
+  }
+
+  @Test
+  def copiesDiagnosticsDataIntoConfiguredDirectoryBeforeCleanup(): Unit = {
+    val config = Config.fromString("""probe.paths.diagnostics = "/tmp/ide-probe-test"""")
+    val fixtureFromConfig = IntelliJFixture.fromConfig(config)
+    val diagnosticsFixture = new SingleRunIntelliJ(fixtureFromConfig)
+
+    diagnosticsFixture { runningIntellijFixture =>
+      // nothing special to be done here
+    }
+
+    assertTrue(Paths.get(s"/tmp/ide-probe-test").directChildren().nonEmpty)
   }
 }
