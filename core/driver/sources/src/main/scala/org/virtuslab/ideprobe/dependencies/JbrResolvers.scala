@@ -11,13 +11,22 @@ import org.virtuslab.ideprobe.dependencies.Dependency.Missing
 import org.virtuslab.ideprobe.Extensions.PathExtension
 
 object JbrResolvers {
-  val official =
-    JbrPatternResolver(
-      "https://cache-redirector.jetbrains.com/intellij-jbr/jbr_dcevm-[major]-[platform]-x64-b[minor].tar.gz"
-    )
+  /*
+  The `jbr_dcevm` pattern applies only to versions of IntelliJ older than 2022.2 release, whereas
+  `jbr` pattern applies to newer versions where DCEVM is bundled by default.
+  Another important note: currently we are using only JBR packages with `x64` architecture support. During tests
+  it turned out that using `aarch64` packages on processors with `aarch64` architecture (Mac M1 Pro chip) results
+  in "Cannot load JVM bundle:" error. For some reason only `x64` packages work well (both for `x64` and `aarch64`
+  processor architectures). Hence `x64` should stay hardcoded in the `officialJbrVersionPatterns` elements.
+   */
+  private val officialJbrVersionPatterns = Seq(
+    "https://cache-redirector.jetbrains.com/intellij-jbr/jbr_dcevm-[major]-[platform]-x64-b[minor].tar.gz",
+    "https://cache-redirector.jetbrains.com/intellij-jbr/jbr-[major]-[platform]-x64-b[minor].tar.gz"
+  )
+
+  val official: Seq[JbrPatternResolver] = officialJbrVersionPatterns.map(JbrPatternResolver)
 
   def fromConfig(config: DependenciesConfig.Jbr): Seq[DependencyResolver[Path]] = {
-    val official = Seq(JbrResolvers.official)
     val fromConfig = config.repositories
       .flatMap(pattern =>
         if (Set("official", "default").contains(pattern.toLowerCase)) official
