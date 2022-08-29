@@ -9,5 +9,5 @@ case class PathsConfig(
     screenshots: Option[Path],
     cache: Option[Path],
     trusted: Option[Path],
-    diagnostics: Option[Path]
+    logExport: Option[Path]
 )

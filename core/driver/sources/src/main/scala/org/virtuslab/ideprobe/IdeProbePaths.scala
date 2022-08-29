@@ -12,7 +12,7 @@ case class IdeProbePaths(
     screenshots: Path,
     cache: Path,
     trusted: Path,
-    diagnostics: Option[Path]
+    logExport: Option[Path]
 )
 
 object IdeProbePaths {
@@ -28,8 +28,8 @@ object IdeProbePaths {
     val screenshotsPath = config.screenshots.getOrElse(basePath.resolve("screenshots"))
     val cachePath = config.cache.getOrElse(basePath.resolve("cache"))
     val trustedPath = config.trusted.getOrElse(Paths.get("/"))
-    val diagnosticsPath = config.diagnostics
+    val logExportPath = config.logExport
 
-    IdeProbePaths(basePath, instancesPath, workspacesPath, screenshotsPath, cachePath, trustedPath, diagnosticsPath)
+    IdeProbePaths(basePath, instancesPath, workspacesPath, screenshotsPath, cachePath, trustedPath, logExportPath)
   }
 }

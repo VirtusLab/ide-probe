@@ -36,7 +36,7 @@ class PathsConfigTest {
       Paths.get("/screenshots"),
       Paths.get("/cache"),
       Paths.get("/trusted"),
-      diagnostics = None
+      logExport = None
     )
 
     assertEquals(expected, fixture.probePaths)
@@ -59,7 +59,7 @@ class PathsConfigTest {
       basePath.resolve("screenshots"),
       basePath.resolve("cache"),
       Paths.get("/"),
-      diagnostics = None
+      logExport = None
     )
 
     assertEquals(expected, fixture.probePaths)
@@ -78,15 +78,15 @@ class PathsConfigTest {
       basePath.resolve("screenshots"),
       basePath.resolve("cache"),
       Paths.get("/"),
-      diagnostics = None
+      logExport = None
     )
 
     assertEquals(expected, fixture.probePaths)
   }
 
   @Test
-  def createsDiagnosticsDirIfConfigured(): Unit = {
-    val config = Config.fromString("""probe.paths.diagnostics = "/tmp/ide-probe-test"""")
+  def createsLogExportDirIfConfigured(): Unit = {
+    val config = Config.fromString("""probe.paths.logExport = "/tmp/ide-probe-test"""")
     val fixture = IntelliJFixture.fromConfig(config)
     val basePath = Paths.get(System.getProperty("java.io.tmpdir")).resolve("ide-probe")
     val expected = IdeProbePaths(
@@ -96,7 +96,7 @@ class PathsConfigTest {
       basePath.resolve("screenshots"),
       basePath.resolve("cache"),
       Paths.get("/"),
-      diagnostics = Some(Paths.get("/tmp/ide-probe-test"))
+      logExport = Some(Paths.get("/tmp/ide-probe-test"))
     )
 
     assertEquals(expected, fixture.probePaths)
