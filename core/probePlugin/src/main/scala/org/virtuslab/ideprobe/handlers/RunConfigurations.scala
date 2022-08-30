@@ -84,6 +84,11 @@ object RunConfigurations extends IntelliJApi {
     }
     val selectedConfiguration = producer.getConfigurationSettings
 
+    val runManager = RunManager.getInstance(project)
+
+    runManager.setTemporaryConfiguration(selectedConfiguration)
+    runManager.setSelectedConfiguration(selectedConfiguration)
+
     shortenCommandLine.foreach { cmdline =>
       selectedConfiguration.getConfiguration match {
         case c: JavaTestConfigurationBase =>
@@ -190,11 +195,6 @@ object RunConfigurations extends IntelliJApi {
     dataContext.put(Location.DATA_KEY, location)
 
     val configurationContext = ConfigurationContext.getFromContext(dataContext)
-    val runManager = configurationContext.getRunManager.asInstanceOf[RunManagerEx]
-    val configurationFromContext = read { configurationContext.getConfiguration }
-
-    runManager.setTemporaryConfiguration(configurationFromContext)
-    runManager.setSelectedConfiguration(configurationFromContext)
 
     waitForSmartMode(project)
     val configurations = read { configurationContext.getConfigurationsFromContext }
