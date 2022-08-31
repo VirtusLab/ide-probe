@@ -219,16 +219,12 @@ final class DownloadedIntelliJ(
   override val ideaProperties: Path =
     root.resolve("bin").resolve("idea.properties").write(ideaPropertiesContent)
 
-  override def cleanup(): Unit =
-    probePaths.logExport match {
-      case Some(path) =>
-        root
-          .resolve("logs")
-          .copyDir(path.resolve(getPathWithVersionNumber(root).getFileName).resolve("logs"))
-        root.delete()
-      case None =>
-        root.delete()
+  override def cleanup(): Unit = {
+    probePaths.logExport.foreach { path =>
+      paths.logs.copyDir(path.resolve(getPathWithVersionNumber(root).getFileName).resolve("logs"))
     }
+    root.delete()
+  }
 
   /*
   Method below helps receive the path of the intellij instance directory. This path contains intellij version number
@@ -239,6 +235,6 @@ final class DownloadedIntelliJ(
   b) /.../intellij-instance-2022.2.1--T3ySdgShSvyr87HNoJq-oQ/Contents    -> for macOs
    */
   private def getPathWithVersionNumber(intellijRootPath: Path): Path =
-    if (intellijRootPath.getFileName.toString == "Contents") intellijRootPath.getParent else intellijRootPath
+    if (intellijRootPath.name == "Contents") intellijRootPath.getParent else intellijRootPath
 
 }

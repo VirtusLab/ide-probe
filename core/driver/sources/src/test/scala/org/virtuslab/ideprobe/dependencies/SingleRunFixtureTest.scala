@@ -104,10 +104,10 @@ final class SingleRunFixtureTest extends IdeProbeFixture with WorkspaceFixture w
     val filesAndDirsFromLogExportDirectory = Paths.get(tmpDirString).recursiveChildren()
 
     assertTrue(filesAndDirsFromLogExportDirectory.exists { path =>
-      path.getFileName.toString == "logs" && path.isDirectory && path.directChildren().nonEmpty
+      path.name == "logs" && path.isDirectory && path.directChildren().nonEmpty
     })
     assertTrue(filesAndDirsFromLogExportDirectory.exists { path =>
-      path.getFileName.toString == "idea.log" && path.content().nonEmpty
+      path.name == "idea.log" && path.content().nonEmpty
     })
   }
 
