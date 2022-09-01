@@ -11,12 +11,18 @@ import org.junit.runners.JUnit4
 
 import org.virtuslab.ideprobe.Config
 import org.virtuslab.ideprobe.Extensions._
+import org.virtuslab.ideprobe.IdeProbePaths
 import org.virtuslab.ideprobe.IntelliJFixture
 import org.virtuslab.ideprobe.ide.intellij.IntelliJProvider
 
 @RunWith(classOf[JUnit4])
 final class IntelliJProviderTest {
   private implicit val ec: ExecutionContext = ExecutionContext.fromExecutorService(Executors.newCachedThreadPool())
+
+  private val probeConfig = IntelliJFixture
+    .readIdeProbeConfig(Config.fromClasspath("reference.conf"), "probe")
+  private val defaultIntellijProvider = IntelliJProvider
+    .from(probeConfig.intellij, probeConfig.resolvers, IdeProbePaths.from(probeConfig.paths), probeConfig.driver)
 
   @Test
   def intelliJProviderShouldBeAbleToCorrectlyReadTheExistingInstanceVersion(): Unit = givenInstalledIntelliJ {
@@ -26,8 +32,8 @@ final class IntelliJProviderTest {
 
       // then
       assert(
-        intelliJVersion.build == IntelliJProvider.Default.version.build,
-        s"Expected ${IntelliJProvider.Default.version}, but got $intelliJVersion."
+        intelliJVersion.build == defaultIntellijProvider.version.build,
+        s"Expected ${defaultIntellijProvider.version}, but got $intelliJVersion."
       )
   }
 
@@ -116,7 +122,7 @@ final class IntelliJProviderTest {
   }
 
   private def givenInstalledIntelliJ(test: Path => Unit): Unit = {
-    val preInstalledIntelliJ = IntelliJProvider.Default.setup()
+    val preInstalledIntelliJ = defaultIntellijProvider.setup()
     val installationRoot = preInstalledIntelliJ.paths.root
     preInstalledIntelliJ.paths.bundledPlugins
       .resolve("ideprobe")

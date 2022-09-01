@@ -5,18 +5,10 @@ import java.nio.file.Path
 import java.util.stream.Collectors
 import java.util.stream.{Stream => JStream}
 
-import scala.concurrent.duration._
-
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe._
-import org.virtuslab.ideprobe.config.CheckConfig
-import org.virtuslab.ideprobe.config.CheckConfig.ErrorConfig
-import org.virtuslab.ideprobe.config.CheckConfig.FreezeConfig
 import org.virtuslab.ideprobe.config.DependenciesConfig
 import org.virtuslab.ideprobe.config.DriverConfig
-import org.virtuslab.ideprobe.config.DriverConfig.LaunchParameters
-import org.virtuslab.ideprobe.config.DriverConfig.ScreenConfig
-import org.virtuslab.ideprobe.config.DriverConfig.XvfbConfig
 import org.virtuslab.ideprobe.config.IntellijConfig
 import org.virtuslab.ideprobe.dependencies.Resource._
 import org.virtuslab.ideprobe.dependencies._
@@ -161,26 +153,6 @@ final case class IntelliJFactory(
 }
 
 object IntelliJProvider {
-  val Default: IntelliJFactory =
-    IntelliJFactory(
-      dependencies = new DependencyProvider(
-        new IntelliJDependencyProvider(Seq(IntelliJZipResolver.community), ResourceProvider.Default),
-        new PluginDependencyProvider(Seq(PluginResolver.Official), ResourceProvider.Default),
-        new JbrDependencyProvider(JbrResolvers.official, ResourceProvider.Default)
-      ),
-      plugins = Seq.empty,
-      version = IntelliJVersion.Latest,
-      paths = IdeProbePaths.Default,
-      config = DriverConfig( // TODO: replace DriverConfig parameters with loading defaults from reference.conf
-        launch = LaunchParameters(Seq.empty, 30.seconds),
-        check = CheckConfig(ErrorConfig(enabled = false, Seq(".*"), Seq.empty), FreezeConfig(false)),
-        xvfb = XvfbConfig(ScreenConfig(1920, 1080, 24)),
-        headless = false,
-        vmOptions = Seq.empty,
-        env = Map.empty
-      )
-    )
-
   def from(
       intelliJConfig: IntellijConfig,
       resolversConfig: DependenciesConfig.Resolvers,
