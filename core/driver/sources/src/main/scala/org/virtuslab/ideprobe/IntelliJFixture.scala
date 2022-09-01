@@ -14,8 +14,8 @@ import org.virtuslab.ideprobe.ide.intellij.IntelliJProvider
 import org.virtuslab.ideprobe.ide.intellij.RunningIde
 
 final case class IntelliJFixture(
-    workspaceProvider: WorkspaceProvider = WorkspaceTemplate.Empty,
-    intelliJProvider: IntelliJProvider = IntelliJProvider.Default,
+    workspaceProvider: WorkspaceProvider = WorkspaceTemplate.Empty, // TODO - can we get rid of it ??
+    intelliJProvider: IntelliJProvider,
     config: Config = Config.Empty,
     afterWorkspaceSetup: Seq[(IntelliJFixture, Path) => Unit] = Nil,
     afterIntelliJInstall: Seq[(IntelliJFixture, InstalledIntelliJ) => Unit] = Nil,

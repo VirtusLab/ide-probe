@@ -14,6 +14,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 import org.virtuslab.ideprobe.Assertions
+import org.virtuslab.ideprobe.Config
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.IdeProbeFixture
 import org.virtuslab.ideprobe.IntelliJFixture
@@ -23,7 +24,8 @@ import org.virtuslab.ideprobe.SingleRunIntelliJ
 
 @RunWith(classOf[JUnit4])
 final class SingleRunFixtureTest extends IdeProbeFixture with WorkspaceFixture with Assertions {
-  private val fixture = new SingleRunIntelliJ(IntelliJFixture())
+  private val defaultIntelliJFixture = IntelliJFixture.fromConfig(Config.fromClasspath("reference.conf"))
+  private val fixture = new SingleRunIntelliJ(defaultIntelliJFixture)
 
   @Test // TODO use ProcessHandle when on java 9
   def shutdownsLauncherAfterTest(): Unit = {
@@ -54,7 +56,7 @@ final class SingleRunFixtureTest extends IdeProbeFixture with WorkspaceFixture w
 
   @Test
   def removesDirectoriesEvenAfterFailureToRunIntelliJ(): Unit = {
-    val intelliJFixture = IntelliJFixture().withAfterIntelliJInstall((_, intellij) =>
+    val intelliJFixture = defaultIntelliJFixture.withAfterIntelliJInstall((_, intellij) =>
       Files.delete(intellij.paths.root.resolve("bin").resolve("idea.sh")) // To prevent the IDE from launching.
     )
 
