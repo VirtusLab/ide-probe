@@ -221,7 +221,7 @@ final class DownloadedIntelliJ(
 
   override def cleanup(): Unit = {
     probePaths.logExport.foreach { path =>
-      paths.logs.copyDir(path.resolve(getPathWithVersionNumber(root).getFileName).resolve("logs"))
+      paths.logs.copyDir(path.resolve(getPathWithVersionNumber(root)).resolve("logs"))
     }
     root.delete()
   }
@@ -234,7 +234,7 @@ final class DownloadedIntelliJ(
   a) /.../intellij-instance-2022.2.1--T3ySdgShSvyr87HNoJq-oQ/    -> for Linux-based OS
   b) /.../intellij-instance-2022.2.1--T3ySdgShSvyr87HNoJq-oQ/Contents    -> for macOs
    */
-  private def getPathWithVersionNumber(intellijRootPath: Path): Path =
-    if (intellijRootPath.name == "Contents") intellijRootPath.getParent else intellijRootPath
+  private def getPathWithVersionNumber(intellijRootPath: Path): String =
+    if (intellijRootPath.name == "Contents") intellijRootPath.getParent.name else intellijRootPath.name
 
 }
