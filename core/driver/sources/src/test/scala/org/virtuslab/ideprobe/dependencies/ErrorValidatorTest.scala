@@ -12,7 +12,7 @@ import org.virtuslab.ideprobe.reporting.ErrorValidator
 
 class ErrorValidatorTest {
   private val configRoot = "probe"
-  private val defaultConfigWithErrorsEnabled: Config = Config.fromClasspath("error_validator.conf")
+  private val defaultConfigWithErrorsEnabled: Config = Config.fromString("probe.driver.check.errors.enabled = true")
   private val defaultCheckConfigWithErrorsEnabled: CheckConfig =
     IntelliJFixture.readIdeProbeConfig(defaultConfigWithErrorsEnabled, configRoot).driver.check
 
