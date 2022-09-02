@@ -102,9 +102,8 @@ class ErrorValidatorTest {
 
   @Test
   def shouldIncludeAllErrorsByDefault(): Unit = {
-    val exceptions: List[Option[Exception]] = collectExceptions(defaultCheckConfigWithErrorsEnabled)
-    val (exceptionsIncluded, _) = exceptions.partition(_.nonEmpty)
-    assertEquals(2, exceptionsIncluded.size)
+    val exceptions: List[Exception] = collectExceptions(defaultCheckConfigWithErrorsEnabled)
+    assertEquals(2, exceptions.size)
   }
 
   @Test
@@ -112,9 +111,8 @@ class ErrorValidatorTest {
     val checkConfigErrorsDisabled = defaultCheckConfigWithErrorsEnabled.copy(
       errors = defaultCheckConfigWithErrorsEnabled.errors.copy(enabled = false)
     )
-    val exceptions: List[Option[Exception]] = collectExceptions(checkConfigErrorsDisabled)
-    val (exceptionsIncluded, _) = exceptions.partition(_.nonEmpty)
-    assertEquals(0, exceptionsIncluded.size)
+    val exceptions: List[Exception] = collectExceptions(checkConfigErrorsDisabled)
+    assertEquals(0, exceptions.size)
   }
 
   @Test
@@ -122,10 +120,9 @@ class ErrorValidatorTest {
     val checkConfigForMessageBusErrorsOnly = defaultCheckConfigWithErrorsEnabled.copy(
       errors = defaultCheckConfigWithErrorsEnabled.errors.copy(includeMessages = Seq(s".*$messageBusSpecificString.*"))
     )
-    val exceptions: List[Option[Exception]] = collectExceptions(checkConfigForMessageBusErrorsOnly)
-    val (exceptionsIncluded, _) = exceptions.partition(_.nonEmpty)
-    assertEquals(1, exceptionsIncluded.size)
-    assertTrue(exceptionsIncluded.head.get.getMessage.contains(messageBusSpecificString))
+    val exceptions: List[Exception] = collectExceptions(checkConfigForMessageBusErrorsOnly)
+    assertEquals(1, exceptions.size)
+    assertTrue(exceptions.head.getMessage.contains(messageBusSpecificString))
   }
 
   @Test
@@ -133,11 +130,10 @@ class ErrorValidatorTest {
     val checkConfigToIgnoreMessageBusErrors = defaultCheckConfigWithErrorsEnabled.copy(
       errors = defaultCheckConfigWithErrorsEnabled.errors.copy(excludeMessages = Seq(s".*$messageBusSpecificString.*"))
     )
-    val exceptions: List[Option[Exception]] = collectExceptions(checkConfigToIgnoreMessageBusErrors)
-    val (exceptionsIncluded, _) = exceptions.partition(_.nonEmpty)
-    assertEquals(1, exceptionsIncluded.size)
-    assertFalse(exceptionsIncluded.head.get.getMessage.contains(messageBusSpecificString))
-    assertTrue(exceptionsIncluded.head.get.getMessage.contains(uastMetaSpecificString))
+    val exceptions: List[Exception] = collectExceptions(checkConfigToIgnoreMessageBusErrors)
+    assertEquals(1, exceptions.size)
+    assertFalse(exceptions.head.getMessage.contains(messageBusSpecificString))
+    assertTrue(exceptions.head.getMessage.contains(uastMetaSpecificString))
   }
 
   @Test
@@ -152,14 +148,13 @@ class ErrorValidatorTest {
     val checkConfigToIgnoreMessageBusErrors = defaultCheckConfigWithErrorsEnabled.copy(
       errors = defaultCheckConfigWithErrorsEnabled.errors.copy(excludeMessages = Seq(partOfMessageBusStackTrace))
     )
-    val exceptions: List[Option[Exception]] = collectExceptions(checkConfigToIgnoreMessageBusErrors)
-    val (exceptionsIncluded, _) = exceptions.partition(_.nonEmpty)
-    assertEquals(1, exceptionsIncluded.size)
-    assertFalse(exceptionsIncluded.head.get.getMessage.contains(messageBusSpecificString))
-    assertTrue(exceptionsIncluded.head.get.getMessage.contains(uastMetaSpecificString))
+    val exceptions: List[Exception] = collectExceptions(checkConfigToIgnoreMessageBusErrors)
+    assertEquals(1, exceptions.size)
+    assertFalse(exceptions.head.getMessage.contains(messageBusSpecificString))
+    assertTrue(exceptions.head.getMessage.contains(uastMetaSpecificString))
   }
 
-  private def collectExceptions(checkConfig: CheckConfig): List[Option[Exception]] =
-    errorIdeMessages.map(msg => ErrorValidator(checkConfig, Seq(msg)))
+  private def collectExceptions(checkConfig: CheckConfig): List[Exception] =
+    errorIdeMessages.flatMap(msg => ErrorValidator(checkConfig, Seq(msg)))
 
 }
