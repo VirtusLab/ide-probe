@@ -13,6 +13,7 @@ import org.virtuslab.ideprobe.Config
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.IdeProbePaths
 import org.virtuslab.ideprobe.IntelliJFixture
+import org.virtuslab.ideprobe.config.IntellijConfig
 import org.virtuslab.ideprobe.ide.intellij.IntelliJProvider
 
 @RunWith(classOf[JUnit4])
@@ -20,7 +21,7 @@ final class IntelliJProviderTest {
   private implicit val ec: ExecutionContext = ExecutionContext.fromExecutorService(Executors.newCachedThreadPool())
 
   private val probeConfig = IntelliJFixture
-    .readIdeProbeConfig(Config.fromClasspath("reference.conf"), "probe")
+    .readIdeProbeConfig(Config.fromReferenceConf, "probe")
   private val defaultIntellijProvider = IntelliJProvider
     .from(probeConfig.intellij, probeConfig.resolvers, IdeProbePaths.from(probeConfig.paths), probeConfig.driver)
 
@@ -62,7 +63,7 @@ final class IntelliJProviderTest {
 
   @Test
   def shouldInstallIntellijFromExtractedRepository(): Unit = givenInstalledIntelliJ { installationRoot =>
-    val build = IntelliJVersion.Latest.build
+    val build = probeConfig.intellij.asInstanceOf[IntellijConfig.Default].version.build
     val installationPattern = installationRoot.toString.replace(build, "[revision]")
     installationRoot.resolve("dependencies.txt").delete()
     installationRoot.resolve("MacOS").delete()

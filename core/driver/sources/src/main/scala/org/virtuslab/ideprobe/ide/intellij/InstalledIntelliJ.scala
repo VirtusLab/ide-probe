@@ -74,7 +74,7 @@ sealed abstract class InstalledIntelliJ(root: Path, probePaths: IdeProbePaths, c
   private val executable: Path = {
     val content = {
       val macOsLauncher =
-        paths.root.resolve("MacOS").resolve("idea") // TODO - move "idea" to driver.launch.command ... ?
+        paths.root.resolve("MacOS").resolve("idea")
       val launcher =
         if (OS.Current == OS.Mac && macOsLauncher.toFile.exists())
           macOsLauncher
@@ -107,7 +107,7 @@ sealed abstract class InstalledIntelliJ(root: Path, probePaths: IdeProbePaths, c
 
   private def startProcess(workingDir: Path, server: ServerSocket) = {
     val command = config.launch.command.toList match {
-      case Nil =>
+      case "idea" :: Nil =>
         List(executable.toString)
       case "idea" :: tail =>
         executable.toString :: tail

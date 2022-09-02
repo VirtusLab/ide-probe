@@ -52,6 +52,8 @@ final case class Config(source: ConfigObjectSource, fallback: Option[Config] = N
 object Config {
   val Empty = new Config(ConfigSource.empty)
 
+  def fromReferenceConf: Config = fromClasspath("reference.conf")
+
   def fromString(str: String) = new Config(ConfigSource.default(ConfigSource.string(str)))
 
   def fromFile(path: Path): Config = {

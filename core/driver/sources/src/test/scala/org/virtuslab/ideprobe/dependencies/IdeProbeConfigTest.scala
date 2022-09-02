@@ -13,6 +13,16 @@ import org.virtuslab.ideprobe.config.WorkspaceConfig
 
 class IdeProbeConfigTest extends IdeProbeFixture {
   private val configRoot = "probe" // same as in object IntelliJFixture
+  private val defaultIntellijRepositoriesPatterns = Seq(
+    "https://download.jetbrains.com/idea/nightly/ideaIC-[revision].portable[format]",
+    "https://download.jetbrains.com/idea/ideaIC-[revision].portable[format]",
+    "https://www.jetbrains.com/intellij-repository/releases/com/jetbrains/intellij/idea/ideaIC/[revision]/ideaIC-[revision][format]",
+    "https://www.jetbrains.com/intellij-repository/snapshots/com/jetbrains/intellij/idea/ideaIC/[revision]-EAP-SNAPSHOT/ideaIC-[revision]-EAP-SNAPSHOT[format]"
+  )
+  private val defaultJbrRepositoriesPatterns = Seq(
+    "https://cache-redirector.jetbrains.com/intellij-jbr/jbr_dcevm-[major]-[platform]-x64-b[minor].tar.gz",
+    "https://cache-redirector.jetbrains.com/intellij-jbr/jbr-[major]-[platform]-x64-b[minor].tar.gz"
+  )
 
   @Test
   def loadsDefaultValuesFromReferenceConfFile(): Unit = {
@@ -27,12 +37,12 @@ class IdeProbeConfigTest extends IdeProbeFixture {
     // test for the workspace: Option[WorkspaceConfig] field
     assertEquals(None, probeConfig.workspace)
     // tests for the resolvers: DependenciesConfig.Resolvers field
-    assertEquals(Seq.empty, probeConfig.resolvers.intellij.repositories)
-    assertEquals(None, probeConfig.resolvers.plugins.repository)
-    assertEquals(Seq.empty, probeConfig.resolvers.jbr.repositories)
+    assertEquals(defaultIntellijRepositoriesPatterns, probeConfig.resolvers.intellij.repositories)
+    assertEquals("https://plugins.jetbrains.com/plugin/download", probeConfig.resolvers.plugins.repository.uri)
+    assertEquals(defaultJbrRepositoriesPatterns, probeConfig.resolvers.jbr.repositories)
     assertEquals(0, probeConfig.resolvers.retries)
     // tests for the driver: DriverConfig field
-    assertEquals(Seq.empty, probeConfig.driver.launch.command)
+    assertEquals(Seq("idea"), probeConfig.driver.launch.command)
     assertEquals(30.seconds, probeConfig.driver.launch.timeout)
     assertEquals(false, probeConfig.driver.check.errors.enabled)
     assertEquals(Seq(".*"), probeConfig.driver.check.errors.includeMessages)
@@ -81,12 +91,12 @@ class IdeProbeConfigTest extends IdeProbeFixture {
     assertEquals(
       Seq(
         "https://www.jetbrains.com/intellij-repository/snapshots/" +
-          "[orgPath]/[module]/[artifact]/[revision]/[artifact]-[revision].zip"
+          "com/jetbrains/intellij/idea/ideaIC/[revision]/ideaIC-[revision].zip"
       ),
       probeConfig.resolvers.intellij.repositories
     )
-    assertEquals(None, probeConfig.resolvers.plugins.repository)
-    assertEquals(Seq.empty, probeConfig.resolvers.jbr.repositories)
+    assertEquals("https://plugins.jetbrains.com/plugin/download", probeConfig.resolvers.plugins.repository.uri)
+    assertEquals(defaultJbrRepositoriesPatterns, probeConfig.resolvers.jbr.repositories)
     assertEquals(0, probeConfig.resolvers.retries)
     // tests for the driver: DriverConfig field
     assertEquals(Seq("idea"), probeConfig.driver.launch.command)

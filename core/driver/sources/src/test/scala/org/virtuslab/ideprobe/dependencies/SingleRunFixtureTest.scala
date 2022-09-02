@@ -24,7 +24,7 @@ import org.virtuslab.ideprobe.SingleRunIntelliJ
 
 @RunWith(classOf[JUnit4])
 final class SingleRunFixtureTest extends IdeProbeFixture with WorkspaceFixture with Assertions {
-  private val defaultIntelliJFixture = IntelliJFixture.fromConfig(Config.fromClasspath("reference.conf"))
+  private val defaultIntelliJFixture = IntelliJFixture.fromConfig(Config.fromReferenceConf)
   private val fixture = new SingleRunIntelliJ(defaultIntelliJFixture)
 
   @Test // TODO use ProcessHandle when on java 9

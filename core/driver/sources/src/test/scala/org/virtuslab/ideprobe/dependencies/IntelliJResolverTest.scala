@@ -21,7 +21,9 @@ class IntelliJResolverTest extends ConfigFormat {
 
   @Test
   def resolvesWithinCustomRepository(): Unit = {
-    val repo = IntelliJZipResolver.fromMaven(mavenRepo, mavenArtifact)
+    val repo = IntelliJPatternResolver(
+      s"$mavenRepo/com/jetbrains/intellij/idea/ideaIC/[revision]/ideaIC-[revision].zip"
+    ).resolver
 
     val artifactUri = repo.resolve(mavenVersion)
 
@@ -42,7 +44,7 @@ class IntelliJResolverTest extends ConfigFormat {
         |""".stripMargin)
     val intelliJConfig = config[DependenciesConfig.IntelliJ]("probe.resolvers.intellij")
 
-    val repo = IntelliJZipResolver.fromConfig(intelliJConfig).head
+    val repo = IntelliJResolver.fromConfig(intelliJConfig).head
     val artifactUri = repo.resolve(mavenVersion)
     assertExists(artifactUri)
   }

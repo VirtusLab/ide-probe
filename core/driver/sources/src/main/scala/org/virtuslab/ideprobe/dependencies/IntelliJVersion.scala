@@ -3,7 +3,9 @@ package org.virtuslab.ideprobe.dependencies
 import pureconfig.ConfigConvert
 import pureconfig.generic.semiauto.deriveConvert
 
-final case class IntelliJVersion(build: String, release: Option[String]) {
+// the `format` field must be an Option[String] and not a String for the ExistingIntelliJ usage
+// inside the `org.virtuslab.ideprobe.dependencies.IntelliJVersionResolver` object
+final case class IntelliJVersion(build: String, release: Option[String], format: Option[String]) {
   def releaseOrBuild: String = release.getOrElse(build)
 
   def major: Option[String] = {
@@ -31,14 +33,11 @@ final case class IntelliJVersion(build: String, release: Option[String]) {
 object IntelliJVersion {
   implicit val configConvert: ConfigConvert[IntelliJVersion] = deriveConvert[IntelliJVersion]
 
-  // TODO(#253): replace Latest with reading from reference.conf
-  val Latest: IntelliJVersion = release("2021.2.1", "212.5080.55")
-
   def snapshot(build: String): IntelliJVersion = {
-    IntelliJVersion(build, None)
+    IntelliJVersion(build, None, Some(configConvert.map(_.format).toString))
   }
 
   def release(version: String, build: String): IntelliJVersion = {
-    IntelliJVersion(build, Some(version))
+    IntelliJVersion(build, Some(version), Some(configConvert.map(_.format).toString))
   }
 }
