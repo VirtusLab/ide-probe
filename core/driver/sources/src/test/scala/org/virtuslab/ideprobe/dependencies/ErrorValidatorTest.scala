@@ -6,7 +6,6 @@ import org.junit.Test
 import org.virtuslab.ideprobe.Config
 import org.virtuslab.ideprobe.IntelliJFixture
 import org.virtuslab.ideprobe.config.CheckConfig
-import org.virtuslab.ideprobe.config.CheckConfig.ErrorConfig
 import org.virtuslab.ideprobe.protocol.IdeMessage
 import org.virtuslab.ideprobe.protocol.IdeMessage.Level
 import org.virtuslab.ideprobe.reporting.ErrorValidator
@@ -104,55 +103,39 @@ class ErrorValidatorTest {
   @Test
   def shouldIncludeAllErrorsByDefault(): Unit = {
     val exceptions: List[Option[Exception]] = collectExceptions(defaultCheckConfigWithErrorsEnabled)
-    val (exceptionsIncluded, exceptionsIgnored) = exceptions.partition(_.nonEmpty)
+    val (exceptionsIncluded, _) = exceptions.partition(_.nonEmpty)
     assertEquals(2, exceptionsIncluded.size)
-    assertEquals(0, exceptionsIgnored.size)
   }
 
   @Test
   def shouldIgnoreAllErrorsIfNotEnabled(): Unit = {
-    val checkConfigErrorsDisabled = defaultCheckConfigWithErrorsEnabled.copy(errors =
-      ErrorConfig(
-        enabled = false,
-        includeMessages = defaultCheckConfigWithErrorsEnabled.errors.includeMessages,
-        excludeMessages = defaultCheckConfigWithErrorsEnabled.errors.excludeMessages
-      )
+    val checkConfigErrorsDisabled = defaultCheckConfigWithErrorsEnabled.copy(
+      errors = defaultCheckConfigWithErrorsEnabled.errors.copy(enabled = false)
     )
     val exceptions: List[Option[Exception]] = collectExceptions(checkConfigErrorsDisabled)
-    val (exceptionsIncluded, exceptionsIgnored) = exceptions.partition(_.nonEmpty)
+    val (exceptionsIncluded, _) = exceptions.partition(_.nonEmpty)
     assertEquals(0, exceptionsIncluded.size)
-    assertEquals(2, exceptionsIgnored.size)
   }
 
   @Test
   def shouldIncludeOnlySpecificErrorsIfIncludeMessagesConfigured(): Unit = {
-    val checkConfigForMessageBusErrorsOnly = defaultCheckConfigWithErrorsEnabled.copy(errors =
-      ErrorConfig(
-        enabled = defaultCheckConfigWithErrorsEnabled.errors.enabled,
-        includeMessages = Seq(s".*$messageBusSpecificString.*"),
-        excludeMessages = defaultCheckConfigWithErrorsEnabled.errors.excludeMessages
-      )
+    val checkConfigForMessageBusErrorsOnly = defaultCheckConfigWithErrorsEnabled.copy(
+      errors = defaultCheckConfigWithErrorsEnabled.errors.copy(includeMessages = Seq(s".*$messageBusSpecificString.*"))
     )
     val exceptions: List[Option[Exception]] = collectExceptions(checkConfigForMessageBusErrorsOnly)
-    val (exceptionsIncluded, exceptionsIgnored) = exceptions.partition(_.nonEmpty)
+    val (exceptionsIncluded, _) = exceptions.partition(_.nonEmpty)
     assertEquals(1, exceptionsIncluded.size)
-    assertEquals(1, exceptionsIgnored.size)
     assertTrue(exceptionsIncluded.head.get.getMessage.contains(messageBusSpecificString))
   }
 
   @Test
   def shouldExcludeSpecificErrorsByRegexUsage(): Unit = {
-    val checkConfigToIgnoreMessageBusErrors = defaultCheckConfigWithErrorsEnabled.copy(errors =
-      ErrorConfig(
-        enabled = defaultCheckConfigWithErrorsEnabled.errors.enabled,
-        includeMessages = defaultCheckConfigWithErrorsEnabled.errors.includeMessages,
-        excludeMessages = Seq(s".*$messageBusSpecificString.*")
-      )
+    val checkConfigToIgnoreMessageBusErrors = defaultCheckConfigWithErrorsEnabled.copy(
+      errors = defaultCheckConfigWithErrorsEnabled.errors.copy(excludeMessages = Seq(s".*$messageBusSpecificString.*"))
     )
     val exceptions: List[Option[Exception]] = collectExceptions(checkConfigToIgnoreMessageBusErrors)
-    val (exceptionsIncluded, exceptionsIgnored) = exceptions.partition(_.nonEmpty)
+    val (exceptionsIncluded, _) = exceptions.partition(_.nonEmpty)
     assertEquals(1, exceptionsIncluded.size)
-    assertEquals(1, exceptionsIgnored.size)
     assertFalse(exceptionsIncluded.head.get.getMessage.contains(messageBusSpecificString))
     assertTrue(exceptionsIncluded.head.get.getMessage.contains(uastMetaSpecificString))
   }
@@ -166,17 +149,12 @@ class ErrorValidatorTest {
         |    	at com.intellij.psi.impl.file.impl.FileManagerImpl.getCachedPsiFile(FileManagerImpl.java:378)
         |    	at com.intellij.psi.impl.PsiDocumentManagerBase.getCachedPsiFile(PsiDocumentManagerBase.java:143)
         |""".stripMargin
-    val checkConfigToIgnoreMessageBusErrors = defaultCheckConfigWithErrorsEnabled.copy(errors =
-      ErrorConfig(
-        enabled = defaultCheckConfigWithErrorsEnabled.errors.enabled,
-        includeMessages = defaultCheckConfigWithErrorsEnabled.errors.includeMessages,
-        excludeMessages = Seq(partOfMessageBusStackTrace)
-      )
+    val checkConfigToIgnoreMessageBusErrors = defaultCheckConfigWithErrorsEnabled.copy(
+      errors = defaultCheckConfigWithErrorsEnabled.errors.copy(excludeMessages = Seq(partOfMessageBusStackTrace))
     )
     val exceptions: List[Option[Exception]] = collectExceptions(checkConfigToIgnoreMessageBusErrors)
-    val (exceptionsIncluded, exceptionsIgnored) = exceptions.partition(_.nonEmpty)
+    val (exceptionsIncluded, _) = exceptions.partition(_.nonEmpty)
     assertEquals(1, exceptionsIncluded.size)
-    assertEquals(1, exceptionsIgnored.size)
     assertFalse(exceptionsIncluded.head.get.getMessage.contains(messageBusSpecificString))
     assertTrue(exceptionsIncluded.head.get.getMessage.contains(uastMetaSpecificString))
   }

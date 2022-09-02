@@ -26,7 +26,7 @@ object ErrorValidator {
       configMessage.r.findFirstIn(ideMessage.content).nonEmpty
     }
 
-  private def trimEachLine(s: String): String = s.split('\n').map(_.trim).mkString("\n")
+  private def trimEachLine(s: String): String = s.linesIterator.map(_.trim).mkString("\n")
 
   private def toString(errors: Seq[IdeMessage]): String = {
     val sb = new mutable.StringBuilder()
