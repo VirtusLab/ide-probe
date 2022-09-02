@@ -159,7 +159,7 @@ sealed abstract class InstalledIntelliJ(root: Path, probePaths: IdeProbePaths, c
           printBuffer(buffer, "intellij-stdout")
       }
 
-      private def printBuffer(buffer: ByteBuffer, tag: String) = {
+      private def printBuffer(buffer: ByteBuffer, tag: String): Unit = {
         val bytes = new Array[Byte](buffer.remaining)
         buffer.get(bytes)
         val output = new String(bytes)
@@ -219,5 +219,22 @@ final class DownloadedIntelliJ(
   override val ideaProperties: Path =
     root.resolve("bin").resolve("idea.properties").write(ideaPropertiesContent)
 
-  override def cleanup(): Unit = root.delete()
+  override def cleanup(): Unit = {
+    probePaths.logExport.foreach { path =>
+      paths.logs.copyDir(path.resolve(getPathWithVersionNumber(root)).resolve("logs"))
+    }
+    root.delete()
+  }
+
+  /*
+  Method below helps receive the path of the intellij instance directory. This path contains intellij version number
+  in its string representation. It might be useful for scenarios, where tests run on multiple intellij versions.
+  In such cases users will have logs grouped by intellij versions. The `if` expression is needed as
+  for now the `intellijRootPath` might have different structure, like in examples below:
+  a) /.../intellij-instance-2022.2.1--T3ySdgShSvyr87HNoJq-oQ/    -> for Linux-based OS
+  b) /.../intellij-instance-2022.2.1--T3ySdgShSvyr87HNoJq-oQ/Contents    -> for macOs
+   */
+  private def getPathWithVersionNumber(intellijRootPath: Path): String =
+    if (intellijRootPath.name == "Contents") intellijRootPath.getParent.name else intellijRootPath.name
+
 }

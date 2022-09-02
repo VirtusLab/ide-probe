@@ -2,6 +2,7 @@ package org.virtuslab.ideprobe.dependencies
 
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
 
 import scala.concurrent.Await
@@ -14,6 +15,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 import org.virtuslab.ideprobe.Assertions
+import org.virtuslab.ideprobe.Config
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.IdeProbeFixture
 import org.virtuslab.ideprobe.IntelliJFixture
@@ -87,4 +89,26 @@ final class SingleRunFixtureTest extends IdeProbeFixture with WorkspaceFixture w
       workspacesNotDeleted.isEmpty
     )
   }
+
+  @Test
+  def copiesLogsIntoConfiguredDirectoryBeforeCleanup(): Unit = {
+    val tmpDirString = "/tmp/ide-probe-test"
+    val config = Config.fromString(s"""probe.paths.logExport = $tmpDirString""")
+    val fixtureFromConfig = IntelliJFixture.fromConfig(config)
+    val logExportFixture = new SingleRunIntelliJ(fixtureFromConfig)
+
+    logExportFixture { _ =>
+      // nothing special to be done here, invoked just for cleanup
+    }
+
+    val filesAndDirsFromLogExportDirectory = Paths.get(tmpDirString).recursiveChildren()
+
+    assertTrue(filesAndDirsFromLogExportDirectory.exists { path =>
+      path.name == "logs" && path.isDirectory && path.directChildren().nonEmpty
+    })
+    assertTrue(filesAndDirsFromLogExportDirectory.exists { path =>
+      path.name == "idea.log" && path.content().nonEmpty
+    })
+  }
+
 }
