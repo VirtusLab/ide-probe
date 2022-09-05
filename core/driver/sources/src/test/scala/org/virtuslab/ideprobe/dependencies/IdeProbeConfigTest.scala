@@ -91,7 +91,7 @@ class IdeProbeConfigTest extends IdeProbeFixture {
     assertEquals(
       Seq(
         "https://www.jetbrains.com/intellij-repository/snapshots/" +
-          "com/jetbrains/intellij/idea/ideaIC/[revision]/ideaIC-[revision].zip"
+          "com/jetbrains/intellij/idea/ideaIC/[revision]/ideaIC-[revision][format]"
       ),
       probeConfig.resolvers.intellij.repositories
     )

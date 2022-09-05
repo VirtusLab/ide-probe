@@ -16,13 +16,13 @@ import org.virtuslab.ideprobe.config.DependenciesConfig
 @RunWith(classOf[JUnit4])
 class IntelliJResolverTest extends ConfigFormat {
   private val mavenRepo = getClass.getResource(".").toURI.resolve("intellij/maven").toString
-  private val mavenArtifact = "ideaIC"
+  private val mavenArtifact = "artifact"
   private val mavenVersion = IntelliJVersion.snapshot("1.0")
 
   @Test
   def resolvesWithinCustomRepository(): Unit = {
     val repo = IntelliJPatternResolver(
-      s"$mavenRepo/com/jetbrains/intellij/idea/ideaIC/[revision]/ideaIC-[revision].zip"
+      s"$mavenRepo/com/jetbrains/intellij/idea/$mavenArtifact/[revision]/$mavenArtifact-[revision].zip"
     ).resolver
 
     val artifactUri = repo.resolve(mavenVersion)
