@@ -44,7 +44,7 @@ final class OfficialResolversTest {
     val intellijResolvers = IntelliJResolver.fromConfig(defaultProbeConfig.resolvers.intellij)
     val releaseResolver = intellijResolvers.find { dependencyResolver =>
       val resolved = dependencyResolver.resolve(intellijVersion)
-      // we should use `officialReleasesRepositoryURL` as the default config has an official release of intelliJ
+      // we should use `officialReleasesRepositoryURL` as the default config uses an official release of intelliJ
       resolved.asInstanceOf[Dependency.Artifact].uri.toString.contains(officialReleasesRepositoryURL)
     }.get
 

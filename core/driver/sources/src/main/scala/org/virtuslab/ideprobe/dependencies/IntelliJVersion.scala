@@ -34,10 +34,10 @@ object IntelliJVersion {
   implicit val configConvert: ConfigConvert[IntelliJVersion] = deriveConvert[IntelliJVersion]
 
   def snapshot(build: String): IntelliJVersion = {
-    IntelliJVersion(build, None, Some(configConvert.map(_.format).toString))
+    IntelliJVersion(build = build, release = None, format = Some(configConvert.map(_.format).toString))
   }
 
   def release(version: String, build: String): IntelliJVersion = {
-    IntelliJVersion(build, Some(version), Some(configConvert.map(_.format).toString))
+    IntelliJVersion(build = build, release = Some(version), format = Some(configConvert.map(_.format).toString))
   }
 }

@@ -16,7 +16,7 @@ import org.virtuslab.ideprobe.config.DependenciesConfig
 @RunWith(classOf[JUnit4])
 class IntelliJResolverTest extends ConfigFormat {
   private val mavenRepo = getClass.getResource(".").toURI.resolve("intellij/maven").toString
-  private val mavenArtifact = "artifact"
+  private val mavenArtifact = "ideaIC"
   private val mavenVersion = IntelliJVersion.snapshot("1.0")
 
   @Test
