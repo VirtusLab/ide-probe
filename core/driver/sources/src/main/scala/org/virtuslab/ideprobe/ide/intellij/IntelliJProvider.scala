@@ -44,7 +44,7 @@ sealed trait IntelliJProvider {
       val fileOpt = dependencies.plugin.fetchOpt(plugin)
       fileOpt match {
         case Some(file) => PluginArchive(plugin, file.toExtracted)
-        case _          => error("Plugin archive not found")
+        case _          => error(s"Plugin:${plugin} archive not found")
 
       }
     })

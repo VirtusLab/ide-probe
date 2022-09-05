@@ -28,9 +28,9 @@ object ResourceProvider {
     override def get(uri: URI, provider: () => InputStream): Path = {
       Resource.from(uri) match {
         case Resource.Http(uri) =>
-          cacheUri(uri, provider, cached => s"Fetching $uri into $cached", retries)
+          cacheUrl(uri, cached => s"Fetching $uri into $cached", retries)
         case Resource.Jar(uri) =>
-          cacheUri(uri, provider, cached => s"Extracting $uri from jar into $cached", retries)
+          cacheJar(uri, provider, cached => s"Extracting $uri from jar into $cached", retries)
         case file: Resource.File if file.path.toFile.exists() =>
           file.path
         case file: Resource.File =>
@@ -53,9 +53,28 @@ object ResourceProvider {
       }
     }
 
-    private def cacheUri(
+    private def cacheJar(
         uri: URI,
         createStream: () => InputStream,
+        message: Path => String,
+        retries: Int
+    ): Path = {
+      val cachedResource = cached(uri)
+      if (!cachedResource.isFile) {
+        retry(retries) { () =>
+          val stream = createStream()
+          println(message(cachedResource))
+          Files
+            .createTempFile("cached-resource", "-tmp")
+            .append(stream)
+            .moveTo(cachedResource)
+        }
+      }
+      cachedResource
+    }
+
+    private def cacheUrl(
+        uri: URI,
         message: Path => String,
         retries: Int
     ): Path = {

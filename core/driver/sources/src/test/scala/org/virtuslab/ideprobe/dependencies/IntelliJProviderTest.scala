@@ -12,7 +12,8 @@ import org.virtuslab.ideprobe.ide.intellij.IntelliJProvider
 
 @RunWith(classOf[JUnit4])
 final class IntelliJProviderTest extends IdeProbeFixture {
-  private implicit val ec: ExecutionContext = ExecutionContext.fromExecutorService(Executors.newCachedThreadPool())
+  override protected implicit val ec: ExecutionContext =
+    ExecutionContext.fromExecutorService(Executors.newCachedThreadPool())
 
   @Test
   def intelliJProviderShouldBeAbleToCorrectlyReadTheExistingInstanceVersion: Unit = givenInstalledIntelliJ {
@@ -36,7 +37,8 @@ final class IntelliJProviderTest extends IdeProbeFixture {
       |}
       |""".stripMargin)
 
-    val fixture = IntelliJFixture.fromConfig(config)
+    val fixture = IntelliJFixture
+      .fromConfig(config)
       .withPlugin(Plugin("org.intellij.scala", "2020.2.7"))
       .enableExtensions
 
