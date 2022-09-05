@@ -2,12 +2,17 @@ package org.virtuslab.ideprobe.dependencies
 
 import java.nio.file.Path
 import java.util.concurrent.Executors
+
 import scala.concurrent.ExecutionContext
+
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.virtuslab.ideprobe.{Config, IdeProbeFixture, IntelliJFixture}
+
+import org.virtuslab.ideprobe.Config
 import org.virtuslab.ideprobe.Extensions._
+import org.virtuslab.ideprobe.IdeProbeFixture
+import org.virtuslab.ideprobe.IntelliJFixture
 import org.virtuslab.ideprobe.ide.intellij.IntelliJProvider
 
 @RunWith(classOf[JUnit4])
@@ -89,7 +94,7 @@ final class IntelliJProviderTest extends IdeProbeFixture {
       |probe.intellij {
       |    path = $installationRoot
       |    plugins = [
-      |      { id = "org.intellij.scala", version = "2020.3.369", channel = "nightly" }
+      |      { id = "org.intellij.scala", version = "2020.1.27" }
       |    ]
       |  }
       |""".stripMargin)
