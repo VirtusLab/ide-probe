@@ -14,6 +14,8 @@ import org.virtuslab.ideprobe.config.WorkspaceConfig
 class IdeProbeConfigTest extends IdeProbeFixture {
   private val configRoot = "probe" // same as in object IntelliJFixture
   private val defaultIntellijRepositoriesPatterns = Seq(
+    "https://download.jetbrains.com/idea/nightly/ideaIC-[revision][format]",
+    "https://download.jetbrains.com/idea/ideaIC-[revision][format]",
     "https://download.jetbrains.com/idea/nightly/ideaIC-[revision].portable[format]",
     "https://download.jetbrains.com/idea/ideaIC-[revision].portable[format]",
     "https://www.jetbrains.com/intellij-repository/releases/com/jetbrains/intellij/idea/ideaIC/[revision]/ideaIC-[revision][format]",
