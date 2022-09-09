@@ -174,6 +174,7 @@ object IntelliJProvider {
       config = DriverConfig( // TODO: replace DriverConfig parameters with loading defaults from reference.conf
         launch = LaunchParameters(Seq.empty, 30.seconds),
         check = CheckConfig(ErrorConfig(enabled = false, Seq(".*"), Seq.empty), FreezeConfig(false)),
+        display = "native",
         xvfb = XvfbConfig(ScreenConfig(1920, 1080, 24)),
         headless = false,
         vmOptions = Seq.empty,

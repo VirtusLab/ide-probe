@@ -8,6 +8,7 @@ import org.virtuslab.ideprobe.config.DriverConfig.XvfbConfig
 case class DriverConfig(
     launch: LaunchParameters,
     check: CheckConfig,
+    display: String,
     xvfb: XvfbConfig,
     headless: Boolean,
     vmOptions: Seq[String],

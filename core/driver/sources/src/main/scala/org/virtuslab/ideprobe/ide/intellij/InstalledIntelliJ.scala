@@ -86,7 +86,7 @@ sealed abstract class InstalledIntelliJ(root: Path, probePaths: IdeProbePaths, c
         if (config.headless) s"$launcher headless"
         else {
           import config.xvfb.screen._
-          Display.Mode match {
+          Display.Mode(config.display) match {
             case Display.Native => s"$launcher"
             case Display.Xvfb =>
               s"""xvfb-run --server-num=${Display.XvfbDisplayId} --server-args="-screen 0 ${width}x${height}x${depth}" $launcher"""
@@ -129,7 +129,7 @@ sealed abstract class InstalledIntelliJ(root: Path, probePaths: IdeProbePaths, c
       }
 
       val overrideDisplay =
-        if (Display.Mode == Display.Xvfb) Map("DISPLAY" -> s":${Display.XvfbDisplayId}")
+        if (Display.Mode(config.display) == Display.Xvfb) Map("DISPLAY" -> s":${Display.XvfbDisplayId}")
         else Map.empty
       testCaseEnv ++ Map(
         "IDEA_VM_OPTIONS" -> vmoptions.toString,
