@@ -3,11 +3,7 @@ package org.virtuslab.ideprobe.ide.intellij
 sealed trait Display
 object Display {
 
-  val Mode: String => Display = displayFromConfig => {
-    Option(System.getenv("IDEPROBE_DISPLAY"))
-      .map(fromName)
-      .getOrElse(fromName(displayFromConfig))
-  }
+  val Mode: String => Display = displayFromConfig => fromName(displayFromConfig)
 
   val XvfbDisplayId = "7" // doesn't really matter as long as it is not 0
 
