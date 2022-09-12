@@ -20,6 +20,8 @@ trait IdeProbeFixture {
 
   protected var fixtureTransformers: Seq[IntelliJFixture => IntelliJFixture] = Nil
 
+  lazy val Default: IntelliJFixture = fixtureFromConfig(Config.fromReferenceConf)
+
   /**
    * Default logic for resolving configuration based on test class name
    */
