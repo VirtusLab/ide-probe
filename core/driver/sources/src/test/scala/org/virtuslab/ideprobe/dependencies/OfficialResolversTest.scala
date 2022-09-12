@@ -7,8 +7,15 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+import org.virtuslab.ideprobe.Config
+import org.virtuslab.ideprobe.IntelliJFixture
+import org.virtuslab.ideprobe.config.IntellijConfig
+
 @RunWith(classOf[JUnit4])
 final class OfficialResolversTest {
+  private val defaultProbeConfig = IntelliJFixture
+    .readIdeProbeConfig(Config.fromReferenceConf, "probe")
+
   @Test
   def resolvesImplicitSnapshot(): Unit = {
     val repo = IntelliJZipResolver.community
@@ -21,7 +28,7 @@ final class OfficialResolversTest {
 
   @Test
   def resolvesBuildToExistingArtifact(): Unit = {
-    val version = IntelliJVersion.Latest
+    val version = defaultProbeConfig.intellij.asInstanceOf[IntellijConfig.Default].version
     val uri = IntelliJZipResolver.community.resolve(version)
 
     verify(uri)
