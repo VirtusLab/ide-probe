@@ -6,6 +6,7 @@ import scala.annotation.tailrec
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 
+import org.virtuslab.ideprobe.IntelliJFixture._
 import org.virtuslab.ideprobe.config.IdeProbeConfig
 import org.virtuslab.ideprobe.dependencies.IntelliJVersion
 import org.virtuslab.ideprobe.dependencies.Plugin
@@ -14,9 +15,9 @@ import org.virtuslab.ideprobe.ide.intellij.IntelliJProvider
 import org.virtuslab.ideprobe.ide.intellij.RunningIde
 
 final case class IntelliJFixture(
-    workspaceProvider: WorkspaceProvider,
-    intelliJProvider: IntelliJProvider,
-    config: Config,
+    workspaceProvider: WorkspaceProvider = WorkspaceTemplate.Empty,
+    intelliJProvider: IntelliJProvider = getIntelliJProvider(readIdeProbeConfig(Config.fromReferenceConf, ConfigRoot)),
+    config: Config = Config.Empty,
     afterWorkspaceSetup: Seq[(IntelliJFixture, Path) => Unit] = Nil,
     afterIntelliJInstall: Seq[(IntelliJFixture, InstalledIntelliJ) => Unit] = Nil,
     afterIntelliJStartup: Seq[(IntelliJFixture, RunningIntelliJFixture) => Unit] = Nil
@@ -135,11 +136,13 @@ object IntelliJFixture {
 
     new IntelliJFixture(
       workspaceProvider = probeConfig.workspace.map(WorkspaceProvider.from).getOrElse(WorkspaceTemplate.Empty),
-      intelliJProvider = IntelliJProvider
-        .from(probeConfig.intellij, probeConfig.resolvers, IdeProbePaths.from(probeConfig.paths), probeConfig.driver),
+      intelliJProvider = getIntelliJProvider(probeConfig),
       config = config
     )
   }
 
   def readIdeProbeConfig(config: Config, path: String): IdeProbeConfig = config[IdeProbeConfig](path)
+
+  def getIntelliJProvider(probeConfig: IdeProbeConfig): IntelliJProvider = IntelliJProvider
+    .from(probeConfig.intellij, probeConfig.resolvers, IdeProbePaths.from(probeConfig.paths), probeConfig.driver)
 }
