@@ -16,10 +16,6 @@ case class IdeProbePaths(
 )
 
 object IdeProbePaths {
-  val Default: IdeProbePaths = {
-    // TODO: replace None parameters with loading defaults from reference.conf
-    from(PathsConfig(None, None, None, None, None, None, None))
-  }
 
   def from(config: PathsConfig): IdeProbePaths = {
     val basePath = config.base.getOrElse(Paths.get(System.getProperty("java.io.tmpdir")).resolve("ide-probe"))
