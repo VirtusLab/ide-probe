@@ -28,7 +28,7 @@ class IdeProbeConfigTest extends IdeProbeFixture {
     assertEquals(None, probeConfig.workspace)
     // tests for the resolvers: DependenciesConfig.Resolvers field
     assertEquals(Seq.empty, probeConfig.resolvers.intellij.repositories)
-    assertEquals(None, probeConfig.resolvers.plugins.repository)
+    assertEquals("https://plugins.jetbrains.com/plugin/download", probeConfig.resolvers.plugins.repository.uri)
     assertEquals(Seq.empty, probeConfig.resolvers.jbr.repositories)
     assertEquals(0, probeConfig.resolvers.retries)
     // tests for the driver: DriverConfig field
@@ -85,7 +85,7 @@ class IdeProbeConfigTest extends IdeProbeFixture {
       ),
       probeConfig.resolvers.intellij.repositories
     )
-    assertEquals(None, probeConfig.resolvers.plugins.repository)
+    assertEquals("https://plugins.jetbrains.com/plugin/download", probeConfig.resolvers.plugins.repository.uri)
     assertEquals(Seq.empty, probeConfig.resolvers.jbr.repositories)
     assertEquals(0, probeConfig.resolvers.retries)
     // tests for the driver: DriverConfig field

@@ -37,7 +37,7 @@ final class OfficialResolversTest {
   @Test
   def resolvesPluginToExistingArtifact(): Unit = {
     val plugin = Plugin("org.intellij.scala", "2020.2.7")
-    val uri = PluginResolver.Official.resolve(plugin)
+    val uri = PluginResolver.fromConfig(defaultProbeConfig.resolvers.plugins).resolve(plugin)
 
     verify(uri)
   }
