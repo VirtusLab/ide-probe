@@ -20,7 +20,7 @@ final class IntelliJProviderTest {
   private implicit val ec: ExecutionContext = ExecutionContext.fromExecutorService(Executors.newCachedThreadPool())
 
   private val probeConfig = IntelliJFixture
-    .readIdeProbeConfig(Config.fromClasspath("reference.conf"), "probe")
+    .readIdeProbeConfig(Config.fromReferenceConf, "probe")
   private val defaultIntellijProvider = IntelliJProvider
     .from(probeConfig.intellij, probeConfig.resolvers, IdeProbePaths.from(probeConfig.paths), probeConfig.driver)
 
