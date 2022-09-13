@@ -61,7 +61,7 @@ class IdeProbeConfigTest extends IdeProbeFixture {
     // tests for the intellij: IntellijConfig field
     assertTrue(probeConfig.intellij.isInstanceOf[IntellijConfig.Default])
     assertEquals("201.6668.121", probeConfig.intellij.asInstanceOf[IntellijConfig.Default].version.build)
-    assertEquals(Some("2021.2.1"), probeConfig.intellij.asInstanceOf[IntellijConfig.Default].version.release)
+    assertEquals(Some("2022.2.1"), probeConfig.intellij.asInstanceOf[IntellijConfig.Default].version.release)
     assertEquals(1, probeConfig.intellij.plugins.size)
     assertTrue(probeConfig.intellij.plugins.head.isInstanceOf[Plugin.Versioned])
     assertEquals("org.intellij.scala", probeConfig.intellij.plugins.head.asInstanceOf[Plugin.Versioned].id)
