@@ -21,8 +21,8 @@ class IdeProbeConfigTest extends IdeProbeFixture {
     val probeConfig = IntelliJFixture.readIdeProbeConfig(config, configRoot)
     // tests for the intellij: IntellijConfig field
     assertTrue(probeConfig.intellij.isInstanceOf[IntellijConfig.Default])
-    assertEquals("212.5080.55", probeConfig.intellij.asInstanceOf[IntellijConfig.Default].version.build)
-    assertEquals(Some("2021.2.1"), probeConfig.intellij.asInstanceOf[IntellijConfig.Default].version.release)
+    assertEquals("222.3739.54", probeConfig.intellij.asInstanceOf[IntellijConfig.Default].version.build)
+    assertEquals(Some("2022.2.1"), probeConfig.intellij.asInstanceOf[IntellijConfig.Default].version.release)
     assertEquals(Seq.empty, probeConfig.intellij.asInstanceOf[IntellijConfig.Default].plugins)
     // test for the workspace: Option[WorkspaceConfig] field
     assertEquals(None, probeConfig.workspace)
