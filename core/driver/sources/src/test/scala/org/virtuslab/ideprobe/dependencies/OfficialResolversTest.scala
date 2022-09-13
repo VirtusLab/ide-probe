@@ -19,11 +19,31 @@ final class OfficialResolversTest {
   @Test
   def resolvesImplicitSnapshot(): Unit = {
     val repo = IntelliJZipResolver.community
-    val version = IntelliJVersion("202.6397.20", None)
+    val version = IntelliJVersion(build = "202.6397.20", release = None, ext = Some("zip"))
 
     val artifact = repo.resolve(version).asInstanceOf[Dependency.Artifact]
 
     assertTrue(artifact.uri.toString.endsWith("-EAP-SNAPSHOT.zip"))
+  }
+
+  @Test
+  def resolvesImplicitSnapshotFromConfig(): Unit = {
+    val probeConfig = IntelliJFixture.readIdeProbeConfig(
+      Config.fromString(
+        """ probe.intellij.version {
+          |  build = "202.6397.20"
+          |  release = null
+          |}
+          |""".stripMargin
+      ),
+      "probe"
+    )
+    val intellijResolvers = IntelliJResolver.fromConfig(probeConfig.resolvers.intellij)
+    val snapshotResolverOption = intellijResolvers.find { dependencyResolver =>
+      val resolved = dependencyResolver.resolve(probeConfig.intellij.asInstanceOf[IntellijConfig.Default].version)
+      resolved.asInstanceOf[Dependency.Artifact].uri.toString.endsWith("-EAP-SNAPSHOT.zip")
+    }
+    assertTrue(snapshotResolverOption.nonEmpty)
   }
 
   @Test
@@ -32,6 +52,19 @@ final class OfficialResolversTest {
     val uri = IntelliJZipResolver.community.resolve(version)
 
     verify(uri)
+  }
+
+  @Test
+  def resolvesBuildToExistingArtifactFromConfig(): Unit = {
+    val intellijVersion = defaultProbeConfig.intellij.asInstanceOf[IntellijConfig.Default].version
+    val officialReleasesRepositoryURL = "https://www.jetbrains.com/intellij-repository/releases/"
+    val intellijResolvers = IntelliJResolver.fromConfig(defaultProbeConfig.resolvers.intellij)
+    val releaseResolver = intellijResolvers.find { dependencyResolver =>
+      val resolved = dependencyResolver.resolve(intellijVersion)
+      // we should use `officialReleasesRepositoryURL` as the default config uses an official release of intelliJ
+      resolved.asInstanceOf[Dependency.Artifact].uri.toString.contains(officialReleasesRepositoryURL)
+    }.get
+    verify(releaseResolver.resolve(intellijVersion))
   }
 
   @Test

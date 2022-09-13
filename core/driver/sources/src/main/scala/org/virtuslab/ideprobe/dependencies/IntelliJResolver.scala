@@ -1,8 +1,26 @@
 package org.virtuslab.ideprobe.dependencies
 
+import org.virtuslab.ideprobe.Config
+import org.virtuslab.ideprobe.IntelliJFixture
+import org.virtuslab.ideprobe.config.DependenciesConfig
+
 trait IntelliJResolver {
   def community: DependencyResolver[IntelliJVersion]
   def ultimate: DependencyResolver[IntelliJVersion]
+}
+
+object IntelliJResolver {
+  def fromConfig(config: DependenciesConfig.IntelliJ): Seq[DependencyResolver[IntelliJVersion]] =
+    config.repositories.flatMap { pattern =>
+      if (Set("official", "default").contains(pattern.toLowerCase)) {
+        val probeConfigFromReference = IntelliJFixture.readIdeProbeConfig(Config.fromReferenceConf, "probe")
+        val officialRepositoriesPatterns = probeConfigFromReference.resolvers.intellij.repositories
+        officialRepositoriesPatterns.map { repositoryPattern =>
+          IntelliJPatternResolver(repositoryPattern).resolver(config.artifact)
+        }
+      } else
+        Seq(IntelliJPatternResolver(pattern).resolver(config.artifact))
+    }
 }
 
 case class IntelliJPatternResolver(pattern: String) extends IntelliJResolver {
@@ -15,6 +33,7 @@ case class IntelliJPatternResolver(pattern: String) extends IntelliJResolver {
       "orgPath" -> "com/jetbrains/intellij",
       "module" -> "idea",
       "artifact" -> artifact,
+      "ext" -> version.ext.get, // .get will be OK since we have `format = ".zip"` in the reference.conf file
       "revision" -> version.releaseOrBuild,
       "build" -> version.build,
       "version" -> version.releaseOrBuild,

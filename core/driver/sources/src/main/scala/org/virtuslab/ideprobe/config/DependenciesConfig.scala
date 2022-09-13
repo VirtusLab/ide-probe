@@ -8,7 +8,7 @@ object DependenciesConfig {
       retries: Int
   )
 
-  case class IntelliJ(repositories: Seq[String])
+  case class IntelliJ(artifact: String, repositories: Seq[String])
 
   case class Plugins(repository: PluginRepository)
 

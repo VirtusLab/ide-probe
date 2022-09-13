@@ -14,6 +14,15 @@ import org.virtuslab.ideprobe.config.WorkspaceConfig
 class IdeProbeConfigTest extends IdeProbeFixture {
   private val configRoot = "probe" // same as in object IntelliJFixture
 
+  private val defaultIntellijRepositoriesPatterns = Seq(
+    "https://download.jetbrains.com/[module]/nightly/[artifact]-[revision][ext]",
+    "https://download.jetbrains.com/[module]/[artifact]-[revision][ext]",
+    "https://download.jetbrains.com/[module]/nightly/[artifact]-[revision].portable[ext]",
+    "https://download.jetbrains.com/[module]/[artifact]-[revision].portable[ext]",
+    "https://www.jetbrains.com/intellij-repository/releases/[orgPath]/[module]/[artifact]/[revision]/[artifact]-[revision][ext]",
+    "https://www.jetbrains.com/intellij-repository/snapshots/[orgPath]/[module]/[artifact]/[revision]-EAP-SNAPSHOT/[artifact]-[revision]-EAP-SNAPSHOT[ext]"
+  )
+
   private val defaultJbrRepositoriesPatterns = Seq(
     "https://cache-redirector.jetbrains.com/intellij-jbr/jbr_dcevm-[major]-[platform]-x64-b[minor].tar.gz",
     "https://cache-redirector.jetbrains.com/intellij-jbr/jbr-[major]-[platform]-x64-b[minor].tar.gz"
@@ -32,7 +41,8 @@ class IdeProbeConfigTest extends IdeProbeFixture {
     // test for the workspace: Option[WorkspaceConfig] field
     assertEquals(None, probeConfig.workspace)
     // tests for the resolvers: DependenciesConfig.Resolvers field
-    assertEquals(Seq.empty, probeConfig.resolvers.intellij.repositories)
+    assertEquals("ideaIC", probeConfig.resolvers.intellij.artifact)
+    assertEquals(defaultIntellijRepositoriesPatterns, probeConfig.resolvers.intellij.repositories)
     assertEquals("https://plugins.jetbrains.com/plugin/download", probeConfig.resolvers.plugins.repository.uri)
     assertEquals(defaultJbrRepositoriesPatterns, probeConfig.resolvers.jbr.repositories)
     assertEquals(0, probeConfig.resolvers.retries)
@@ -83,6 +93,7 @@ class IdeProbeConfigTest extends IdeProbeFixture {
         .nonEmpty
     )
     // tests for the resolvers: DependenciesConfig.Resolvers field
+    assertEquals("ideaIC", probeConfig.resolvers.intellij.artifact)
     assertEquals(
       Seq(
         "https://www.jetbrains.com/intellij-repository/snapshots/" +

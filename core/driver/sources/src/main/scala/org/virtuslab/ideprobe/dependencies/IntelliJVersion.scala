@@ -3,7 +3,9 @@ package org.virtuslab.ideprobe.dependencies
 import pureconfig.ConfigConvert
 import pureconfig.generic.semiauto.deriveConvert
 
-final case class IntelliJVersion(build: String, release: Option[String]) {
+// the `ext` field (file extension) must be an Option[String] and not a String for the ExistingIntelliJ usage
+// inside the `org.virtuslab.ideprobe.dependencies.IntelliJVersionResolver` object
+final case class IntelliJVersion(build: String, release: Option[String], ext: Option[String]) {
   def releaseOrBuild: String = release.getOrElse(build)
 
   def major: Option[String] = {
@@ -31,11 +33,12 @@ final case class IntelliJVersion(build: String, release: Option[String]) {
 object IntelliJVersion {
   implicit val configConvert: ConfigConvert[IntelliJVersion] = deriveConvert[IntelliJVersion]
 
+  // ext = Some(configConvert.map(_.ext).toString) is a convenient way to receive `probe.intellij.version.ext` value
   def snapshot(build: String): IntelliJVersion = {
-    IntelliJVersion(build, None)
+    IntelliJVersion(build = build, release = None, ext = Some(configConvert.map(_.ext).toString))
   }
 
   def release(version: String, build: String): IntelliJVersion = {
-    IntelliJVersion(build, Some(version))
+    IntelliJVersion(build = build, release = Some(version), ext = Some(configConvert.map(_.ext).toString))
   }
 }

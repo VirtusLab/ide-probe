@@ -159,7 +159,7 @@ object IntelliJProvider {
       paths: IdeProbePaths,
       driverConfig: DriverConfig
   ): IntelliJProvider = {
-    val intelliJResolvers = IntelliJZipResolver.fromConfig(resolversConfig.intellij)
+    val intelliJResolvers = IntelliJResolver.fromConfig(resolversConfig.intellij)
     val pluginResolver = PluginResolver.fromConfig(resolversConfig.plugins)
     val jbrResolvers = JbrResolvers.fromConfig(resolversConfig.jbr)
     val resourceProvider = ResourceProvider.fromConfig(paths, resolversConfig.retries)

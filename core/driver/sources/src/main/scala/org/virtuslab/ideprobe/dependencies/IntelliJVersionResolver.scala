@@ -13,6 +13,6 @@ object IntelliJVersionResolver {
     val version = productInfoJsonObject.getAsJsonPrimitive("version").getAsString
     val buildNumber = productInfoJsonObject.getAsJsonPrimitive("buildNumber").getAsString
 
-    IntelliJVersion(buildNumber, Some(version))
+    IntelliJVersion(buildNumber, Some(version), ext = None)
   }
 }

@@ -37,17 +37,10 @@ object IntelliJZipResolver extends IntelliJResolver {
       .resolver(artifact)
   }
 
+  // this method enables downloading .zip IntelliJ even if `probe.intellij.version.ext` is ".dmg"
   def fromConfig(config: DependenciesConfig.IntelliJ): Seq[DependencyResolver[IntelliJVersion]] = {
-    val official = Seq(
-      IntelliJZipResolver.community,
-      AlternativeIntelliJZipResolver.community,
-      NightlyIntelliJZipResolver.community
-    )
-    val fromConfig = config.repositories
-      .flatMap(pattern =>
-        if (Set("official", "default").contains(pattern.toLowerCase)) official
-        else Seq(IntelliJPatternResolver(pattern).community)
-      )
-    if (fromConfig.isEmpty) official else fromConfig
+    val configWithZipRepositories =
+      config.copy(repositories = config.repositories.map(_.replace("[ext]", ".zip")))
+    IntelliJResolver.fromConfig(configWithZipRepositories)
   }
 }
