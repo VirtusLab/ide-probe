@@ -1,0 +1,33 @@
+name: Update IntelliJ Version
+
+on:
+  pull_request:
+
+jobs:
+  bump-intellij-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2.3.4
+        # with:
+        #   token: 'add_secret_variable_with_bot's_personal_access_token_here'
+      - name: Update default IntelliJ version
+        run: |
+          sbt "update-intellij / run --java-home /usr/local/openjdk-11"
+          # git config user.name BOT_USER_NAME
+          # git config user.email BOT_USER_EMAIL
+          # git add .
+          ## `cut -c 14-` extracts intellij version from line starting with "latestStable=" (like "latestStable=2021.2.1")
+          ## // TODO - cope with situations where there is nothing to commit ...
+          # git commit -m "updated default IntelliJ version to $INTELLIJ_VERSION"
+          # git push
+          # echo "Adding comment to the pull request..."
+          # curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+          # echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] \
+          #   https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+          # apt update
+          # apt install gh -y
+          # echo $BOT_TOKEN | gh auth login --with-token // TODO set BOT_TOKEN
+          # PR_NUMBER=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
+          # COMMENT_BODY="" // TODO ADD COMMENT - MENTION https://plugins.jetbrains.com/plugin/1347-scala/versions
+          # gh pr comment $PR_NUMBER --body $COMMENT_BODY 
+          

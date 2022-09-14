@@ -285,6 +285,9 @@ lazy val benchmarks = module("benchmarks", "benchmarks").cross
 
 lazy val benchmarks213 = benchmarks(scala213)
 
+lazy val updateIntellij = project("update-intellij", "ci/update-intellij", publish = false)
+  .settings(libraryDependencies += Dependencies.jsoup)
+
 val commonSettings = Seq(
   libraryDependencies ++= Dependencies.junit
 )
