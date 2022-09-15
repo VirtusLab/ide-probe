@@ -12,17 +12,20 @@ import scala.jdk.CollectionConverters._
 import org.jsoup.Jsoup
 
 object BumpIntelliJ extends App {
-  private val fileName = "intellijVersion.properties"
-  private val releaseRegex = """20\d\d.\d.?\d?"""
 
-  val filesToUpdate = Seq(
-    new File("ci/update-intellij/src/main/resources/intellijVersion.properties"),
-    new File("core/driver/sources/src/main/resources/reference.conf"),
+  private val referenceConfFile = new File("core/driver/sources/src/main/resources/reference.conf")
+  private val ideProbeConfigTestFile =
     new File("core/driver/sources/src/test/scala/org/virtuslab/ideprobe/dependencies/IdeProbeConfigTest.scala")
+
+  private val filesToUpdate = Seq(
+    referenceConfFile,
+    ideProbeConfigTestFile
   )
 
-  private val intellijReleaseFromCode = getValueFromIntellijVersionFile("latestRelease")
-  private val intellijBuildNumberFromCode = getValueFromIntellijVersionFile("connectedBuildNumber")
+  private val releaseRegex = """20\d\d.\d.?\d?"""
+
+  private val intellijReleaseFromReferenceConf = getValueFromReferenceConf("release = \"")
+  private val intellijBuildNumberFromReferenceConf = getValueFromReferenceConf("build = \"")
 
   private val officialIntellijReleaseLinks: List[String] =
     Jsoup
@@ -42,8 +45,8 @@ object BumpIntelliJ extends App {
 
   private val newestStableRelease = officialIntellijReleases.max
 
-  private lazy val newestStableReleasePomLink = officialIntellijReleaseLinks.find(_.contains(newestStableRelease)).get
   private lazy val newestStableBuildNumber = {
+    val newestStableReleasePomLink = officialIntellijReleaseLinks.find(_.contains(newestStableRelease)).get
     def replaceIdeaICPomFileNameWithBuildTxt(ideaICpomFileName: String): String =
       ideaICpomFileName
         .replace("ideaIC-", "BUILD-")
@@ -54,7 +57,7 @@ object BumpIntelliJ extends App {
     Source.fromURL(newestStableBuildNumberFileURL).mkString
   }
 
-  if (newestStableRelease > intellijReleaseFromCode) filesToUpdate.foreach(bumpIntellijVersion)
+  if (newestStableRelease > intellijReleaseFromReferenceConf) filesToUpdate.foreach(bumpIntellijVersion)
 
   private def bumpIntellijVersion(oldFile: File): Unit = {
     val newFile = new File("/tmp/bump_version.txt")
@@ -63,11 +66,13 @@ object BumpIntelliJ extends App {
       .fromFile(oldFile)
       .getLines()
       .map { line =>
-        if (line.contains(intellijReleaseFromCode)) line.replace(intellijReleaseFromCode, newestStableRelease) else line
+        if (line.contains(intellijReleaseFromReferenceConf))
+          line.replace(intellijReleaseFromReferenceConf, newestStableRelease)
+        else line
       }
       .map { line =>
-        if (line.contains(intellijBuildNumberFromCode))
-          line.replace(intellijBuildNumberFromCode, newestStableBuildNumber)
+        if (line.contains(intellijBuildNumberFromReferenceConf))
+          line.replace(intellijBuildNumberFromReferenceConf, newestStableBuildNumber)
         else line
       }
       .foreach(x => w.println(x))
@@ -75,12 +80,14 @@ object BumpIntelliJ extends App {
     Files.move(newFile.toPath, oldFile.toPath, REPLACE_EXISTING)
   }
 
-  private def getValueFromIntellijVersionFile(key: String): String = Source
-    .fromResource(fileName)
+  private def getValueFromReferenceConf(charsUntilValue: String): String = Source
+    .fromFile(referenceConfFile)
     .getLines()
     .toList
-    .find(_.contains(key))
+    .find(_.contains(charsUntilValue))
     .get
-    .substring(key.length + 1) // to extract VALUE from "$key=VALUE" line
+    .trim
+    .substring(charsUntilValue.length)
+    .init // to drop the last double-quote character from the string value
 
 }
