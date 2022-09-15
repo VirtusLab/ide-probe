@@ -84,10 +84,17 @@ object BumpIntelliJ extends App {
     .fromFile(referenceConfFile)
     .getLines()
     .toList
-    .find(_.contains(charsUntilValue))
+    .find(line => line.contains(charsUntilValue) && isNotHoconComment(line, charsUntilValue))
     .get
     .trim
     .substring(charsUntilValue.length)
     .init // to drop the last double-quote character from the string value
+
+  private def isNotHoconComment(line: String, keyChars: String): Boolean = {
+    val commentStrings = Seq("//", "#")
+    commentStrings.forall { commentString =>
+      line.indexOf(commentString) == -1 || line.indexOf(keyChars) < line.indexOf(commentString)
+    }
+  }
 
 }
