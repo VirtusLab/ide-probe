@@ -21,6 +21,8 @@ object ResourceProvider {
     new Cached(paths.cache, retries)
   }
 
+  val Default = new Cached(IdeProbePaths.Default.cache, 0)
+
   final class Cached(directory: Path, retries: Int) extends ResourceProvider {
     override def get(uri: URI, provider: () => InputStream): Path = {
       Resource.from(uri) match {

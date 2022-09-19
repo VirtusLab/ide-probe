@@ -16,6 +16,10 @@ case class IdeProbePaths(
 )
 
 object IdeProbePaths {
+  val Default: IdeProbePaths = {
+    val config = IntelliJFixture.readIdeProbeConfig(Config.fromReferenceConf, "probe")
+    from(config.paths)
+  }
 
   def from(config: PathsConfig): IdeProbePaths = {
     val basePath = config.base.getOrElse(Paths.get(System.getProperty("java.io.tmpdir")).resolve("ide-probe"))
