@@ -2,7 +2,7 @@ name: Update IntelliJ Version
 
 on:
   schedule:
-    - cron: '0 1 * * 1'  # at 01:00 UTC on mondays
+    - cron: '0 0 * * *'  # at 00:00 UTC daily
 
 jobs:
   bump-intellij-version:
