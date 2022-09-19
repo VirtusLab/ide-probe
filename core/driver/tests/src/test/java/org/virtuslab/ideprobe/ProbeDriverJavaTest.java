@@ -1,9 +1,16 @@
 package org.virtuslab.ideprobe;
 
 import org.junit.Test;
+import org.virtuslab.ideprobe.ide.intellij.InstalledIntelliJ;
+import org.virtuslab.ideprobe.ide.intellij.IntelliJProvider;
 import org.virtuslab.ideprobe.protocol.Module;
 import org.virtuslab.ideprobe.protocol.ProjectRef;
+import scala.Function2;
 import scala.concurrent.duration.Duration;
+import scala.runtime.BoxedUnit;
+
+import java.nio.file.Path;
+import java.util.ArrayList;
 
 import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.MINUTES;
@@ -11,13 +18,22 @@ import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
 import static org.virtuslab.ideprobe.WaitLogic.emptyBackgroundTasks;
 import static org.virtuslab.ideprobe.wait.WaitLogicFactory.*;
+import static scala.collection.JavaConverters.collectionAsScalaIterable;
 import static scala.collection.JavaConverters.seqAsJavaList;
 
 public class ProbeDriverJavaTest {
     @Test
     public void openProject() {
-        var config = Config.fromString("probe.workspace.path = \"classpath:/gradle-project\"");
-        var fixture = IntelliJFixture.fromConfig(config, "probe", IdeProbeFixture.defaultEC());
+        var workspaceProvider = new WorkspaceTemplate.FromResource("gradle-project");
+        var fixture = new IntelliJFixture(
+                workspaceProvider,
+                IntelliJProvider.Default(),
+                Config.Empty(),
+                // API issue - need to use scalaconverters and scala's Function2 (#220)
+                collectionAsScalaIterable(new ArrayList<Function2<IntelliJFixture, Path, BoxedUnit>>()).toSeq(),
+                collectionAsScalaIterable(new ArrayList<Function2<IntelliJFixture, InstalledIntelliJ, BoxedUnit>>()).toSeq(),
+                collectionAsScalaIterable(new ArrayList<Function2<IntelliJFixture, RunningIntelliJFixture, BoxedUnit>>()).toSeq(),
+                IdeProbeFixture.defaultEC());
 
         fixture.run().apply(intelliJ -> {
             var expectedProjectName = "foo";
