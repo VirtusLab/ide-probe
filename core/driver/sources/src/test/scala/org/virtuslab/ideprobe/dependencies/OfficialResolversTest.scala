@@ -38,7 +38,7 @@ final class OfficialResolversTest {
       ),
       "probe"
     )
-    val intellijResolvers = IntelliJResolver.fromConfig(probeConfig.resolvers.intellij)
+    val intellijResolvers = IntelliJResolver.fromConfig(probeConfig.resolvers)
     val snapshotResolverOption = intellijResolvers.find { dependencyResolver =>
       val resolved = dependencyResolver.resolve(probeConfig.intellij.asInstanceOf[IntellijConfig.Default].version)
       resolved.asInstanceOf[Dependency.Artifact].uri.toString.endsWith("-EAP-SNAPSHOT.zip")
@@ -58,7 +58,7 @@ final class OfficialResolversTest {
   def resolvesBuildToExistingArtifactFromConfig(): Unit = {
     val intellijVersion = defaultProbeConfig.intellij.asInstanceOf[IntellijConfig.Default].version
     val officialReleasesRepositoryURL = "https://www.jetbrains.com/intellij-repository/releases/"
-    val intellijResolvers = IntelliJResolver.fromConfig(defaultProbeConfig.resolvers.intellij)
+    val intellijResolvers = IntelliJResolver.fromConfig(defaultProbeConfig.resolvers)
     val releaseResolver = intellijResolvers.find { dependencyResolver =>
       val resolved = dependencyResolver.resolve(intellijVersion)
       // we should use `officialReleasesRepositoryURL` as the default config uses an official release of intelliJ

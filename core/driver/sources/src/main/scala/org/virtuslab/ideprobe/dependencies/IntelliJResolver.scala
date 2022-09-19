@@ -10,8 +10,8 @@ trait IntelliJResolver {
 }
 
 object IntelliJResolver {
-  def fromConfig(config: DependenciesConfig.IntelliJ): Seq[DependencyResolver[IntelliJVersion]] =
-    config.repositories.flatMap { pattern =>
+  def fromConfig(config: DependenciesConfig.Resolvers): Seq[DependencyResolver[IntelliJVersion]] =
+    config.intellij.repositories.flatMap { pattern =>
       if (Set("official", "default").contains(pattern.toLowerCase)) {
         val probeConfigFromReference = IntelliJFixture.readIdeProbeConfig(Config.fromReferenceConf, "probe")
         val officialRepositoriesPatterns = probeConfigFromReference.resolvers.intellij.repositories

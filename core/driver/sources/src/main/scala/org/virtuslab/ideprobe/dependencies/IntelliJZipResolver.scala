@@ -1,6 +1,7 @@
 package org.virtuslab.ideprobe.dependencies
 
 import org.virtuslab.ideprobe.config.DependenciesConfig
+import org.virtuslab.ideprobe.config.DependenciesConfig.IntelliJ
 import org.virtuslab.ideprobe.dependencies.Dependency.Artifact
 
 object NightlyIntelliJZipResolver
@@ -38,9 +39,9 @@ object IntelliJZipResolver extends IntelliJResolver {
   }
 
   // this method enables downloading .zip IntelliJ even if `probe.intellij.version.ext` is ".dmg"
-  def fromConfig(config: DependenciesConfig.IntelliJ): Seq[DependencyResolver[IntelliJVersion]] = {
+  def fromConfig(config: DependenciesConfig.Resolvers): Seq[DependencyResolver[IntelliJVersion]] = {
     val configWithZipRepositories =
-      config.copy(repositories = config.repositories.map(_.replace("[ext]", ".zip")))
+      config.copy(intellij = IntelliJ(config.intellij.repositories.map(_.replace("[ext]", ".zip"))))
     IntelliJResolver.fromConfig(configWithZipRepositories)
   }
 }

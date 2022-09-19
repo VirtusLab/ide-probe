@@ -41,7 +41,7 @@ class IdeProbeConfigTest extends IdeProbeFixture {
     // test for the workspace: Option[WorkspaceConfig] field
     assertEquals(None, probeConfig.workspace)
     // tests for the resolvers: DependenciesConfig.Resolvers field
-    assertEquals("ideaIC", probeConfig.resolvers.intellij.artifact)
+    assertEquals("ideaIC", probeConfig.resolvers.artifact)
     assertEquals(defaultIntellijRepositoriesPatterns, probeConfig.resolvers.intellij.repositories)
     assertEquals("https://plugins.jetbrains.com/plugin/download", probeConfig.resolvers.plugins.repository.uri)
     assertEquals(defaultJbrRepositoriesPatterns, probeConfig.resolvers.jbr.repositories)
@@ -93,7 +93,7 @@ class IdeProbeConfigTest extends IdeProbeFixture {
         .nonEmpty
     )
     // tests for the resolvers: DependenciesConfig.Resolvers field
-    assertEquals("ideaIC", probeConfig.resolvers.intellij.artifact)
+    assertEquals("ideaIC", probeConfig.resolvers.artifact)
     assertEquals(
       Seq(
         "https://www.jetbrains.com/intellij-repository/snapshots/" +
