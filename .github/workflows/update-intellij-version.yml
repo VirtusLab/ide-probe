@@ -2,7 +2,7 @@ name: Update IntelliJ Version
 
 on:
   schedule:
-    - cron: '0 1 * * 1'
+    - cron: '0 1 * * 1'  # at 01:00 UTC on mondays
 
 jobs:
   bump-intellij-version:
@@ -16,8 +16,8 @@ jobs:
         # language=sh
         run: |
           release_line=$(grep 'release = \"' core/driver/sources/src/main/resources/reference.conf)
-          intellij_version=$(awk -F'\"|\"' '{print $2}' <<< "$release_line")
-          echo "BRANCH_NAME=update_intellij_version_to_$intellij_version" >> $GITHUB_ENV
+          intellij_version=$(cut -d'"' -f2 <<< "$release_line")
+          echo "BRANCH_NAME=update_intellij_version/$intellij_version" >> $GITHUB_ENV
           echo "PR_TITLE=Update IntelliJ version to $intellij_version" >> $GITHUB_ENV
           scala_plugin_file_url="https://github.com/VirtusLab/ide-probe/blob/master/extensions/scala/tests/src/test/resources/scala.conf"
           scala_plugin_versions_url="https://plugins.jetbrains.com/plugin/1347-scala/versions"
@@ -30,5 +30,6 @@ jobs:
         with:
           branch: ${{ env.BRANCH_NAME }}
           base: "master"
+          commit-message: ${{ env.PR_TITLE }}
           title: ${{ env.PR_TITLE }}
           body: ${{ env.PR_BODY }}
