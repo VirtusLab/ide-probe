@@ -16,10 +16,10 @@ object IntelliJResolver {
         val probeConfigFromReference = IntelliJFixture.readIdeProbeConfig(Config.fromReferenceConf, "probe")
         val officialRepositoriesPatterns = probeConfigFromReference.resolvers.intellij.repositories
         officialRepositoriesPatterns.map { repositoryPattern =>
-          IntelliJPatternResolver(repositoryPattern).resolver(config.artifact)
+          IntelliJPatternResolver(repositoryPattern).resolver("ideaIC") // only .zip is supported for now
         }
       } else
-        Seq(IntelliJPatternResolver(pattern).resolver(config.artifact))
+        Seq(IntelliJPatternResolver(pattern).resolver("ideaIC")) // only .zip is supported for now
     }
 }
 
