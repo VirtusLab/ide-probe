@@ -5,6 +5,8 @@ import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 
+import scala.collection.mutable
+
 import org.eclipse.jgit.api.CloneCommand
 import org.eclipse.jgit.api.CreateBranchCommand
 import org.eclipse.jgit.api.Git
@@ -75,20 +77,20 @@ object GitHandler {
     private val completion: AtomicInteger = new AtomicInteger()
     private val task: AtomicReference[String] = new AtomicReference()
 
+    private val titlePercentArray: mutable.ArrayBuffer[(String, Int)] = mutable.ArrayBuffer.empty
+
     @inline
-    private def renderProgress(completed: Int): String = {
+    private def printProgress(completed: Int): Unit = {
       val total = totalWork.get()
       val title = task.get()
-      val inner =
-        if (total == 0)
-          ""
-        else if (completed == total)
-          s"$title 100% ($total/$total)\n"
-        else {
-          val percent = (100 * completed) / total
-          s"$title $percent% ($completed/$total)"
-        }
-      s"\r$inner"
+
+      if (total == 0) return
+
+      val percent = (100 * completed) / total
+      if (!titlePercentArray.contains((title, percent))) { // to print only one line per 1 percent in logs
+        titlePercentArray += (title -> percent)
+        println(s"$title $percent% ($completed/$total)")
+      }
     }
 
     override def start(totalTasks: Int): Unit = {
@@ -103,7 +105,7 @@ object GitHandler {
 
     override def update(completed: Int): Unit = {
       val current = completion.getAndUpdate(_ + completed)
-      print(renderProgress(current))
+      printProgress(current)
     }
 
     override def endTask(): Unit = {
