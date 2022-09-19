@@ -86,14 +86,10 @@ object GitHandler {
 
       if (total == 0) return
 
-      if (completed == total) {
-        println(s"$title 100% ($total/$total)")
-      } else {
-        val percent = (100 * completed) / total
-        if (!titlePercentArray.contains((title, percent))) { // to print only one line per 1 percent in logs
-          titlePercentArray += (title -> percent)
-          println(s"$title $percent% ($completed/$total)")
-        }
+      val percent = (100 * completed) / total
+      if (!titlePercentArray.contains((title, percent))) { // to print only one line per 1 percent in logs
+        titlePercentArray += (title -> percent)
+        println(s"$title $percent% ($completed/$total)")
       }
     }
 
