@@ -25,8 +25,7 @@ import org.virtuslab.ideprobe.SingleRunIntelliJ
 
 @RunWith(classOf[JUnit4])
 final class SingleRunFixtureTest extends IdeProbeFixture with WorkspaceFixture with Assertions {
-  private val defaultIntelliJFixture = IntelliJFixture.fromConfig(Config.fromReferenceConf)
-  private val fixture = new SingleRunIntelliJ(defaultIntelliJFixture)
+  private val fixture = new SingleRunIntelliJ(IntelliJFixture())
 
   @Test // TODO use ProcessHandle when on java 9
   def shutdownsLauncherAfterTest(): Unit = {
@@ -57,7 +56,7 @@ final class SingleRunFixtureTest extends IdeProbeFixture with WorkspaceFixture w
 
   @Test
   def removesDirectoriesEvenAfterFailureToRunIntelliJ(): Unit = {
-    val intelliJFixture = defaultIntelliJFixture.withAfterIntelliJInstall((_, intellij) =>
+    val intelliJFixture = IntelliJFixture().withAfterIntelliJInstall((_, intellij) =>
       Files.delete(intellij.paths.root.resolve("bin").resolve("idea.sh")) // To prevent the IDE from launching.
     )
 

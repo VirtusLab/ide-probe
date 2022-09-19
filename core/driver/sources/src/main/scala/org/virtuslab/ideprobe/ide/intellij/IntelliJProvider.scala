@@ -153,6 +153,14 @@ final case class IntelliJFactory(
 }
 
 object IntelliJProvider {
+  val Default: IntelliJFactory = {
+    val config = IntelliJFixture.readIdeProbeConfig(Config.fromReferenceConf, "probe")
+    from(config.intellij, config.resolvers, IdeProbePaths.from(config.paths), config.driver)
+      .asInstanceOf[
+        IntelliJFactory
+      ] // will work since default config from reference.conf leads to IntelliJFactory usage
+  }
+
   def from(
       intelliJConfig: IntellijConfig,
       resolversConfig: DependenciesConfig.Resolvers,

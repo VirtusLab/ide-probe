@@ -6,7 +6,6 @@ import scala.annotation.tailrec
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 
-import org.virtuslab.ideprobe.IntelliJFixture._
 import org.virtuslab.ideprobe.config.IdeProbeConfig
 import org.virtuslab.ideprobe.dependencies.IntelliJVersion
 import org.virtuslab.ideprobe.dependencies.Plugin
@@ -16,7 +15,7 @@ import org.virtuslab.ideprobe.ide.intellij.RunningIde
 
 final case class IntelliJFixture(
     workspaceProvider: WorkspaceProvider = WorkspaceTemplate.Empty,
-    intelliJProvider: IntelliJProvider = getIntelliJProvider(readIdeProbeConfig(Config.fromReferenceConf, ConfigRoot)),
+    intelliJProvider: IntelliJProvider = IntelliJProvider.Default,
     config: Config = Config.Empty,
     afterWorkspaceSetup: Seq[(IntelliJFixture, Path) => Unit] = Nil,
     afterIntelliJInstall: Seq[(IntelliJFixture, InstalledIntelliJ) => Unit] = Nil,
