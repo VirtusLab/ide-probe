@@ -15,6 +15,7 @@ import pureconfig.ConfigReader
 
 import org.virtuslab.ideprobe.ConfigFormat
 import org.virtuslab.ideprobe.Extensions._
+import org.virtuslab.ideprobe.OS
 
 sealed trait Resource
 
@@ -86,6 +87,24 @@ object Resource extends ConfigFormat {
     }
   }
 
+  final class DMGFile(val path: Path) extends IntellijResource {
+    def installTo(target: Path): Unit = {
+      import sys.process._
+
+      // attach disk image from .dmg file to local filesystem
+      val dmgDir = s"${System.getProperty("java.io.tmpdir")}dmg_dir"
+      s"mkdir $dmgDir".!
+      s"hdiutil attach -mountpoint $dmgDir ${path.toString}".!
+
+      // copy $dmgDir/IntelliJ IDEA CE.app to proper installation directory
+      val idePath = Paths.get(s"$dmgDir/IntelliJ IDEA CE.app/Contents")
+      idePath.copyDir(target)
+
+      // detach disk image from local filesystem
+      s"hdiutil detach $dmgDir".!
+    }
+  }
+
   final class Plain(val path: Path) extends IntellijResource {
     def installTo(target: Path): Unit = {
       path.copyDir(target)
@@ -111,6 +130,12 @@ object Resource extends ConfigFormat {
     }
   }
 
+  object DMGFile {
+    def unapply(path: Path): Option[DMGFile] = {
+      if (path.toString.endsWith(".dmg") && OS.Current == OS.Mac) Some(new DMGFile(path)) else None
+    }
+  }
+
   object Plain {
     def unapply(path: Path): Option[Plain] = {
       if (path.isDirectory) Some(new Plain(path)) else None
@@ -120,6 +145,7 @@ object Resource extends ConfigFormat {
   implicit class ExtractorExtension(path: Path) {
     def toExtracted: IntellijResource = path match {
       case Archive(archive) => archive
+      case DMGFile(archive) => archive
       case Plain(archive)   => archive
       case _                => throw new IllegalStateException(s"Not an archive: $path")
     }
