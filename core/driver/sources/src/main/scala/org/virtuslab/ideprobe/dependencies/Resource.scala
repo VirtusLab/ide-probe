@@ -92,8 +92,9 @@ object Resource extends ConfigFormat {
       import sys.process._
 
       // create tmp directory where disk image will be attached
-      val dmgDir = Paths.get(System.getProperty("java.io.tmpdir")).resolve("dmg_dir")
-      dmgDir.createDirectory()
+      val dmgDirPath = Paths.get(System.getProperty("java.io.tmpdir")).resolve("dmg_dir")
+      dmgDirPath.createDirectory()
+      val dmgDir = dmgDirPath.toString
 
       try {
         // attach disk image from .dmg file to local filesystem
