@@ -91,17 +91,21 @@ object Resource extends ConfigFormat {
     def installTo(target: Path): Unit = {
       import sys.process._
 
-      // attach disk image from .dmg file to local filesystem
-      val dmgDir = s"${System.getProperty("java.io.tmpdir")}dmg_dir"
-      s"mkdir $dmgDir".!
-      s"hdiutil attach -mountpoint $dmgDir ${path.toString}".!
+      // create tmp directory where disk image will be attached
+      val dmgDir = Paths.get(System.getProperty("java.io.tmpdir")).resolve("dmg_dir")
+      dmgDir.createDirectory()
 
-      // copy $dmgDir/IntelliJ IDEA CE.app to proper installation directory
-      val idePath = Paths.get(s"$dmgDir/IntelliJ IDEA CE.app/Contents")
-      idePath.copyDir(target)
+      try {
+        // attach disk image from .dmg file to local filesystem
+        s"hdiutil attach -mountpoint $dmgDir ${path.toString}".!
+        // copy $dmgDir/IntelliJ IDEA CE.app/ to proper installation directory
+        val idePath = Paths.get(s"$dmgDir/IntelliJ IDEA CE.app/Contents")
+        idePath.copyDir(target)
+      } finally {
+        // detach disk image from local filesystem
+        s"hdiutil detach $dmgDir".!
+      }
 
-      // detach disk image from local filesystem
-      s"hdiutil detach $dmgDir".!
     }
   }
 
