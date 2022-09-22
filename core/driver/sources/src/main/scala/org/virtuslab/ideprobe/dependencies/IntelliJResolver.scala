@@ -47,6 +47,7 @@ case class IntelliJPatternResolver(pattern: String) extends IntelliJResolver {
       path.replace(s"[$pattern]", replacement)
     }
     val replaced = replaceGlobsWithExistingDirectories(List(replacedBeforeResolvingGlobs)).head
+    println(s"\nGoing to get IntelliJ instance from following path:\n$replaced\n")
     Dependency(replaced)
   }
 
