@@ -31,7 +31,7 @@ case class IntelliJPatternResolver(pattern: String) extends IntelliJResolver {
       "orgPath" -> "com/jetbrains/intellij",
       "module" -> "idea",
       "artifact" -> artifact,
-      "ext" -> version.ext.get, // .get will be OK since we have `ext = ".zip"` in the reference.conf file
+      "ext" -> version.ext,
       "revision" -> version.releaseOrBuild,
       "build" -> version.build,
       "version" -> version.releaseOrBuild,

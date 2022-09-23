@@ -18,7 +18,7 @@ final class OfficialResolversTest {
   @Test
   def resolvesImplicitSnapshot(): Unit = {
     val repo = IntelliJZipResolver.community
-    val version = IntelliJVersion(build = "202.6397.20", release = None, ext = Some("zip"))
+    val version = IntelliJVersion(build = "202.6397.20", release = None, ext = "zip")
 
     val artifact = repo.resolve(version).asInstanceOf[Dependency.Artifact]
 
