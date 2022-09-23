@@ -3,7 +3,6 @@ package org.virtuslab.ideprobe.dependencies
 import pureconfig.ConfigConvert
 import pureconfig.generic.semiauto.deriveConvert
 
-import org.virtuslab.ideprobe.Config
 import org.virtuslab.ideprobe.IntelliJFixture
 import org.virtuslab.ideprobe.config.IntellijConfig
 
@@ -37,10 +36,7 @@ final case class IntelliJVersion(build: String, release: Option[String], ext: Op
 object IntelliJVersion {
   implicit val configConvert: ConfigConvert[IntelliJVersion] = deriveConvert[IntelliJVersion]
 
-  private lazy val defaultConfig = IntelliJFixture
-    .readIdeProbeConfig(Config.fromReferenceConf, "probe")
-    .intellij
-    .asInstanceOf[IntellijConfig.Default]
+  private lazy val defaultConfig = IntelliJFixture.defaultIdeProbeConfig.intellij.asInstanceOf[IntellijConfig.Default]
 
   val Latest: IntelliJVersion = defaultConfig.version
 

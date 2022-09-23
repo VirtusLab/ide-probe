@@ -20,8 +20,7 @@ import org.virtuslab.ideprobe.ide.intellij.IntelliJProvider
 final class IntelliJProviderTest {
   private implicit val ec: ExecutionContext = ExecutionContext.fromExecutorService(Executors.newCachedThreadPool())
 
-  private val probeConfig = IntelliJFixture
-    .readIdeProbeConfig(Config.fromReferenceConf, "probe")
+  private val probeConfig = IntelliJFixture.defaultIdeProbeConfig
   private val defaultIntellijProvider = IntelliJProvider
     .from(probeConfig.intellij, probeConfig.resolvers, IdeProbePaths.from(probeConfig.paths), probeConfig.driver)
 

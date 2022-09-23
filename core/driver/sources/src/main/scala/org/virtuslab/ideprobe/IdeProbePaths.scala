@@ -17,7 +17,7 @@ case class IdeProbePaths(
 
 object IdeProbePaths {
   val Default: IdeProbePaths = {
-    val config = IntelliJFixture.readIdeProbeConfig(Config.fromReferenceConf, "probe")
+    val config = IntelliJFixture.defaultIdeProbeConfig
     from(config.paths)
   }
 

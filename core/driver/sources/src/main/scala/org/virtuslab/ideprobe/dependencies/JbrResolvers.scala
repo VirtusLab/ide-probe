@@ -14,8 +14,7 @@ object JbrResolvers {
   def fromConfig(config: DependenciesConfig.Jbr): Seq[DependencyResolver[Path]] =
     config.repositories.flatMap { pattern =>
       if (Set("official", "default").contains(pattern.toLowerCase)) {
-        val probeConfigFromReference = IntelliJFixture.readIdeProbeConfig(Config.fromReferenceConf, "probe")
-        val officialJbrRepositoriesPatterns = probeConfigFromReference.resolvers.jbr.repositories
+        val officialJbrRepositoriesPatterns = IntelliJFixture.defaultIdeProbeConfig.resolvers.jbr.repositories
         officialJbrRepositoriesPatterns.map(repositoryPattern => JbrPatternResolver(repositoryPattern))
       } else Seq(JbrPatternResolver(pattern))
     }

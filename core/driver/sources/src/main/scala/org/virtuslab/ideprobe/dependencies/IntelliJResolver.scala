@@ -1,6 +1,5 @@
 package org.virtuslab.ideprobe.dependencies
 
-import org.virtuslab.ideprobe.Config
 import org.virtuslab.ideprobe.IntelliJFixture
 import org.virtuslab.ideprobe.config.DependenciesConfig
 
@@ -13,13 +12,12 @@ object IntelliJResolver {
   def fromConfig(config: DependenciesConfig.Resolvers): Seq[DependencyResolver[IntelliJVersion]] =
     config.intellij.repositories.flatMap { pattern =>
       if (Set("official", "default").contains(pattern.toLowerCase)) {
-        val probeConfigFromReference = IntelliJFixture.readIdeProbeConfig(Config.fromReferenceConf, "probe")
-        val officialRepositoriesPatterns = probeConfigFromReference.resolvers.intellij.repositories
+        val officialRepositoriesPatterns = IntelliJFixture.defaultIdeProbeConfig.resolvers.intellij.repositories
         officialRepositoriesPatterns.map { repositoryPattern =>
-          IntelliJPatternResolver(repositoryPattern).resolver("ideaIC") // only .zip is supported for now
+          IntelliJPatternResolver(repositoryPattern).resolver("ideaIC")
         }
       } else
-        Seq(IntelliJPatternResolver(pattern).resolver("ideaIC")) // only .zip is supported for now
+        Seq(IntelliJPatternResolver(pattern).resolver("ideaIC"))
     }
 }
 
