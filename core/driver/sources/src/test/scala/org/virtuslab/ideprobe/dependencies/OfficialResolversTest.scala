@@ -47,7 +47,7 @@ final class OfficialResolversTest {
 
   @Test
   def resolvesBuildToExistingArtifact(): Unit = {
-    val version = defaultProbeConfig.intellij.asInstanceOf[IntellijConfig.Default].version
+    val version = IntelliJVersion.Latest
     val uri = IntelliJZipResolver.community.resolve(version)
 
     verify(uri)

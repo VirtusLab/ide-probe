@@ -26,9 +26,7 @@ import org.virtuslab.ideprobe.robot.RobotPluginExtension
 
 @RunWith(classOf[JUnit4])
 final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPluginExtension {
-  private val probeConfig = IntelliJFixture.defaultConfig
-  private val intelliJProvider = IntelliJProvider
-    .from(probeConfig.intellij, probeConfig.resolvers, IdeProbePaths.from(probeConfig.paths), probeConfig.driver)
+  private val intelliJProvider = IntelliJProvider.Default
   private val scalaPlugin = Plugin("org.intellij.scala", "2021.2.10")
   private val probeTestPlugin = ProbeTestPlugin.bundled(intelliJProvider.version)
 
