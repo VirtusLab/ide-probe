@@ -32,8 +32,8 @@ final class IntelliJProviderTest {
 
       // then
       assert(
-        intelliJVersion.build == defaultIntellijProvider.version.build,
-        s"Expected ${defaultIntellijProvider.version}, but got $intelliJVersion."
+        intelliJVersion.build == IntelliJProvider.Default.version.build,
+        s"Expected ${IntelliJProvider.Default.version}, but got $intelliJVersion."
       )
   }
 
@@ -62,7 +62,7 @@ final class IntelliJProviderTest {
 
   @Test
   def shouldInstallIntellijFromExtractedRepository(): Unit = givenInstalledIntelliJ { installationRoot =>
-    val build = probeConfig.intellij.asInstanceOf[IntellijConfig.Default].version.build
+    val build = IntelliJVersion.Latest.build
     val installationPattern = installationRoot.toString.replace(build, "[revision]")
     installationRoot.resolve("dependencies.txt").delete()
     installationRoot.resolve("MacOS").delete()
