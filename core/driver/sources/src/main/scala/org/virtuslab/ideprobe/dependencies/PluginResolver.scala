@@ -1,10 +1,13 @@
 package org.virtuslab.ideprobe.dependencies
 
+import org.virtuslab.ideprobe.IntelliJFixture
 import org.virtuslab.ideprobe.config.DependenciesConfig
 import org.virtuslab.ideprobe.dependencies.Plugin._
 import org.virtuslab.ideprobe.error
 
 object PluginResolver {
+  val Official: DependencyResolver[Plugin] =
+    PluginResolver(IntelliJFixture.defaultIdeProbeConfig.resolvers.plugins.repository.uri)
 
   def apply(uri: String): DependencyResolver[Plugin] = {
     new Resolver(uri)
