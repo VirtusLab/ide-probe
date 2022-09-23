@@ -38,7 +38,7 @@ object IntelliJVersion {
 
   private lazy val defaultConfig = IntelliJFixture.defaultIdeProbeConfig.intellij.asInstanceOf[IntellijConfig.Default]
 
-  val Latest: IntelliJVersion = defaultConfig.version
+  lazy val Latest: IntelliJVersion = defaultConfig.version
 
   def snapshot(build: String): IntelliJVersion = {
     IntelliJVersion(build = build, release = None, ext = defaultConfig.version.ext)

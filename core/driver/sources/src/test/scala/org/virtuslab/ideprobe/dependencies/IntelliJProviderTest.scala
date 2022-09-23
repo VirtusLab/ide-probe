@@ -13,7 +13,6 @@ import org.virtuslab.ideprobe.Config
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.IdeProbePaths
 import org.virtuslab.ideprobe.IntelliJFixture
-import org.virtuslab.ideprobe.config.IntellijConfig
 import org.virtuslab.ideprobe.ide.intellij.IntelliJProvider
 
 @RunWith(classOf[JUnit4])

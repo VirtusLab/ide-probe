@@ -12,9 +12,9 @@ object AlternativeIntelliJZipResolver
 
 object IntelliJZipResolver extends IntelliJResolver {
 
-  val community: DependencyResolver[IntelliJVersion] = official("ideaIC")
+  lazy val community: DependencyResolver[IntelliJVersion] = official("ideaIC")
 
-  val ultimate: DependencyResolver[IntelliJVersion] = official("ideaIU")
+  lazy val ultimate: DependencyResolver[IntelliJVersion] = official("ideaIU")
 
   private def official(artifact: String): DependencyResolver[IntelliJVersion] = {
     val officialUri = "https://www.jetbrains.com/intellij-repository"
