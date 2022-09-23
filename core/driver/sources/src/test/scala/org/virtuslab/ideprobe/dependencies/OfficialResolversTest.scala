@@ -55,7 +55,7 @@ final class OfficialResolversTest {
 
   @Test
   def resolvesBuildToExistingArtifactFromConfig(): Unit = {
-    val intellijVersion = defaultProbeConfig.intellij.asInstanceOf[IntellijConfig.Default].version
+    val intellijVersion = IntelliJVersion.Latest
     val officialReleasesRepositoryURL = "https://www.jetbrains.com/intellij-repository/releases/"
     val intellijResolvers = IntelliJResolver.fromConfig(defaultProbeConfig.resolvers)
     val releaseResolver = intellijResolvers.find { dependencyResolver =>
@@ -69,7 +69,7 @@ final class OfficialResolversTest {
   @Test
   def resolvesPluginToExistingArtifact(): Unit = {
     val plugin = Plugin("org.intellij.scala", "2020.2.7")
-    val uri = PluginResolver.fromConfig(defaultProbeConfig.resolvers.plugins).resolve(plugin)
+    val uri = PluginResolver.Official.resolve(plugin)
 
     verify(uri)
   }
