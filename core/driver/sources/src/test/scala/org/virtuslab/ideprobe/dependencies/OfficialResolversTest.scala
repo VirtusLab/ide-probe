@@ -13,7 +13,7 @@ import org.virtuslab.ideprobe.config.IntellijConfig
 
 @RunWith(classOf[JUnit4])
 final class OfficialResolversTest {
-  private val defaultProbeConfig = IntelliJFixture.defaultIdeProbeConfig
+  private val defaultProbeConfig = IntelliJFixture.defaultConfig
 
   @Test
   def resolvesImplicitSnapshot(): Unit = {

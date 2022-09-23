@@ -129,7 +129,7 @@ final case class IntelliJFixture(
 
 object IntelliJFixture {
   private val ConfigRoot = "probe"
-  lazy val defaultIdeProbeConfig: IdeProbeConfig = readIdeProbeConfig(Config.fromReferenceConf, "probe")
+  lazy val defaultConfig: IdeProbeConfig = readIdeProbeConfig(Config.fromReferenceConf, ConfigRoot)
 
   def fromConfig(config: Config, path: String = ConfigRoot)(implicit ec: ExecutionContext): IntelliJFixture = {
     val probeConfig = readIdeProbeConfig(config, path)

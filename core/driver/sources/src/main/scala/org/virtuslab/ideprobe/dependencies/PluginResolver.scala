@@ -7,7 +7,7 @@ import org.virtuslab.ideprobe.error
 
 object PluginResolver {
   lazy val Official: DependencyResolver[Plugin] =
-    PluginResolver(IntelliJFixture.defaultIdeProbeConfig.resolvers.plugins.repository.uri)
+    PluginResolver(IntelliJFixture.defaultConfig.resolvers.plugins.repository.uri)
 
   def apply(uri: String): DependencyResolver[Plugin] = {
     new Resolver(uri)

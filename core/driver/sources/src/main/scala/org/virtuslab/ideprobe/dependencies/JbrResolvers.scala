@@ -12,12 +12,12 @@ import org.virtuslab.ideprobe.Extensions.PathExtension
 
 object JbrResolvers {
   lazy val official: Seq[JbrPatternResolver] =
-    IntelliJFixture.defaultIdeProbeConfig.resolvers.jbr.repositories.map(JbrPatternResolver)
+    IntelliJFixture.defaultConfig.resolvers.jbr.repositories.map(JbrPatternResolver)
 
   def fromConfig(config: DependenciesConfig.Jbr): Seq[DependencyResolver[Path]] =
     config.repositories.flatMap { pattern =>
       if (Set("official", "default").contains(pattern.toLowerCase)) {
-        val officialJbrRepositoriesPatterns = IntelliJFixture.defaultIdeProbeConfig.resolvers.jbr.repositories
+        val officialJbrRepositoriesPatterns = IntelliJFixture.defaultConfig.resolvers.jbr.repositories
         officialJbrRepositoriesPatterns.map(repositoryPattern => JbrPatternResolver(repositoryPattern))
       } else Seq(JbrPatternResolver(pattern))
     }

@@ -36,7 +36,7 @@ final case class IntelliJVersion(build: String, release: Option[String], ext: Op
 object IntelliJVersion {
   implicit val configConvert: ConfigConvert[IntelliJVersion] = deriveConvert[IntelliJVersion]
 
-  private lazy val defaultConfig = IntelliJFixture.defaultIdeProbeConfig.intellij.asInstanceOf[IntellijConfig.Default]
+  private lazy val defaultConfig = IntelliJFixture.defaultConfig.intellij.asInstanceOf[IntellijConfig.Default]
 
   lazy val Latest: IntelliJVersion = defaultConfig.version
 

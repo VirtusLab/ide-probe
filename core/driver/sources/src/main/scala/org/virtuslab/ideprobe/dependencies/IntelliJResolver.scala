@@ -12,7 +12,7 @@ object IntelliJResolver {
   def fromConfig(config: DependenciesConfig.Resolvers): Seq[DependencyResolver[IntelliJVersion]] =
     config.intellij.repositories.flatMap { pattern =>
       if (Set("official", "default").contains(pattern.toLowerCase)) {
-        val officialRepositoriesPatterns = IntelliJFixture.defaultIdeProbeConfig.resolvers.intellij.repositories
+        val officialRepositoriesPatterns = IntelliJFixture.defaultConfig.resolvers.intellij.repositories
         officialRepositoriesPatterns.map { repositoryPattern =>
           IntelliJPatternResolver(repositoryPattern).resolver("ideaIC")
         }

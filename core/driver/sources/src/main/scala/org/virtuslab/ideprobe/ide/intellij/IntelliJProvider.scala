@@ -154,7 +154,7 @@ final case class IntelliJFactory(
 
 object IntelliJProvider {
   lazy val Default: IntelliJFactory = {
-    val config = IntelliJFixture.defaultIdeProbeConfig
+    val config = IntelliJFixture.defaultConfig
     from(config.intellij, config.resolvers, IdeProbePaths.from(config.paths), config.driver)
       .asInstanceOf[
         IntelliJFactory
