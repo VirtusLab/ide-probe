@@ -10,7 +10,7 @@ object DependenciesConfig {
 
   case class IntelliJ(repositories: Seq[String])
 
-  case class Plugins(repository: Option[PluginRepository])
+  case class Plugins(repository: PluginRepository)
 
   case class PluginRepository(uri: String)
 

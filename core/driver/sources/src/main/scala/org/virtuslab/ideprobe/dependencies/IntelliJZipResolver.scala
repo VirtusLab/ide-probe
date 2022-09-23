@@ -1,6 +1,7 @@
 package org.virtuslab.ideprobe.dependencies
 
 import org.virtuslab.ideprobe.config.DependenciesConfig
+import org.virtuslab.ideprobe.config.DependenciesConfig.IntelliJ
 import org.virtuslab.ideprobe.dependencies.Dependency.Artifact
 
 object NightlyIntelliJZipResolver
@@ -11,9 +12,9 @@ object AlternativeIntelliJZipResolver
 
 object IntelliJZipResolver extends IntelliJResolver {
 
-  val community: DependencyResolver[IntelliJVersion] = official("ideaIC")
+  lazy val community: DependencyResolver[IntelliJVersion] = official("ideaIC")
 
-  val ultimate: DependencyResolver[IntelliJVersion] = official("ideaIU")
+  lazy val ultimate: DependencyResolver[IntelliJVersion] = official("ideaIU")
 
   private def official(artifact: String): DependencyResolver[IntelliJVersion] = {
     val officialUri = "https://www.jetbrains.com/intellij-repository"
@@ -37,17 +38,10 @@ object IntelliJZipResolver extends IntelliJResolver {
       .resolver(artifact)
   }
 
-  def fromConfig(config: DependenciesConfig.IntelliJ): Seq[DependencyResolver[IntelliJVersion]] = {
-    val official = Seq(
-      IntelliJZipResolver.community,
-      AlternativeIntelliJZipResolver.community,
-      NightlyIntelliJZipResolver.community
-    )
-    val fromConfig = config.repositories
-      .flatMap(pattern =>
-        if (Set("official", "default").contains(pattern.toLowerCase)) official
-        else Seq(IntelliJPatternResolver(pattern).community)
-      )
-    if (fromConfig.isEmpty) official else fromConfig
+  // this method enables downloading .zip IntelliJ even if `probe.intellij.version.ext` value is not ".zip"
+  def fromConfig(config: DependenciesConfig.Resolvers): Seq[DependencyResolver[IntelliJVersion]] = {
+    val configWithZipRepositories =
+      config.copy(intellij = IntelliJ(config.intellij.repositories.map(_.replace("[ext]", ".zip"))))
+    IntelliJResolver.fromConfig(configWithZipRepositories)
   }
 }

@@ -1,20 +1,20 @@
 package org.virtuslab.ideprobe.dependencies
 
+import org.virtuslab.ideprobe.IntelliJFixture
 import org.virtuslab.ideprobe.config.DependenciesConfig
 import org.virtuslab.ideprobe.dependencies.Plugin._
 import org.virtuslab.ideprobe.error
 
 object PluginResolver {
-  // TODO (#253): replace Official with a default value in reference.conf - `probe.resolvers.plugins.repository.uri`
-  val Official: DependencyResolver[Plugin] = PluginResolver("https://plugins.jetbrains.com/plugin/download")
+  lazy val Official: DependencyResolver[Plugin] =
+    PluginResolver(IntelliJFixture.defaultConfig.resolvers.plugins.repository.uri)
 
   def apply(uri: String): DependencyResolver[Plugin] = {
     new Resolver(uri)
   }
 
-  def fromConfig(configuration: DependenciesConfig.Plugins): DependencyResolver[Plugin] = {
-    configuration.repository.map(repo => PluginResolver(repo.uri)).getOrElse(Official)
-  }
+  def fromConfig(configuration: DependenciesConfig.Plugins): DependencyResolver[Plugin] =
+    PluginResolver(configuration.repository.uri)
 
   private final class Resolver(uri: String) extends DependencyResolver[Plugin] {
 

@@ -30,7 +30,8 @@ final class ProbeDriverTest extends IdeProbeFixture with Assertions with RobotPl
   private val scalaPlugin = Plugin("org.intellij.scala", "2021.2.10")
   private val probeTestPlugin = ProbeTestPlugin.bundled(intelliJProvider.version)
 
-  private val fixture = IntelliJFixture()
+  private val fixture = IntelliJFixture
+    .fromConfig(Config.fromReferenceConf)
     .withPlugin(scalaPlugin)
     .withPlugin(probeTestPlugin)
     .enableExtensions

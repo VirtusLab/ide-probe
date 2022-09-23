@@ -17,7 +17,6 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
 import static org.virtuslab.ideprobe.WaitLogic.emptyBackgroundTasks;
-import static org.virtuslab.ideprobe.WorkspaceTemplate.FromResource;
 import static org.virtuslab.ideprobe.wait.WaitLogicFactory.*;
 import static scala.collection.JavaConverters.collectionAsScalaIterable;
 import static scala.collection.JavaConverters.seqAsJavaList;
@@ -25,7 +24,7 @@ import static scala.collection.JavaConverters.seqAsJavaList;
 public class ProbeDriverJavaTest {
     @Test
     public void openProject() {
-        var workspaceProvider = new FromResource("gradle-project");
+        var workspaceProvider = new WorkspaceTemplate.FromResource("gradle-project");
         var fixture = new IntelliJFixture(
                 workspaceProvider,
                 IntelliJProvider.Default(),
