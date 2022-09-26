@@ -2,8 +2,11 @@ package org.virtuslab.ideprobe.dependencies
 
 import java.nio.file.Paths
 
+import scala.annotation.tailrec
+
 import org.virtuslab.ideprobe.IntelliJFixture
 import org.virtuslab.ideprobe.config.DependenciesConfig
+
 import org.virtuslab.ideprobe.Extensions.PathExtension
 
 trait IntelliJResolver {
@@ -49,11 +52,12 @@ case class IntelliJPatternResolver(pattern: String) extends IntelliJResolver {
 
   // solution below assumes that each * character is used to mark one part of the path (one atomic directory),
   // for example: "file:///home/.cache/ides/com.jetbrains.intellij.idea/ideaIC/[revision]/*/ideaIC-[revision]/"
+  @tailrec
   private def replaceGlobsWithExistingDirectories(paths: List[String]): List[String] =
     if (paths.exists(pathMightBeValidResource))
       paths.filter(pathMightBeValidResource)
     else
-      paths.flatMap(replaceFirstFoundWildcardWithDirectories)
+      replaceGlobsWithExistingDirectories(paths.flatMap(replaceFirstFoundWildcardWithDirectories))
 
   private def pathMightBeValidResource(path: String): Boolean =
     path.indexOf('*') == -1 &&
@@ -64,13 +68,19 @@ case class IntelliJPatternResolver(pattern: String) extends IntelliJResolver {
   private def replaceFirstFoundWildcardWithDirectories(path: String): List[String] = {
     def removeLastFileSeparator(path: String): String = if (path.endsWith("/")) path.init else path
 
-    val pathUntilWildcard = path.substring(0, path.indexOf('*'))
-    val pathAfterWildcard = path.substring(path.indexOf('*') + 1)
-    Paths
-      .get(pathUntilWildcard.replace("file:", ""))
-      .directChildren()
-      .map { replaced =>
-        removeLastFileSeparator(replaced.toString) + pathAfterWildcard
-      }
+    val pathUntilWildcard = Paths.get(path.substring(0, path.indexOf('*')).replace("file:", ""))
+    val stringPathAfterWildcard = path.substring(path.indexOf('*') + 1)
+
+    if (pathUntilWildcard.exists) {
+      pathUntilWildcard
+        .directChildren()
+        .map { replaced =>
+          (if (path.startsWith("file:")) "file:" else "") + removeLastFileSeparator(
+            replaced.toString
+          ) + stringPathAfterWildcard
+        }
+    } else {
+      Nil
+    }
   }
 }

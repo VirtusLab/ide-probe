@@ -65,6 +65,10 @@ trait ProbeExtensions {
       path.getFileName.toString
     }
 
+    def exists: Boolean = {
+      Files.exists(path)
+    }
+
     def isFile: Boolean = {
       Files.isRegularFile(path)
     }

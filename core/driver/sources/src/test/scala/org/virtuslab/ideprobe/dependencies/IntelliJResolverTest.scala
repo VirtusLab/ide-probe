@@ -11,6 +11,7 @@ import org.junit.runners.JUnit4
 
 import org.virtuslab.ideprobe.Config
 import org.virtuslab.ideprobe.ConfigFormat
+import org.virtuslab.ideprobe.IntelliJFixture
 import org.virtuslab.ideprobe.config.DependenciesConfig
 
 @RunWith(classOf[JUnit4])
@@ -43,6 +44,21 @@ class IntelliJResolverTest extends ConfigFormat {
     val intelliJConfig = config[DependenciesConfig.Resolvers]("probe.resolvers")
 
     val repo = IntelliJZipResolver.fromConfig(intelliJConfig).head
+    val artifactUri = repo.resolve(mavenVersion)
+    assertExists(artifactUri)
+  }
+
+  @Test
+  def resolvesIntelliJPatternWithGlobesUsed(): Unit = {
+    val probeConfig = IntelliJFixture.readIdeProbeConfig(
+      Config.fromString(s"""
+                           |probe.resolvers.intellij.repositories = [
+                           |  "$mavenRepo/com/*/intellij/*/$mavenArtifact/${mavenVersion.build}/$mavenArtifact-${mavenVersion.build}.zip"
+                           |]
+                           |""".stripMargin),
+      "probe"
+    )
+    val repo = IntelliJResolver.fromConfig(probeConfig.resolvers).head
     val artifactUri = repo.resolve(mavenVersion)
     assertExists(artifactUri)
   }
