@@ -40,7 +40,7 @@ class IntelliJResolverTest extends ConfigFormat {
         |  "$mavenRepo/com/jetbrains/intellij/idea/$mavenArtifact/${mavenVersion.build}/$mavenArtifact-${mavenVersion.build}.zip"
         |]
         |""".stripMargin)
-    val intelliJConfig = config[DependenciesConfig.IntelliJ]("probe.resolvers.intellij")
+    val intelliJConfig = config[DependenciesConfig.Resolvers]("probe.resolvers")
 
     val repo = IntelliJZipResolver.fromConfig(intelliJConfig).head
     val artifactUri = repo.resolve(mavenVersion)

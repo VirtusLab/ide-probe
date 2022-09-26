@@ -17,8 +17,8 @@ case class IdeProbePaths(
 
 object IdeProbePaths {
   val Default: IdeProbePaths = {
-    // TODO: replace None parameters with loading defaults from reference.conf
-    from(PathsConfig(None, None, None, None, None, None, None))
+    val config = IntelliJFixture.defaultConfig
+    from(config.paths)
   }
 
   def from(config: PathsConfig): IdeProbePaths = {

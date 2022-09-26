@@ -129,17 +129,20 @@ final case class IntelliJFixture(
 
 object IntelliJFixture {
   private val ConfigRoot = "probe"
+  lazy val defaultConfig: IdeProbeConfig = readIdeProbeConfig(Config.fromReferenceConf, ConfigRoot)
 
   def fromConfig(config: Config, path: String = ConfigRoot)(implicit ec: ExecutionContext): IntelliJFixture = {
     val probeConfig = readIdeProbeConfig(config, path)
 
     new IntelliJFixture(
       workspaceProvider = probeConfig.workspace.map(WorkspaceProvider.from).getOrElse(WorkspaceTemplate.Empty),
-      intelliJProvider = IntelliJProvider
-        .from(probeConfig.intellij, probeConfig.resolvers, IdeProbePaths.from(probeConfig.paths), probeConfig.driver),
+      intelliJProvider = getIntelliJProvider(probeConfig),
       config = config
     )
   }
 
   def readIdeProbeConfig(config: Config, path: String): IdeProbeConfig = config[IdeProbeConfig](path)
+
+  def getIntelliJProvider(probeConfig: IdeProbeConfig): IntelliJProvider = IntelliJProvider
+    .from(probeConfig.intellij, probeConfig.resolvers, IdeProbePaths.from(probeConfig.paths), probeConfig.driver)
 }
