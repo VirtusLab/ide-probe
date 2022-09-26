@@ -3,13 +3,9 @@ package org.virtuslab.ideprobe.ide.intellij
 sealed trait Display
 object Display {
 
-  val Mode: String => Display = displayFromConfig => fromName(displayFromConfig)
-
   val XvfbDisplayId = "7" // doesn't really matter as long as it is not 0
 
-  println(s"Display mode: $Mode")
-
-  private def fromName(name: String): Display = {
+  def fromName(name: String): Display = {
     name.toLowerCase() match {
       case "xvfb"   => Xvfb
       case "native" => Native

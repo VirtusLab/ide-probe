@@ -19,6 +19,8 @@ import org.virtuslab.ideprobe.config.DriverConfig
 import org.virtuslab.ideprobe.jsonrpc.JsonRpcConnection
 
 sealed abstract class InstalledIntelliJ(root: Path, probePaths: IdeProbePaths, config: DriverConfig) {
+  private lazy val displayMode: Display = Display.fromName(config.display)
+
   def cleanup(): Unit
 
   def paths: IntelliJPaths
@@ -87,7 +89,7 @@ sealed abstract class InstalledIntelliJ(root: Path, probePaths: IdeProbePaths, c
         if (config.headless) s"$launcher headless"
         else {
           import config.xvfb.screen._
-          Display.Mode(config.display) match {
+          displayMode match {
             case Display.Native => s"$launcher"
             case Display.Xvfb =>
               s"""xvfb-run --server-num=${Display.XvfbDisplayId} --server-args="-screen 0 ${width}x${height}x${depth}" $launcher"""
@@ -130,7 +132,7 @@ sealed abstract class InstalledIntelliJ(root: Path, probePaths: IdeProbePaths, c
       }
 
       val overrideDisplay =
-        if (Display.Mode(config.display) == Display.Xvfb) Map("DISPLAY" -> s":${Display.XvfbDisplayId}")
+        if (displayMode == Display.Xvfb) Map("DISPLAY" -> s":${Display.XvfbDisplayId}")
         else Map.empty
       testCaseEnv ++ Map(
         "IDEA_VM_OPTIONS" -> vmoptions.toString,
@@ -147,6 +149,7 @@ sealed abstract class InstalledIntelliJ(root: Path, probePaths: IdeProbePaths, c
     builder.setProcessListener(new Shell.ProcessOutputLogger)
     builder.environment().putAll(environment.asJava)
 
+    println(s"Display mode: $displayMode")
     println(s"Starting process ${command.mkString(" ")} in $workingDir")
 
     val processHandler = new NuAbstractProcessHandler {
