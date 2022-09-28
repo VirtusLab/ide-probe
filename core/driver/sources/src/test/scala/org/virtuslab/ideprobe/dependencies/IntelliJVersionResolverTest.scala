@@ -12,7 +12,7 @@ final class IntelliJVersionResolverTest {
   def shouldBeAbleToResolveIntelliJVersionFromProductInfo: Unit = {
     val resourcePath = Paths.get(getClass.getResource("/intellij/productInfo").getPath)
 
-    val IntelliJVersion(build, release) = IntelliJVersionResolver.version(resourcePath)
+    val IntelliJVersion(build, release, _) = IntelliJVersionResolver.version(resourcePath)
 
     val releaseVersion = "2020.2.4"
     val buildNumber = "202.8194.7"

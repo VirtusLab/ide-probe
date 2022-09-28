@@ -1,8 +1,24 @@
 package org.virtuslab.ideprobe.dependencies
 
+import org.virtuslab.ideprobe.IntelliJFixture
+import org.virtuslab.ideprobe.config.DependenciesConfig
+
 trait IntelliJResolver {
   def community: DependencyResolver[IntelliJVersion]
   def ultimate: DependencyResolver[IntelliJVersion]
+}
+
+object IntelliJResolver {
+  def fromConfig(config: DependenciesConfig.Resolvers): Seq[DependencyResolver[IntelliJVersion]] =
+    config.intellij.repositories.flatMap { pattern =>
+      if (Set("official", "default").contains(pattern.toLowerCase)) {
+        val officialRepositoriesPatterns = IntelliJFixture.defaultConfig.resolvers.intellij.repositories
+        officialRepositoriesPatterns.map { repositoryPattern =>
+          IntelliJPatternResolver(repositoryPattern).resolver("ideaIC")
+        }
+      } else
+        Seq(IntelliJPatternResolver(pattern).resolver("ideaIC"))
+    }
 }
 
 case class IntelliJPatternResolver(pattern: String) extends IntelliJResolver {
@@ -15,6 +31,7 @@ case class IntelliJPatternResolver(pattern: String) extends IntelliJResolver {
       "orgPath" -> "com/jetbrains/intellij",
       "module" -> "idea",
       "artifact" -> artifact,
+      "ext" -> version.ext,
       "revision" -> version.releaseOrBuild,
       "build" -> version.build,
       "version" -> version.releaseOrBuild,
