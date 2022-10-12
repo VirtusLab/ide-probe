@@ -28,6 +28,8 @@ object Dependencies {
 
   val gson = "com.google.code.gson" % "gson" % "2.9.1"
 
+  val jsoup = "org.jsoup" % "jsoup" % "1.15.3"
+
   val scalaCollectionCompat = "org.scala-lang.modules" %% "scala-collection-compat" % "2.8.1" % Compile
 
   // because idea plugin packager would only take the root jar which has no classes
