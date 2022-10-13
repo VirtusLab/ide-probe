@@ -16,6 +16,7 @@ import pureconfig.ConfigReader
 import org.virtuslab.ideprobe.ConfigFormat
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.OS
+import org.virtuslab.ideprobe.Shell
 
 sealed trait Resource
 
@@ -89,22 +90,24 @@ object Resource extends ConfigFormat {
 
   final class DMGFile(val path: Path) extends IntellijResource {
     def installTo(target: Path): Unit = {
-      import sys.process._
-
       // create tmp directory where disk image will be attached
-      val dmgDirPath = Paths.get(System.getProperty("java.io.tmpdir")).resolve("dmg_dir")
+      val dmgDirPath = Paths.get(System.getProperty("java.io.tmpdir")).createDirectory("dmg_dir")
       dmgDirPath.createDirectory()
       val dmgDir = dmgDirPath.toString
 
       try {
         // attach disk image from .dmg file to local filesystem
-        s"hdiutil attach -mountpoint $dmgDir ${path.toString}".!
+        Shell.run("hdiutil", "attach", "-mountpoint", dmgDir, path.toString).assertSuccess()
         // copy $dmgDir/IntelliJ IDEA CE.app/ to proper installation directory
-        val idePath = Paths.get(s"$dmgDir/IntelliJ IDEA CE.app/Contents")
+        val appDir = dmgDirPath
+          .directChildren()
+          .find(path => path.name.startsWith("IntelliJ IDEA") && path.name.endsWith(".app"))
+          .get // appDir should point to an existing path. If not - `get` will throw NoSuchElementException
+        val idePath = Paths.get(s"$dmgDir/${appDir.name}/Contents")
         idePath.copyDir(target)
       } finally {
         // detach disk image from local filesystem
-        s"hdiutil detach $dmgDir".!
+        Shell.run("hdiutil", "detach", dmgDir).assertSuccess()
       }
 
     }

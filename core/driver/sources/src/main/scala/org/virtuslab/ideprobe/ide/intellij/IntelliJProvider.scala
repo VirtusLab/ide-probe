@@ -148,14 +148,8 @@ final case class IntelliJFactory(
     println(s"Installing $version")
     val file = dependencies.intelliJ.fetch(version)
     file.toExtracted.installTo(root)
-    if (installedFromOsxDmg(root))
-      root.resolve("MacOS/idea").makeExecutable()
-    else
-      root.resolve("bin").makeExecutableRecursively()
+    root.resolve("bin").makeExecutableRecursively()
   }
-
-  private def installedFromOsxDmg(path: Path): Boolean = path.directChildren().exists(_.name == "MacOS")
-
 }
 
 object IntelliJProvider {

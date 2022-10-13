@@ -60,6 +60,7 @@ object ResourceProvider {
         retries: Int
     ): Path = {
       val cachedResource = cached(uri)
+      println(s"\ncached is:\n$cachedResource\n")
       if (!cachedResource.isFile) {
         retry(retries) { () =>
           val stream = createStream()
@@ -75,8 +76,9 @@ object ResourceProvider {
 
     private def cached(uri: URI): Path = {
       val resultPath = directory.resolve(Hash.md5(uri.toString))
-      if (uri.toString.endsWith(".dmg"))
-        Paths.get(resultPath.toString + ".dmg") // needed for `object DMGFile`'s unapply logic
+      val uriExtensionIndex = uri.toString.lastIndexOf('.')
+      if (uriExtensionIndex != -1)
+        Paths.get(resultPath.toString + uri.toString.substring(uriExtensionIndex)) // keep extension in cached file name
       else
         resultPath
     }
