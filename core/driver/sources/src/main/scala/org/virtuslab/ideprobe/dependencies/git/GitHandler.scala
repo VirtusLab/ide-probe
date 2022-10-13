@@ -86,10 +86,10 @@ object GitHandler {
       if (System.getenv("CI") == "true") // should always be "true" for github actions workflow
         printForCI(title, completed, total)
       else
-        printForNoCI(title, completed, total)
+        printForNonCI(title, completed, total)
     }
 
-    private def printForNoCI(title: String, completed: Int, total: Int): Unit = {
+    private def printForNonCI(title: String, completed: Int, total: Int): Unit = {
       val inner =
         if (total == 0)
           ""
