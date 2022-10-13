@@ -33,3 +33,4 @@ jobs:
           commit-message: ${{ env.PR_TITLE }}
           title: ${{ env.PR_TITLE }}
           body: ${{ env.PR_BODY }}
+          author: "GitHub <noreply@github.com>"
