@@ -83,13 +83,32 @@ object GitHandler {
     private def printProgress(completed: Int): Unit = {
       val total = totalWork.get()
       val title = task.get()
+      if (System.getenv("CI") == "true") // should always be "true" for github actions workflow
+        printForCI(title, completed, total)
+      else
+        printForNoCI(title, completed, total)
+    }
 
-      if (total == 0) return
+    private def printForNoCI(title: String, completed: Int, total: Int): Unit = {
+      val inner =
+        if (total == 0)
+          ""
+        else if (completed == total)
+          s"$title 100% ($total/$total)\n"
+        else {
+          val percent = (100 * completed) / total
+          s"$title $percent% ($completed/$total)"
+        }
+      print(s"\r$inner")
+    }
 
-      val percent = (100 * completed) / total
-      if (!titlePercentArray.contains((title, percent))) { // to print only one line per 1 percent in logs
-        titlePercentArray += (title -> percent)
-        println(s"$title $percent% ($completed/$total)")
+    private def printForCI(title: String, completed: Int, total: Int): Unit = {
+      if (total != 0) {
+        val percent = (100 * completed) / total
+        if (!titlePercentArray.contains((title, percent))) { // print only one line per 1 percent in logs
+          titlePercentArray += (title -> percent)
+          println(s"$title $percent% ($completed/$total)")
+        }
       }
     }
 
