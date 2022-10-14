@@ -5,6 +5,8 @@ import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 
+import scala.collection.mutable
+
 import org.eclipse.jgit.api.CloneCommand
 import org.eclipse.jgit.api.CreateBranchCommand
 import org.eclipse.jgit.api.Git
@@ -75,10 +77,19 @@ object GitHandler {
     private val completion: AtomicInteger = new AtomicInteger()
     private val task: AtomicReference[String] = new AtomicReference()
 
+    private val titlePercentArray: mutable.ArrayBuffer[(String, Int)] = mutable.ArrayBuffer.empty
+
     @inline
-    private def renderProgress(completed: Int): String = {
+    private def printProgress(completed: Int): Unit = {
       val total = totalWork.get()
       val title = task.get()
+      if (System.getenv("CI") == "true") // should always be "true" for github actions workflow
+        printForCI(title, completed, total)
+      else
+        printForNonCI(title, completed, total)
+    }
+
+    private def printForNonCI(title: String, completed: Int, total: Int): Unit = {
       val inner =
         if (total == 0)
           ""
@@ -88,7 +99,17 @@ object GitHandler {
           val percent = (100 * completed) / total
           s"$title $percent% ($completed/$total)"
         }
-      s"\r$inner"
+      print(s"\r$inner")
+    }
+
+    private def printForCI(title: String, completed: Int, total: Int): Unit = {
+      if (total != 0) {
+        val percent = (100 * completed) / total
+        if (!titlePercentArray.contains((title, percent))) { // print only one line per 1 percent in logs
+          titlePercentArray += (title -> percent)
+          println(s"$title $percent% ($completed/$total)")
+        }
+      }
     }
 
     override def start(totalTasks: Int): Unit = {
@@ -103,7 +124,7 @@ object GitHandler {
 
     override def update(completed: Int): Unit = {
       val current = completion.getAndUpdate(_ + completed)
-      print(renderProgress(current))
+      printProgress(current)
     }
 
     override def endTask(): Unit = {
