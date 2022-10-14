@@ -33,4 +33,5 @@ jobs:
           commit-message: ${{ env.PR_TITLE }}
           title: ${{ env.PR_TITLE }}
           body: ${{ env.PR_BODY }}
-          author: "GitHub <noreply@github.com>"
+          author: "virtuslab-bot <virtuslab-bot@users.noreply.github.com>"
+          token: ${{ secrets.BOT_ACCESS_TOKEN }}
