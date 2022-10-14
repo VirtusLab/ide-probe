@@ -60,7 +60,6 @@ object ResourceProvider {
         retries: Int
     ): Path = {
       val cachedResource = cached(uri)
-      println(s"\ncached is:\n$cachedResource\n")
       if (!cachedResource.isFile) {
         retry(retries) { () =>
           val stream = createStream()
