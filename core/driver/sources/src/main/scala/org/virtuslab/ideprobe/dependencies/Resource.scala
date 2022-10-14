@@ -15,6 +15,8 @@ import pureconfig.ConfigReader
 
 import org.virtuslab.ideprobe.ConfigFormat
 import org.virtuslab.ideprobe.Extensions._
+import org.virtuslab.ideprobe.OS
+import org.virtuslab.ideprobe.Shell
 
 sealed trait Resource
 
@@ -86,6 +88,31 @@ object Resource extends ConfigFormat {
     }
   }
 
+  final class DMGFile(val path: Path) extends IntellijResource {
+    def installTo(target: Path): Unit = {
+      // create tmp directory where disk image will be attached
+      val dmgDirPath = Paths.get(System.getProperty("java.io.tmpdir")).createDirectory("dmg_dir")
+      dmgDirPath.createDirectory()
+      val dmgDir = dmgDirPath.toString
+
+      try {
+        // attach disk image from .dmg file to local filesystem
+        Shell.run("hdiutil", "attach", "-mountpoint", dmgDir, path.toString).assertSuccess()
+        // copy $dmgDir/IntelliJ IDEA CE.app/ to proper installation directory
+        val appDir = dmgDirPath
+          .directChildren()
+          .find(path => path.name.startsWith("IntelliJ IDEA") && path.name.endsWith(".app"))
+          .get // appDir should point to an existing path. If not - `get` will throw NoSuchElementException
+        val idePath = Paths.get(s"$dmgDir/${appDir.name}/Contents")
+        idePath.copyDir(target)
+      } finally {
+        // detach disk image from local filesystem
+        Shell.run("hdiutil", "detach", dmgDir).assertSuccess()
+      }
+
+    }
+  }
+
   final class Plain(val path: Path) extends IntellijResource {
     def installTo(target: Path): Unit = {
       path.copyDir(target)
@@ -111,6 +138,12 @@ object Resource extends ConfigFormat {
     }
   }
 
+  object DMGFile {
+    def unapply(path: Path): Option[DMGFile] = {
+      if (path.toString.endsWith(".dmg") && OS.Current == OS.Mac) Some(new DMGFile(path)) else None
+    }
+  }
+
   object Plain {
     def unapply(path: Path): Option[Plain] = {
       if (path.isDirectory) Some(new Plain(path)) else None
@@ -120,6 +153,7 @@ object Resource extends ConfigFormat {
   implicit class ExtractorExtension(path: Path) {
     def toExtracted: IntellijResource = path match {
       case Archive(archive) => archive
+      case DMGFile(archive) => archive
       case Plain(archive)   => archive
       case _                => throw new IllegalStateException(s"Not an archive: $path")
     }

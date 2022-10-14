@@ -4,6 +4,7 @@ import java.io.InputStream
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.Paths
 
 import scala.annotation.tailrec
 
@@ -73,7 +74,12 @@ object ResourceProvider {
     }
 
     private def cached(uri: URI): Path = {
-      directory.resolve(Hash.md5(uri.toString))
+      val resultPath = directory.resolve(Hash.md5(uri.toString))
+      val uriExtensionIndex = uri.toString.lastIndexOf('.')
+      if (uriExtensionIndex != -1)
+        Paths.get(resultPath.toString + uri.toString.substring(uriExtensionIndex)) // keep extension in cached file name
+      else
+        resultPath
     }
   }
 }
