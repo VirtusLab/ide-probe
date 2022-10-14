@@ -15,14 +15,17 @@ import org.virtuslab.ideprobe.config.IntellijConfig
 final class OfficialResolversTest {
   private val defaultProbeConfig = IntelliJFixture.defaultConfig
 
+  private val snapshotRepo = "https://www.jetbrains.com/intellij-repository/snapshots/"
+  private val orgPathModuleArtifact = "com/jetbrains/intellij/idea/ideaIC/"
+  private val buildSpecificEndingOne = "202.6397.20-EAP-SNAPSHOT/ideaIC-202.6397.20-EAP-SNAPSHOT.zip"
+  private val buildSpecificEndingTwo = "223.6646-EAP-CANDIDATE-SNAPSHOT/ideaIC-223.6646-EAP-CANDIDATE-SNAPSHOT.zip"
+
   @Test
-  def resolvesImplicitSnapshot(): Unit = {
+  def resolvesImplicitSnapshotForEAPSnapshot(): Unit = {
     val repo = IntelliJZipResolver.community
     val version = IntelliJVersion(build = "202.6397.20", release = None, ext = "zip")
-
     val artifact = repo.resolve(version).asInstanceOf[Dependency.Artifact]
-
-    assertTrue(artifact.uri.toString.endsWith("-EAP-SNAPSHOT.zip"))
+    assertTrue(artifact.uri.toString == snapshotRepo + orgPathModuleArtifact + buildSpecificEndingOne)
   }
 
   @Test
@@ -38,9 +41,83 @@ final class OfficialResolversTest {
       "probe"
     )
     val intellijResolvers = IntelliJResolver.fromConfig(probeConfig.resolvers)
+
     val snapshotResolverOption = intellijResolvers.find { dependencyResolver =>
       val resolved = dependencyResolver.resolve(probeConfig.intellij.asInstanceOf[IntellijConfig.Default].version)
-      resolved.asInstanceOf[Dependency.Artifact].uri.toString.endsWith("-EAP-SNAPSHOT.zip")
+      resolved
+        .asInstanceOf[Dependency.Artifact]
+        .uri
+        .toString == snapshotRepo + orgPathModuleArtifact + buildSpecificEndingOne
+    }
+    assertTrue(snapshotResolverOption.nonEmpty)
+  }
+
+  @Test
+  def resolvesImplicitSnapshotForEAPCandidateSnapshot(): Unit = {
+    val probeConfig = IntelliJFixture.readIdeProbeConfig(
+      Config.fromString(
+        """ probe.intellij.version {
+          |  build = "223.6646"
+          |  release = null
+          |}
+          |""".stripMargin
+      ),
+      "probe"
+    )
+    val intellijResolvers = IntelliJResolver.fromConfig(probeConfig.resolvers)
+
+    val snapshotResolverOption = intellijResolvers.find { dependencyResolver =>
+      val resolved = dependencyResolver.resolve(probeConfig.intellij.asInstanceOf[IntellijConfig.Default].version)
+      resolved
+        .asInstanceOf[Dependency.Artifact]
+        .uri
+        .toString == snapshotRepo + orgPathModuleArtifact + buildSpecificEndingTwo
+    }
+    assertTrue(snapshotResolverOption.nonEmpty)
+  }
+
+  def resolvesImplicitSnapshotWhenEAPSnapshotSuffixAddedToIntellijVersionBuild(): Unit = {
+    val probeConfig = IntelliJFixture.readIdeProbeConfig(
+      Config.fromString(
+        """ probe.intellij.version {
+          |  build = "202.6397.20-EAP-SNAPSHOT"
+          |  release = null
+          |}
+          |""".stripMargin
+      ),
+      "probe"
+    )
+    val intellijResolvers = IntelliJResolver.fromConfig(probeConfig.resolvers)
+
+    val snapshotResolverOption = intellijResolvers.find { dependencyResolver =>
+      val resolved = dependencyResolver.resolve(probeConfig.intellij.asInstanceOf[IntellijConfig.Default].version)
+      resolved
+        .asInstanceOf[Dependency.Artifact]
+        .uri
+        .toString == snapshotRepo + orgPathModuleArtifact + buildSpecificEndingOne
+    }
+    assertTrue(snapshotResolverOption.nonEmpty)
+  }
+
+  def resolvesImplicitSnapshotWhenEAPCandidateSnapshotSuffixAddedToIntellijVersionBuild(): Unit = {
+    val probeConfig = IntelliJFixture.readIdeProbeConfig(
+      Config.fromString(
+        """ probe.intellij.version {
+          |  build = "223.6646-EAP-CANDIDATE-SNAPSHOT"
+          |  release = null
+          |}
+          |""".stripMargin
+      ),
+      "probe"
+    )
+    val intellijResolvers = IntelliJResolver.fromConfig(probeConfig.resolvers)
+
+    val snapshotResolverOption = intellijResolvers.find { dependencyResolver =>
+      val resolved = dependencyResolver.resolve(probeConfig.intellij.asInstanceOf[IntellijConfig.Default].version)
+      resolved
+        .asInstanceOf[Dependency.Artifact]
+        .uri
+        .toString == snapshotRepo + orgPathModuleArtifact + buildSpecificEndingTwo
     }
     assertTrue(snapshotResolverOption.nonEmpty)
   }

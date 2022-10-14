@@ -20,7 +20,9 @@ class IdeProbeConfigTest extends IdeProbeFixture {
     "https://download.jetbrains.com/[module]/nightly/[artifact]-[revision].portable[ext]",
     "https://download.jetbrains.com/[module]/[artifact]-[revision].portable[ext]",
     "https://www.jetbrains.com/intellij-repository/releases/[orgPath]/[module]/[artifact]/[revision]/[artifact]-[revision][ext]",
-    "https://www.jetbrains.com/intellij-repository/snapshots/[orgPath]/[module]/[artifact]/[revision]-EAP-SNAPSHOT/[artifact]-[revision]-EAP-SNAPSHOT[ext]"
+    "https://www.jetbrains.com/intellij-repository/snapshots/[orgPath]/[module]/[artifact]/[revision]-EAP-SNAPSHOT/[artifact]-[revision]-EAP-SNAPSHOT[ext]",
+    "https://www.jetbrains.com/intellij-repository/snapshots/[orgPath]/[module]/[artifact]/[revision]-EAP-CANDIDATE-SNAPSHOT/[artifact]-[revision]-EAP-CANDIDATE-SNAPSHOT[ext]",
+    "https://www.jetbrains.com/intellij-repository/snapshots/[orgPath]/[module]/[artifact]/[revision]/[artifact]-[revision][ext]"
   )
 
   private val defaultJbrRepositoriesPatterns = Seq(
