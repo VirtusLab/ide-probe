@@ -78,8 +78,8 @@ case class IntelliJPatternResolver(pattern: String) extends IntelliJResolver {
   private def replaceFirstFoundWildcardWithDirectories(path: String): List[String] = {
     def removeLastFileSeparator(path: String): String = if (path.endsWith("/")) path.init else path
 
-    val Array(stringPathUntilWildcard, stringPathAfterWildcard) = path.split("*", 2)
-    val pathUntilWildcard = Paths.get(stringPathUntilWildcard.replace("file:", ""))
+    val pathUntilWildcard = Paths.get(path.substring(0, path.indexOf('*')).replace("file:", ""))
+    val stringPathAfterWildcard = path.substring(path.indexOf('*') + 1)
 
     if (pathUntilWildcard.exists) {
       pathUntilWildcard
