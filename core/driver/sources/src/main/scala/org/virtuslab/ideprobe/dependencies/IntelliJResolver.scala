@@ -46,7 +46,12 @@ case class IntelliJPatternResolver(pattern: String) extends IntelliJResolver {
     val replacedBeforeResolvingGlobs = replacements.foldLeft(pattern) { case (path, (pattern, replacement)) =>
       path.replace(s"[$pattern]", replacement)
     }
-    val replaced = resolveGlobsInPattern(replacedBeforeResolvingGlobs)
+    val replaced =
+      if (replacedBeforeResolvingGlobs.startsWith("file:"))
+        resolveGlobsInPattern(replacedBeforeResolvingGlobs)
+      else
+        replacedBeforeResolvingGlobs
+
     Dependency(replaced)
   }
 
@@ -56,6 +61,7 @@ case class IntelliJPatternResolver(pattern: String) extends IntelliJResolver {
   // Solution below assumes that each * character is used to mark one part of the path (one atomic directory),
   // for example: "file:///home/.cache/ides/com.jetbrains.intellij.idea/ideaIC/[revision]/*/ideaIC-[revision]/".
   // Wildcard character should NOT be used as the last element of the pattern - to avoid ambiguous results.
+  // Works only for files in local filesystem.
   @tailrec
   private def replaceGlobsWithExistingDirectories(paths: List[String], originalPattern: String): List[String] =
     if (paths.exists(pathMightBeValidResource(_, originalPattern)))
