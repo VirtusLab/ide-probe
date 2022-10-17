@@ -67,7 +67,7 @@ case class IntelliJPatternResolver(pattern: String) extends IntelliJResolver {
     !candidatePath.contains('*') && // below - make sure that candidatePath's last path element is same as in pattern
       candidatePath.substring(candidatePath.lastIndexOf('/')) == originalPattern.substring(
         originalPattern.lastIndexOf('/')
-      )
+      ) && Paths.get(candidatePath.replace("file:", "")).exists
 
   private def replaceFirstFoundWildcardWithDirectories(path: String): List[String] = {
     def removeLastFileSeparator(path: String): String = if (path.endsWith("/")) path.init else path
