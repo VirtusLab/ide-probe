@@ -20,11 +20,13 @@ jobs:
           echo "BRANCH_NAME=update_intellij_version/$intellij_version" >> $GITHUB_ENV
           echo "PR_TITLE=Update IntelliJ version to $intellij_version" >> $GITHUB_ENV
           scala_plugin_file_url="https://github.com/VirtusLab/ide-probe/blob/master/extensions/scala/tests/src/test/resources/scala.conf"
+          probe_driver_test_file_url="https://github.com/VirtusLab/ide-probe/blob/master/core/driver/tests/src/test/scala/org/virtuslab/ideprobe/ProbeDriverTest.scala"
           scala_plugin_versions_url="https://plugins.jetbrains.com/plugin/1347-scala/versions"
           echo "PR_BODY=Updates the default IntelliJ Version to the newest release. \
-            Please, check currently used version of the scala plugin: $scala_plugin_file_url \
-            and verify if it is compatible with the new intelliJ IDEA version ($intellij_version) here: $scala_plugin_versions_url. \
-            If the version of the scala plugin used in $scala_plugin_file_url is NOT compatible - please update it in a separate commit." >> $GITHUB_ENV
+            Please, check currently used version of the scala plugin in two following files: $scala_plugin_file_url and $probe_driver_test_file_url \
+            and verify if it is compatible with the new intelliJ IDEA version $intellij_version here: $scala_plugin_versions_url. \
+            If the currently used version of the scala plugin is NOT compatible with new IntelliJ release - \
+            please update it in both files in a separate commit." >> $GITHUB_ENV
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v4
         with:
