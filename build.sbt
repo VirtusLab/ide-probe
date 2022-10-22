@@ -1,7 +1,7 @@
 name := "ideprobe"
 
 val scala212 = "2.12.16"
-val scala213 = "2.13.8"
+val scala213 = "2.13.10"
 val crossScalaVersions = List(scala212, scala213)
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
