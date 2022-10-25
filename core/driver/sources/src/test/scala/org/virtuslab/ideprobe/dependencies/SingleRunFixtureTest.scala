@@ -1,7 +1,5 @@
 package org.virtuslab.ideprobe.dependencies
 
-import org.virtuslab.ideprobe.OS
-
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -21,6 +19,7 @@ import org.virtuslab.ideprobe.Config
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.IdeProbeFixture
 import org.virtuslab.ideprobe.IntelliJFixture
+import org.virtuslab.ideprobe.OS
 import org.virtuslab.ideprobe.Shell
 import org.virtuslab.ideprobe.SingleRunIntelliJ
 
