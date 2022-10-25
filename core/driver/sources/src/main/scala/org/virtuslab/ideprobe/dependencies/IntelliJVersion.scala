@@ -6,8 +6,6 @@ import pureconfig.generic.semiauto.deriveConvert
 import org.virtuslab.ideprobe.IntelliJFixture
 import org.virtuslab.ideprobe.config.IntellijConfig
 
-// the `ext` field (file extension) must be an Option[String] and not a String for the ExistingIntelliJ usage
-// inside the `org.virtuslab.ideprobe.dependencies.IntelliJVersionResolver` object
 final case class IntelliJVersion(build: String, release: Option[String], ext: String) {
   def releaseOrBuild: String = release.getOrElse(build)
 
