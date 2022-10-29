@@ -227,7 +227,10 @@ final class DownloadedIntelliJ(
     probePaths.logExport.foreach { path =>
       paths.logs.copyDir(path.resolve(getPathWithVersionNumber(root)).resolve("logs"))
     }
-    root.delete()
+    if (OS.Current == OS.Mac && root.name == "Contents")
+      root.getParent.delete()
+    else
+      root.delete()
   }
 
   /*
