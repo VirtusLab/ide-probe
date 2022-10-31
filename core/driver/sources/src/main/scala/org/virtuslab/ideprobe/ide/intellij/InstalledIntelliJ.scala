@@ -43,7 +43,7 @@ sealed abstract class InstalledIntelliJ(root: Path, probePaths: IdeProbePaths, c
     )
 
     val vmOptions =
-      implementationSpecificVmOptions ++ baseVMOptions ++ DebugMode.vmOption(config.debug) ++ config.vmOptions
+      implementationSpecificVmOptions ++ baseVMOptions ++ DebugMode.vmOptions(config.debug) ++ config.vmOptions
     val content = vmOptions.mkString("\n")
 
     root.resolve("bin").resolve("ideprobe.vmoptions").write(content)

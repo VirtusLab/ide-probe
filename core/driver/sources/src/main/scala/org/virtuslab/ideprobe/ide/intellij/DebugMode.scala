@@ -3,7 +3,7 @@ package org.virtuslab.ideprobe.ide.intellij
 import org.virtuslab.ideprobe.config.DriverConfig.DebugConfig
 
 object DebugMode {
-  def vmOption(debugMode: DebugConfig): Seq[String] = {
+  def vmOptions(debugMode: DebugConfig): Seq[String] = {
     if (debugMode.enabled) {
       val suspendOpt = if (debugMode.suspend) "suspend=y" else "suspend=n"
       val addressOpt = s"address=${debugMode.port}"
