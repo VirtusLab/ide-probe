@@ -57,7 +57,7 @@ class IdeProbeConfigTest extends IdeProbeFixture {
     assertEquals(1920, probeConfig.driver.xvfb.screen.width)
     assertEquals(1080, probeConfig.driver.xvfb.screen.height)
     assertEquals(24, probeConfig.driver.xvfb.screen.depth)
-    assertEquals(false, probeConfig.driver.headless)
+    assertEquals("native", probeConfig.driver.display)
     assertEquals(Seq.empty, probeConfig.driver.vmOptions)
     assertEquals(Map.empty, probeConfig.driver.env)
     // tests for the paths: PathsConfig field
@@ -114,7 +114,7 @@ class IdeProbeConfigTest extends IdeProbeFixture {
     assertEquals(1920, probeConfig.driver.xvfb.screen.width)
     assertEquals(1080, probeConfig.driver.xvfb.screen.height)
     assertEquals(24, probeConfig.driver.xvfb.screen.depth)
-    assertEquals(true, probeConfig.driver.headless)
+    assertEquals("headless", probeConfig.driver.display)
     assertEquals(Seq.empty, probeConfig.driver.vmOptions)
     assertEquals(Map.empty, probeConfig.driver.env)
     // tests for the paths: PathsConfig field
