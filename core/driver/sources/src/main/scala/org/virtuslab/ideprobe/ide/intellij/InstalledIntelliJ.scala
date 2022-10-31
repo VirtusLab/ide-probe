@@ -36,10 +36,7 @@ sealed abstract class InstalledIntelliJ(root: Path, probePaths: IdeProbePaths, c
   protected val implementationSpecificVmOptions: Seq[String] = Seq.empty
 
   protected lazy val vmoptions: Path = {
-    val shouldRunInHeadlessMode = displayMode match {
-      case Display.Headless => true
-      case _                => false
-    }
+    val shouldRunInHeadlessMode = displayMode == Display.Headless
     val baseVMOptions = Seq(
       s"-Djava.awt.headless=$shouldRunInHeadlessMode",
       "-Djb.privacy.policy.text=<!--999.999-->",
