@@ -131,10 +131,10 @@ IntelliJFixture(workspaceProvider = WorkspaceTemplate.fromFile(path))
   .enableExtensions
 ```
 
-1. [Driver](docs/driver.md)
-2. [Resolvers](docs/custom-resolvers.md)
-3. [Workspace](docs/workspace.md)
-4. [Display](docs/display.md)
+1. [Driver](core/driver/sources/src/main/resources/reference.conf) (search for `probe.driver` config)
+2. [Resolvers](core/driver/sources/src/main/resources/reference.conf) (search for `probe.resolvers` config)
+3. [Workspace](core/driver/sources/src/main/resources/reference.conf) (search for `probe.workspace` config)
+4. [Display](core/driver/sources/src/main/resources/reference.conf) (search for `probe.driver.display` config)
 5. [Debugging](docs/debug.md)
 
 ## Workflow
