@@ -1,19 +1,15 @@
 package org.virtuslab.ideprobe.ide.intellij
 
-object DebugMode {
-  private val enabled: Boolean = env("IDEPROBE_DEBUG", "false").toBoolean
-  private val suspend: Boolean = env("IDEPROBE_DEBUG_SUSPEND", "false").toBoolean
-  private val port: Int = env("IDEPROBE_DEBUG_PORT", "5005").toInt
+import org.virtuslab.ideprobe.config.DriverConfig.DebugConfig
 
-  def vmOption: Seq[String] = {
-    if (enabled) {
-      val suspendOpt = if (suspend) "suspend=y" else "suspend=n"
-      val addressOpt = s"address=$port"
+object DebugMode {
+  def vmOptions(debugMode: DebugConfig): Seq[String] = {
+    if (debugMode.enabled) {
+      val suspendOpt = if (debugMode.suspend) "suspend=y" else "suspend=n"
+      val addressOpt = s"address=${debugMode.port}"
       s"-agentlib:jdwp=transport=dt_socket,server=y,$suspendOpt,$addressOpt" :: Nil
     } else {
       Nil
     }
   }
-
-  private def env(name: String, default: String) = System.getenv.getOrDefault(name, default)
 }

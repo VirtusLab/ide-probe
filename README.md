@@ -135,7 +135,7 @@ IntelliJFixture(workspaceProvider = WorkspaceTemplate.fromFile(path))
 2. [Resolvers](core/driver/sources/src/main/resources/reference.conf) (search for `probe.resolvers` config)
 3. [Workspace](core/driver/sources/src/main/resources/reference.conf) (search for `probe.workspace` config)
 4. [Display](core/driver/sources/src/main/resources/reference.conf) (search for `probe.driver.display` config)
-5. [Debugging](docs/debug.md)
+5. [Debugging](core/driver/sources/src/main/resources/reference.conf) (search for `probe.driver.debug` config)
 
 ## Workflow
 Workflow can only be defined programmatically, since it comprises a sequence of intertwined:
