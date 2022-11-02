@@ -60,6 +60,9 @@ class IdeProbeConfigTest extends IdeProbeFixture {
     assertEquals(false, probeConfig.driver.headless)
     assertEquals(Seq.empty, probeConfig.driver.vmOptions)
     assertEquals(Map.empty, probeConfig.driver.env)
+    assertEquals(false, probeConfig.driver.debug.enabled)
+    assertEquals(5005, probeConfig.driver.debug.port)
+    assertEquals(false, probeConfig.driver.debug.suspend)
     // tests for the paths: PathsConfig field
     assertEquals(None, probeConfig.paths.base)
     assertEquals(None, probeConfig.paths.instances)
@@ -117,6 +120,9 @@ class IdeProbeConfigTest extends IdeProbeFixture {
     assertEquals(true, probeConfig.driver.headless)
     assertEquals(Seq.empty, probeConfig.driver.vmOptions)
     assertEquals(Map.empty, probeConfig.driver.env)
+    assertEquals(false, probeConfig.driver.debug.enabled)
+    assertEquals(5005, probeConfig.driver.debug.port)
+    assertEquals(false, probeConfig.driver.debug.suspend)
     // tests for the paths: PathsConfig field
     assertEquals(None, probeConfig.paths.base)
     assertEquals(None, probeConfig.paths.instances)
