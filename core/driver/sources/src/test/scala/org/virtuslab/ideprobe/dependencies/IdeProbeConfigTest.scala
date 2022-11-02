@@ -48,7 +48,7 @@ class IdeProbeConfigTest extends IdeProbeFixture {
     assertEquals(defaultJbrRepositoriesPatterns, probeConfig.resolvers.jbr.repositories)
     assertEquals(0, probeConfig.resolvers.retries)
     // tests for the driver: DriverConfig field
-    assertEquals(Seq.empty, probeConfig.driver.launch.command)
+    assertEquals(Seq("idea"), probeConfig.driver.launch.command)
     assertEquals(30.seconds, probeConfig.driver.launch.timeout)
     assertEquals(false, probeConfig.driver.check.errors.enabled)
     assertEquals(Seq(".*"), probeConfig.driver.check.errors.includeMessages)
