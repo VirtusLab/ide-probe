@@ -36,8 +36,9 @@ sealed abstract class InstalledIntelliJ(root: Path, probePaths: IdeProbePaths, c
   protected val implementationSpecificVmOptions: Seq[String] = Seq.empty
 
   protected lazy val vmoptions: Path = {
+    val shouldRunInHeadlessMode = displayMode == Display.Headless
     val baseVMOptions = Seq(
-      s"-Djava.awt.headless=${config.headless}",
+      s"-Djava.awt.headless=$shouldRunInHeadlessMode",
       "-Djb.privacy.policy.text=<!--999.999-->",
       "-Djb.consents.confirmation.enabled=false"
     )
@@ -86,16 +87,15 @@ sealed abstract class InstalledIntelliJ(root: Path, probePaths: IdeProbePaths, c
 
       launcher.makeExecutable()
 
-      val command =
-        if (config.headless) s"$launcher headless"
-        else {
-          import config.xvfb.screen._
-          displayMode match {
-            case Display.Native => s"$launcher"
-            case Display.Xvfb =>
-              s"""xvfb-run --server-num=${Display.XvfbDisplayId} --server-args="-screen 0 ${width}x${height}x${depth}" $launcher"""
-          }
+      val command = {
+        import config.xvfb.screen._
+        displayMode match {
+          case Display.Native => s"$launcher"
+          case Display.Xvfb =>
+            s"""xvfb-run --server-num=${Display.XvfbDisplayId} --server-args="-screen 0 ${width}x${height}x${depth}" $launcher"""
+          case Display.Headless => s"$launcher headless"
         }
+      }
 
       s"""|#!/bin/sh
           |$command "$$@"

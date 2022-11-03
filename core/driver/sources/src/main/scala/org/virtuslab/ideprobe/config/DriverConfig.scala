@@ -11,7 +11,6 @@ case class DriverConfig(
     check: CheckConfig,
     display: String,
     xvfb: XvfbConfig,
-    headless: Boolean,
     vmOptions: Seq[String],
     env: Map[String, String],
     debug: DebugConfig
