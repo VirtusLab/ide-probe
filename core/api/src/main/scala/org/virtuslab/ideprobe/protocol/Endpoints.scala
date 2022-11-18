@@ -37,6 +37,7 @@ object Endpoints extends ConfigFormat {
   val SetConfig = Request[String, Unit]("config/set")
   val BuildArtifact = Request[(ProjectRef, String), Unit]("buildArtifact")
   val OpenEditor = Request[FileRef, Unit]("project/editors/open")
+  val CloseEditor = Request[FileRef, Unit]("project/editors/close")
   val GoToLineColumn = Request[(ProjectRef, Int, Int), Unit]("project/editors/current/goto")
   val AddTrustedPath = Request[Path, Unit]("trustedPaths/add")
 
