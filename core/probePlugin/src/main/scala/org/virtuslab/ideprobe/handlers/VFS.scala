@@ -31,7 +31,9 @@ object VFS extends IntelliJApi {
   }
 
   def toVirtualFile(path: Path, refresh: Boolean = false): VirtualFile = {
-    if (refresh) {
+    if (path.toString.contains(".jar!")) {
+      VirtualFileManager.getInstance().findFileByUrl(s"jar://${path.toString}")
+    } else if (refresh) {
       LocalFileSystem.getInstance.refreshAndFindFileByNioFile(path)
     } else {
       LocalFileSystem.getInstance.findFileByNioFile(path)
