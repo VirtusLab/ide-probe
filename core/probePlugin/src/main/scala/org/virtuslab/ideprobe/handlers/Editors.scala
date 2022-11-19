@@ -24,6 +24,12 @@ object Editors extends IntelliJApi {
       new OpenFileDescriptor(project, vFile).navigate(true)
     }
 
+  def close(fileRef: FileRef): Unit =
+    runOnUISync {
+      val vFile = VFS.toVirtualFile(fileRef.path, refresh = true)
+      editorManager(fileRef.project).closeFile(vFile)
+    }
+
   def goToLineColumn(projectRef: ProjectRef, line: Int, column: Int): Unit = {
     runOnUISync {
       val editor = editorManager(projectRef).getSelectedTextEditor

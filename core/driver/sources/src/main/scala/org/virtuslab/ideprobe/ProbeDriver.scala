@@ -320,6 +320,13 @@ class ProbeDriver(
   }
 
   /**
+   * Close file in editor
+   */
+  def closeEditor(file: Path, project: ProjectRef = ProjectRef.Default): Unit = {
+    send(Endpoints.CloseEditor, FileRef(file, project))
+  }
+
+  /**
    * Go to specific location in current editor 1-based index
    */
   def goToLineColumn(line: Int, column: Int, projectRef: ProjectRef = ProjectRef.Default): Unit = {
