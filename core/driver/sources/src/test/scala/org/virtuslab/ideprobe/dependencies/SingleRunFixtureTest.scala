@@ -56,8 +56,9 @@ final class SingleRunFixtureTest extends IdeProbeFixture with WorkspaceFixture w
 
   @Test
   def removesDirectoriesEvenAfterFailureToRunIntelliJ(): Unit = {
+    val intellijLauncher = if (OS.Current == OS.Mac) "idea" else "idea.sh"
     val intelliJFixture = IntelliJFixture().withAfterIntelliJInstall((_, intellij) =>
-      Files.delete(intellij.paths.root.resolve("bin").resolve("idea.sh")) // To prevent the IDE from launching.
+      Files.delete(intellij.paths.root.resolve("bin").resolve(intellijLauncher)) // To prevent the IDE from launching.
     )
 
     val instancesDir = intelliJFixture.intelliJProvider.paths.instances

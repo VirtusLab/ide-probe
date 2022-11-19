@@ -64,12 +64,6 @@ final case class IntelliJFixture(
   def withVersion(intelliJVersion: IntelliJVersion): IntelliJFixture =
     copy(intelliJProvider = intelliJProvider.withVersion(intelliJVersion))
 
-  def headless: IntelliJFixture = {
-    copy(
-      intelliJProvider = intelliJProvider.withConfig(intelliJProvider.config.copy(headless = true))
-    )
-  }
-
   def run = new SingleRunIntelliJ(this)
 
   def withWorkspace = new MultipleRunsIntelliJ(this)

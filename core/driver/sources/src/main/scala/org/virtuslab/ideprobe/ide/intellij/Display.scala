@@ -7,12 +7,14 @@ object Display {
 
   def fromName(name: String): Display = {
     name.toLowerCase() match {
-      case "xvfb"   => Xvfb
-      case "native" => Native
-      case other    => throw new IllegalArgumentException(s"Unsupported display mode: $other")
+      case "xvfb"     => Xvfb
+      case "native"   => Native
+      case "headless" => Headless
+      case other      => throw new IllegalArgumentException(s"Unsupported display mode: $other")
     }
   }
 
   case object Xvfb extends Display
   case object Native extends Display
+  case object Headless extends Display
 }

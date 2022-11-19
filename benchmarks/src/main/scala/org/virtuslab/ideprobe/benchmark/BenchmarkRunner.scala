@@ -46,7 +46,9 @@ class BenchmarkRunner(name: String, numberOfWarmups: Int, numberOfRuns: Int) {
     try {
       action
     } catch {
-      case _: Exception if tries > 1 =>
+      case e: Exception if tries > 1 =>
+        println(s"Exception during iteration: $e")
+        e.printStackTrace()
         println("Retrying...")
         withRetry(tries - 1)(action)
     }

@@ -36,13 +36,15 @@ sealed abstract class InstalledIntelliJ(root: Path, probePaths: IdeProbePaths, c
   protected val implementationSpecificVmOptions: Seq[String] = Seq.empty
 
   protected lazy val vmoptions: Path = {
+    val shouldRunInHeadlessMode = displayMode == Display.Headless
     val baseVMOptions = Seq(
-      s"-Djava.awt.headless=${config.headless}",
+      s"-Djava.awt.headless=$shouldRunInHeadlessMode",
       "-Djb.privacy.policy.text=<!--999.999-->",
       "-Djb.consents.confirmation.enabled=false"
     )
 
-    val vmOptions = implementationSpecificVmOptions ++ baseVMOptions ++ DebugMode.vmOption ++ config.vmOptions
+    val vmOptions =
+      implementationSpecificVmOptions ++ baseVMOptions ++ DebugMode.vmOptions(config.debug) ++ config.vmOptions
     val content = vmOptions.mkString("\n")
 
     root.resolve("bin").resolve("ideprobe.vmoptions").write(content)
@@ -85,16 +87,15 @@ sealed abstract class InstalledIntelliJ(root: Path, probePaths: IdeProbePaths, c
 
       launcher.makeExecutable()
 
-      val command =
-        if (config.headless) s"$launcher headless"
-        else {
-          import config.xvfb.screen._
-          displayMode match {
-            case Display.Native => s"$launcher"
-            case Display.Xvfb =>
-              s"""xvfb-run --server-num=${Display.XvfbDisplayId} --server-args="-screen 0 ${width}x${height}x${depth}" $launcher"""
-          }
+      val command = {
+        import config.xvfb.screen._
+        displayMode match {
+          case Display.Native => s"$launcher"
+          case Display.Xvfb =>
+            s"""xvfb-run --server-num=${Display.XvfbDisplayId} --server-args="-screen 0 ${width}x${height}x${depth}" $launcher"""
+          case Display.Headless => s"$launcher headless"
         }
+      }
 
       s"""|#!/bin/sh
           |$command "$$@"
@@ -227,7 +228,10 @@ final class DownloadedIntelliJ(
     probePaths.logExport.foreach { path =>
       paths.logs.copyDir(path.resolve(getPathWithVersionNumber(root)).resolve("logs"))
     }
-    root.delete()
+    if (OS.Current == OS.Mac && root.name == "Contents")
+      root.getParent.delete()
+    else
+      root.delete()
   }
 
   /*
