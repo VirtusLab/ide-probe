@@ -3,6 +3,7 @@ package org.virtuslab.ideprobe.dependencies
 import java.nio.file.Files
 import java.nio.file.Paths
 
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
@@ -53,13 +54,17 @@ class IntelliJResolverTest extends ConfigFormat {
     val probeConfig = IntelliJFixture.readIdeProbeConfig(
       Config.fromString(s"""
                            |probe.resolvers.intellij.repositories = [
+                           |  "file:///non/existent/path",
+                           |  "file:///non/*/existent/path",
                            |  "$mavenRepo/com/*/intellij/*/$mavenArtifact/${mavenVersion.build}/$mavenArtifact-${mavenVersion.build}.zip"
                            |]
                            |""".stripMargin),
       "probe"
     )
-    val repo = IntelliJResolver.fromConfig(probeConfig.resolvers).head
-    val artifactUri = repo.resolve(mavenVersion)
+    val resolvers = IntelliJResolver.fromConfig(probeConfig.resolvers)
+    assertEquals(Dependency.Missing, resolvers(0).resolve(mavenVersion))
+    assertEquals(Dependency.Missing, resolvers(1).resolve(mavenVersion))
+    val artifactUri = resolvers(2).resolve(mavenVersion)
     assertExists(artifactUri)
   }
 
