@@ -89,6 +89,7 @@ trait WaitLogicFactory {
       val ignorePatterns = Seq(
         "<unknown>".r,
         """ProgressIndicator(?:Ex)? \d+: .*""".r,
+        """ProgressWrapper \d+: .*; original=ProgressIndicator(?:Ex)? \d+: .*""".r,
         """com\.intellij\.openapi\.progress\.EmptyProgressIndicator@.{8}""".r
       )
       def isNamedTask(task: String): Boolean =
