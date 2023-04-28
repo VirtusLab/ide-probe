@@ -30,7 +30,7 @@ object Dependencies {
 
   val jsoup = "org.jsoup" % "jsoup" % "1.15.4"
 
-  val scalaCollectionCompat = "org.scala-lang.modules" %% "scala-collection-compat" % "2.9.0" % Compile
+  val scalaCollectionCompat = "org.scala-lang.modules" %% "scala-collection-compat" % "2.10.0" % Compile
 
   // because idea plugin packager would only take the root jar which has no classes
   // somehow it fails to see the transitive dependencies (even though the code says it should)
