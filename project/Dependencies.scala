@@ -28,7 +28,7 @@ object Dependencies {
 
   val gson = "com.google.code.gson" % "gson" % "2.10.1"
 
-  val jsoup = "org.jsoup" % "jsoup" % "1.15.4"
+  val jsoup = "org.jsoup" % "jsoup" % "1.16.1"
 
   val scalaCollectionCompat = "org.scala-lang.modules" %% "scala-collection-compat" % "2.9.0" % Compile
 
