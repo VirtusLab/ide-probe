@@ -16,7 +16,7 @@ object Dependencies {
   )
 
   val commonsCodec = "commons-codec" % "commons-codec" % "1.15"
-  val commonsIO = "commons-io" % "commons-io" % "2.11.0"
+  val commonsIO = "commons-io" % "commons-io" % "2.12.0"
 
   val nuProcess = "com.zaxxer" % "nuprocess" % "2.0.6"
 
@@ -28,20 +28,20 @@ object Dependencies {
 
   val gson = "com.google.code.gson" % "gson" % "2.10.1"
 
-  val jsoup = "org.jsoup" % "jsoup" % "1.15.4"
+  val jsoup = "org.jsoup" % "jsoup" % "1.16.1"
 
-  val scalaCollectionCompat = "org.scala-lang.modules" %% "scala-collection-compat" % "2.9.0" % Compile
+  val scalaCollectionCompat = "org.scala-lang.modules" %% "scala-collection-compat" % "2.10.0" % Compile
 
   // because idea plugin packager would only take the root jar which has no classes
   // somehow it fails to see the transitive dependencies (even though the code says it should)
   // so here are all the dependencies explicitly
   val pureConfig: Seq[ModuleID] = {
     val typesafeConfig = "com.typesafe" % "config" % "1.4.2"
-    val shapeless = "com.chuusai" %% "shapeless" % "2.3.9"
+    val shapeless = "com.chuusai" %% "shapeless" % "2.3.10"
     val pureConfigModules =
       Seq("pureconfig", "pureconfig-generic", "pureconfig-generic-base", "pureconfig-core")
     pureConfigModules.map { module =>
-      "com.github.pureconfig" %% module % "0.17.3"
+      "com.github.pureconfig" %% module % "0.17.4"
     } ++ Seq(typesafeConfig, shapeless)
   }
 
