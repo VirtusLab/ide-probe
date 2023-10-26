@@ -16,7 +16,7 @@ object Dependencies {
   )
 
   val commonsCodec = "commons-codec" % "commons-codec" % "1.16.0"
-  val commonsIO = "commons-io" % "commons-io" % "2.13.0"
+  val commonsIO = "commons-io" % "commons-io" % "2.14.0"
 
   val nuProcess = "com.zaxxer" % "nuprocess" % "2.0.6"
 
