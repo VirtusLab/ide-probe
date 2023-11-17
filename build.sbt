@@ -1,7 +1,7 @@
 name := "ideprobe"
 
-val scala212 = "2.12.16"
-val scala213 = "2.13.8"
+val scala212 = "2.12.18"
+val scala213 = "2.13.12"
 val crossScalaVersions = List(scala212, scala213)
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
@@ -41,7 +41,7 @@ sonatypeProfileName := "org.virtuslab"
 
 (ThisBuild / resolvers) += Resolver.jcenterRepo
 (ThisBuild / semanticdbEnabled) := true
-(ThisBuild / semanticdbVersion) := "4.5.9"
+(ThisBuild / semanticdbVersion) := "4.8.14"
 (ThisBuild / scalafixDependencies) += "com.github.liancheng" %% "organize-imports" % "0.6.0"
 
 import IdeaPluginAdapter._
