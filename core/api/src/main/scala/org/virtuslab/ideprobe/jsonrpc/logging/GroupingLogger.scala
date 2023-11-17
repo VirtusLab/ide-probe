@@ -10,6 +10,7 @@ import scala.annotation.tailrec
 import scala.concurrent.duration._
 import scala.util.Try
 
+import pureconfig.ConfigConvert
 import pureconfig.generic.semiauto.deriveConvert
 
 import org.virtuslab.ideprobe.ConfigFormat
@@ -31,7 +32,7 @@ case class LoggingConfig(
 )
 
 object LoggingConfig extends ConfigFormat {
-  implicit val format = deriveConvert[LoggingConfig]
+  implicit val format: ConfigConvert[LoggingConfig] = deriveConvert[LoggingConfig]
 }
 
 class GroupingLogger(config: LoggingConfig) extends ProbeCommunicationLogger {
