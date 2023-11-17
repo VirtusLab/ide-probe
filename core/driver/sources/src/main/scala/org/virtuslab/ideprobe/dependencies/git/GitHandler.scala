@@ -10,7 +10,7 @@ import scala.collection.mutable
 import org.eclipse.jgit.api.CloneCommand
 import org.eclipse.jgit.api.CreateBranchCommand
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.lib.ProgressMonitor
+import org.eclipse.jgit.lib.EmptyProgressMonitor
 import org.eclipse.jgit.lib.Ref
 
 import org.virtuslab.ideprobe.Extensions._
@@ -71,7 +71,7 @@ object GitHandler {
     def checkout(ref: String): Ref = GitHandler.checkout(git, ref)
   }
 
-  private class CustomProgressMonitor(repository: String) extends ProgressMonitor {
+  private class CustomProgressMonitor(repository: String) extends EmptyProgressMonitor {
 
     private val totalWork: AtomicInteger = new AtomicInteger()
     private val completion: AtomicInteger = new AtomicInteger()
