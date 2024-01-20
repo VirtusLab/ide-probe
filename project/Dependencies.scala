@@ -41,7 +41,7 @@ object Dependencies {
     val pureConfigModules =
       Seq("pureconfig", "pureconfig-generic", "pureconfig-generic-base", "pureconfig-core")
     pureConfigModules.map { module =>
-      "com.github.pureconfig" %% module % "0.17.4"
+      "com.github.pureconfig" %% module % "0.17.5"
     } ++ Seq(typesafeConfig, shapeless)
   }
 
