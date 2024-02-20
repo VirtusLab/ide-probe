@@ -15,7 +15,7 @@ object Dependencies {
     "org.scala-lang" % "scala-library" % version
   )
 
-  val commonsCodec = "commons-codec" % "commons-codec" % "1.16.0"
+  val commonsCodec = "commons-codec" % "commons-codec" % "1.16.1"
   val commonsIO = "commons-io" % "commons-io" % "2.15.0"
 
   val nuProcess = "com.zaxxer" % "nuprocess" % "2.0.6"
