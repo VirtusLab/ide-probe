@@ -14,7 +14,7 @@ final case class IntelliJPaths(
     userPrefs: Path
 ) {
   val bin: Path = root.resolve("bin")
-  val bundledPlugins = root.resolve("plugins")
+  val bundledPlugins: Path = root.resolve("plugins")
 }
 
 object IntelliJPaths {
