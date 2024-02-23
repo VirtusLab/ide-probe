@@ -39,7 +39,7 @@ sealed trait IntelliJProvider {
       val rootEntries: Set[String] = archive.rootEntries.toSet
     }
 
-    val targetDir = intelliJ.paths.bundledPlugins
+    val targetDir = intelliJ.paths.plugins
     val archives = withParallel[Plugin, PluginArchive](allPlugins)(_.map { plugin =>
       val file = dependencies.plugin.fetch(plugin)
       PluginArchive(plugin, file.toExtracted)
@@ -85,7 +85,7 @@ final case class ExistingIntelliJ(
 
   override def setup(): InstalledIntelliJ = {
     val intelliJPaths = IntelliJPaths.fromExistingInstance(path)
-    val pluginsDir = intelliJPaths.bundledPlugins
+    val pluginsDir = intelliJPaths.plugins
     val backupDir = Files.createTempDirectory(path, "plugins")
     val intelliJ = new LocalIntelliJ(path, paths, config, intelliJPaths, backupDir)
     pluginsDir.copyDir(backupDir)

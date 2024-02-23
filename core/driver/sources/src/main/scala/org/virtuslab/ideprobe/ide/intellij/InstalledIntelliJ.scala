@@ -205,7 +205,7 @@ final class LocalIntelliJ(
 
   override def cleanup(): Unit = {
     cleanupIdeaProperties()
-    val pluginsDir = root.resolve("plugins")
+    val pluginsDir = paths.plugins
     pluginsDir.delete()
     pluginsBackup.moveTo(pluginsDir)
     vmoptions.delete()
