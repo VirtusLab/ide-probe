@@ -20,7 +20,7 @@ object Dependencies {
 
   val nuProcess = "com.zaxxer" % "nuprocess" % "2.0.6"
 
-  val jGit = "org.eclipse.jgit" % "org.eclipse.jgit" % "6.7.0.202309050840-r"
+  val jGit = "org.eclipse.jgit" % "org.eclipse.jgit" % "6.10.0.202406032230-r"
 
   val remoteRobot = "com.intellij.remoterobot" % "remote-robot" % "0.11.22"
 
