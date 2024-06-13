@@ -1,5 +1,6 @@
 package org.virtuslab.ideprobe.dependencies
 
+import java.net.URI
 import java.nio.file.Path
 import java.util.concurrent.Executors
 
@@ -11,12 +12,15 @@ import org.junit.runners.JUnit4
 
 import org.virtuslab.ideprobe.Config
 import org.virtuslab.ideprobe.Extensions._
+import org.virtuslab.ideprobe.IdeProbeFixture
 import org.virtuslab.ideprobe.IntelliJFixture
+import org.virtuslab.ideprobe.dependencies.Plugin.Direct
 import org.virtuslab.ideprobe.ide.intellij.IntelliJProvider
 
 @RunWith(classOf[JUnit4])
-final class IntelliJProviderTest {
-  private implicit val ec: ExecutionContext = ExecutionContext.fromExecutorService(Executors.newCachedThreadPool())
+final class IntelliJProviderTest extends IdeProbeFixture {
+  override protected implicit val ec: ExecutionContext =
+    ExecutionContext.fromExecutorService(Executors.newCachedThreadPool())
 
   @Test
   def intelliJProviderShouldBeAbleToCorrectlyReadTheExistingInstanceVersion(): Unit = givenInstalledIntelliJ {
@@ -40,7 +44,10 @@ final class IntelliJProviderTest {
       |}
       |""".stripMargin)
 
-    val fixture = IntelliJFixture.fromConfig(config)
+    val fixture = IntelliJFixture
+      .fromConfig(config)
+      .withPlugin(Plugin("org.intellij.scala", "2020.2.7"))
+      .enableExtensions
 
     val existingInstalledIntelliJ = fixture.installIntelliJ()
 
@@ -113,6 +120,20 @@ final class IntelliJProviderTest {
         s" ${pluginsAfterCleanup.diff(preInstalledPlugins).mkString(", ")}," +
         s" and following plugins missing: ${preInstalledPlugins.diff(pluginsAfterCleanup).mkString(", ")}."
     )
+  }
+
+  @Test
+  def shouldInstallPluginFromJarCorrectly: Unit = givenInstalledIntelliJ { installationRoot =>
+    val config = Config.fromString(s"""
+         |probe.intellij {
+         |    path = $installationRoot
+         |}
+         |""".stripMargin)
+    val baseName = "fake-plugin"
+    val url = this.getClass.getClassLoader.getResource(s"$baseName.jar")
+    val jar = new URI(s"jar:$url!/$baseName.zip")
+    val fixture = IntelliJFixture.fromConfig(config).withPlugin(Direct(jar))
+    fixture.installIntelliJ()
   }
 
   private def givenInstalledIntelliJ(test: Path => Unit): Unit = {
