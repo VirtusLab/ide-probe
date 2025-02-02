@@ -37,8 +37,8 @@ class IdeProbeConfigTest extends IdeProbeFixture {
     val probeConfig = IntelliJFixture.readIdeProbeConfig(config, configRoot)
     // tests for the intellij: IntellijConfig field
     assertTrue(probeConfig.intellij.isInstanceOf[IntellijConfig.Default])
-    assertEquals("212.5080.55", probeConfig.intellij.asInstanceOf[IntellijConfig.Default].version.build)
-    assertEquals(Some("2021.2.1"), probeConfig.intellij.asInstanceOf[IntellijConfig.Default].version.release)
+    assertEquals("222.4345.14", probeConfig.intellij.asInstanceOf[IntellijConfig.Default].version.build)
+    assertEquals(Some("2022.2.3"), probeConfig.intellij.asInstanceOf[IntellijConfig.Default].version.release)
     assertEquals(Seq.empty, probeConfig.intellij.asInstanceOf[IntellijConfig.Default].plugins)
     // test for the workspace: Option[WorkspaceConfig] field
     assertEquals(None, probeConfig.workspace)
@@ -79,7 +79,7 @@ class IdeProbeConfigTest extends IdeProbeFixture {
     // tests for the intellij: IntellijConfig field
     assertTrue(probeConfig.intellij.isInstanceOf[IntellijConfig.Default])
     assertEquals("201.6668.121", probeConfig.intellij.asInstanceOf[IntellijConfig.Default].version.build)
-    assertEquals(Some("2021.2.1"), probeConfig.intellij.asInstanceOf[IntellijConfig.Default].version.release)
+    assertEquals(Some("2022.2.3"), probeConfig.intellij.asInstanceOf[IntellijConfig.Default].version.release)
     assertEquals(1, probeConfig.intellij.plugins.size)
     assertTrue(probeConfig.intellij.plugins.head.isInstanceOf[Plugin.Versioned])
     assertEquals("org.intellij.scala", probeConfig.intellij.plugins.head.asInstanceOf[Plugin.Versioned].id)
