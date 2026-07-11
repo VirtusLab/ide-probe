@@ -18,7 +18,7 @@ object Dependencies {
   val commonsCodec = "commons-codec" % "commons-codec" % "1.17.1"
   val commonsIO = "commons-io" % "commons-io" % "2.15.1"
 
-  val nuProcess = "com.zaxxer" % "nuprocess" % "2.0.6"
+  val nuProcess = "com.zaxxer" % "nuprocess" % "4.0.0"
 
   val jGit = "org.eclipse.jgit" % "org.eclipse.jgit" % "6.10.0.202406032230-r"
 
